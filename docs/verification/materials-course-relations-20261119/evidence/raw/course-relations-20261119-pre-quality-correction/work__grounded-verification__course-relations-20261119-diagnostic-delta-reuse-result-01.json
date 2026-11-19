@@ -1,0 +1,95 @@
+{
+  "schemaVersion": "materials-course-diagnostic-delta-reuse-v1",
+  "status": "passed",
+  "sourceHandoff": {
+    "path": "work/grounded-verification/course-relations-20261119-handoff-03-source.json",
+    "sha256": "8f7e8ef262b6de568d025390fa64b6c0e5156fa345cbb42bf4d18c12c0ef11df"
+  },
+  "priorDiagnostic": {
+    "path": "work/grounded-verification/course-relations-20261119-component-diagnostic-result-02.json",
+    "sha256": "60d18b0aefa3bec8ed93e2ce07455f442526044fd840f142101355426cd66ccc",
+    "source": "passed",
+    "course": {
+      "passed": 146,
+      "failed": 0
+    }
+  },
+  "originalArchive": {
+    "path": "work/grounded-verification/course-relations-20261119-pre-spec-correction/manifest.json",
+    "sha256": "a4b45f466aa58653b76710bacbf12a42303885d689d774fe6fa74db3795ab020",
+    "recordedSchema": null
+  },
+  "delta": "Only remove the general following comma delimiter; exact terminal following review notes remains handled by courseTaskBody.",
+  "affectedFacts": 1,
+  "affectedMappingRows": 3,
+  "checks": [
+    {
+      "documentId": "resume-04",
+      "candidateId": "candidate-2",
+      "text": "I used SQL joins to reconcile trial and paid accounts, following review notes.",
+      "comparedRows": 3,
+      "observed": [
+        {
+          "itemId": "candidate-2",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal",
+          "taskCoverage": {
+            "status": "partial",
+            "support": [
+              "sql-joins"
+            ],
+            "remaining": "unassessed-scope"
+          }
+        },
+        {
+          "itemId": "candidate-2",
+          "term": "SQL joins",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "contextual",
+          "taskCoverage": {
+            "status": "partial",
+            "support": [
+              "sql-joins"
+            ],
+            "remaining": "unassessed-scope"
+          }
+        },
+        {
+          "itemId": "candidate-2",
+          "term": "reconcile trial and paid accounts",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "contextual",
+          "taskCoverage": {
+            "status": "partial",
+            "support": [
+              "sql-joins"
+            ],
+            "remaining": "unassessed-scope"
+          }
+        }
+      ],
+      "identicalToPrior": true
+    }
+  ],
+  "unaffectedCourseRows": 143,
+  "originalDiagnosticRewritten": false,
+  "fullThirtyInputDiagnosticRerun": false,
+  "realModelCalls": 0,
+  "costMicroUsd": 0,
+  "nativeExecutions": 0,
+  "gateApproved": false,
+  "limits": [
+    "Scoped reuse of the saved software result only. Independent review and native binding remain separate.",
+    "The new unknown-modifier regression is recorded independently by its author and specification reviewer."
+  ]
+}

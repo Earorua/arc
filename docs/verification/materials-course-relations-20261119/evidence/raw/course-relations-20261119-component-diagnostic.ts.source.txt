@@ -1,0 +1,90 @@
+// Bounded software-only comparison after a course relation repair. No transport or native/authorization claim.
+import { readFileSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { flagshipBlueprint } from '../../app/data/flagship-blueprint';
+import { flagshipUnitRegistry } from '../../app/data/flagship-unit-registry';
+import { mapMaterialItemTerms, MATERIAL_MAPPING_VERSION } from '../../app/lib/materials/skill-mapper';
+import { createCourseTaskCoverageEvaluator } from '../../app/lib/materials/course-task-coverage';
+import { verifyIntegratedCourseBinding } from '../../docs/verification/materials-native-acceptance/verify-integrated-course-binding.mjs';
+import { evaluateSource } from '../../docs/verification/materials-quality-v2/candidate-source.mjs';
+import { evaluateCourse } from '../../docs/verification/materials-quality-v2/candidate-course.mjs';
+
+const baseCommit = '24a344858cfde17888675716df488421b61fff2d';
+const hash = (value: string | Buffer) => createHash('sha256').update(value).digest('hex');
+const git = (args: string[]) => execFileSync('git', ['-c', 'core.longpaths=true', ...args], { windowsHide: true, maxBuffer: 8 * 1024 * 1024 });
+const read = (file: string) => readFileSync(file);
+const historical = 'docs/verification/materials-quality-v2/';
+const native = 'docs/verification/materials-native-acceptance/';
+const inputPath = 'docs/verification/materials-quality-next/adapter-evidence/kimi-current-20261119-software-diagnostic-result.json';
+const expectedInputSha = '13ad19db21a0d8e4abbd1e1b700645c449a9b5d28170541163d8ec806281c430';
+
+if (process.argv.length !== 4) throw Error('Usage: node --import tsx <diagnostic> <final-source-handoff.json> <new-output.json>');
+const handoffBytes = read(process.argv[2]!);
+const handoff = JSON.parse(handoffBytes.toString());
+const sourceFiles: { path: string; sha256: string; bytes?: number }[] = handoff.files;
+if (!Array.isArray(sourceFiles) || !sourceFiles.length) throw Error('frozen source handoff required');
+function checkSource() {
+  for (const file of sourceFiles) if (hash(read(file.path)) !== file.sha256 || file.bytes !== undefined && read(file.path).length !== file.bytes) throw Error('frozen source drift: ' + file.path);
+  const changed = git(['diff', baseCommit, '--name-only', '--', 'app', 'worker']).toString().trim().split('\n').filter(Boolean);
+  if (changed.some(file => !sourceFiles.some(entry => entry.path === file))) throw Error('unlisted application delta');
+  if (changed.some(file => !(file.startsWith('app/lib/materials/course-') || file === 'app/lib/materials/skill-mapper.ts'
+    || file === 'app/lib/materials/contextual-skill-mapping.ts' || file === 'app/lib/materials/explanations.ts'
+    || file === 'app/contracts/material-planning.ts' || file === 'app/components/materials/material-context-review.tsx')))
+    throw Error('source projection or unrelated production behavior changed; saved projection reuse must be reassessed');
+}
+checkSource();
+for (const file of ['verify-integrated-course-binding.mjs', 'course-binding.integrated.json', 'integrated-course-review-receipt.json']) {
+  if (!read(native + file).equals(git(['show', baseCommit + ':' + native + file]))) throw Error('reviewed binding changed');
+}
+const courseBinding = await verifyIntegratedCourseBinding(); // Course/reference identity only, no native credential.
+if (hash(read(inputPath)) !== expectedInputSha) throw Error('previous input/projection evidence drift');
+const previous = JSON.parse(read(inputPath).toString()).actualComponentDiagnostic;
+const source = JSON.parse(read(historical + 'annotations.draft.json').toString());
+const course = JSON.parse(read(historical + 'course-annotations.draft.json').toString());
+const snapshot = JSON.parse(read(native + 'course-reference.integrated.snapshot.json').toString());
+const corpora = source.inputHashes.slice(0, 2).flatMap((file: { path: string }) => JSON.parse(read(file.path).toString()).documents);
+const references = { source, course, corpora, skillIds: snapshot.inventory.blueprintSkillIds };
+if (previous.componentObservations.length !== 30 || previous.adapterIssues.length !== 0 || previous.source.status !== 'passed') throw Error('unexpected baseline');
+const taskCoverageFor = createCourseTaskCoverageEvaluator(flagshipBlueprint, flagshipUnitRegistry);
+const observations = previous.componentObservations.map((old: any) => {
+  if (!old.sourceInput || !old.projection) throw Error('missing saved actual projection');
+  const raw = corpora.find((doc: any) => doc.id === old.documentId);
+  const eligible = old.projection.items.filter((item: any) => raw.kind !== 'jd' && (item.kind === 'constraint' || item.kind === 'requirement')).map((item: any) => item.id);
+  const view = (learningIntentItemIds: string[]) => {
+    const mappings = mapMaterialItemTerms(old.projection.items, flagshipBlueprint, flagshipUnitRegistry, { learningIntentItemIds })
+      .map(detail => ({ ...detail, taskCoverage: taskCoverageFor(detail, old.projection.items.find((item: any) => item.id === detail.itemId)) }));
+    const values = mappings.map(mapping => {
+      if (mapping.status === 'omitted' || mapping.basis === 'manual') throw Error('unexpected manual software observation');
+      return { documentId: old.documentId, candidateId: mapping.itemId, literal: mapping.term,
+        topic: { status: mapping.status, skillIds: mapping.skillIds, basis: mapping.basis ?? (mapping.status === 'non-learning' ? 'not-applicable' : 'none') },
+        taskCoverage: { status: mapping.taskCoverage.status } };
+    });
+    for (const candidate of old.sourceInput.candidates) if (candidate.skillLabels.length === 0) {
+      if (old.projection.items.find((item: any) => item.id === candidate.id)?.skillLabels?.length !== 0) throw Error('missing zero-label projection');
+      values.push({ documentId: old.documentId, candidateId: candidate.id, literal: null,
+        topic: { status: 'non-learning', skillIds: [], basis: 'not-applicable' }, taskCoverage: { status: 'not-applicable' } } as any);
+    }
+    return { learningIntentItemIds, userConfirmationPerformed: false, planWritesPerformed: false, selfAssessmentsAdopted: false, mappings, observations: values };
+  };
+  return { documentId: old.documentId, sourceInput: old.sourceInput, projectionReusedSha256: hash(JSON.stringify(old.projection)),
+    baseline: view([]), simulatedExplicitChoice: view(eligible) };
+});
+const documents = observations.map((entry: any) => entry.sourceInput);
+const sourceScore = evaluateSource(documents, references);
+const courseScore = evaluateCourse(observations.flatMap((entry: any) => entry.simulatedExplicitChoice.observations), documents, sourceScore.bindings, references);
+checkSource();
+const report = { schemaVersion: 'materials-course-repair-software-diagnostic-v1', purpose: 'Actual changed course components with unchanged saved synthetic source projections',
+  realModelCalls: 0, costMicroUsd: 0, nativeExecutions: 0, gateApproved: false, qualificationApproved: false,
+  actualModelQualityEvaluated: false, nativeEvidenceRebound: false, currentAggregateVerified: false,
+  input: { path: inputPath, sha256: expectedInputSha, sourceProjectionReused: true, unchangedProjectionSourceCheckedAgainst: baseCommit },
+  sourceHandoff: { path: process.argv[2], sha256: hash(handoffBytes), files: sourceFiles }, mappingVersion: MATERIAL_MAPPING_VERSION,
+  courseBinding, source: sourceScore.report, course: courseScore, observations,
+  limitations: ['This is an explicitly separate software component diagnostic. It does not issue or bypass the current adapter reference credential.',
+    'Source input and actual projections are reused from the pinned prior diagnostic; only current mapping/coverage is exercised anew.',
+    'Native source reuse, live output quality, startup/accounting/authorization and release remain separate.'] };
+writeFileSync(process.argv[3]!, JSON.stringify(report, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ output: process.argv[3], source: sourceScore.report.status, course: courseScore.status,
+  passed: courseScore.observations.filter((entry: any) => entry.status === 'passed').length,
+  failed: courseScore.observations.filter((entry: any) => entry.status === 'failed').length,
+  modelCalls: 0, nativeCalls: 0, gateApproved: false }));

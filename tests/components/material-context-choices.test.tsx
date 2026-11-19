@@ -113,6 +113,16 @@ describe("material term choices and explicit learning intent", () => {
     expect(historical.getByText(/Task coverage was not checked in this historical preview/)).toBeInTheDocument();
   });
 
+  it("describes ambiguous task coverage as the combined candidate content", async () => {
+    fixture({ ...basePreview, mappingDetails: [{ ...basePreview.mappingDetails![0]!, termIndexes: [0],
+      status: "ambiguous", skillIds: ["web-platform", "design-systems"],
+      taskCoverage: { status: "full", support: ["semantic-form", "component-audit"], remaining: null },
+    }] }); await openPreview();
+    const row = within(termControl("Figma").closest("li")!);
+    expect(row.getByText(/Match needs review/)).toBeInTheDocument();
+    expect(row.getByText(/Task coverage: Full/)).toHaveTextContent("Combined candidate content; choosing one course recalculates coverage");
+  });
+
   it("changes one term without changing other automatic mappings and supports explicit omit and return to automatic", async () => {
     const { request, onPreview } = fixture(); await openPreview();
     fireEvent.change(termControl("Figma"), { target: { value: "react" } });

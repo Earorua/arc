@@ -1,0 +1,56 @@
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+const sha256 = path => createHash("sha256").update(readFileSync(path)).digest("hex");
+const originalPath = "work/grounded-verification/course-relations-20261119-handoff.json";
+const original = JSON.parse(readFileSync(originalPath, "utf8"));
+const archivePath = "work/grounded-verification/course-relations-20261119-pre-correction/manifest.json";
+const archive = JSON.parse(readFileSync(archivePath, "utf8"));
+if (sha256(originalPath) !== archive.handoffSha256 || sha256(archive.diagnosticPath) !== archive.diagnosticSha256)
+  throw Error("Pinned original handoff or diagnostic changed");
+for (const file of archive.files) if (sha256(file.archivedPath) !== file.archivedSha256)
+  throw Error(`Archived source changed: ${file.path}`);
+const prefix = "work/grounded-verification/course-relations-20261119-handoff-02";
+if (existsSync(`${prefix}.json`) || existsSync(`${prefix}.md`)) throw Error("Handoff 02 already exists");
+const changed = ["app/lib/materials/course-relation-scope.ts", "app/lib/materials/course-task-coverage.ts", "tests/lib/materials/course-relations.test.ts"];
+execFileSync("git", ["-c", "core.longpaths=true", "diff", "--check", "--", ...original.files.map(file => file.path)], { stdio: "pipe" });
+const evidence = ["correction-red", "correction-green", "correction-lint"].map(label => {
+  const path = `work/grounded-verification/course-relations-20261119-${label}`;
+  return { label, metadataPath: `${path}.json`, logPath: `${path}.log`, ...JSON.parse(readFileSync(`${path}.json`, "utf8")) };
+});
+const handoff = {
+  status: "ready-for-independent-review", sourceFrozen: true, mappingVersion: "2026.11.7",
+  baseHead: original.baseHead, branch: original.branch,
+  supersedes: { path: originalPath, sha256: sha256(originalPath), changedFiles: changed },
+  preservedPreCorrection: { manifestPath: archivePath, manifestSha256: sha256(archivePath), diagnosticPath: archive.diagnosticPath, diagnosticSha256: archive.diagnosticSha256, archivedSourceFiles: 10 },
+  files: original.files.map(({ path }) => ({ path, sha256: sha256(path) })),
+  priorImplementation: { causalChanges: original.causalChanges, broadRequirementInterpretation: original.broadRequirementInterpretation, testExpectationChanges: original.testExpectationChanges, validation: original.validation, evidence: original.evidence },
+  correction: {
+    reason: "Root's one frozen-source component diagnostic passed 143/146; its three remaining relation differences were confirmed against the unchanged independent reference and current catalog before editing.",
+    causes: [
+      "WCAG had no bounded relation despite an explicitly attached form-label task. Added only attached WCAG form-label context: contextual ambiguous web-platform/design-systems and partial semantic-form/component-audit support. Bare WCAG, full WCAG audit, denied label context and another actor/clause stay uncovered; no global alias or full-audit claim.",
+      "Date-parameter replacement lost the directly supplied SQL antecedent at the comma. Added a closed provided-SQL/direct personal date-parameter attachment; arbitrary SQL mentions, another actor, separate sentences and a denied provided artifact remain excluded. The task is still none; the unchanged personal-experience predicate still yields no SQL practice.",
+      "Standalone analytics over-inherited SQL from neighboring context. Removed analytics from generic SQL contextual terms. The explicit whole phrase SQL analytics can retain SQL topic correspondence while task coverage remains none.",
+    ],
+    sourceEvidence: ["web-platform-learn-01 labeled-form step and accessible-form objective", "design-systems-calibrate-01 semantic role/accessible name/focus/state contrast objective", "SQL units teach schema, cardinality, ownership and safe joins; no date-parameter or analytics teaching leaf was added"],
+    publicTypesChanged: false, importsChanged: false, courseLeavesChanged: false, experiencePredicatesChanged: false,
+  },
+  validation: {
+    red: "3 correction groups failed before production correction; all expected guard controls retained.",
+    green: "128 tests passed across exactly course-relations, contextual-skill-mapping, and practice-skill-mapping.",
+    lint: "PASS for the 3 changed correction files.",
+    diffCheck: "PASS for the 10 frozen Task A paths.",
+    types: "Prior green full-source type evidence reused: this correction changes bounded regex conditions and test assertions only, with no new public types, contracts or imports. Root independently verified normal and scoped compiler inputs/options match; no repeated type run was needed.",
+    priorTypeLog: "work/grounded-verification/course-relations-20261119-types-final.log",
+    priorTypeConfig: "work/grounded-verification/course-relations-20261119-tsconfig.json",
+    currentNormalTypeConfig: "tsconfig.json",
+    nonLoopbackDenials: evidence.reduce((sum, row) => sum + row.nonLoopbackDenials, 0),
+    fullRepositoryRuns: 0, nativeRuns: 0, modelCalls: 0,
+  },
+  evidence,
+  unchangedBoundaries: original.unchangedBoundaries,
+  remaining: ["Root owns one correction diagnostic against the same pinned 30 inputs.", "Independent spec review, quality review and Task B native/source binding remain required.", "No reference conflict remains known; this handoff does not claim full product acceptance.", "Source is frozen. No staging, commit, push, model call, migration or deployment performed."],
+};
+writeFileSync(`${prefix}.json`, `${JSON.stringify(handoff, null, 2)}\n`);
+writeFileSync(`${prefix}.md`, `# Task A corrected frozen handoff\n\nThree bounded corrections address the prior 143/146 diagnostic: attached WCAG form-label context is contextual/ambiguous/partial; direct date-parameter modification of provided SQL is contextual with no task coverage or SQL practice; standalone analytics stays uncovered. No global aliases, course expansion, reference edits, or personal-experience changes were added.\n\nThe 10 prior source files were archived byte-for-byte before editing, with [manifest](./course-relations-20261119-pre-correction/manifest.json). The original handoff and diagnostic remain unchanged. New hashes and raw evidence are in [handoff 02](./course-relations-20261119-handoff-02.json).\n\nValidation: the 3 new correction groups observed RED, then the 3 affected relation/contextual/practice files passed 128 tests. Modified-file lint and scoped diff checks pass. Prior green compiler evidence is reused because there are no type/import/contract changes; root verified the corrected normal compiler scope is equivalent. No broad, native or model run occurred.\n\nSource is frozen for root's fixed-input comparison and independent reviews. Task B and full acceptance remain root-owned.\n`);
+console.log(JSON.stringify({ path: `${prefix}.json`, sha256: sha256(`${prefix}.json`), changedFiles: handoff.files.filter(file => changed.includes(file.path)) }));

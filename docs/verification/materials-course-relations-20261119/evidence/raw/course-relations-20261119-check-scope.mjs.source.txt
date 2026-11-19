@@ -1,0 +1,35 @@
+import assert from 'node:assert/strict';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { createHash } from 'node:crypto';
+import ts from 'typescript';
+const sha = value => createHash('sha256').update(value).digest('hex');
+function parse(file) {
+  const result = ts.getParsedCommandLineOfConfigFile(resolve(file), {}, { ...ts.sys, onUnRecoverableConfigFileDiagnostic: diagnostic => { throw Error(String(diagnostic.messageText)); } });
+  assert.equal(result.errors.length, 0);
+  return result;
+}
+const current = parse('tsconfig.json'), checked = parse('work/grounded-verification/course-relations-20261119-tsconfig.json');
+const currentFiles = [...current.fileNames].sort(), checkedFiles = [...checked.fileNames].sort();
+assert.deepEqual(currentFiles, checkedFiles, 'Active typecheck source set changed');
+const semanticOptions = options => Object.fromEntries(Object.entries(options).filter(([key]) => !['configFilePath', 'incremental', 'tsBuildInfoFile', 'noEmit'].includes(key)));
+assert.deepEqual(semanticOptions(current.options), semanticOptions(checked.options));
+assert.equal(current.options.noEmit, true); assert.equal(checked.options.noEmit, true);
+const errorLog = readFileSync('work/grounded-verification/course-relations-20261119-types-scoped.log', 'utf8');
+const errors = [...errorLog.matchAll(/^(.+)\(\d+,\d+\): error TS/gm)].map(match => match[1]);
+assert.equal(errors.length, 282);
+assert.ok(errors.every(file => file.startsWith('docs/verification/materials-quality-next/capture-evidence/') || file.startsWith('docs/verification/materials-quality-next/adapter-evidence/')));
+const files = currentFiles.map(file => ({ path: file.slice(resolve('.').length + 1).replaceAll('\\', '/'), sha256: sha(readFileSync(file)) }));
+assert.ok(files.some(file => file.path === 'app/lib/materials/course-relation-scope.ts'));
+assert.ok(files.some(file => file.path === 'docs/verification/materials-quality-next/current-adapter.ts'));
+assert.ok(files.some(file => file.path === 'tests/lib/materials/course-relations.test.ts'));
+assert.ok(files.some(file => file.path.startsWith('worker/document-executor/')));
+const evidence = { schemaVersion: 'materials-check-scope-review-v1', sourceFiles: files.length,
+  sameSourceSetAsPassedScopedTypes: true, sameSemanticOptions: true, differingOptions: ['incremental (cache only)', 'configFilePath'],
+  priorErrorLines: errors.length, priorErrorFiles: [...new Set(errors)].sort(),
+  archiveBytesModified: false, validationRulesRelaxed: false,
+  successfulTypesReceipt: 'work/grounded-verification/course-relations-20261119-types-final.json',
+  configSha256: sha(readFileSync('tsconfig.json')), eslintConfigSha256: sha(readFileSync('eslint.config.mjs')),
+  sourceSetDigest: sha(JSON.stringify(files)), files };
+writeFileSync('work/grounded-verification/course-relations-20261119-check-scope-result.json', JSON.stringify(evidence, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ sourceFiles: files.length, sameSourceSet: true, sameSemanticOptions: true, priorArchiveErrorFiles: evidence.priorErrorFiles.length, priorArchiveErrorLines: errors.length, newTypecheckRun: false }));

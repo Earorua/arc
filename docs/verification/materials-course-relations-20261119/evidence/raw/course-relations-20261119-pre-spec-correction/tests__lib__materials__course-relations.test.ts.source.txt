@@ -1,0 +1,175 @@
+import { describe, expect, it } from "vitest";
+import type { ConfirmedMaterialItem } from "../../../app/contracts/documents";
+import { flagshipBlueprint } from "../../../app/data/flagship-blueprint";
+import { flagshipUnitRegistry } from "../../../app/data/flagship-unit-registry";
+import { createCourseTaskCoverageEvaluator } from "../../../app/lib/materials/course-task-coverage";
+import { mapMaterialItemTerms, mapMaterialPracticeSkills } from "../../../app/lib/materials/skill-mapper";
+
+const evaluate = createCourseTaskCoverageEvaluator(flagshipBlueprint, flagshipUnitRegistry);
+function relation(text: string, term: string, otherTerms: string[] = []) {
+  const item: ConfirmedMaterialItem = { id: "fact", kind: "experience", origin: "user", sourceRef: null,
+    requirementLevel: null, text, skillLabels: [term, ...otherTerms] };
+  const detail = mapMaterialItemTerms([item], flagshipBlueprint, flagshipUnitRegistry)[0]!;
+  return { item, detail, coverage: evaluate(detail, item) };
+}
+
+describe("bounded current-course relations", () => {
+  it("separates technical topics from unprovided query tasks", () => {
+    for (const [text, term] of [
+      ["按示例编写 SQL 汇总查询。", "汇总查询"], ["Use SQL CTE for a report.", "CTE"],
+      ["使用 SQL 进行窗口计算。", "窗口计算"], ["练习 SQL 空值处理。", "空值处理"],
+      ["所有 SQL 由导师提供，我只替换了日期参数。", "SQL"],
+      ["Required: write tested SQL transformations.", "tested SQL transformations"],
+      ["I have never used CTE.", "CTE"],
+    ]) {
+      const result = relation(text!, term!);
+      expect.soft(result.detail, text).toMatchObject({ status: "mapped", skillIds: ["sql"] });
+      expect.soft(result.coverage, text).toMatchObject({ status: "none", support: [] });
+    }
+  });
+
+  it("uses ordinary schema and JOIN teaching while preserving business scope", () => {
+    for (const [text, term, status] of [
+      ["任职必备：设计 SQL 数据模型。", "设计 SQL 数据模型", "full"],
+      ["练习项目中，我跟随教程编写 SQL 查询。", "查询", "full"],
+      ["必备：使用 SQL 联表并检查指标口径。", "联表", "full"],
+      ["必备：使用 SQL 联表并检查指标口径。", "SQL", "partial"],
+      ["I used SQL joins to reconcile trial and paid accounts, following review notes.", "SQL joins", "partial"],
+      ["Essential: model warehouse tables with SQL.", "model warehouse tables", "partial"],
+      ["学习目标是理解 JOIN 的重复行问题。", "重复行问题", "partial"],
+    ]) {
+      const result = relation(text!, term!, ["another-retained-term"]);
+      expect.soft(result.detail, text).toMatchObject({ status: "mapped", skillIds: ["sql"] });
+      expect.soft(result.coverage.status, text).toBe(status);
+    }
+  });
+
+  it("keeps recognized actor and guidance wrappers separate from narrow UI tasks", () => {
+    for (const [text, term, skill] of [
+      ["在交互社维护 React 表单，按评审反馈修复键盘焦点顺序。", "表单", "react"],
+      ["在交互社维护 React 表单，按评审反馈修复键盘焦点顺序。", "键盘焦点顺序", "design-systems"],
+      ["与设计师协作拆分按钮状态，交付组件说明。", "按钮状态", "design-systems"],
+      ["与设计师协作拆分按钮状态，交付组件说明。", "组件说明", "design-systems"],
+      ["必须掌握键盘可访问性的基本检查。", "键盘可访问性的基本检查", "design-systems"],
+      ["Required: React 组件状态设计。", "组件状态设计", "react"],
+      ["Must be able to build semantic HTML forms.", "HTML", "web-platform"],
+    ]) {
+      const result = relation(text!, term!, ["other"]);
+      expect.soft(result.detail, text).toMatchObject({ status: "mapped", skillIds: [skill], basis: "contextual" });
+      expect.soft(result.coverage.status, text).toBe("full");
+    }
+  });
+
+  it("limits broad UI and software methods to their actually taught subset", () => {
+    for (const [text, term, skills] of [
+      ["Must use TypeScript to implement UI logic.", "implement UI logic", ["typescript"]],
+      ["Implemented a React prototype.", "prototype", ["react"]],
+      ["In Figma I maintain UI tokens.", "UI tokens", ["design-systems"]],
+      ["在同事指导下设置 dbt 测试。", "测试", ["testing"]],
+      ["使用 Python 并把清洗规则写入测试。", "清洗规则写入测试", ["testing"]],
+      ["Required: define product metrics and investigate retention cohorts.", "define product metrics", ["product-thinking"]],
+      ["My contribution was reviewing the migration checklist and taking meeting notes.", "reviewing the migration checklist", ["cloud-delivery"]],
+      ["我个人只记录回滚步骤，没有操作集群。", "记录回滚步骤", ["cloud-delivery"]],
+    ] as const) {
+      const result = relation(text, term);
+      expect.soft(result.detail, text).toMatchObject({ status: "mapped", skillIds: skills, basis: "contextual" });
+      expect.soft(result.coverage.status, text).toBe("partial");
+    }
+  });
+
+  it("requires the current token-fix content for UI-token task support", () => {
+    const { item, detail } = relation("In Figma I maintain UI tokens.", "UI tokens");
+    const changed = structuredClone(flagshipUnitRegistry);
+    changed.tracks.find(track => track.skillId === "design-systems")!.templates
+      .find(unit => unit.id === "design-systems-calibrate-01")!.rubric[2] = "Discuss a component name.";
+    expect(createCourseTaskCoverageEvaluator(flagshipBlueprint, changed)(detail, item))
+      .toEqual({ status: "none", support: [], remaining: "unverified-content" });
+  });
+
+  it("relates WCAG only through its attached form-label task", () => {
+    const attached = relation("阅读过 WCAG 的表单标签说明，尚未独立开展无障碍审计。", "WCAG");
+    expect.soft(attached.detail).toMatchObject({ status: "ambiguous", skillIds: ["web-platform", "design-systems"], basis: "contextual" });
+    expect.soft(attached.coverage).toMatchObject({ status: "partial", support: ["semantic-form", "component-audit"] });
+    for (const text of ["I read WCAG.", "I conduct full WCAG audits.",
+      "I read WCAG while another team writes form labels.", "阅读过 WCAG，但表单标签由同事完成。",
+      "I read WCAG guidance, not form labels.", "我没有阅读 WCAG 的表单标签说明。"])
+      expect.soft(relation(text, "WCAG").detail, text).toMatchObject({ status: "uncovered", skillIds: [] });
+  });
+
+  it("relates date parameters to directly provided SQL without claiming SQL practice", () => {
+    const attached = relation("项目说明：所有 SQL 由导师提供，我只替换了日期参数。", "替换了日期参数", ["SQL"]);
+    expect.soft(attached.detail).toMatchObject({ status: "mapped", skillIds: ["sql"], basis: "contextual" });
+    expect.soft(attached.coverage).toMatchObject({ status: "none", support: [] });
+    expect.soft(mapMaterialPracticeSkills([attached.item], flagshipBlueprint, flagshipUnitRegistry)).toEqual([]);
+    for (const text of ["我只替换了日期参数。", "同事编写 SQL，我只替换了日期参数。",
+      "所有 SQL 由导师提供，同事替换了日期参数。", "所有 SQL 由导师提供。我只替换了日期参数。",
+      "所有 SQL 没有由导师提供，我只替换了日期参数。"])
+      expect.soft(relation(text, "替换了日期参数").detail, text).toMatchObject({ status: "uncovered", skillIds: [] });
+  });
+
+  it("does not turn an independent analytics term into an SQL capability", () => {
+    expect(relation("Required：SQL analytics。", "analytics", ["SQL"]).detail)
+      .toMatchObject({ status: "uncovered", skillIds: [] });
+    const explicit = relation("Required：SQL analytics。", "SQL analytics");
+    expect(explicit.detail).toMatchObject({ status: "mapped", skillIds: ["sql"], basis: "contextual" });
+    expect(explicit.coverage).toMatchObject({ status: "none", support: [] });
+  });
+
+  it("gives composite testing tasks only the evidence each course actually teaches", () => {
+    const async = relation("Must test asynchronous TypeScript behavior.", "test asynchronous TypeScript behavior");
+    expect(async.detail).toMatchObject({ status: "mapped", skillIds: ["typescript", "testing"], basis: "contextual" });
+    expect(async.coverage).toMatchObject({ status: "partial", support: ["behavior-tests"] });
+    const component = relation("有 React 组件测试经验者优先。", "组件测试");
+    expect(component.detail).toMatchObject({ status: "mapped", skillIds: ["react", "testing"] });
+    expect(component.coverage).toMatchObject({ status: "full", support: ["react-form", "behavior-tests"] });
+    expect(relation("I wrote unit tests for a TypeScript date formatter.", "TypeScript").coverage.status).toBe("none");
+  });
+
+  it("keeps candidate choice independent from union coverage and recomputes explicit choices", () => {
+    const { item, detail, coverage } = relation("Required: write accessible form labels.", "accessible form labels");
+    expect(detail).toMatchObject({ status: "ambiguous", skillIds: ["web-platform", "design-systems"] });
+    expect(coverage.status).toBe("full");
+    const selected = mapMaterialItemTerms([item], flagshipBlueprint, flagshipUnitRegistry,
+      { termMappings: { fact: [{ skillLabel: detail.term, skillIds: ["react"] }] } })[0]!;
+    expect(evaluate(selected, item)).toMatchObject({ status: "none", support: [] });
+    const selectedDesign = mapMaterialItemTerms([item], flagshipBlueprint, flagshipUnitRegistry,
+      { termMappings: { fact: [{ skillLabel: detail.term, skillIds: ["design-systems"] }] } })[0]!;
+    expect(evaluate(selectedDesign, item).support).not.toContain("semantic-form");
+  });
+
+  it("keeps tracing topics apart from practice and from parser implementation", () => {
+    for (const [text, term, status] of [
+      ["I have not used distributed tracing.", "distributed tracing", "partial"],
+      ["With a mentor, I traced one failed request using OpenTelemetry.", "traced one failed request", "partial"],
+      ["I can explain the difference between a trace and a log.", "trace", "full"],
+      ["用 Python 写过 log parser。", "log parser", "none"],
+    ]) {
+      const result = relation(text!, term!);
+      expect.soft(result.detail, text).toMatchObject({ status: "mapped", skillIds: ["observability"], basis: "contextual" });
+      expect.soft(result.coverage.status, text).toBe(status);
+    }
+    const denied = relation("I have not used distributed tracing.", "distributed tracing");
+    expect(mapMaterialPracticeSkills([denied.item], flagshipBlueprint, flagshipUnitRegistry)).toEqual([]);
+  });
+
+  it("does not transfer coverage across terms, actors, denied qualifiers, or soft wraps", () => {
+    for (const [text, term] of [
+      ["I built CSS grid layouts.", "CSS"], ["I inspected paper logs, not API telemetry.", "logs"],
+      ["I inspect logs and my colleague owns API telemetry.", "logs"], ["In Figma I maintain UI tokens.", "Figma"],
+    ]) expect.soft(relation(text!, term!).detail, text).toMatchObject({ status: "uncovered", skillIds: [] });
+    const unrelated = relation("Write SQL window queries and design SQL entities, keys, ownership and delete behavior.", "SQL window queries", ["SQL entities"]);
+    expect(unrelated.coverage).toMatchObject({ status: "none", support: [] });
+    expect(relation("Build semantic HTML forms\nfor a WebGPU simulation.", "HTML", ["WebGPU"]).coverage.status).toBe("partial");
+  });
+
+  it("distinguishes bare topics, broad requirement subsets, and administrative roles", () => {
+    expect(relation("SQL", "SQL").coverage).toEqual({ status: "none", support: [], remaining: "unspecified-task" });
+    expect(relation("SQL is required.", "SQL").coverage.status).toBe("partial");
+    expect(relation("TypeScript is preferred for this role.", "TypeScript").coverage.status).toBe("partial");
+    expect(relation("SQL window queries are required.", "SQL").coverage.status).toBe("none");
+    expect.soft(relation("同一份补充说明同时写着 SQL 必备和 SQL 仅加分。", "SQL").coverage.status).toBe("partial");
+    expect.soft(relation("SQL 必备，另需窗口计算。", "SQL").coverage.status).toBe("none");
+    expect(relation("My contribution was taking meeting notes.", "taking meeting notes").detail.status).toBe("non-learning");
+    expect(relation("Review a release checklist and take meeting notes.", "release checklist").coverage.status).toBe("partial");
+  });
+});

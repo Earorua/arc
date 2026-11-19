@@ -1,0 +1,136 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+ [31m❯[39m tests/lib/materials/course-relations.test.ts [2m([22m[2m13 tests[22m[2m | [22m[31m3 failed[39m[2m | [22m[33m10 skipped[39m[2m)[22m[32m 61[2mms[22m[39m
+     [2m[90m↓[39m[22m separates technical topics from unprovided query tasks
+     [2m[90m↓[39m[22m uses ordinary schema and JOIN teaching while preserving business scope
+     [2m[90m↓[39m[22m keeps recognized actor and guidance wrappers separate from narrow UI tasks
+     [2m[90m↓[39m[22m limits broad UI and software methods to their actually taught subset
+     [2m[90m↓[39m[22m requires the current token-fix content for UI-token task support
+[31m     [31m×[31m relates WCAG only through its attached form-label task[39m[32m 37[2mms[22m[39m
+[31m     [31m×[31m relates date parameters to directly provided SQL without claiming SQL practice[39m[32m 22[2mms[22m[39m
+[31m     [31m×[31m does not turn an independent analytics term into an SQL capability[39m[32m 2[2mms[22m[39m
+     [2m[90m↓[39m[22m gives composite testing tasks only the evidence each course actually teaches
+     [2m[90m↓[39m[22m keeps candidate choice independent from union coverage and recomputes explicit choices
+     [2m[90m↓[39m[22m keeps tracing topics apart from practice and from parser implementation
+     [2m[90m↓[39m[22m does not transfer coverage across terms, actors, denied qualifiers, or soft wraps
+     [2m[90m↓[39m[22m distinguishes bare topics, broad requirement subsets, and administrative roles
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 3 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mrelates WCAG only through its attached form-label task
+[31m[1mAssertionError[22m: expected { itemId: 'fact', term: 'WCAG', …(3) } to match object { status: 'ambiguous', …(2) }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "basis": "contextual",[39m
+[32m-   "skillIds": [[39m
+[32m-     "web-platform",[39m
+[32m-     "design-systems",[39m
+[32m-   ],[39m
+[32m-   "status": "ambiguous",[39m
+[31m+   "basis": null,[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m91:34[22m[39m
+    [90m 89|[39m   [34mit[39m([32m"relates WCAG only through its attached form-label task"[39m[33m,[39m () [33m=>[39m {
+    [90m 90|[39m     [35mconst[39m attached [33m=[39m [34mrelation[39m([32m"阅读过 WCAG 的表单标签说明，尚未独立开展无障碍审计。"[39m[33m,[39m [32m"WCAG"[39m)[33m;[39m
+    [90m 91|[39m     expect.soft(attached.detail).toMatchObject({ status: "ambiguous", …
+    [90m   |[39m                                  [31m^[39m
+    [90m 92|[39m     expect.soft(attached.coverage).toMatchObject({ status: "partial", …
+    [90m 93|[39m     [35mfor[39m ([35mconst[39m text [35mof[39m [[32m"I read WCAG."[39m[33m,[39m [32m"I conduct full WCAG audits."[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mrelates WCAG only through its attached form-label task
+[31m[1mAssertionError[22m: expected { status: 'none', support: [], …(1) } to match object { Object (status, support) }
+(1 matching property omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "status": "partial",[39m
+[32m-   "support": [[39m
+[32m-     "semantic-form",[39m
+[32m-     "component-audit",[39m
+[32m-   ],[39m
+[31m+   "status": "none",[39m
+[31m+   "support": [],[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m92:36[22m[39m
+    [90m 90|[39m     [35mconst[39m attached [33m=[39m [34mrelation[39m([32m"阅读过 WCAG 的表单标签说明，尚未独立开展无障碍审计。"[39m[33m,[39m [32m"WCAG"[39m)[33m;[39m
+    [90m 91|[39m     expect.soft(attached.detail).toMatchObject({ status: "ambiguous", …
+    [90m 92|[39m     expect.soft(attached.coverage).toMatchObject({ status: "partial", …
+    [90m   |[39m                                    [31m^[39m
+    [90m 93|[39m     [35mfor[39m ([35mconst[39m text [35mof[39m [[32m"I read WCAG."[39m[33m,[39m [32m"I conduct full WCAG audits."[39m[33m,[39m
+    [90m 94|[39m       "I read WCAG while another team writes form labels.", "阅读过 WCAG，…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mrelates date parameters to directly provided SQL without claiming SQL practice
+[31m[1mAssertionError[22m: expected { itemId: 'fact', …(4) } to match object { status: 'mapped', …(2) }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "basis": "contextual",[39m
+[32m-   "skillIds": [[39m
+[32m-     "sql",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "basis": null,[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m101:34[22m[39m
+    [90m 99|[39m   it("relates date parameters to directly provided SQL without claimin…
+    [90m100|[39m     const attached = relation("项目说明：所有 SQL 由导师提供，我只替换了日期参数。", "替换了日期参数…
+    [90m101|[39m     expect.soft(attached.detail).toMatchObject({ status: "mapped", ski…
+    [90m   |[39m                                  [31m^[39m
+    [90m102|[39m     expect.soft(attached.coverage).toMatchObject({ status: "none", sup…
+    [90m103|[39m     expect.soft(mapMaterialPracticeSkills([attached.item], flagshipBlu…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mdoes not turn an independent analytics term into an SQL capability
+[31m[1mAssertionError[22m: expected { itemId: 'fact', …(4) } to match object { status: 'uncovered', skillIds: [] }
+(3 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "skillIds": [],[39m
+[32m-   "status": "uncovered",[39m
+[31m+   "skillIds": [[39m
+[31m+     "sql",[39m
+[31m+   ],[39m
+[31m+   "status": "mapped",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m112:8[22m[39m
+    [90m110|[39m   it("does not turn an independent analytics term into an SQL capabili…
+    [90m111|[39m     expect(relation("Required：SQL analytics。", "analytics", ["SQL"]).d…
+    [90m112|[39m       [33m.[39m[34mtoMatchObject[39m({ status[33m:[39m [32m"uncovered"[39m[33m,[39m skillIds[33m:[39m [] })[33m;[39m
+    [90m   |[39m        [31m^[39m
+    [90m113|[39m     const explicit = relation("Required：SQL analytics。", "SQL analytic…
+    [90m114|[39m     expect(explicit.detail).toMatchObject({ status: "mapped", skillIds…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m3 failed[39m[22m[2m | [22m[33m10 skipped[39m[90m (13)[39m
+[2m   Start at [22m 16:44:52
+[2m   Duration [22m 1.39s[2m (transform 173ms, setup 208ms, import 269ms, tests 61ms, environment 703ms)[22m
+

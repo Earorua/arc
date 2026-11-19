@@ -1,0 +1,78 @@
+// Bounded source-delta reuse: only rows reached by the repaired delimiter are re-evaluated.
+import assert from 'node:assert/strict';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { flagshipBlueprint } from '../../app/data/flagship-blueprint.ts';
+import { flagshipUnitRegistry } from '../../app/data/flagship-unit-registry.ts';
+import { mapMaterialItemTerms } from '../../app/lib/materials/skill-mapper.ts';
+import { createCourseTaskCoverageEvaluator } from '../../app/lib/materials/course-task-coverage.ts';
+
+const sha = bytes => createHash('sha256').update(bytes).digest('hex');
+const read = file => readFileSync(file);
+const json = file => JSON.parse(read(file).toString());
+if (process.argv.length !== 4) throw Error('Usage: diagnostic-reuse.mjs <new-frozen-handoff.json> <new-output.json>');
+const oldHandoffPath = 'work/grounded-verification/course-relations-20261119-handoff-02.json';
+assert.equal(sha(read(oldHandoffPath)), '43dc93f1603e74c3f7328bf106ea8bd22e664ac32c98fa74899140b8e50956a9');
+const oldHandoff = json(oldHandoffPath), current = json(process.argv[2]);
+const diagnosticPath = 'work/grounded-verification/course-relations-20261119-component-diagnostic-result-02.json';
+const archivePath = 'work/grounded-verification/course-relations-20261119-pre-spec-correction/manifest.json';
+assert.equal(sha(read(archivePath)), 'a4b45f466aa58653b76710bacbf12a42303885d689d774fe6fa74db3795ab020');
+const archive = json(archivePath);
+assert.equal(archive.diagnosticPath, diagnosticPath);
+assert.equal(sha(read(diagnosticPath)), archive.diagnosticSha256);
+const helper = 'app/lib/materials/course-relation-scope.ts';
+const savedHelperPath = 'work/grounded-verification/course-relations-20261119-pre-spec-correction/app__lib__materials__course-relation-scope.ts';
+assert.equal(sha(read(savedHelperPath)), oldHandoff.files.find(file => file.path === helper).sha256);
+const previousSource = read(savedHelperPath).toString();
+assert.equal(previousSource.split('|following\\b').length - 1, 1);
+assert.equal(read(helper).toString(), previousSource.replace('|following\\b', ''));
+function frozen() {
+  assert.deepEqual(current.files.map(file => file.path).sort(), oldHandoff.files.map(file => file.path).sort());
+  for (const file of current.files) {
+    assert.equal(sha(read(file.path)), file.sha256, 'frozen source drift: ' + file.path);
+    if (![helper, 'tests/lib/materials/course-relations.test.ts'].includes(file.path))
+      assert.equal(file.sha256, oldHandoff.files.find(old => old.path === file.path).sha256, 'additional source change');
+  }
+}
+frozen();
+const previous = json(diagnosticPath);
+assert.equal(previous.sourceHandoff.sha256, sha(read(oldHandoffPath)));
+assert.equal(previous.source.status, 'passed'); assert.equal(previous.course.status, 'passed');
+assert.equal(previous.course.observations.length, 146); assert.equal(previous.observations.length, 30);
+const projectionPath = 'docs/verification/materials-quality-next/adapter-evidence/kimi-current-20261119-software-diagnostic-result.json';
+assert.equal(sha(read(projectionPath)), previous.input.sha256);
+const baseline = json(projectionPath);
+const affected = previous.observations.flatMap(document => {
+  const projected = baseline.actualComponentDiagnostic.componentObservations.find(entry => entry.documentId === document.documentId).projection;
+  assert.equal(sha(JSON.stringify(projected)), document.projectionReusedSha256);
+  return projected.items.filter(item => /[,，]\s*following\b/iu.test(item.text)).map(item => ({ document, item }));
+});
+assert.equal(affected.length, 1);
+const evaluate = createCourseTaskCoverageEvaluator(flagshipBlueprint, flagshipUnitRegistry);
+const checks = [];
+for (const { document, item } of affected) {
+  assert.equal(document.documentId, 'resume-04'); assert.equal(item.id, 'candidate-2');
+  // Source projection stays the original actual projection; no fields are completed from gold.
+  const observed = mapMaterialItemTerms([item], flagshipBlueprint, flagshipUnitRegistry)
+    .map(mapping => ({ ...mapping, taskCoverage: evaluate(mapping, item) }));
+  const expectedPrior = document.simulatedExplicitChoice.mappings.filter(mapping => mapping.itemId === item.id);
+  assert.deepEqual(observed, expectedPrior);
+  assert.deepEqual(document.baseline.mappings.filter(mapping => mapping.itemId === item.id), expectedPrior);
+  checks.push({ documentId: document.documentId, candidateId: item.id, text: item.text,
+    comparedRows: observed.length, observed, identicalToPrior: true });
+}
+frozen();
+const result = { schemaVersion: 'materials-course-diagnostic-delta-reuse-v1', status: 'passed',
+  sourceHandoff: { path: process.argv[2], sha256: sha(read(process.argv[2])) },
+  priorDiagnostic: { path: diagnosticPath, sha256: sha(read(diagnosticPath)), source: 'passed', course: { passed: 146, failed: 0 } },
+  originalArchive: { path: archivePath, sha256: sha(read(archivePath)), recordedSchema: archive.schemaVersion ?? null },
+  delta: 'Only remove the general following comma delimiter; exact terminal following review notes remains handled by courseTaskBody.',
+  affectedFacts: checks.length, affectedMappingRows: checks.reduce((sum, check) => sum + check.comparedRows, 0), checks,
+  unaffectedCourseRows: 146 - checks.reduce((sum, check) => sum + check.comparedRows, 0),
+  originalDiagnosticRewritten: false, fullThirtyInputDiagnosticRerun: false,
+  realModelCalls: 0, costMicroUsd: 0, nativeExecutions: 0, gateApproved: false,
+  limits: ['Scoped reuse of the saved software result only. Independent review and native binding remain separate.',
+    'The new unknown-modifier regression is recorded independently by its author and specification reviewer.'] };
+writeFileSync(process.argv[3], JSON.stringify(result, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ status: result.status, affectedFacts: result.affectedFacts, affectedRows: result.affectedMappingRows,
+  unchangedOtherRows: result.unaffectedCourseRows, softwareCourseResultReused: '146/146', realModelCalls: 0 }));

@@ -1,0 +1,42 @@
+// Preserve exact bytes of this bounded offline change; no source mutation or test execution.
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { mkdirSync, readFileSync, readdirSync, writeFileSync, existsSync } from 'node:fs';
+import { resolve, relative, join, dirname } from 'node:path';
+const sha = bytes => createHash('sha256').update(bytes).digest('hex');
+const root = resolve('.'), work = 'work/grounded-verification';
+const output = 'docs/verification/materials-course-relations-20261119/evidence';
+if (process.argv.length !== 3) throw Error('Usage: archive-course-relations-20261119.mjs <final-source-handoff.json>');
+const handoff = JSON.parse(readFileSync(process.argv[2], 'utf8'));
+for (const file of handoff.files) assert.equal(sha(readFileSync(file.path)), file.sha256, 'Source drift: ' + file.path);
+assert.equal(existsSync(output), false, 'No archive overwrite');
+mkdirSync(output, { recursive: true });
+const entries = [];
+function copy(originalPath, destination) {
+  const bytes = readFileSync(originalPath), target = join(output, destination);
+  mkdirSync(dirname(target), { recursive: true }); writeFileSync(target, bytes, { flag: 'wx' });
+  assert.equal(sha(readFileSync(target)), sha(bytes));
+  entries.push({ path: destination.replaceAll('\\', '/'), originalPath: originalPath.replaceAll('\\', '/'), bytes: bytes.length, sha256: sha(bytes) });
+}
+function preserve(file, prefix = '') {
+  const full = join(work, prefix, file.name), tail = join(prefix, file.name);
+  if (file.isDirectory()) {
+    for (const child of readdirSync(full, { withFileTypes: true })) preserve(child, tail);
+  } else if (file.isFile()) {
+    const suffix = /\.(?:ts|tsx|mjs|cjs|ps1)$/u.test(file.name) ? '.source.txt' : file.name.endsWith('.log') ? '.txt' : '';
+    copy(full, join('raw', tail + suffix));
+  } else throw Error('Unexpected archive entry: ' + full);
+}
+for (const file of readdirSync(work, { withFileTypes: true }).filter(file => file.name.startsWith('course-relations-20261119-'))) preserve(file);
+copy('work/grounded-verification/archive-course-relations-20261119.mjs', 'archive-script.mjs.source.txt');
+for (const file of [...handoff.files.map(file => file.path), 'tsconfig.json', 'eslint.config.mjs', 'tests/server/document-b0-inputs.test.ts']) copy(file, join('final-source', file + '.source.txt'));
+entries.sort((a, b) => a.path.localeCompare(b.path));
+const manifest = { schemaVersion: 'materials-course-relations-offline-evidence-v1', recordedAt: new Date().toISOString(),
+  sourceHandoff: { path: process.argv[2], sha256: sha(readFileSync(process.argv[2])) },
+  sourceFrozen: true, originalBytesPreserved: true, rewrittenHistoricalEvidence: false,
+  contents: 'Author RED/GREEN and intervening failures, source freezes, root software diagnostics/delta reuse, independent reviews and check-scope proof. Archived source copies have non-executable text extensions.',
+  fullRepositoryAcceptance: false, nativeAcceptance: false, realModelCalls: 0, gateApproved: false,
+  entryCount: entries.length, totalBytes: entries.reduce((sum, file) => sum + file.bytes, 0), entries };
+writeFileSync(join(output, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ archive: relative(root, resolve(output)).replaceAll('\\', '/'), files: entries.length,
+  bytes: manifest.totalBytes, manifestSha256: sha(readFileSync(join(output, 'manifest.json'))) }));

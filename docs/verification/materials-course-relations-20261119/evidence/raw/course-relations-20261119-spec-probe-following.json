@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "materials-spec-focused-probe-v1",
+  "purpose": "Resolve the concrete uncertainty that comma-following clauses lose an unknown task qualifier before coverage evaluation.",
+  "reviewedHandoff": "work/grounded-verification/course-relations-20261119-handoff-02.json",
+  "reviewedHandoffSha256": "43dc93f1603e74c3f7328bf106ea8bd22e664ac32c98fa74899140b8e50956a9",
+  "sourcePins": {
+    "app/lib/materials/course-relation-scope.ts": "bf7035fd82bc8b90d7abfaef9440e7a25810c663e14d098d70696cd6bbe8f096",
+    "app/lib/materials/course-task-coverage.ts": "5cbca147cb1d8c707cd4e8eb32b1e02e04d6b1d6c5c16b0eb57dc635b68e640b"
+  },
+  "execution": {
+    "runs": 1,
+    "exitCode": 0,
+    "entry": "PowerShell here-string piped to node --import tsx --input-type=module",
+    "imports": [
+      "app/data/flagship-blueprint.ts",
+      "app/data/flagship-unit-registry.ts",
+      "app/lib/materials/skill-mapper.ts",
+      "app/lib/materials/course-task-coverage.ts",
+      "app/lib/materials/course-relation-scope.ts"
+    ],
+    "operation": "For each listed text, construct {id:'review-probe',kind:'experience',origin:'user',sourceRef:null,requirementLevel:null,text,skillLabels:['HTML']}; call mapMaterialItemTerms with actual flagship blueprint/registry, courseTaskScopes(text,'HTML',false), and the actual createCourseTaskCoverageEvaluator result. Print each result as JSON.",
+    "testSuiteRuns": 0,
+    "networkCalls": 0,
+    "modelCalls": 0,
+    "productionWrites": 0
+  },
+  "observedStdout": [
+    {"text":"Build semantic HTML forms.","scopes":["build semantic html forms"],"detail":{"itemId":"review-probe","term":"HTML","status":"mapped","skillIds":["web-platform"],"basis":"contextual"},"coverage":{"status":"full","support":["semantic-form"],"remaining":null}},
+    {"text":"Build semantic HTML forms, following review notes.","scopes":["build semantic html forms"],"detail":{"itemId":"review-probe","term":"HTML","status":"mapped","skillIds":["web-platform"],"basis":"contextual"},"coverage":{"status":"full","support":["semantic-form"],"remaining":null}},
+    {"text":"Build semantic HTML forms, following HIPAA requirements.","scopes":["build semantic html forms"],"detail":{"itemId":"review-probe","term":"HTML","status":"mapped","skillIds":["web-platform"],"basis":"contextual"},"coverage":{"status":"full","support":["semantic-form"],"remaining":null}}
+  ],
+  "conclusion": "The unknown requirement is silently removed. The third case must retain its unassessed qualifier and be partial, while the first two recognized cases can remain full."
+}

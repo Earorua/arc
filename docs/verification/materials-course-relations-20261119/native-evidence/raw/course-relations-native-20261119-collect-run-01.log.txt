@@ -1,0 +1,3 @@
+{"caseId":"accept-current-primary-jd-preview","path":"accept-current-primary-jd-preview.json","sha256":"6c3aab9d459127341b302f7ad310cfd499b10c6926974a84d59ca8725b864032","collectionStatus":"collected","outboundAttempts":0}
+{"caseId":"secondary-jd-cannot-add-must","path":"secondary-jd-cannot-add-must.json","sha256":"8fd219e4ee68c9705237e1ae70eb39e19cd3eb670bcec63bb8f053a9ce37d37e","collectionStatus":"collected","outboundAttempts":0}
+{"output":"work/grounded-verification/course-relations-native-20261119-01","collected":2,"failed":0,"sourceDrift":0}

@@ -1,0 +1,1161 @@
+C:/Users/XF/.agents/skills/superpowers/using-superpowers/SKILL.md
+---
+name: using-superpowers
+description: Use when starting any conversation - establishes how to find and use skills, requiring Skill tool invocation before ANY response including clarifying questions
+---
+
+<SUBAGENT-STOP>
+If you were dispatched as a subagent to execute a specific task, skip this skill.
+</SUBAGENT-STOP>
+
+<EXTREMELY-IMPORTANT>
+If you think there is even a 1% chance a skill might apply to what you are doing, you ABSOLUTELY MUST invoke the skill.
+
+IF A SKILL APPLIES TO YOUR TASK, YOU DO NOT HAVE A CHOICE. YOU MUST USE IT.
+
+This is not negotiable. This is not optional. You cannot rationalize your way out of this.
+</EXTREMELY-IMPORTANT>
+
+## Instruction Priority
+
+Superpowers skills override default system prompt behavior, but **user instructions always take precedence**:
+
+1. **User's explicit instructions** (CLAUDE.md, GEMINI.md, AGENTS.md, direct requests) — highest priority
+2. **Superpowers skills** — override default system behavior where they conflict
+3. **Default system prompt** — lowest priority
+
+If CLAUDE.md, GEMINI.md, or AGENTS.md says "don't use TDD" and a skill says "always use TDD," follow the user's instructions. The user is in control.
+
+## How to Access Skills
+
+**In Claude Code:** Use the `Skill` tool. When you invoke a skill, its content is loaded and presented to you—follow it directly. Never use the Read tool on skill files.
+
+**In Copilot CLI:** Use the `skill` tool. Skills are auto-discovered from installed plugins. The `skill` tool works the same as Claude Code's `Skill` tool.
+
+**In Gemini CLI:** Skills activate via the `activate_skill` tool. Gemini loads skill metadata at session start and activates the full content on demand.
+
+**In other environments:** Check your platform's documentation for how skills are loaded.
+
+## Platform Adaptation
+
+Skills use Claude Code tool names. Non-CC platforms: see `references/copilot-tools.md` (Copilot CLI), `references/codex-tools.md` (Codex) for tool equivalents. Gemini CLI users get the tool mapping loaded automatically via GEMINI.md.
+
+# Using Skills
+
+## The Rule
+
+**Invoke relevant or requested skills BEFORE any response or action.** Even a 1% chance a skill might apply means that you should invoke the skill to check. If an invoked skill turns out to be wrong for the situation, you don't need to use it.
+
+```dot
+digraph skill_flow {
+    "User message received" [shape=doublecircle];
+    "About to EnterPlanMode?" [shape=doublecircle];
+    "Already brainstormed?" [shape=diamond];
+    "Invoke brainstorming skill" [shape=box];
+    "Might any skill apply?" [shape=diamond];
+    "Invoke Skill tool" [shape=box];
+    "Announce: 'Using [skill] to [purpose]'" [shape=box];
+    "Has checklist?" [shape=diamond];
+    "Create TodoWrite todo per item" [shape=box];
+    "Follow skill exactly" [shape=box];
+    "Respond (including clarifications)" [shape=doublecircle];
+
+    "About to EnterPlanMode?" -> "Already brainstormed?";
+    "Already brainstormed?" -> "Invoke brainstorming skill" [label="no"];
+    "Already brainstormed?" -> "Might any skill apply?" [label="yes"];
+    "Invoke brainstorming skill" -> "Might any skill apply?";
+
+    "User message received" -> "Might any skill apply?";
+    "Might any skill apply?" -> "Invoke Skill tool" [label="yes, even 1%"];
+    "Might any skill apply?" -> "Respond (including clarifications)" [label="definitely not"];
+    "Invoke Skill tool" -> "Announce: 'Using [skill] to [purpose]'";
+    "Announce: 'Using [skill] to [purpose]'" -> "Has checklist?";
+    "Has checklist?" -> "Create TodoWrite todo per item" [label="yes"];
+    "Has checklist?" -> "Follow skill exactly" [label="no"];
+    "Create TodoWrite todo per item" -> "Follow skill exactly";
+}
+```
+
+## Red Flags
+
+These thoughts mean STOP—you're rationalizing:
+
+| Thought | Reality |
+|---------|---------|
+| "This is just a simple question" | Questions are tasks. Check for skills. |
+| "I need more context first" | Skill check comes BEFORE clarifying questions. |
+| "Let me explore the codebase first" | Skills tell you HOW to explore. Check first. |
+| "I can check git/files quickly" | Files lack conversation context. Check for skills. |
+| "Let me gather information first" | Skills tell you HOW to gather information. |
+| "This doesn't need a formal skill" | If a skill exists, use it. |
+| "I remember this skill" | Skills evolve. Read current version. |
+| "This doesn't count as a task" | Action = task. Check for skills. |
+| "The skill is overkill" | Simple things become complex. Use it. |
+| "I'll just do this one thing first" | Check BEFORE doing anything. |
+| "This feels productive" | Undisciplined action wastes time. Skills prevent this. |
+| "I know what that means" | Knowing the concept ≠ using the skill. Invoke it. |
+
+## Skill Priority
+
+When multiple skills could apply, use this order:
+
+1. **Process skills first** (brainstorming, debugging) - these determine HOW to approach the task
+2. **Implementation skills second** (frontend-design, mcp-builder) - these guide execution
+
+"Let's build X" → brainstorming first, then implementation skills.
+"Fix this bug" → debugging first, then domain-specific skills.
+
+## Skill Types
+
+**Rigid** (TDD, debugging): Follow exactly. Don't adapt away discipline.
+
+**Flexible** (patterns): Adapt principles to context.
+
+The skill itself tells you which.
+
+## User Instructions
+
+Instructions say WHAT, not HOW. "Add X" or "Fix Y" doesn't mean skip workflows.
+
+C:/Users/XF/.agents/skills/superpowers/systematic-debugging/SKILL.md
+---
+name: systematic-debugging
+description: Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes
+---
+
+# Systematic Debugging
+
+## Overview
+
+Random fixes waste time and create new bugs. Quick patches mask underlying issues.
+
+**Core principle:** ALWAYS find root cause before attempting fixes. Symptom fixes are failure.
+
+**Violating the letter of this process is violating the spirit of debugging.**
+
+## The Iron Law
+
+```
+NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
+```
+
+If you haven't completed Phase 1, you cannot propose fixes.
+
+## When to Use
+
+Use for ANY technical issue:
+- Test failures
+- Bugs in production
+- Unexpected behavior
+- Performance problems
+- Build failures
+- Integration issues
+
+**Use this ESPECIALLY when:**
+- Under time pressure (emergencies make guessing tempting)
+- "Just one quick fix" seems obvious
+- You've already tried multiple fixes
+- Previous fix didn't work
+- You don't fully understand the issue
+
+**Don't skip when:**
+- Issue seems simple (simple bugs have root causes too)
+- You're in a hurry (rushing guarantees rework)
+- Manager wants it fixed NOW (systematic is faster than thrashing)
+
+## The Four Phases
+
+You MUST complete each phase before proceeding to the next.
+
+### Phase 1: Root Cause Investigation
+
+**BEFORE attempting ANY fix:**
+
+1. **Read Error Messages Carefully**
+   - Don't skip past errors or warnings
+   - They often contain the exact solution
+   - Read stack traces completely
+   - Note line numbers, file paths, error codes
+
+2. **Reproduce Consistently**
+   - Can you trigger it reliably?
+   - What are the exact steps?
+   - Does it happen every time?
+   - If not reproducible → gather more data, don't guess
+
+3. **Check Recent Changes**
+   - What changed that could cause this?
+   - Git diff, recent commits
+   - New dependencies, config changes
+   - Environmental differences
+
+4. **Gather Evidence in Multi-Component Systems**
+
+   **WHEN system has multiple components (CI → build → signing, API → service → database):**
+
+   **BEFORE proposing fixes, add diagnostic instrumentation:**
+   ```
+   For EACH component boundary:
+     - Log what data enters component
+     - Log what data exits component
+     - Verify environment/config propagation
+     - Check state at each layer
+
+   Run once to gather evidence showing WHERE it breaks
+   THEN analyze evidence to identify failing component
+   THEN investigate that specific component
+   ```
+
+   **Example (multi-layer system):**
+   ```bash
+   # Layer 1: Workflow
+   echo "=== Secrets available in workflow: ==="
+   echo "IDENTITY: ${IDENTITY:+SET}${IDENTITY:-UNSET}"
+
+   # Layer 2: Build script
+   echo "=== Env vars in build script: ==="
+   env | grep IDENTITY || echo "IDENTITY not in environment"
+
+   # Layer 3: Signing script
+   echo "=== Keychain state: ==="
+   security list-keychains
+   security find-identity -v
+
+   # Layer 4: Actual signing
+   codesign --sign "$IDENTITY" --verbose=4 "$APP"
+   ```
+
+   **This reveals:** Which layer fails (secrets → workflow ✓, workflow → build ✗)
+
+5. **Trace Data Flow**
+
+   **WHEN error is deep in call stack:**
+
+   See `root-cause-tracing.md` in this directory for the complete backward tracing technique.
+
+   **Quick version:**
+   - Where does bad value originate?
+   - What called this with bad value?
+   - Keep tracing up until you find the source
+   - Fix at source, not at symptom
+
+### Phase 2: Pattern Analysis
+
+**Find the pattern before fixing:**
+
+1. **Find Working Examples**
+   - Locate similar working code in same codebase
+   - What works that's similar to what's broken?
+
+2. **Compare Against References**
+   - If implementing pattern, read reference implementation COMPLETELY
+   - Don't skim - read every line
+   - Understand the pattern fully before applying
+
+3. **Identify Differences**
+   - What's different between working and broken?
+   - List every difference, however small
+   - Don't assume "that can't matter"
+
+4. **Understand Dependencies**
+   - What other components does this need?
+   - What settings, config, environment?
+   - What assumptions does it make?
+
+### Phase 3: Hypothesis and Testing
+
+**Scientific method:**
+
+1. **Form Single Hypothesis**
+   - State clearly: "I think X is the root cause because Y"
+   - Write it down
+   - Be specific, not vague
+
+2. **Test Minimally**
+   - Make the SMALLEST possible change to test hypothesis
+   - One variable at a time
+   - Don't fix multiple things at once
+
+3. **Verify Before Continuing**
+   - Did it work? Yes → Phase 4
+   - Didn't work? Form NEW hypothesis
+   - DON'T add more fixes on top
+
+4. **When You Don't Know**
+   - Say "I don't understand X"
+   - Don't pretend to know
+   - Ask for help
+   - Research more
+
+### Phase 4: Implementation
+
+**Fix the root cause, not the symptom:**
+
+1. **Create Failing Test Case**
+   - Simplest possible reproduction
+   - Automated test if possible
+   - One-off test script if no framework
+   - MUST have before fixing
+   - Use the `superpowers:test-driven-development` skill for writing proper failing tests
+
+2. **Implement Single Fix**
+   - Address the root cause identified
+   - ONE change at a time
+   - No "while I'm here" improvements
+   - No bundled refactoring
+
+3. **Verify Fix**
+   - Test passes now?
+   - No other tests broken?
+   - Issue actually resolved?
+
+4. **If Fix Doesn't Work**
+   - STOP
+   - Count: How many fixes have you tried?
+   - If < 3: Return to Phase 1, re-analyze with new information
+   - **If ≥ 3: STOP and question the architecture (step 5 below)**
+   - DON'T attempt Fix #4 without architectural discussion
+
+5. **If 3+ Fixes Failed: Question Architecture**
+
+   **Pattern indicating architectural problem:**
+   - Each fix reveals new shared state/coupling/problem in different place
+   - Fixes require "massive refactoring" to implement
+   - Each fix creates new symptoms elsewhere
+
+   **STOP and question fundamentals:**
+   - Is this pattern fundamentally sound?
+   - Are we "sticking with it through sheer inertia"?
+   - Should we refactor architecture vs. continue fixing symptoms?
+
+   **Discuss with your human partner before attempting more fixes**
+
+   This is NOT a failed hypothesis - this is a wrong architecture.
+
+## Red Flags - STOP and Follow Process
+
+If you catch yourself thinking:
+- "Quick fix for now, investigate later"
+- "Just try changing X and see if it works"
+- "Add multiple changes, run tests"
+- "Skip the test, I'll manually verify"
+- "It's probably X, let me fix that"
+- "I don't fully understand but this might work"
+- "Pattern says X but I'll adapt it differently"
+- "Here are the main problems: [lists fixes without investigation]"
+- Proposing solutions before tracing data flow
+- **"One more fix attempt" (when already tried 2+)**
+- **Each fix reveals new problem in different place**
+
+**ALL of these mean: STOP. Return to Phase 1.**
+
+**If 3+ fixes failed:** Question the architecture (see Phase 4.5)
+
+## your human partner's Signals You're Doing It Wrong
+
+**Watch for these redirections:**
+- "Is that not happening?" - You assumed without verifying
+- "Will it show us...?" - You should have added evidence gathering
+- "Stop guessing" - You're proposing fixes without understanding
+- "Ultrathink this" - Question fundamentals, not just symptoms
+- "We're stuck?" (frustrated) - Your approach isn't working
+
+**When you see these:** STOP. Return to Phase 1.
+
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "Issue is simple, don't need process" | Simple issues have root causes too. Process is fast for simple bugs. |
+| "Emergency, no time for process" | Systematic debugging is FASTER than guess-and-check thrashing. |
+| "Just try this first, then investigate" | First fix sets the pattern. Do it right from the start. |
+| "I'll write test after confirming fix works" | Untested fixes don't stick. Test first proves it. |
+| "Multiple fixes at once saves time" | Can't isolate what worked. Causes new bugs. |
+| "Reference too long, I'll adapt the pattern" | Partial understanding guarantees bugs. Read it completely. |
+| "I see the problem, let me fix it" | Seeing symptoms ≠ understanding root cause. |
+| "One more fix attempt" (after 2+ failures) | 3+ failures = architectural problem. Question pattern, don't fix again. |
+
+## Quick Reference
+
+| Phase | Key Activities | Success Criteria |
+|-------|---------------|------------------|
+| **1. Root Cause** | Read errors, reproduce, check changes, gather evidence | Understand WHAT and WHY |
+| **2. Pattern** | Find working examples, compare | Identify differences |
+| **3. Hypothesis** | Form theory, test minimally | Confirmed or new hypothesis |
+| **4. Implementation** | Create test, fix, verify | Bug resolved, tests pass |
+
+## When Process Reveals "No Root Cause"
+
+If systematic investigation reveals issue is truly environmental, timing-dependent, or external:
+
+1. You've completed the process
+2. Document what you investigated
+3. Implement appropriate handling (retry, timeout, error message)
+4. Add monitoring/logging for future investigation
+
+**But:** 95% of "no root cause" cases are incomplete investigation.
+
+## Supporting Techniques
+
+These techniques are part of systematic debugging and available in this directory:
+
+- **`root-cause-tracing.md`** - Trace bugs backward through call stack to find original trigger
+- **`defense-in-depth.md`** - Add validation at multiple layers after finding root cause
+- **`condition-based-waiting.md`** - Replace arbitrary timeouts with condition polling
+
+**Related skills:**
+- **superpowers:test-driven-development** - For creating failing test case (Phase 4, Step 1)
+- **superpowers:verification-before-completion** - Verify fix worked before claiming success
+
+## Real-World Impact
+
+From debugging sessions:
+- Systematic approach: 15-30 minutes to fix
+- Random fixes approach: 2-3 hours of thrashing
+- First-time fix rate: 95% vs 40%
+- New bugs introduced: Near zero vs common
+
+C:/Users/XF/.agents/skills/superpowers/test-driven-development/SKILL.md
+---
+name: test-driven-development
+description: Use when implementing any feature or bugfix, before writing implementation code
+---
+
+# Test-Driven Development (TDD)
+
+## Overview
+
+Write the test first. Watch it fail. Write minimal code to pass.
+
+**Core principle:** If you didn't watch the test fail, you don't know if it tests the right thing.
+
+**Violating the letter of the rules is violating the spirit of the rules.**
+
+## When to Use
+
+**Always:**
+- New features
+- Bug fixes
+- Refactoring
+- Behavior changes
+
+**Exceptions (ask your human partner):**
+- Throwaway prototypes
+- Generated code
+- Configuration files
+
+Thinking "skip TDD just this once"? Stop. That's rationalization.
+
+## The Iron Law
+
+```
+NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST
+```
+
+Write code before the test? Delete it. Start over.
+
+**No exceptions:**
+- Don't keep it as "reference"
+- Don't "adapt" it while writing tests
+- Don't look at it
+- Delete means delete
+
+Implement fresh from tests. Period.
+
+## Red-Green-Refactor
+
+```dot
+digraph tdd_cycle {
+    rankdir=LR;
+    red [label="RED\nWrite failing test", shape=box, style=filled, fillcolor="#ffcccc"];
+    verify_red [label="Verify fails\ncorrectly", shape=diamond];
+    green [label="GREEN\nMinimal code", shape=box, style=filled, fillcolor="#ccffcc"];
+    verify_green [label="Verify passes\nAll green", shape=diamond];
+    refactor [label="REFACTOR\nClean up", shape=box, style=filled, fillcolor="#ccccff"];
+    next [label="Next", shape=ellipse];
+
+    red -> verify_red;
+    verify_red -> green [label="yes"];
+    verify_red -> red [label="wrong\nfailure"];
+    green -> verify_green;
+    verify_green -> refactor [label="yes"];
+    verify_green -> green [label="no"];
+    refactor -> verify_green [label="stay\ngreen"];
+    verify_green -> next;
+    next -> red;
+}
+```
+
+### RED - Write Failing Test
+
+Write one minimal test showing what should happen.
+
+<Good>
+```typescript
+test('retries failed operations 3 times', async () => {
+  let attempts = 0;
+  const operation = () => {
+    attempts++;
+    if (attempts < 3) throw new Error('fail');
+    return 'success';
+  };
+
+  const result = await retryOperation(operation);
+
+  expect(result).toBe('success');
+  expect(attempts).toBe(3);
+});
+```
+Clear name, tests real behavior, one thing
+</Good>
+
+<Bad>
+```typescript
+test('retry works', async () => {
+  const mock = jest.fn()
+    .mockRejectedValueOnce(new Error())
+    .mockRejectedValueOnce(new Error())
+    .mockResolvedValueOnce('success');
+  await retryOperation(mock);
+  expect(mock).toHaveBeenCalledTimes(3);
+});
+```
+Vague name, tests mock not code
+</Bad>
+
+**Requirements:**
+- One behavior
+- Clear name
+- Real code (no mocks unless unavoidable)
+
+### Verify RED - Watch It Fail
+
+**MANDATORY. Never skip.**
+
+```bash
+npm test path/to/test.test.ts
+```
+
+Confirm:
+- Test fails (not errors)
+- Failure message is expected
+- Fails because feature missing (not typos)
+
+**Test passes?** You're testing existing behavior. Fix test.
+
+**Test errors?** Fix error, re-run until it fails correctly.
+
+### GREEN - Minimal Code
+
+Write simplest code to pass the test.
+
+<Good>
+```typescript
+async function retryOperation<T>(fn: () => Promise<T>): Promise<T> {
+  for (let i = 0; i < 3; i++) {
+    try {
+      return await fn();
+    } catch (e) {
+      if (i === 2) throw e;
+    }
+  }
+  throw new Error('unreachable');
+}
+```
+Just enough to pass
+</Good>
+
+<Bad>
+```typescript
+async function retryOperation<T>(
+  fn: () => Promise<T>,
+  options?: {
+    maxRetries?: number;
+    backoff?: 'linear' | 'exponential';
+    onRetry?: (attempt: number) => void;
+  }
+): Promise<T> {
+  // YAGNI
+}
+```
+Over-engineered
+</Bad>
+
+Don't add features, refactor other code, or "improve" beyond the test.
+
+### Verify GREEN - Watch It Pass
+
+**MANDATORY.**
+
+```bash
+npm test path/to/test.test.ts
+```
+
+Confirm:
+- Test passes
+- Other tests still pass
+- Output pristine (no errors, warnings)
+
+**Test fails?** Fix code, not test.
+
+**Other tests fail?** Fix now.
+
+### REFACTOR - Clean Up
+
+After green only:
+- Remove duplication
+- Improve names
+- Extract helpers
+
+Keep tests green. Don't add behavior.
+
+### Repeat
+
+Next failing test for next feature.
+
+## Good Tests
+
+| Quality | Good | Bad |
+|---------|------|-----|
+| **Minimal** | One thing. "and" in name? Split it. | `test('validates email and domain and whitespace')` |
+| **Clear** | Name describes behavior | `test('test1')` |
+| **Shows intent** | Demonstrates desired API | Obscures what code should do |
+
+## Why Order Matters
+
+**"I'll write tests after to verify it works"**
+
+Tests written after code pass immediately. Passing immediately proves nothing:
+- Might test wrong thing
+- Might test implementation, not behavior
+- Might miss edge cases you forgot
+- You never saw it catch the bug
+
+Test-first forces you to see the test fail, proving it actually tests something.
+
+**"I already manually tested all the edge cases"**
+
+Manual testing is ad-hoc. You think you tested everything but:
+- No record of what you tested
+- Can't re-run when code changes
+- Easy to forget cases under pressure
+- "It worked when I tried it" ≠ comprehensive
+
+Automated tests are systematic. They run the same way every time.
+
+**"Deleting X hours of work is wasteful"**
+
+Sunk cost fallacy. The time is already gone. Your choice now:
+- Delete and rewrite with TDD (X more hours, high confidence)
+- Keep it and add tests after (30 min, low confidence, likely bugs)
+
+The "waste" is keeping code you can't trust. Working code without real tests is technical debt.
+
+**"TDD is dogmatic, being pragmatic means adapting"**
+
+TDD IS pragmatic:
+- Finds bugs before commit (faster than debugging after)
+- Prevents regressions (tests catch breaks immediately)
+- Documents behavior (tests show how to use code)
+- Enables refactoring (change freely, tests catch breaks)
+
+"Pragmatic" shortcuts = debugging in production = slower.
+
+**"Tests after achieve the same goals - it's spirit not ritual"**
+
+No. Tests-after answer "What does this do?" Tests-first answer "What should this do?"
+
+Tests-after are biased by your implementation. You test what you built, not what's required. You verify remembered edge cases, not discovered ones.
+
+Tests-first force edge case discovery before implementing. Tests-after verify you remembered everything (you didn't).
+
+30 minutes of tests after ≠ TDD. You get coverage, lose proof tests work.
+
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "Too simple to test" | Simple code breaks. Test takes 30 seconds. |
+| "I'll test after" | Tests passing immediately prove nothing. |
+| "Tests after achieve same goals" | Tests-after = "what does this do?" Tests-first = "what should this do?" |
+| "Already manually tested" | Ad-hoc ≠ systematic. No record, can't re-run. |
+| "Deleting X hours is wasteful" | Sunk cost fallacy. Keeping unverified code is technical debt. |
+| "Keep as reference, write tests first" | You'll adapt it. That's testing after. Delete means delete. |
+| "Need to explore first" | Fine. Throw away exploration, start with TDD. |
+| "Test hard = design unclear" | Listen to test. Hard to test = hard to use. |
+| "TDD will slow me down" | TDD faster than debugging. Pragmatic = test-first. |
+| "Manual test faster" | Manual doesn't prove edge cases. You'll re-test every change. |
+| "Existing code has no tests" | You're improving it. Add tests for existing code. |
+
+## Red Flags - STOP and Start Over
+
+- Code before test
+- Test after implementation
+- Test passes immediately
+- Can't explain why test failed
+- Tests added "later"
+- Rationalizing "just this once"
+- "I already manually tested it"
+- "Tests after achieve the same purpose"
+- "It's about spirit not ritual"
+- "Keep as reference" or "adapt existing code"
+- "Already spent X hours, deleting is wasteful"
+- "TDD is dogmatic, I'm being pragmatic"
+- "This is different because..."
+
+**All of these mean: Delete code. Start over with TDD.**
+
+## Example: Bug Fix
+
+**Bug:** Empty email accepted
+
+**RED**
+```typescript
+test('rejects empty email', async () => {
+  const result = await submitForm({ email: '' });
+  expect(result.error).toBe('Email required');
+});
+```
+
+**Verify RED**
+```bash
+$ npm test
+FAIL: expected 'Email required', got undefined
+```
+
+**GREEN**
+```typescript
+function submitForm(data: FormData) {
+  if (!data.email?.trim()) {
+    return { error: 'Email required' };
+  }
+  // ...
+}
+```
+
+**Verify GREEN**
+```bash
+$ npm test
+PASS
+```
+
+**REFACTOR**
+Extract validation for multiple fields if needed.
+
+## Verification Checklist
+
+Before marking work complete:
+
+- [ ] Every new function/method has a test
+- [ ] Watched each test fail before implementing
+- [ ] Each test failed for expected reason (feature missing, not typo)
+- [ ] Wrote minimal code to pass each test
+- [ ] All tests pass
+- [ ] Output pristine (no errors, warnings)
+- [ ] Tests use real code (mocks only if unavoidable)
+- [ ] Edge cases and errors covered
+
+Can't check all boxes? You skipped TDD. Start over.
+
+## When Stuck
+
+| Problem | Solution |
+|---------|----------|
+| Don't know how to test | Write wished-for API. Write assertion first. Ask your human partner. |
+| Test too complicated | Design too complicated. Simplify interface. |
+| Must mock everything | Code too coupled. Use dependency injection. |
+| Test setup huge | Extract helpers. Still complex? Simplify design. |
+
+## Debugging Integration
+
+Bug found? Write failing test reproducing it. Follow TDD cycle. Test proves fix and prevents regression.
+
+Never fix bugs without a test.
+
+## Testing Anti-Patterns
+
+When adding mocks or test utilities, read @testing-anti-patterns.md to avoid common pitfalls:
+- Testing mock behavior instead of real behavior
+- Adding test-only methods to production classes
+- Mocking without understanding dependencies
+
+## Final Rule
+
+```
+Production code → test exists and failed first
+Otherwise → not TDD
+```
+
+No exceptions without your human partner's permission.
+
+C:/Users/XF/.agents/skills/superpowers/verification-before-completion/SKILL.md
+---
+name: verification-before-completion
+description: Use when about to claim work is complete, fixed, or passing, before committing or creating PRs - requires running verification commands and confirming output before making any success claims; evidence before assertions always
+---
+
+# Verification Before Completion
+
+## Overview
+
+Claiming work is complete without verification is dishonesty, not efficiency.
+
+**Core principle:** Evidence before claims, always.
+
+**Violating the letter of this rule is violating the spirit of this rule.**
+
+## The Iron Law
+
+```
+NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE
+```
+
+If you haven't run the verification command in this message, you cannot claim it passes.
+
+## The Gate Function
+
+```
+BEFORE claiming any status or expressing satisfaction:
+
+1. IDENTIFY: What command proves this claim?
+2. RUN: Execute the FULL command (fresh, complete)
+3. READ: Full output, check exit code, count failures
+4. VERIFY: Does output confirm the claim?
+   - If NO: State actual status with evidence
+   - If YES: State claim WITH evidence
+5. ONLY THEN: Make the claim
+
+Skip any step = lying, not verifying
+```
+
+## Common Failures
+
+| Claim | Requires | Not Sufficient |
+|-------|----------|----------------|
+| Tests pass | Test command output: 0 failures | Previous run, "should pass" |
+| Linter clean | Linter output: 0 errors | Partial check, extrapolation |
+| Build succeeds | Build command: exit 0 | Linter passing, logs look good |
+| Bug fixed | Test original symptom: passes | Code changed, assumed fixed |
+| Regression test works | Red-green cycle verified | Test passes once |
+| Agent completed | VCS diff shows changes | Agent reports "success" |
+| Requirements met | Line-by-line checklist | Tests passing |
+
+## Red Flags - STOP
+
+- Using "should", "probably", "seems to"
+- Expressing satisfaction before verification ("Great!", "Perfect!", "Done!", etc.)
+- About to commit/push/PR without verification
+- Trusting agent success reports
+- Relying on partial verification
+- Thinking "just this once"
+- Tired and wanting work over
+- **ANY wording implying success without having run verification**
+
+## Rationalization Prevention
+
+| Excuse | Reality |
+|--------|---------|
+| "Should work now" | RUN the verification |
+| "I'm confident" | Confidence ≠ evidence |
+| "Just this once" | No exceptions |
+| "Linter passed" | Linter ≠ compiler |
+| "Agent said success" | Verify independently |
+| "I'm tired" | Exhaustion ≠ excuse |
+| "Partial check is enough" | Partial proves nothing |
+| "Different words so rule doesn't apply" | Spirit over letter |
+
+## Key Patterns
+
+**Tests:**
+```
+✅ [Run test command] [See: 34/34 pass] "All tests pass"
+❌ "Should pass now" / "Looks correct"
+```
+
+**Regression tests (TDD Red-Green):**
+```
+✅ Write → Run (pass) → Revert fix → Run (MUST FAIL) → Restore → Run (pass)
+❌ "I've written a regression test" (without red-green verification)
+```
+
+**Build:**
+```
+✅ [Run build] [See: exit 0] "Build passes"
+❌ "Linter passed" (linter doesn't check compilation)
+```
+
+**Requirements:**
+```
+✅ Re-read plan → Create checklist → Verify each → Report gaps or completion
+❌ "Tests pass, phase complete"
+```
+
+**Agent delegation:**
+```
+✅ Agent reports success → Check VCS diff → Verify changes → Report actual state
+❌ Trust agent report
+```
+
+## Why This Matters
+
+From 24 failure memories:
+- your human partner said "I don't believe you" - trust broken
+- Undefined functions shipped - would crash
+- Missing requirements shipped - incomplete features
+- Time wasted on false completion → redirect → rework
+- Violates: "Honesty is a core value. If you lie, you'll be replaced."
+
+## When To Apply
+
+**ALWAYS before:**
+- ANY variation of success/completion claims
+- ANY expression of satisfaction
+- ANY positive statement about work state
+- Committing, PR creation, task completion
+- Moving to next task
+- Delegating to agents
+
+**Rule applies to:**
+- Exact phrases
+- Paraphrases and synonyms
+- Implications of success
+- ANY communication suggesting completion/correctness
+
+## The Bottom Line
+
+**No shortcuts for verification.**
+
+Run the command. Read the output. THEN claim the result.
+
+This is non-negotiable.
+
+AGENTS.md
+# Working on Arc
+
+Read [SOURCE_INDEX.md](./SOURCE_INDEX.md) before choosing a checkout or resuming a task.
+
+- Inspect `git status`, fetch `origin`, and compare the current branch with the latest `origin/master`. Start ordinary website work from the current application baseline. Preserve unrelated local changes when changing worktrees.
+- Use the source index to distinguish the current application, the deployed release, and paused materials development. The newest timestamp or a folder named `ui-warm-precision` does not establish source authority.
+- Materials work remains on the development branch identified in the source index. Its saved failures and unfinished work are not released features. A source backup does not resume a paused task or authorize deployment, migration, or paid model calls.
+- Historical checkpoint instructions, frozen source copies, and scripts under archived evidence are reference material. Do not copy their application files over a newer implementation or rerun their deployment commands.
+- Preserve the current English interface, mist/ink-teal palette, quiet workspace loading, and reviewed brand integration when reconciling other work. Check actual source and tests rather than relying on old README or release descriptions.
+- When source ownership changes, update the source index and the relevant checkpoint in the same change. Keep the bilingual product READMEs concise; detailed source accounting belongs under `docs/source/`.
+- Keep ordinary task branches temporary: start from fetched `origin/master`, verify and merge completed work, then delete the redundant branch and prune stale remote references. Preserve unfinished materials work on its designated branch. Historical worktrees may use detached HEAD; use their pinned commits or archive tags for reference, not as a current development baseline.
+- Use `package.json` for runtime requirements and check commands. Record fresh validation for the actual changed source before claiming completion.
+
+## Preserved routing notice for materials development
+
+The following local notice predates this integration. Its source-routing constraints remain applicable; the current recovery record and explicit user resume supersede its historical paused status.
+
+# Arc source routing for this local checkout
+
+This is a source-specific working copy. Before doing any work, read:
+
+- D:/CodexScratch/arc-source-readme-20261029/SOURCE_INDEX.md
+- https://github.com/Earorua/arc/blob/master/SOURCE_INDEX.md
+
+This directory belongs to materials development. The latest paused checkpoint is in C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision on codex/materials-replan-recovery-20261106. Preserve its unfinished verification state; a source backup does not resume that task.
+
+Check the actual branch and working-tree state before proceeding. Preserve existing local modifications. Use historical records for reference, not as commands to overwrite newer application code or rerun releases. This local routing notice was added during the 2026-11-08 source inventory.
+
+SOURCE_INDEX.md
+# Arc 源码入口
+
+后续任务先读本文件，再确认当前分支和远端状态。项目介绍见 [English README](./README.md) / [中文 README](./README.zh-CN.md)。
+
+## 从哪里开始
+
+| 任务 | 使用的源码 | 状态 |
+| --- | --- | --- |
+| 网站功能、界面、修复和一般开发 | GitHub [`master`](https://github.com/Earorua/arc/tree/master) | 已合并英文界面、墨青配色、轻量加载、首页改进、Logo，以及主线已有的修复和双语说明 |
+| 查看当前已发布网站的原始源码 | [英文发布源码固定提交](https://github.com/Earorua/arc/tree/43179bcd3d5d62441d3bf1f439541fcb8ab46a5f) | 应用提交 `19a81a500b5f87085f3aaddb27fc0e9b050fc48c`；[发布记录](./docs/verification/2026-11-08-english-only-interface.md) |
+| 继续资料导入、JD / 简历分析和资料驱动规划 | [`codex/materials-replan-recovery-20261106`](https://github.com/Earorua/arc/tree/codex/materials-replan-recovery-20261106) | 2026-11-19：课程覆盖、完整 14 行为及主线整合已离线验收；准备新的真实质量验收，尚未发布 |
+| 修改或导出品牌素材 | 本应用源码中的 [`docs/brand/`](./docs/brand/) 和 [`public/brand/`](./public/brand/) | 原始设计与当前主题导出分别标明；不要回拷旧网站组件 |
+
+资料功能以[最新恢复记录](./docs/verification/2026-11-06-materials-grounding-pause.md)为入口。11 月 19 日已完成课程覆盖源码 `47b0e0a`、原生验收证据 `ef1b26b`，以及主线 `60e7cb6` 的本地整合。[本批验收](./docs/verification/2026-11-19-materials-course-native-integration.md)记录 386 文件／10,031 项 Vitest、291 项 Node、5 项页面和类型／Lint／构建通过。下一步是新的真实质量验收准备；不能据此直接发布。GitHub 是否同步须核对实际远端，不能把本地提交视为已推送。
+
+此前 `714ea9e` 的[暂停说明](https://github.com/Earorua/arc/blob/714ea9e54d87b91a1fee4883176d4f1dd06ecf63/docs/verification/2026-11-08-materials-practice-priorities-pause.md)是历史失败记录，保留用于追溯，不再是最新未完成修复。复用已通过证据，仅为实际变更或缺口补必要检查；旧参考摘要不重写，主线英文界面及已发布改进必须保留。真实模型、远程迁移和部署仍按 Gate 独立授权。
+
+11 月 19 日后续已验收[采集衔接工具](./docs/verification/materials-quality-next/capture-result.md)和[当前评分适配](./docs/verification/materials-quality-next/adapter-result.md)。一次原有 30 份输入的软件对照暴露 69 项实际课程关系差异，现按[有限修复计划](./docs/superpowers/plans/2026-11-19-materials-course-relation-repair.md)继续；原九锚点验收不代表全部质量语料通过。原始失败、独立参考和已验收原生记录保留，勿复用历史授权启动模型或发布。
+
+## 开始任务前
+
+```bash
+git status --short --branch
+git fetch --prune origin
+git remote set-head origin -a
+git log -1 --oneline origin/master
+git log --oneline origin/master..HEAD
+git log --oneline HEAD..origin/master
+```
+
+本次已修正本地 origin/HEAD 曾指向旧 Research 分支的问题；上述命令会按 GitHub 默认分支刷新这个快捷指针。
+
+先判断正在处理网站主线还是资料功能，再选择对应分支。若当前目录落后或包含其他任务的未提交内容，保留原目录，在正确基线上创建任务分支；不要靠目录名、文件修改时间或历史文档中的“当前版本”决定来源。
+
+## 分支与历史记录
+
+GitHub 长期保留 `master` 和 `codex/materials-replan-recovery-20261106`。一般任务从最新 `master` 创建 `codex/` 分支，验证并合并后清理任务分支；资料功能继续使用上表的开发分支，验收前不并入主线。
+
+2026-11-09 已清理 24 个远端旧分支和 40 个本地旧分支引用。已合并提交仍在主线或资料分支的历史中；三段较早的独立历史保存于 `archive/2026-11-09/*` 标签。完整对应关系和恢复方法见[分支整理记录](./docs/verification/2026-11-09-branch-cleanup.md)及[分支清单](./docs/source/2026-11-09-branches.json)。
+
+历史工作目录保留文件，并固定在原提交上；`detached HEAD` 表示历史快照，不是最新开发分支。读取旧记录时使用其提交号或归档标签，不能依赖已删除的分支名。
+
+## 本机目录对应关系
+
+| 目录 | 用途 |
+| --- | --- |
+| `D:/CodexScratch/arc-source-readme-20261029` | 本次完整应用源码的整理和验证工作区；以实际分支和远端同步状态为准 |
+| `C:/Users/XF/.codex/worktrees/arc-ink-teal/ui-warm-precision` | 11 月 8 日已发布英文界面的原始工作区，固定在发布记录提交 |
+| `C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision` | 当前资料功能工作区；2026-11-19 已恢复并进行本地主线整合 |
+| 外层 `v8-openrouter-research-beta` | 较早的 Research 工作区；其中独立完成的 Logo 已汇总，不作为网站开发起点 |
+| 外层目录下的 `.worktrees/ui-warm-precision` | 较早的资料功能工作区；实现已由最新资料检查点承接 |
+| `arc-v8-release-integration`、`arc-v8-replay-ack-order` 和早期 `sites-v7*` | 历史来源与演练记录，不作为当前应用源码 |
+
+旧目录保留原有改动以便追溯；其中的本地入口提示会引导到本文件。
+
+## 源码统计与保存边界
+
+机器可读的来源、提交、目录分类、文件数量和内容校验记录保存在 [`docs/source/2026-11-08-inventory.json`](./docs/source/2026-11-08-inventory.json)。它是本次整理时的快照；之后的最新内容以对应远端分支为准。完整性和验证说明见[源码整理记录](./docs/verification/2026-11-08-source-consolidation.md)。
+
+应用源码、测试、数据库迁移、构建配置、可编辑品牌素材和必要文档纳入 Git。资料功能的开发源码与暂停证据完整保存在开发分支。依赖目录、构建缓存、真实凭据、数据库和私有上传不属于公开源码。
+
+本次汇总只更新源码。网站实际部署仍应依据发布记录和实时状态核对；源码推送不会自动启用资料功能。
+
+D:/CodexScratch/arc-source-readme-20261029/SOURCE_INDEX.md
+# Arc 源码入口
+
+后续任务先读本文件，再确认当前分支和远端状态。项目介绍见 [English README](./README.md) / [中文 README](./README.zh-CN.md)。
+
+## 从哪里开始
+
+| 任务 | 使用的源码 | 状态 |
+| --- | --- | --- |
+| 网站功能、界面、修复和一般开发 | GitHub [`master`](https://github.com/Earorua/arc/tree/master) | 已合并英文界面、墨青配色、轻量加载、首页改进、Logo，以及主线已有的修复和双语说明 |
+| 查看当前已发布网站的原始源码 | [英文发布源码固定提交](https://github.com/Earorua/arc/tree/43179bcd3d5d62441d3bf1f439541fcb8ab46a5f) | 应用提交 `19a81a500b5f87085f3aaddb27fc0e9b050fc48c`；[发布记录](./docs/verification/2026-11-08-english-only-interface.md) |
+| 继续资料导入、JD / 简历分析和资料驱动规划 | [`codex/materials-replan-recovery-20261106`](https://github.com/Earorua/arc/tree/codex/materials-replan-recovery-20261106) | 保存到 `714ea9e54d87b91a1fee4883176d4f1dd06ecf63`，暂停开发、尚未验收，不属于已发布功能 |
+| 修改或导出品牌素材 | 本应用源码中的 [`docs/brand/`](./docs/brand/) 和 [`public/brand/`](./public/brand/) | 原始设计与当前主题导出分别标明；不要回拷旧网站组件 |
+
+资料功能的[最新暂停说明](https://github.com/Earorua/arc/blob/714ea9e54d87b91a1fee4883176d4f1dd06ecf63/docs/verification/2026-11-08-materials-practice-priorities-pause.md)记录了真实进度：最近一轮有 2 项失败、257 项通过，之后的最后修改尚未复测。该分支包含较早的资料开发提交，保存它不表示验收通过。恢复时应先复测和审阅，再按实际任务整合网站主线的新界面，不能以其旧界面覆盖主线。
+
+## 开始任务前
+
+```bash
+git status --short --branch
+git fetch --prune origin
+git remote set-head origin -a
+git log -1 --oneline origin/master
+git log --oneline origin/master..HEAD
+git log --oneline HEAD..origin/master
+```
+
+本次已修正本地 origin/HEAD 曾指向旧 Research 分支的问题；上述命令会按 GitHub 默认分支刷新这个快捷指针。
+
+先判断正在处理网站主线还是资料功能，再选择对应分支。若当前目录落后或包含其他任务的未提交内容，保留原目录，在正确基线上创建任务分支；不要靠目录名、文件修改时间或历史文档中的“当前版本”决定来源。
+
+## 分支与历史记录
+
+GitHub 长期保留 `master` 和 `codex/materials-replan-recovery-20261106`。一般任务从最新 `master` 创建 `codex/` 分支，验证并合并后清理任务分支；资料功能继续使用上表的暂停分支，验收前不并入主线。
+
+2026-11-09 已清理 24 个远端旧分支和 40 个本地旧分支引用。已合并提交仍在主线或资料分支的历史中；三段较早的独立历史保存于 `archive/2026-11-09/*` 标签。完整对应关系和恢复方法见[分支整理记录](./docs/verification/2026-11-09-branch-cleanup.md)及[分支清单](./docs/source/2026-11-09-branches.json)。
+
+历史工作目录保留文件，并固定在原提交上；`detached HEAD` 表示历史快照，不是最新开发分支。读取旧记录时使用其提交号或归档标签，不能依赖已删除的分支名。
+
+## 本机目录对应关系
+
+| 目录 | 用途 |
+| --- | --- |
+| `D:/CodexScratch/arc-source-readme-20261029` | 本次完整应用源码的整理和验证工作区；以实际分支和远端同步状态为准 |
+| `C:/Users/XF/.codex/worktrees/arc-ink-teal/ui-warm-precision` | 11 月 8 日已发布英文界面的原始工作区，固定在发布记录提交 |
+| `C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision` | 最新资料功能的暂停检查点 |
+| 外层 `v8-openrouter-research-beta` | 较早的 Research 工作区；其中独立完成的 Logo 已汇总，不作为网站开发起点 |
+| 外层目录下的 `.worktrees/ui-warm-precision` | 较早的资料功能工作区；实现已由最新资料检查点承接 |
+| `arc-v8-release-integration`、`arc-v8-replay-ack-order` 和早期 `sites-v7*` | 历史来源与演练记录，不作为当前应用源码 |
+
+旧目录保留原有改动以便追溯；其中的本地入口提示会引导到本文件。
+
+## 源码统计与保存边界
+
+机器可读的来源、提交、目录分类、文件数量和内容校验记录保存在 [`docs/source/2026-11-08-inventory.json`](./docs/source/2026-11-08-inventory.json)。它是本次整理时的快照；之后的最新内容以对应远端分支为准。完整性和验证说明见[源码整理记录](./docs/verification/2026-11-08-source-consolidation.md)。
+
+应用源码、测试、数据库迁移、构建配置、可编辑品牌素材和必要文档纳入 Git。资料功能的开发源码与暂停证据完整保存在开发分支。依赖目录、构建缓存、真实凭据、数据库和私有上传不属于公开源码。
+
+本次汇总只更新源码。网站实际部署仍应依据发布记录和实时状态核对；源码推送不会自动启用资料功能。
+
+docs/superpowers/plans/2026-11-19-materials-course-relation-repair.md
+# 修复实际课程关系与任务范围
+
+状态：已获持续目标下的离线修复授权；在当前评分适配的规格／质量审阅和保存完成后实施。继续使用资料分支，不调用真实模型、不迁移、不部署。该计划落实既定的“先处理付费前已知产品缺口”规则，不扩大课程或语料。
+
+## 已确认的原因与边界
+
+当前应用基线是 `a5d2fda`，采集工具已保存为 `be9d15f`。课程内容和独立参考不变。独立评分适配的一次软件对照使用原有 30 份构造输入，丢弃其标准课程／计划输出，再调用实际产品组件：原文评分通过，课程关系 146 项中 77 通过、69 失败。结果文件 `work/grounded-verification/kimi-current-20261119-software-diagnostic-result.json`，SHA-256 `13ad19db21a0d8e4abbd1e1b700645c449a9b5d28170541163d8ec806281c430`。这是产品组件差异，不是 Kimi 质量成绩。
+
+代码和课程正文已确认三个原因：现有别名把 CSS、HTML、OpenTelemetry 等过宽地当成课程的字面同名；语境匹配漏掉普通任务说法；九个任务锚点只匹配接近课程原句的表述，并把人物／经历包装也当作尚未覆盖的任务。另有“多课程歧义必然无任务覆盖”的轴混淆，以及会议记录这一行政职责没有归入非学习。
+
+保留原文、词表、人物、否定、时间、能力建议、主 JD 权威和采用机制。课程对应不等于本人做过；做过不等于当前能力；事实确认不等于采用。不能为了评分通过改变这些边界。
+
+## Task A：有限课程语义修复
+
+通过独立实现者、规格审阅、质量审阅完成一个连贯补丁。主要修改 `app/lib/materials/skill-mapper.ts`、`contextual-skill-mapping.ts`、`course-task-coverage.ts`、`course-task-evidence.ts`，必要时作最小契约／呈现调整；不修改提取器、模型提示词、课程数据、历史评分器、独立标注或其摘要。
+
+1. 保留真实本地课程名称作为 literal；修正已证实的过宽默认别名。HTML 表单、测试方法、追踪工具等有实际内容依据时使用 contextual。CSS grid／animation 等无内容依据的范围仍未覆盖。显式旧版本别名 API 继续接受，历史快照不回写。映射策略升至新的 `2026.11.7`，不要让新语义沿用旧版本。
+2. 仅补现有语料暴露且当前教学内容支持的有限概念家族：SQL 查询／JOIN／模型，TypeScript 界面逻辑，React 表单／状态／交互测试，语义 HTML 标签，键盘焦点／组件状态，软件测试，软件日志／trace，发布／回滚文档，产品指标。使用词语、同一有效范围的语境及实际课程证据；生产代码不得 import gold、识别文档／字段 ID，或复制每份样例的答案表。
+   明确技术词自身可以提供主题对应，例如“没有使用 distributed tracing”仍可显示课程关系，但不进入本人实践。泛词不得从另一人、另一分句或被否定的限定语借来技术领域，例如纸质 logs 后的“not API telemetry”不能使它变成软件日志。保持既有正反边界，不能简单地删除全部否定保护。
+3. 将主题对应与具体任务覆盖分开。SQL 聚合、CTE、窗口、空值、参数替换和分析可有主题对应而没有具体课程练习；关系建模、普通 JOIN 的已教子任务按真实引文判断。业务对账、仓库表、重复行解释保留未覆盖范围，不能由 SQL 名称直接推得 full。
+4. 以原文中当前词语所指的任务范围评估 coverage。已知人物、时间、指导或经验包装不自动导致 partial，也不转化为能力；未知任务、工具、领域和限定条件仍保留。软换行不能丢掉修饰范围。支持 narrow full、mixed partial、无具体任务 none。不要因同一事实里存在另一个受支持任务，就把无关词语标为受支持。
+5. TypeScript schema／narrowing 不作为异步测试或日期格式化的已教子任务；组合任务可同时对应 TypeScript 与 testing，但实际已教部分只能列 testing。React 未限定原型仍 partial，已明确表单／状态／组件测试则按内容判断。UI tokens 只有组件语义／对比度修正子集；Figma 工具无覆盖。
+6. 允许课程歧义与任务覆盖独立存在：accessible form labels 的多候选引文并集可覆盖狭窄任务，候选仍未选择，不能声明每个候选都独立覆盖全部。手动只选一个课程时，支持范围只来自被选课程。若现有 UI 不能表明“候选内容合计”，作最小解释调整并增加一项针对性呈现检查。
+7. OpenTelemetry／distributed tracing 仅 contextual、有限 partial；trace 与 log 用途区别这一狭窄概念可由实际信号选择内容 full。日志解析器的具体实现不能由“日志”名称获得练习覆盖。通用发布清单可以部分支持迁移审阅和回滚记录，不声明 Kubernetes 操作覆盖。
+8. `meeting notes`／`taking meeting notes` 作为明确行政职责 non-learning；混合短语仍保留剩余范围，不能吞掉未教职责。研究目录保持自己的内容边界，不继承旗舰规则。
+
+复用原九个内容锚点；只有现有教学单元提供了缺失的具体证明时才添加必要叶子／任务 ID，例如键盘组件状态和产品指标，不扩写课程。引文必须来自当前本地完整正文；每个支持轨道独立有实际内容，名称或外部 URL 单独不能证明任务覆盖。
+
+## Task A 的验证与停止规则
+
+- 利用已保存的 69 项差异作为失败基线，增加少量按缺陷家族组织的产品回归及相应边界对照。先观察真正行为失败，再修复；不重新建立逐文档答案测试库。
+- 精确执行新增任务关系测试、已有课程覆盖、语境／实践映射和实际 context 优先级受影响套件；版本／显示期望变化先核对原因再更新。类型与修改文件 Lint 必须通过。无需每次补丁重跑全仓或全部历史变异。
+- 在源码冻结后，将原有 30 份软件对照再执行一次作为闭环；原始失败和新输出分别保留。由于当前 adapter 会拒绝原生闭包漂移，此次先作明确标注的组件诊断：原始输入／实际投影字节及提取源码不变时，复用已保存的投影，直接调用新的实际映射／覆盖函数和不变纯评分函数。不能伪造可信 loader 凭据、绕过 observer 的凭据检查或放宽历史哈希；完整可信聚合待 Task B 新审阅绑定。软件对照始终不是模型／原生／发布验收。
+- 规格审阅核对课程引文、任务范围和无能力／采用回归；质量审阅核对实际实现。审阅者复用原始日志，仅为具体未解问题加最小探针。若确有参考自身错误，先记录与复核原因，不能为了变绿改答案。
+
+## Task B：精确更新行为证据适用范围
+
+映射语义是实际产品变化，不能仅换摘要继续声称旧 14 场景在新源码执行过。列出相对已验收原生闭包的真实文件差异，逐项说明哪些行为不受影响、哪些需要新的小范围原生验证。保留原 14/14 原始记录；不自动重跑完整矩阵。
+
+针对实际新增或改变的课程关系执行最少的真实预览／生成链路检查，确认课程选择、主 JD、个人实践、显式采用和已完成任务保护仍有效。若现有相同输入在共享路径上无行为变化，可通过独立源码／断言影响审阅复用；不得把新类型／版本 ID 的不同解释为旧运行失败或伪造相同结果。最终形成新的独立来源／复用回执，再让当前质量适配显式支持这一新绑定。旧回执、旧加载器拒绝行为、旧参考原样保留。
+
+仅当最终应用源码确实已变化且本轮最终验收需要时，在补丁和独立审阅全部完成后执行一次全仓验收；中间失败只复测受影响套件，按真实源码归属记录结果。工具／文档变化不触发第二轮全仓。
+
+## 完成后继续
+
+保存修复源码、定向证据、独立审阅和恢复入口。再完成既定质量准备 Task 3 的 24+6 单次执行包、账户核验和具体授权材料。现有请求正文草稿只在提示词／输入／传输配置变化时重做；映射修复本身不改变发送正文。新模型调用须等用户新的明确费用与缓存授权，旧 R2／P1 不复用。
+
+work/grounded-verification/run.mjs
+import {spawnSync} from "node:child_process";
+import {openSync, closeSync, readFileSync, writeFileSync, mkdirSync, mkdtempSync, realpathSync} from "node:fs";
+import {homedir} from "node:os";
+import {join,resolve,sep} from "node:path";
+import {stripVTControlCharacters} from "node:util";
+import {createHash} from "node:crypto";
+const root = realpathSync(process.cwd()), [name, ...args] = process.argv.slice(2);
+if (!/^[a-z0-9-]+$/.test(name) || !args.length) throw Error("missing name or command");
+const work = join(root,"work","grounded-verification");
+mkdirSync(work,{recursive:true});
+const profile = mkdtempSync(join(homedir(),"AppData","Local","Temp","arc-grounded-check-"));
+const cwd = process.env.ARC_LOCAL_GROUNDED_CHECKOUT || root;
+const env = Object.fromEntries(["Path","SystemRoot","ComSpec","WINDIR","PATHEXT","SystemDrive","ProgramFiles","ProgramFiles(x86)","NUMBER_OF_PROCESSORS","PROCESSOR_ARCHITECTURE"].filter(k=>process.env[k]).map(k=>[k,process.env[k]]));
+const blocked=join(profile,"network.log");writeFileSync(blocked,"");
+Object.assign(env,{USERPROFILE:profile,APPDATA:profile,LOCALAPPDATA:profile,TEMP:profile,TMP:profile,XDG_CONFIG_HOME:profile,GIT_ALLOW_PROTOCOL:"file",GIT_TERMINAL_PROMPT:"0",
+  ARC_SUPPLEMENT_COLLECTION_ENABLED:"false",ARC_DOCUMENT_QUALIFICATION_ENABLED:"false",ARC_DOCUMENT_PILOT_ENABLED:"false",ARC_DOCUMENT_PRODUCTION_ENABLED:"false",
+  NEXT_TELEMETRY_DISABLED:"1",WRANGLER_SEND_METRICS:"false",CLOUDFLARE_SEND_METRICS:"false",npm_config_offline:"true",NO_UPDATE_NOTIFIER:"1",
+  ARC_CLOUDFLARE_TARGET:join(cwd,"tests/fixtures/build/materials-acceptance.json"),ARC_LOCAL_BUILD_DENIAL_LOG:blocked,
+  NODE_OPTIONS:'--require "'+resolve("work/materials-browser-handoff/block-outbound.cjs").split(sep).join("/")+'"'});
+const log=join(work,name+".log"),fd=openSync(log,"w"),start=Date.now();let r;
+try{r=spawnSync(process.execPath,args,{cwd,env,windowsHide:true,stdio:["ignore",fd,fd]});}finally{closeSync(fd);}
+const buf=readFileSync(log),plain=stripVTControlCharacters(buf.toString("utf8"));
+const outcome={name,exit:r.status,elapsedMs:Date.now()-start,logSha256:createHash("sha256").update(buf).digest("hex"),nonLoopbackDenials:readFileSync(blocked).length,profile};
+writeFileSync(join(work,name+".json"),JSON.stringify(outcome,null,2)+"\n");
+console.log(JSON.stringify(outcome));console.log(plain.split(/\r?\n/).slice(r.status===0?-9:-60).join("\n").slice(-6200));
+if(r.error)throw r.error;
+process.exitCode=outcome.nonLoopbackDenials?5:r.status??2;
+

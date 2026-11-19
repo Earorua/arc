@@ -68,14 +68,14 @@ describe("personal practice priorities from confirmed material relations", () =>
   });
 
   it.each([
-    ["I wrote SQL queries, but I have never configured SQLite.", ["sql"]],
-    ["I have never used SQL, but I configured SQLite.", ["sql"]],
-    ["I have never used SQL; my colleague configured SQLite.", []],
-  ] as const)("checks alternative words for one automatic course independently: %s", async (text, expected) => {
+    ["I wrote SQL queries, but I have never configured SQLite.", ["sql"], { status: "partial", support: ["sql-joins"], remaining: "unassessed-scope" }],
+    ["I have never used SQL, but I configured SQLite.", ["sql"], { status: "none", support: [], remaining: "unspecified-task" }],
+    ["I have never used SQL; my colleague configured SQLite.", [], { status: "none", support: [], remaining: "unspecified-task" }],
+  ] as const)("checks alternative words for one automatic course independently: %s", async (text, expected, taskCoverage) => {
     const { materials } = setup([fact(text)]);
     const { preview } = await materials.create("owner-a", materialContextRequest());
     expect(preview.mappingDetails).toEqual([{ itemId: preview.confirmedItems[0]!.id, termIndexes: [-1], status: "mapped", skillIds: ["sql"], basis: "literal",
-      taskCoverage: { status: "none", support: [], remaining: "unspecified-task" } }]);
+      taskCoverage }]);
     expect(preview.priorities.map(row => row.skillId)).toEqual(expected);
   });
 
@@ -163,13 +163,13 @@ describe("personal practice priorities from confirmed material relations", () =>
     })).rejects.toMatchObject({ code: "INVALID_INPUT" });
   });
 
-  it("binds new contexts to policy 2026.11.3 and mapping 2026.11.6 while preserving saved reads", async () => {
+  it("binds new contexts to policy 2026.11.3 and mapping 2026.11.7 while preserving saved reads", async () => {
     expect(longFact).toHaveLength(164);
     const { db, materials } = setup([fact("I have never used SQL.", ["SQL"])]);
     const request = materialContextRequest();
     const first = await materials.create("owner-a", request);
     const row = db.database.prepare("SELECT snapshot_json, preview_json, fingerprint FROM material_context_versions WHERE id=?").get(first.contextVersionId) as { snapshot_json: string; preview_json: string; fingerprint: string };
-    expect(JSON.parse(row.snapshot_json)).toMatchObject({ policyVersion: "2026.11.3", mappingVersion: "2026.11.6" });
+    expect(JSON.parse(row.snapshot_json)).toMatchObject({ policyVersion: "2026.11.3", mappingVersion: "2026.11.7" });
     expect(first.preview.overlay?.policyVersion).toBe("2026.11.3");
     expect(JSON.parse(row.preview_json)).toEqual(first.preview);
     expect(await materials.create("owner-a", request)).toEqual(first);

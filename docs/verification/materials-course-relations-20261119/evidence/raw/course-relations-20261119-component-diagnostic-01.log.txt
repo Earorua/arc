@@ -1,0 +1,1 @@
+{"output":"work/grounded-verification/course-relations-20261119-component-diagnostic-result-01.json","source":"passed","course":"failed","passed":143,"failed":3,"modelCalls":0,"nativeCalls":0,"gateApproved":false}

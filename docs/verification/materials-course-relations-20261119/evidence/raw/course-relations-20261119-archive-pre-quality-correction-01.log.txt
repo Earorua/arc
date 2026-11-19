@@ -1,0 +1,1 @@
+{"manifestPath":"work\\grounded-verification\\course-relations-20261119-pre-quality-correction\\manifest.json","sha256":"0df8fe69fa5f0ce7860de774fd14bdb8f6435c95e06406b97f0d384ccef25d4b","sourceFiles":10,"evidenceFiles":6}

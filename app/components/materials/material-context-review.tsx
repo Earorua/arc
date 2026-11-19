@@ -157,6 +157,7 @@ export function MaterialContextReview({ input, availableSkills = [], previousGoa
     const coverage = detail.taskCoverage;
     return <><p>{mappingDirty && "Previous preview: "}{status}{detail.basis && ` · Basis: ${basisLabels[detail.basis]}`}</p>
       {coverage ? <p>{mappingDirty && "Previous preview: "}Task coverage: {{ full: "Full (recognized narrow task only)", partial: "Partial", none: "Unverified", "not-applicable": "Not applicable" }[coverage.status]}
+        {detail.status === "ambiguous" && coverage.support.length > 0 && " · Combined candidate content; choosing one course recalculates coverage"}
         {coverage.support.length > 0 && ` · Supported: ${coverage.support.map(id => COURSE_TASK_EVIDENCE[id].label).join(", ")}`}
         {coverage.remaining && ` · ${COURSE_TASK_REMAINING_LABELS[coverage.remaining]}`}.</p>
         : <p>Task coverage was not checked in this historical preview. A course-topic match does not establish full teaching coverage.</p>}</>;

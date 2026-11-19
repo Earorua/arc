@@ -1,0 +1,1 @@
+{"status":"passed","affectedFacts":3,"affectedRows":6,"unchangedOtherRows":140,"softwareCourseResultReused":"146/146","realModelCalls":0}

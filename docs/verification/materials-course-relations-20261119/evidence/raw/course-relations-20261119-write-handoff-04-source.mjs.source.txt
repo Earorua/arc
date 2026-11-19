@@ -1,0 +1,82 @@
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+const sha256 = path => createHash("sha256").update(readFileSync(path)).digest("hex");
+const previousPath = "work/grounded-verification/course-relations-20261119-handoff-03-source.json";
+const previous = JSON.parse(readFileSync(previousPath, "utf8"));
+const archivePath = "work/grounded-verification/course-relations-20261119-pre-quality-correction/manifest.json";
+const archive = JSON.parse(readFileSync(archivePath, "utf8"));
+if (sha256(previousPath) !== archive.handoffSha256 || sha256(archive.priorDiagnostic.path) !== archive.priorDiagnostic.sha256)
+  throw Error("Prior handoff or diagnostic changed");
+for (const file of [...archive.files, ...archive.evidence]) {
+  if (sha256(file.archivedPath) !== file.archivedSha256) throw Error(`Archived bytes changed: ${file.path}`);
+  if (archive.evidence.includes(file) && sha256(file.path) !== file.sha256) throw Error(`Prior evidence changed: ${file.path}`);
+}
+for (const priorPath of [previous.supersedes.path, "work/grounded-verification/course-relations-20261119-handoff.json"]) {
+  const prior = JSON.parse(readFileSync(priorPath, "utf8"));
+  if (!prior.files?.length) throw Error(`Invalid prior handoff: ${priorPath}`);
+}
+const changed = ["app/lib/materials/course-relation-scope.ts", "tests/lib/materials/course-relations.test.ts"];
+const files = previous.files.map(({ path }) => ({ path, sha256: sha256(path) }));
+for (const file of files) if (!changed.includes(file.path) && file.sha256 !== previous.files.find(row => row.path === file.path).sha256)
+  throw Error(`Unexpected Task A source change: ${file.path}`);
+const helperBefore = readFileSync(archive.files.find(file => file.path === changed[0]).archivedPath, "utf8");
+const helperAfter = readFileSync(changed[0], "utf8");
+const boundary = "// Only recognized actor, time, guidance, or requirement wrappers may be ignored.";
+if (helperBefore.split(boundary)[0] !== helperAfter.split(boundary)[0]) throw Error("Topic relation code changed unexpectedly");
+execFileSync("git", ["-c", "core.longpaths=true", "diff", "--check", "--", ...files.map(file => file.path)], { stdio: "pipe" });
+
+const evidence = ["quality-qualifier-red", "quality-qualifier-red-02", "quality-qualifier-green", "quality-qualifier-lint"].map(label => {
+  const path = `work/grounded-verification/course-relations-20261119-${label}`;
+  const metadata = JSON.parse(readFileSync(`${path}.json`, "utf8"));
+  if (sha256(`${path}.log`) !== metadata.logSha256 || metadata.exit !== (label.includes("red") ? 1 : 0))
+    throw Error(`Evidence mismatch: ${label}`);
+  return { label, metadataPath: `${path}.json`, logPath: `${path}.log`, ...metadata };
+});
+const reviewPath = "work/grounded-verification/course-relations-20261119-quality-review.md";
+const prefix = "work/grounded-verification/course-relations-20261119-handoff-04-source";
+if (existsSync(`${prefix}.json`) || existsSync(`${prefix}.md`)) throw Error("Handoff 04 source already exists");
+const handoff = {
+  status: "ready-for-independent-rereview", sourceFrozen: true, mappingVersion: "2026.11.7",
+  baseHead: previous.baseHead, branch: previous.branch,
+  supersedes: { path: previousPath, sha256: sha256(previousPath), changedFiles: changed },
+  preservedPreCorrection: { manifestPath: archivePath, manifestSha256: sha256(archivePath), archivedSourceFiles: 10,
+    archivedEvidenceFiles: archive.evidence.length, priorDiagnostic: archive.priorDiagnostic },
+  review: { path: reviewPath, sha256: sha256(reviewPath) },
+  files,
+  correction: {
+    cause: "The remaining generic Chinese guidance/negation and bare English contrast delimiters could discard dependent qualifiers solely because the qualifier did not repeat the retained term.",
+    finiteDelimiterAudit: [
+      "General 按 no longer splits a comma clause. A known guide (导师示例, 示例, 评审反馈) splits only when immediately followed by an action already present in the bounded task vocabulary.",
+      "General 没有 is no longer a task-clause boundary; its unknown condition remains attached.",
+      "Bare but/whereas/while no longer split without an existing actor or action start. Existing explicit comma action/actor and and-actor boundaries remain unchanged.",
+      "Terminal guide-only removal now permits exactly 按导师示例, 按示例 or 按评审反馈, alongside the existing following review notes. The terminal anchor prevents a known-guide prefix from consuming additional unknown requirements.",
+    ],
+    productionDelta: "Only the terminal wrapper regex, the task-scope delimiter regex and its explanatory comment in course-relation-scope.ts.",
+    regression: "Extended the same qualifier group for unknown Chinese guidance, known guidance plus an unknown suffix, denied unknown audit scope, and the three existing contrast alternatives. Reused the existing actor/guidance group including separate React-form and keyboard-focus ownership.",
+    publicTypesChanged: false, importsChanged: false, courseLeavesChanged: false, topicPredicatesChanged: false, experiencePredicatesChanged: false,
+    priorImplementationAndValidation: previousPath,
+  },
+  validation: {
+    red: "First RED observed 3 Chinese qualifier losses. The English controls initially had commas that independently prevented full coverage; removing that incidental punctuation made all 6 affected qualifier assertions RED before production editing. The existing actor/guidance group passed in both RED runs.",
+    green: "2 selected existing test groups passed; 11 skipped. These are the qualifier-boundary and existing actor/guidance groups only.",
+    lint: "PASS for the 2 changed files.",
+    diffCheck: "PASS for the 10 Task A paths.",
+    types: "Prior green full-source compiler evidence reused for regex/comment/assertion changes only; no types, imports or contracts changed.",
+    priorTypeLog: "work/grounded-verification/course-relations-20261119-types-final.log",
+    priorTypeConfig: "work/grounded-verification/course-relations-20261119-tsconfig.json",
+    currentNormalTypeConfig: "tsconfig.json",
+    nonLoopbackDenials: evidence.reduce((sum, row) => sum + row.nonLoopbackDenials, 0),
+    fullRepositoryRuns: 0, nativeRuns: 0, modelCalls: 0,
+  },
+  evidence,
+  remaining: [
+    "Root owns the independent rereview and comparison of only saved diagnostic rows affected by the finite delimiter delta.",
+    "The prior diagnostic-delta reuse record belongs to handoff 03; no 30-document or 146-row replay is claimed for handoff 04.",
+    "Task B current native/source binding and full product acceptance remain required; Task 3 feasibility has been reported and no Task 3 implementation was performed.",
+    "Source is frozen. No staging, commit, push, model call, migration or deployment performed.",
+  ],
+};
+writeFileSync(`${prefix}.json`, JSON.stringify(handoff, null, 2) + "\n", { flag: "wx" });
+writeFileSync(`${prefix}.md`, `# Task A finite qualifier correction\n\nUnknown guidance, negation and contrast alone no longer detach scope from a retained term. The delimiter requires an explicit actor/action or a recognized guide followed by an existing task action. Exact terminal known guidance remains removable; additional unknown requirements remain partial. The existing separate React-form and keyboard-focus control stays full.\n\n[Handoff 04 source](./course-relations-20261119-handoff-04-source.json) contains all final source hashes and evidence. The ten handoff 03 source files and six associated handoff/reuse evidence files were archived before edits in [the pre-quality-correction manifest](./course-relations-20261119-pre-quality-correction/manifest.json). Original evidence remains unchanged.\n\nValidation: six affected qualifier assertions observed RED; two selected existing groups then passed, with eleven groups skipped. Both modified files pass lint and the ten Task A paths pass the diff whitespace check. Prior type evidence is reused for regex/comment/assertion changes only. No broad, native, model or full diagnostic run was repeated.\n\nSource is frozen for independent rereview. Root owns the affected-row source-delta comparison, Task B and final acceptance.\n`, { flag: "wx" });
+console.log(JSON.stringify({ path: `${prefix}.json`, sha256: sha256(`${prefix}.json`), changedFiles: files.filter(file => changed.includes(file.path)) }));

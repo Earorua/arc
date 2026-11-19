@@ -1,0 +1,1114 @@
+{
+  "schemaVersion": "materials-course-relations-native-collection-v1",
+  "bindingId": "materials-course-relations-native-20261119-v1",
+  "startedAt": "2026-11-19T09:14:48.221Z",
+  "head": "24a344858cfde17888675716df488421b61fff2d",
+  "collectionKind": "two-changed-relation-integration-cases",
+  "requestedCases": [
+    "accept-current-primary-jd-preview",
+    "secondary-jd-cannot-add-must"
+  ],
+  "oldFourteenCaseRerun": false,
+  "oldFourteenCaseResultsRewritten": false,
+  "sourceHandoff": {
+    "path": "work/grounded-verification/course-relations-20261119-handoff-04-source.json",
+    "sha256": "1cb8c9732eb0f9303f0ffcb170c49b8e543c1921eebe9071e6534d330034009e",
+    "bytes": 8573
+  },
+  "sourceClosure": [
+    {
+      "path": "app/contracts/cloud-state.ts",
+      "sha256": "f63e218a1c2155e3b34d87917e13fae7f1519c7e1ee51a9fca5675bdd756dc55",
+      "bytes": 3565
+    },
+    {
+      "path": "app/contracts/document-capabilities.ts",
+      "sha256": "794c5bd4e1d1b75a065acb07ce7cfdf4ae86bd517ba8a9f86ed8f5edd9cc472d",
+      "bytes": 670
+    },
+    {
+      "path": "app/contracts/documents-api.ts",
+      "sha256": "3a989194c2295f19d6807a3f5e9bd08a529f7b2c60197d274ba239d4d9ecbc93",
+      "bytes": 19658
+    },
+    {
+      "path": "app/contracts/documents.ts",
+      "sha256": "a66e8e843dca7817c2e36253702c10434f184aba3ae1b3be7c52d254695b9b9e",
+      "bytes": 20280
+    },
+    {
+      "path": "app/contracts/intelligence.ts",
+      "sha256": "22e4bde2ff3f059135b861f47b26d4686a92d6ccb4bcf386764e18245305e9f6",
+      "bytes": 4875
+    },
+    {
+      "path": "app/contracts/material-planning.ts",
+      "sha256": "ceb15fece5f5a336e78c1289f6e9ecccc54e36e62f1ed8c4450fb0a9c7a60347",
+      "bytes": 17069
+    },
+    {
+      "path": "app/contracts/material-recovery.ts",
+      "sha256": "25f2012b6f6c0da0be119085f1deec80f98db1c39c3971ac8a5e3665cc862e8a",
+      "bytes": 394
+    },
+    {
+      "path": "app/contracts/planning-api.ts",
+      "sha256": "a34be40b24dbedc065088e0162bf3fafdddc45d7c4ffddaa0727ab9409ad55d9",
+      "bytes": 5683
+    },
+    {
+      "path": "app/contracts/planning.ts",
+      "sha256": "861260a27d55287661034d5e0a5ca175d6571400031ac3c9d58cb9608b67db93",
+      "bytes": 32565
+    },
+    {
+      "path": "app/contracts/proof-ledger.ts",
+      "sha256": "cb2dfc65b51e670d255196ae08e0243a53a3e9d6626123ce0c2c864b21e48e8a",
+      "bytes": 12734
+    },
+    {
+      "path": "app/contracts/research.ts",
+      "sha256": "fd2731a493aee01f6e21814998b1c1fa0c7afd998a194eae7df7ceb13c49ae1b",
+      "bytes": 16236
+    },
+    {
+      "path": "app/data/flagship-blueprint.ts",
+      "sha256": "b7aafe379b7c27eb133b378090ec50818835cdd39a9a274f7ba603aa72c46264",
+      "bytes": 1800
+    },
+    {
+      "path": "app/data/flagship-role.ts",
+      "sha256": "7070068cd2edb6bb176b61f01e9e2e2f1800b24179c908e3619e11be5560572e",
+      "bytes": 5194
+    },
+    {
+      "path": "app/data/flagship-unit-registry.ts",
+      "sha256": "feda4ce53ee53ebb3cc1e80f486dc8c32014193cb79f856d44962b0501bdd4cc",
+      "bytes": 75439
+    },
+    {
+      "path": "app/lib/demo-store.ts",
+      "sha256": "efc90412905e0f097553b8501cdd9f26d73b61b015dec7cdd8e8392016bbd228",
+      "bytes": 7660
+    },
+    {
+      "path": "app/lib/intelligence-validation.ts",
+      "sha256": "f1fe7974620be1d1488a90c54f351f744b1386644196045961e62c30f3fddabc",
+      "bytes": 8447
+    },
+    {
+      "path": "app/lib/materials/contextual-skill-mapping.ts",
+      "sha256": "66d2d1ad5c4e0fd603c828709b2ad1cb8768c44491d54e7dbe5c5f5397549503",
+      "bytes": 6099
+    },
+    {
+      "path": "app/lib/materials/course-relation-scope.ts",
+      "sha256": "461093918e389e2c5ba5b9d603e6c44f100172f0b009492e2a496295584caae3",
+      "bytes": 9176
+    },
+    {
+      "path": "app/lib/materials/course-task-coverage.ts",
+      "sha256": "5cbca147cb1d8c707cd4e8eb32b1e02e04d6b1d6c5c16b0eb57dc635b68e640b",
+      "bytes": 13210
+    },
+    {
+      "path": "app/lib/materials/course-task-evidence.ts",
+      "sha256": "f21a983255129082788321455b8b5dfd8f574cbae370682680fb7e9bbe8cadd4",
+      "bytes": 5316
+    },
+    {
+      "path": "app/lib/materials/experience-evidence.ts",
+      "sha256": "12f25330b1719338eec736881d2a19dc8635dbd1c71fa997059dd9bfc21debec",
+      "bytes": 11695
+    },
+    {
+      "path": "app/lib/materials/explanations.ts",
+      "sha256": "4890a600779022b9a956682076d3a3cfddc5759a154e314fed41a6c18fb5d0b8",
+      "bytes": 5108
+    },
+    {
+      "path": "app/lib/materials/grounded-skill-terms.ts",
+      "sha256": "fa3c23292ed421f3e9ac50a2d09e3dbf636331398160a9bac27152b1d3d7afc7",
+      "bytes": 15444
+    },
+    {
+      "path": "app/lib/materials/personal-assertion-scopes.ts",
+      "sha256": "26feeefb6e58426a4e8a30ba274431a9302eff7ce3247c4da295ef1ef8aa17e3",
+      "bytes": 13171
+    },
+    {
+      "path": "app/lib/materials/planning-priority.ts",
+      "sha256": "9620b2a75b3826f7ccaa330bf95aab8ca5ef0608f2e4af4f3df80bdaa8dd154b",
+      "bytes": 3900
+    },
+    {
+      "path": "app/lib/materials/quotation-evidence.ts",
+      "sha256": "03a77ad110f67b56b7f1d6f28facdf9c70a92d0e7cd152ecdad806967297516a",
+      "bytes": 1002
+    },
+    {
+      "path": "app/lib/materials/self-assessment-evidence.ts",
+      "sha256": "b642aa37e47a5c54b6023d4e4b3fe8c6317367607e453316a801bd6cc6c3ccb9",
+      "bytes": 5656
+    },
+    {
+      "path": "app/lib/materials/skill-labels.ts",
+      "sha256": "aeeb3543f791cdad06455702124021b0d4599336ee3dd75bcf361aac420754eb",
+      "bytes": 4114
+    },
+    {
+      "path": "app/lib/materials/skill-mapper.ts",
+      "sha256": "2fb992337c5112856ee9253d2da843f5d5bd0be3d09de970c49023345e133b1c",
+      "bytes": 14271
+    },
+    {
+      "path": "app/lib/planning/calendar.ts",
+      "sha256": "318fd8926599d64dd3246c498bd045d7db10038ddd5ebf299354cae755efeaae",
+      "bytes": 5502
+    },
+    {
+      "path": "app/lib/planning/event-reducer.ts",
+      "sha256": "887083094cff3696f71020d599074539ae32d128dddfa515c34ff568def291a8",
+      "bytes": 24402
+    },
+    {
+      "path": "app/lib/planning/fingerprint.ts",
+      "sha256": "88bc521500da91d55e824b0721a511a8ea94cf750743805c209ec4735fb64e11",
+      "bytes": 5375
+    },
+    {
+      "path": "app/lib/planning/path-builder.ts",
+      "sha256": "8daa896b22a885ee20c5602ed3d4d4bec3560c856393684bd96d98f2e2b9b98d",
+      "bytes": 19519
+    },
+    {
+      "path": "app/lib/planning/plan-diff.ts",
+      "sha256": "df9de37b1ae0c13c56a85feb1379bfc4ac5777af6a11fd4b0883820d4d956067",
+      "bytes": 7072
+    },
+    {
+      "path": "app/lib/planning/registry-validation.ts",
+      "sha256": "ebbda248a4195d02cb8711a5663b689dfda78326d4d61a7fe4234e115bcef764",
+      "bytes": 7925
+    },
+    {
+      "path": "app/lib/planning/scheduler.ts",
+      "sha256": "7a08f0ed26d1e37a5538d5ae06d97ed44c321259b557507002750b1e9ee26921",
+      "bytes": 23854
+    },
+    {
+      "path": "app/lib/proof/projection.ts",
+      "sha256": "78321fea1fcb501ee4c47679ca99a93f0455b3a08d10920a0b610a0239069e5d",
+      "bytes": 5532
+    },
+    {
+      "path": "app/server/cloud/d1-cloud-repository.ts",
+      "sha256": "75c8ba40328ae3cda3c22934b00fc64f73695b386bc701fc56561f9f2f8b561d",
+      "bytes": 15664
+    },
+    {
+      "path": "app/server/cloud/repository.ts",
+      "sha256": "5980fee5e28b394f21a7140c54ac78b8d77988d451306a5f1491afaac189c0c6",
+      "bytes": 938
+    },
+    {
+      "path": "app/server/cloud/service.ts",
+      "sha256": "61437464ff8ce1b0e9cfee8910bfc4cd7c708cb8dc186ef5e1a1e9ac64106dc0",
+      "bytes": 3938
+    },
+    {
+      "path": "app/server/documents/adopted-context.ts",
+      "sha256": "7d91e1ceef766ce5fe3e3afbdea3de6578fc8e59bfc7ea93c2241f6187a7c697",
+      "bytes": 8700
+    },
+    {
+      "path": "app/server/documents/confirmation-service.ts",
+      "sha256": "8ae3c6a95f1cf2ed42a975034b311bff718dd4a12b633964cd733b053ee148ae",
+      "bytes": 3371
+    },
+    {
+      "path": "app/server/documents/context-builder.ts",
+      "sha256": "aba0c2549dfb277486935db11e22ed716f3746c16db542dc006e6540a27fc09c",
+      "bytes": 32886
+    },
+    {
+      "path": "app/server/documents/d1-repository.ts",
+      "sha256": "6371159830da4b26ec3ccc2dace5939c556ee54eb510f3c352629d259c02db36",
+      "bytes": 8700
+    },
+    {
+      "path": "app/server/documents/deletion-service.ts",
+      "sha256": "4f56021a399545b170c5ad8a1b3df96585dbe5837160000364992ff8a323c9e4",
+      "bytes": 9762
+    },
+    {
+      "path": "app/server/documents/detach-adopted-material.ts",
+      "sha256": "713b6c9c6b7b2a3aed4ac4152d25013053a760f1a882f33b097c1ff1f160a2b1",
+      "bytes": 3387
+    },
+    {
+      "path": "app/server/documents/extraction-validator.ts",
+      "sha256": "08ffe233328b3e0224d37ed804b47ecc57f20161376196ee9f8261b6b7a28157",
+      "bytes": 6349
+    },
+    {
+      "path": "app/server/documents/policy.ts",
+      "sha256": "10b674829aae6e26a9bb6ba6eb9e0178bcd18c87ea2c58d68642298363c8b80d",
+      "bytes": 6170
+    },
+    {
+      "path": "app/server/documents/review-points.ts",
+      "sha256": "a6d7f26e42c0dcef85d649237e92f0f2cf9c3836d3b45984f8e15343720a0c06",
+      "bytes": 2380
+    },
+    {
+      "path": "app/server/documents/review-service.ts",
+      "sha256": "8a98f8f6bb1f9b506434ff85e3a803294b07a3c02c4597c4c3cb95b1b7e8f378",
+      "bytes": 25113
+    },
+    {
+      "path": "app/server/documents/selection-service.ts",
+      "sha256": "3378f2edad87bf44e3b9cdaa54eca8f66e4ab10cda3831b63efac3fb27a520ab",
+      "bytes": 13727
+    },
+    {
+      "path": "app/server/documents/service.ts",
+      "sha256": "9bbb9063bdf6b6c7281ca46ed111738f14ae5d4be8dcbe74fda654ea696a116d",
+      "bytes": 15388
+    },
+    {
+      "path": "app/server/documents/storage.ts",
+      "sha256": "af160c0db60b864cf60b56ecb238c607fbdb4059a235549162095b66adc6bf57",
+      "bytes": 4410
+    },
+    {
+      "path": "app/server/documents/text.ts",
+      "sha256": "cb38268b579d9cfdb705abced544a03ff04ae966bc5be1ba07545381ffb8df04",
+      "bytes": 1498
+    },
+    {
+      "path": "app/server/planning/d1-planning-repository.ts",
+      "sha256": "10cd6054818ef07db271a370acb1b71fedf57f752e12137ba660ddd6b24652b9",
+      "bytes": 48597
+    },
+    {
+      "path": "app/server/planning/material-commit.ts",
+      "sha256": "94cb86d457281aa3965ab07b9fb44043e5670f05fdcd6db276ac90dddfcabc71",
+      "bytes": 9650
+    },
+    {
+      "path": "app/server/planning/service.ts",
+      "sha256": "38ed8060e2405202afe83fdaa4d67362cc93f5b71f6f8174cd866007664f331b",
+      "bytes": 27408
+    },
+    {
+      "path": "app/server/planning/source-resolver.ts",
+      "sha256": "9f4f432de4f91aef21fe15de9a8c2ca012c31fbfde5b6cea61ef47495bbe9c02",
+      "bytes": 8624
+    },
+    {
+      "path": "app/server/proof/d1-proof-repository.ts",
+      "sha256": "ee126efafe19fb35dd11ae30c4d4274a2289ce3ce8ce3e8d836e999fbf30e89f",
+      "bytes": 21128
+    },
+    {
+      "path": "app/server/proof/repository.ts",
+      "sha256": "31cfe69d5b1c41da68fd9b0793d4385a1c416509aebeb3dadffa8d2dc0a2f8a5",
+      "bytes": 2744
+    },
+    {
+      "path": "app/server/proof/service.ts",
+      "sha256": "9903a76c5e9d569e5c9cb28abae54076cb79627e5b4bff21a00b5e4db5f4f709",
+      "bytes": 19691
+    },
+    {
+      "path": "app/server/proof/validators.ts",
+      "sha256": "9132b8e6eb8318c9912b26ed884dc93b05d3e39e692cc478fe2cd5172db83aa3",
+      "bytes": 2087
+    },
+    {
+      "path": "app/server/research/source-authority.ts",
+      "sha256": "822c3a39793c0c0a652f2fca40d0a5335a35bd8b1907caeda8a838b4d375923f",
+      "bytes": 8045
+    },
+    {
+      "path": "node_modules/zod/index.js",
+      "sha256": "c733a1897d6b4b30dad6998597f6896b265b094a65534359ada34b08ecf8932c",
+      "bytes": 121
+    },
+    {
+      "path": "node_modules/zod/v4/classic/checks.js",
+      "sha256": "78a162d29e06001b4d919e1ed08f6e7d0d665bba0ef983201373745410d7b354",
+      "bytes": 663
+    },
+    {
+      "path": "node_modules/zod/v4/classic/coerce.js",
+      "sha256": "fb2efe3b6eacc475c77cbb571b5fb8650d92a10f316dc869e49b722973d83c3c",
+      "bytes": 550
+    },
+    {
+      "path": "node_modules/zod/v4/classic/compat.js",
+      "sha256": "0e948b101771cc0e7b753e54b3f5b486929d3db9bd4c09d98fe4ce86271bcf7b",
+      "bytes": 1090
+    },
+    {
+      "path": "node_modules/zod/v4/classic/errors.js",
+      "sha256": "b155316267f79068ddc2dddc7046e13785804b768ca36e6deff1691d154f7c20",
+      "bytes": 1609
+    },
+    {
+      "path": "node_modules/zod/v4/classic/external.js",
+      "sha256": "179a03ace3d1d77895cc5b3c54a3fcbf2b7f8bad44d6f030092491c10e5d9097",
+      "bytes": 907
+    },
+    {
+      "path": "node_modules/zod/v4/classic/from-json-schema.js",
+      "sha256": "d8866bf5232e55d12cda032bde6a56a05a0a8b276945c2e4eed66432ef5cc9b2",
+      "bytes": 24161
+    },
+    {
+      "path": "node_modules/zod/v4/classic/iso.js",
+      "sha256": "3cc5e6b4da086b8ffc7ee3188c69e4d3c945b368092e78d2299b5321182752c5",
+      "bytes": 1151
+    },
+    {
+      "path": "node_modules/zod/v4/classic/parse.js",
+      "sha256": "14cbcc416ab9169abc2cde97af77da54ca769684eac1e03a3753c16ea4a7cd95",
+      "bytes": 997
+    },
+    {
+      "path": "node_modules/zod/v4/classic/schemas.js",
+      "sha256": "eb4af7946a092aff8678b9251728ea58dab40154920cd65ec4a2ca1d4df68393",
+      "bytes": 51378
+    },
+    {
+      "path": "node_modules/zod/v4/core/api.js",
+      "sha256": "00cb5edcfde8098e5a169e66c1dce50c101484d21436e3d78e137e1fa87c4836",
+      "bytes": 28054
+    },
+    {
+      "path": "node_modules/zod/v4/core/checks.js",
+      "sha256": "5a33a20dcad372b4d18ead8d1e58b1950454f136a2216e62f247e0e5601ac838",
+      "bytes": 20005
+    },
+    {
+      "path": "node_modules/zod/v4/core/core.js",
+      "sha256": "a5e713beaac4647151e03716a83f51ab714e5337cf66850f3b28eaf072a0bbfe",
+      "bytes": 2578
+    },
+    {
+      "path": "node_modules/zod/v4/core/doc.js",
+      "sha256": "e084bbcc536746a8942fd33b08afe4db345554b3a0383114f1dca95261c958d9",
+      "bytes": 1088
+    },
+    {
+      "path": "node_modules/zod/v4/core/errors.js",
+      "sha256": "bdd0ed8fd4a6e9d04fe6423b0f9df3a0b403939bc7dcedd8930a4b8df1fb118c",
+      "bytes": 6413
+    },
+    {
+      "path": "node_modules/zod/v4/core/index.js",
+      "sha256": "f9698820ee8371215e8d015cfa060230c62e65428397dce83f78e6538976301c",
+      "bytes": 594
+    },
+    {
+      "path": "node_modules/zod/v4/core/json-schema-generator.js",
+      "sha256": "9cc884cdb535a9c87b85b66e61a593ff6b686222f038834f81c5e92552cd6e23",
+      "bytes": 3218
+    },
+    {
+      "path": "node_modules/zod/v4/core/json-schema-processors.js",
+      "sha256": "ff15f567c9401dd7d3151ce11736283ff747c9a9e205cc08ee96f90eadc1c0c6",
+      "bytes": 20716
+    },
+    {
+      "path": "node_modules/zod/v4/core/json-schema.js",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
+      "bytes": 11
+    },
+    {
+      "path": "node_modules/zod/v4/core/parse.js",
+      "sha256": "2578b8d1341c3882a6c089f9ec57ce1c1a16b8b2b477721d4d89ba3d3ee50c9c",
+      "bytes": 4444
+    },
+    {
+      "path": "node_modules/zod/v4/core/regexes.js",
+      "sha256": "3cb122080c1154321331322ebc0cbe04878fe104c8c7b335891d9f85fc4b3f63",
+      "bytes": 9078
+    },
+    {
+      "path": "node_modules/zod/v4/core/registries.js",
+      "sha256": "620ea1a715ccc4e6e605a271343bf47942dccae90885dc71f137b1f08a972e50",
+      "bytes": 1512
+    },
+    {
+      "path": "node_modules/zod/v4/core/schemas.js",
+      "sha256": "09da9b0cb9b9d2d795c349bc47c7521d5aaffe241885f0c9728f2aa7de3834c9",
+      "bytes": 83322
+    },
+    {
+      "path": "node_modules/zod/v4/core/to-json-schema.js",
+      "sha256": "fb3c9ab59947582f7671a53c8e20a3ced5eaa92d1c220ce8b27717a59033ad0d",
+      "bytes": 17006
+    },
+    {
+      "path": "node_modules/zod/v4/core/util.js",
+      "sha256": "968e3433e810cf7ba5efb609a1cb6d9a6cfb51215fd1f699938228f7ac25deb3",
+      "bytes": 22018
+    },
+    {
+      "path": "node_modules/zod/v4/core/versions.js",
+      "sha256": "bf082fde98fa7725412d713c7f56da3a5603bdef199d68d5769263f30ce9c756",
+      "bytes": 70
+    },
+    {
+      "path": "node_modules/zod/v4/locales/ar.js",
+      "sha256": "220ca3ca8cf67e4ccc05d789eeed2692d970269fe0cd82f05db8fd899b661b9e",
+      "bytes": 5188
+    },
+    {
+      "path": "node_modules/zod/v4/locales/az.js",
+      "sha256": "4725ffef0b2f2df947194f9698c792b69f52a8c3a5a1e1bdfabbf62259a1dd46",
+      "bytes": 4511
+    },
+    {
+      "path": "node_modules/zod/v4/locales/be.js",
+      "sha256": "da4bda7fbc940dd9f50efdd914caa9397243be779a505b82bd4be5395d3b795e",
+      "bytes": 6619
+    },
+    {
+      "path": "node_modules/zod/v4/locales/bg.js",
+      "sha256": "48511ad2f86043f0eea6e7673d5e2b848a3295a26c9c4650e96b3884d640196d",
+      "bytes": 5785
+    },
+    {
+      "path": "node_modules/zod/v4/locales/ca.js",
+      "sha256": "796f9ba7dcd53648171aa0132c50271ef358936765cec0a44a642c41d05b3e8c",
+      "bytes": 4710
+    },
+    {
+      "path": "node_modules/zod/v4/locales/cs.js",
+      "sha256": "670a75fe1db1104db090c95aabb01e4eb6decd451fe77fd830c2e4dafc79b49a",
+      "bytes": 4772
+    },
+    {
+      "path": "node_modules/zod/v4/locales/da.js",
+      "sha256": "cdaad7a1fa370abda1943fe9c2caba961e7896b9808d51275daf33f964af49cc",
+      "bytes": 4804
+    },
+    {
+      "path": "node_modules/zod/v4/locales/de.js",
+      "sha256": "521a4ed29fcaf3f781163875dc282cfb5262047773aa2b70a852996b1d8a51b9",
+      "bytes": 4588
+    },
+    {
+      "path": "node_modules/zod/v4/locales/el.js",
+      "sha256": "9857a9e4909282b2efd86317fc3e67ed86e24287f32329cfa5ab833c05fc0d81",
+      "bytes": 5544
+    },
+    {
+      "path": "node_modules/zod/v4/locales/en.js",
+      "sha256": "232a0828d64df8e410b23ac9825a667bd9d485fd70acdc4b4d0870539faef0a4",
+      "bytes": 4805
+    },
+    {
+      "path": "node_modules/zod/v4/locales/eo.js",
+      "sha256": "ebe08048aa3ee9871ce9fe1271e254cb672b1968ec40ac253066d08d176e8a65",
+      "bytes": 4603
+    },
+    {
+      "path": "node_modules/zod/v4/locales/es.js",
+      "sha256": "4edd9302e9724c408b024220e99092fbd2f90100ac3c6407a94543b79843610c",
+      "bytes": 5439
+    },
+    {
+      "path": "node_modules/zod/v4/locales/fa.js",
+      "sha256": "2dc1bee1e984e8a15191fb3c69aaecaa26c922e12a0d4486ac005a0372b78565",
+      "bytes": 5131
+    },
+    {
+      "path": "node_modules/zod/v4/locales/fi.js",
+      "sha256": "3911184979f01d2ae580ce611710ee40597eff97a410d0fa823ab6ea27cee88c",
+      "bytes": 4818
+    },
+    {
+      "path": "node_modules/zod/v4/locales/fr-CA.js",
+      "sha256": "f8716c2baaccdfd1d958743bbc5250c9bdef5152d0801470e9b9a380d618f4ab",
+      "bytes": 4554
+    },
+    {
+      "path": "node_modules/zod/v4/locales/fr.js",
+      "sha256": "3ea466ca5737984bb5acc9008822060272f596317004618cfe1e05109f707577",
+      "bytes": 5137
+    },
+    {
+      "path": "node_modules/zod/v4/locales/he.js",
+      "sha256": "290512e43d2907700211da09dc3959fd98d120bfb89f8836e6e3f83a472e26fe",
+      "bytes": 12005
+    },
+    {
+      "path": "node_modules/zod/v4/locales/hr.js",
+      "sha256": "1ea65433c32b89bead43113ac69b3acc520bb73ae231dd2e05fedf8e8c5656d6",
+      "bytes": 5052
+    },
+    {
+      "path": "node_modules/zod/v4/locales/hu.js",
+      "sha256": "913ee94a253db79b31463ae23a337060b6fe28be73dfc7657d8a83a4942bd8a8",
+      "bytes": 4696
+    },
+    {
+      "path": "node_modules/zod/v4/locales/hy.js",
+      "sha256": "0d3bbb96c0f8bc74468a2dfc7d066e838bb56fab64fd5ec03ce9c4d89eccbe99",
+      "bytes": 6390
+    },
+    {
+      "path": "node_modules/zod/v4/locales/id.js",
+      "sha256": "cd2c19b5c30dade3ed91ffcff3deb0b068713be24f02248e7e46b87b2b9553ee",
+      "bytes": 4577
+    },
+    {
+      "path": "node_modules/zod/v4/locales/index.js",
+      "sha256": "d73f41a76614855d43eea493030a1aa05dca30c9a17015a0da5b8b70da61b6b1",
+      "bytes": 2149
+    },
+    {
+      "path": "node_modules/zod/v4/locales/is.js",
+      "sha256": "ead5b14eac892229f915fe38ec94ab3b1e676f8aa2df2a8450848ba9ca9a1612",
+      "bytes": 4635
+    },
+    {
+      "path": "node_modules/zod/v4/locales/it.js",
+      "sha256": "439969d199427d77ebf1e477bf2295b226712804b25437d442f9dfc78aca95e0",
+      "bytes": 4582
+    },
+    {
+      "path": "node_modules/zod/v4/locales/ja.js",
+      "sha256": "43ee10378cac22b0b8aee912a66c3f36a834d5b4c76e9748f88a784044f248fd",
+      "bytes": 4851
+    },
+    {
+      "path": "node_modules/zod/v4/locales/ka.js",
+      "sha256": "0ab5322368f9ac6e6b58f93dac484a4f4f06cdf4c0677f4df88164e9d8b4bf81",
+      "bytes": 6202
+    },
+    {
+      "path": "node_modules/zod/v4/locales/kh.js",
+      "sha256": "78c3d1991041bb8c8fc0f7c5d745aae422d4c2e4e8f30bae44f3fef4765900a8",
+      "bytes": 111
+    },
+    {
+      "path": "node_modules/zod/v4/locales/km.js",
+      "sha256": "dbdabda94dd93d4a1827e6c809505c79fa6aa7abefec91dc50fa0871382c99cc",
+      "bytes": 6242
+    },
+    {
+      "path": "node_modules/zod/v4/locales/ko.js",
+      "sha256": "d2efe22ac069d9b32b0109fa07713ac0695ac1c1357afc4e4277056466f2e196",
+      "bytes": 4929
+    },
+    {
+      "path": "node_modules/zod/v4/locales/lt.js",
+      "sha256": "dad886e52c56a1329d22e072f8b08dc8730f69c3dc5e5acf8267cac18df1ab28",
+      "bytes": 8082
+    },
+    {
+      "path": "node_modules/zod/v4/locales/mk.js",
+      "sha256": "9eb4af0392fc5b9c438cdc6ceea446acc541b59e221dba918f7b80800d9da3d1",
+      "bytes": 5157
+    },
+    {
+      "path": "node_modules/zod/v4/locales/ms.js",
+      "sha256": "c550a9185d997e8fcd17311951aa1e29793a50b8e825e18310efd5a46c641795",
+      "bytes": 4491
+    },
+    {
+      "path": "node_modules/zod/v4/locales/nl.js",
+      "sha256": "acba414579c5bbd7f83dc6661fa1a12d65f1822f9b0f5035549ac60f46d93763",
+      "bytes": 4762
+    },
+    {
+      "path": "node_modules/zod/v4/locales/no.js",
+      "sha256": "1854483c7cf158b8f97f0faf6fd799eb1f762009018b5fde893ca33f2fb0b313",
+      "bytes": 4506
+    },
+    {
+      "path": "node_modules/zod/v4/locales/ota.js",
+      "sha256": "34ae496104bc17fea7d30c3d45c94cfe3d1d569b5d39a6ca51de6c177690c556",
+      "bytes": 4525
+    },
+    {
+      "path": "node_modules/zod/v4/locales/pl.js",
+      "sha256": "18eab58f395e30b906e8e3fddc5f212eb19f2c4362410889a5c5e0141ebe2144",
+      "bytes": 4966
+    },
+    {
+      "path": "node_modules/zod/v4/locales/ps.js",
+      "sha256": "f977b5141fa8fb6a8459372e0b2895d74b381c9f2ff4899141f7ee3e639a4513",
+      "bytes": 4909
+    },
+    {
+      "path": "node_modules/zod/v4/locales/pt.js",
+      "sha256": "df172afc585544dee7c063c484f5a07b5ed103e2c1072a782c763ad8ceb08e17",
+      "bytes": 4568
+    },
+    {
+      "path": "node_modules/zod/v4/locales/ro.js",
+      "sha256": "ecae409f4299ab91e2aff1095db14e23f3cf2c05b3654e242047655352c7f46b",
+      "bytes": 4774
+    },
+    {
+      "path": "node_modules/zod/v4/locales/ru.js",
+      "sha256": "c397a473e94d7d189a9c09c7890fe379c4f6f46d9556d52a040a90ffa56f7b93",
+      "bytes": 6714
+    },
+    {
+      "path": "node_modules/zod/v4/locales/sl.js",
+      "sha256": "ee2ff3a19b62cd2f89b54b165088773b937de15df7253df220bef07d9adf2d80",
+      "bytes": 4567
+    },
+    {
+      "path": "node_modules/zod/v4/locales/sv.js",
+      "sha256": "97d6718fb643e05d6fe30fa4f9f09b8d9a3eda4a3a350b57dfb2944943d19502",
+      "bytes": 4663
+    },
+    {
+      "path": "node_modules/zod/v4/locales/ta.js",
+      "sha256": "04bbde9766251f9047e786fdd77632f2ecd53aec2eb060eb2fc85bf576ad729d",
+      "bytes": 6369
+    },
+    {
+      "path": "node_modules/zod/v4/locales/th.js",
+      "sha256": "aea70c9ac2b399fe4749e19ba3aa99c3efb4dfb50eadfb62b0b2a6e005748f3d",
+      "bytes": 6290
+    },
+    {
+      "path": "node_modules/zod/v4/locales/tr.js",
+      "sha256": "4449f41d22c6f15ede5066f79d840a52ec45a6b694c859e16f9121062b6fad2f",
+      "bytes": 4454
+    },
+    {
+      "path": "node_modules/zod/v4/locales/ua.js",
+      "sha256": "9391169ffbc72f777a83230b6ffcc3f4cf46ab5945ec540de9ef4609dca1f4cc",
+      "bytes": 111
+    },
+    {
+      "path": "node_modules/zod/v4/locales/uk.js",
+      "sha256": "77136a2a60eef62f7cc803a0f9971aebbc641403af77c1b41fd5ce59abfa5de3",
+      "bytes": 5430
+    },
+    {
+      "path": "node_modules/zod/v4/locales/ur.js",
+      "sha256": "858f4f38d651073e7a3fbec7ed356692578b3ad1fae1b453cb3d85312a4f39d2",
+      "bytes": 5271
+    },
+    {
+      "path": "node_modules/zod/v4/locales/uz.js",
+      "sha256": "d540bed482d15c47cb45439cff34e053379c53019c7c7c5fbe43f222d0c81f04",
+      "bytes": 4739
+    },
+    {
+      "path": "node_modules/zod/v4/locales/vi.js",
+      "sha256": "2c61bd3f4a733f3cbb1ad85e75a053cb15a8ebeb83ab56dc21f2948b1138e12f",
+      "bytes": 4772
+    },
+    {
+      "path": "node_modules/zod/v4/locales/yo.js",
+      "sha256": "98b9cbf31bf00c8b2c00de62725a9dd7cb718ac72d6e8fd4e0a1a7c49723e0f4",
+      "bytes": 4665
+    },
+    {
+      "path": "node_modules/zod/v4/locales/zh-CN.js",
+      "sha256": "99a4b16af598834a0b11607fcdebd1c6de026386ff1d6a5a306b364c154c5899",
+      "bytes": 4452
+    },
+    {
+      "path": "node_modules/zod/v4/locales/zh-TW.js",
+      "sha256": "37dcae620e1553e9174a4b9434bbcc4e465150a627e80c9c17fd01de8baaf59a",
+      "bytes": 4498
+    },
+    {
+      "path": "work/grounded-verification/course-relations-native-20261119-tools/planning-inputs.json",
+      "sha256": "0031e1e0252303e1cefdc6c3714ba4696f32ec1217f45cfb2a286bc7e710e1c0",
+      "bytes": 4483
+    },
+    {
+      "path": "work/grounded-verification/course-relations-native-20261119-tools/planning-worker.ts",
+      "sha256": "09fcc107091944215394f6f041bd5abf116b0242dafc808e91c1be23a357d3ca",
+      "bytes": 26782
+    },
+    {
+      "path": "worker/document-executor/source-requirement-evidence.ts",
+      "sha256": "ce98fac8b373f2b4279e9ab476fc352a6a9b3fe146ae7cae44ebd330e453d4e3",
+      "bytes": 10885
+    },
+    {
+      "path": "worker/document-executor/source-review-evidence.ts",
+      "sha256": "af1aec262033a78f80049fa9c9976e96c4d2ca2ffaf3974c2619ec113b633cc2",
+      "bytes": 20824
+    },
+    {
+      "path": "worker/document-executor/source-statements.ts",
+      "sha256": "ca52b5d1fc9b0f31f1c52d6d8ea08a0aa976eb8d2d1e08f82845f775557640ab",
+      "bytes": 2996
+    }
+  ],
+  "sourceClosureDigest": "082a0c57898cc92af1d1264dea9632d124b0db5139422d230cc64ef649fb0212",
+  "input": {
+    "path": "work/grounded-verification/course-relations-native-20261119-tools/planning-inputs.json",
+    "sha256": "0031e1e0252303e1cefdc6c3714ba4696f32ec1217f45cfb2a286bc7e710e1c0",
+    "bytes": 4483
+  },
+  "inputDocument": {
+    "schemaVersion": "materials-course-relation-native-input-v1",
+    "bindingId": "materials-course-relations-native-20261119-v1",
+    "clock": "2026-11-19T08:00:00.000Z",
+    "planningDate": "2026-11-19",
+    "goal": {
+      "roleId": "ai-native-full-stack-engineer",
+      "level": "beginner",
+      "weeklyMinutes": 420,
+      "targetWeeks": 52
+    },
+    "availability": {
+      "timeZone": "UTC",
+      "weekdays": {
+        "monday": 60,
+        "tuesday": 60,
+        "wednesday": 60,
+        "thursday": 60,
+        "friday": 60,
+        "saturday": 60,
+        "sunday": 60
+      },
+      "exceptions": [],
+      "weeklyMinutes": 420
+    },
+    "audit": {
+      "defaultLevel": "conceptual",
+      "evidence": []
+    },
+    "proof": {
+      "title": "Synthetic completed task evidence",
+      "summary": "Local synthetic evidence established before the evaluated material operation.",
+      "artifactUrl": "https://example.com/synthetic-completed-task",
+      "visibility": "private"
+    },
+    "documents": {
+      "primaryA": {
+        "kind": "jd",
+        "name": "Synthetic initial primary JD",
+        "text": "SQL",
+        "items": [
+          {
+            "id": "primary-a-sql",
+            "kind": "requirement",
+            "text": "SQL",
+            "requirementLevel": "must"
+          }
+        ]
+      },
+      "primaryC": {
+        "kind": "jd",
+        "name": "Synthetic replacement primary JD",
+        "text": "Required: build semantic HTML forms.\nRequired: use SQL joins to reconcile trial and paid accounts.\nPreferred: write accessible form labels.",
+        "syntheticExtraction": true,
+        "items": [
+          {
+            "id": "replacement-html",
+            "kind": "requirement",
+            "text": "Required: build semantic HTML forms.",
+            "requirementLevel": "must",
+            "skillLabels": [
+              "semantic HTML forms"
+            ],
+            "selfLevelHint": null
+          },
+          {
+            "id": "replacement-sql",
+            "kind": "requirement",
+            "text": "Required: use SQL joins to reconcile trial and paid accounts.",
+            "requirementLevel": "must",
+            "skillLabels": [
+              "SQL joins"
+            ],
+            "selfLevelHint": null
+          },
+          {
+            "id": "replacement-labels",
+            "kind": "requirement",
+            "text": "Preferred: write accessible form labels.",
+            "requirementLevel": "preferred",
+            "skillLabels": [
+              "accessible form labels"
+            ],
+            "selfLevelHint": null
+          }
+        ]
+      },
+      "resume": {
+        "kind": "resume",
+        "name": "Synthetic scoped experience",
+        "text": "I used SQL joins to reconcile trial and paid accounts, following review notes.\nMy colleague built React forms.\nI built CSS grid layouts with a senior developer's review.",
+        "syntheticExtraction": true,
+        "items": [
+          {
+            "id": "resume-sql",
+            "kind": "experience",
+            "text": "I used SQL joins to reconcile trial and paid accounts, following review notes.",
+            "requirementLevel": null,
+            "skillLabels": [
+              "SQL joins"
+            ],
+            "selfLevelHint": null
+          },
+          {
+            "id": "resume-other-react",
+            "kind": "experience",
+            "text": "My colleague built React forms.",
+            "requirementLevel": null,
+            "skillLabels": [
+              "React"
+            ],
+            "selfLevelHint": null
+          },
+          {
+            "id": "resume-css",
+            "kind": "experience",
+            "text": "I built CSS grid layouts with a senior developer's review.",
+            "requirementLevel": null,
+            "skillLabels": [
+              "CSS"
+            ],
+            "selfLevelHint": null
+          }
+        ]
+      },
+      "focus": {
+        "kind": "supplement",
+        "name": "Synthetic optional focus",
+        "text": "Coach suggests SQL practice.\nCoach suggests React practice.",
+        "syntheticExtraction": true,
+        "items": [
+          {
+            "id": "focus-sql",
+            "kind": "constraint",
+            "text": "Coach suggests SQL practice.",
+            "requirementLevel": null,
+            "skillLabels": [
+              "SQL"
+            ],
+            "selfLevelHint": null
+          },
+          {
+            "id": "focus-react",
+            "kind": "constraint",
+            "text": "Coach suggests React practice.",
+            "requirementLevel": null,
+            "skillLabels": [
+              "React"
+            ],
+            "selfLevelHint": null
+          }
+        ]
+      },
+      "secondary": {
+        "kind": "supplement",
+        "name": "Synthetic secondary company JD",
+        "text": "Required: React 组件状态设计。",
+        "syntheticExtraction": true,
+        "items": [
+          {
+            "id": "secondary-react",
+            "kind": "requirement",
+            "text": "Required: React 组件状态设计。",
+            "requirementLevel": "must",
+            "skillLabels": [
+              "组件状态设计"
+            ],
+            "selfLevelHint": null
+          }
+        ]
+      }
+    },
+    "cases": [
+      {
+        "id": "accept-current-primary-jd-preview",
+        "layer": "changed-course-relations-through-native-replacement-and-acceptance",
+        "initialIntents": []
+      },
+      {
+        "id": "secondary-jd-cannot-add-must",
+        "layer": "changed-contextual-relation-through-native-optional-focus",
+        "supplement": "secondary",
+        "initialIntents": []
+      }
+    ],
+    "reuse": {
+      "description": "Only the recorded service operation sequence is reused; these are two new input cases, not a repeated or relabelled fourteen-case acceptance."
+    },
+    "limits": {
+      "realProviderCalls": 0,
+      "externalHttpAllowed": false,
+      "newActivePlanSelfAssessmentEndpoint": false,
+      "independentIsSelfReport": true,
+      "modelQualityApproved": false,
+      "gateApproved": false,
+      "publicationApproved": false
+    }
+  },
+  "infrastructure": [
+    {
+      "path": "work/grounded-verification/course-relations-native-20261119-tools/planning-inputs.json",
+      "sha256": "0031e1e0252303e1cefdc6c3714ba4696f32ec1217f45cfb2a286bc7e710e1c0",
+      "bytes": 4483
+    },
+    {
+      "path": "work/grounded-verification/course-relations-native-20261119-tools/planning-worker.ts",
+      "sha256": "09fcc107091944215394f6f041bd5abf116b0242dafc808e91c1be23a357d3ca",
+      "bytes": 26782
+    },
+    {
+      "path": "work/grounded-verification/course-relations-native-20261119-tools/collect.mjs",
+      "sha256": "c2faba2c738216dbad301f7432fb8d8c70d4df0e11d6cabf6a2bd59aaa2d48ca",
+      "bytes": 8107
+    },
+    {
+      "path": "work/grounded-verification/course-relations-native-20261119-tools/check.mjs",
+      "sha256": "0be6ac72c6fcb5d5d0e7e18a9f9f5a9f61055fa289936036841bdbe28c80c2e6",
+      "bytes": 14746
+    }
+  ],
+  "migrations": [
+    {
+      "path": "drizzle/0000_beta_foundation.sql",
+      "sha256": "9b59e5e4f30cc70e0783abd2359b5821c3ea31eeeaef30e38dffa1d3d394dfa4",
+      "bytes": 11883
+    },
+    {
+      "path": "drizzle/0001_secure_account_linking.sql",
+      "sha256": "a26d95b165915b9bc88705299b6c7bd8cdeced54cd1e24b3c479594e60fb56a4",
+      "bytes": 961
+    },
+    {
+      "path": "drizzle/0002_product_intelligence.sql",
+      "sha256": "f5449ea8d59e1869a480062ae5aaf40007795a2a1c725e0c3bfe7ca34b296c68",
+      "bytes": 4579
+    },
+    {
+      "path": "drizzle/0003_adaptive_planning.sql",
+      "sha256": "fce561140d8b2835f1518f08e3ea26a96d7fa4b298197ca55b9b72f39961c25d",
+      "bytes": 8284
+    },
+    {
+      "path": "drizzle/0004_proof_backed_stack.sql",
+      "sha256": "a01c4f719701ae683ed1f1b8769b724065bfbfd93def02614f89154df784b859",
+      "bytes": 4321
+    },
+    {
+      "path": "drizzle/0005_openrouter_research_beta.sql",
+      "sha256": "bbecea2119999103906e3c721d602467124a60f72ad9c672ae847212fe52ee35",
+      "bytes": 11137
+    },
+    {
+      "path": "drizzle/0006_research_health_indexes.sql",
+      "sha256": "24caea1c12c3ffa16b7b03c4f0a5a9c21736501b6dc2b2f2afbd149e6da78b73",
+      "bytes": 222
+    },
+    {
+      "path": "drizzle/0007_research_bridge_nonces.sql",
+      "sha256": "0a2c53031dafa8290fa95a5444de91cd589d9b8e6475da86e86472102bba8908",
+      "bytes": 1448
+    },
+    {
+      "path": "drizzle/0008_research_site_executions.sql",
+      "sha256": "6e0deea44a54a3d7682ed1688827c3beab3839319fa0508a51259354a3195046",
+      "bytes": 11095
+    },
+    {
+      "path": "drizzle/0009_research_site_begin_grants.sql",
+      "sha256": "4e7b91027a3936c1d6f2cfb454e7296f370913995b4cb4cea8765a1db7455908",
+      "bytes": 1518
+    },
+    {
+      "path": "drizzle/0010_research_site_imports.sql",
+      "sha256": "9bf3eb34fda5be9969b421abe6c0a442d3f60aae53064a2adc94a88622e9c3f7",
+      "bytes": 6421
+    },
+    {
+      "path": "drizzle/0011_research_site_bridge.sql",
+      "sha256": "bd1f562026752de0db87668e1318f2fce6130cb4be40dfb0901745005f2472d5",
+      "bytes": 6906
+    },
+    {
+      "path": "drizzle/0012_account_recovery.sql",
+      "sha256": "5b9732c21b9b9c22a66f3304fbe7766b798fa2d143dc3a0db7d808f5f08d8059",
+      "bytes": 921
+    },
+    {
+      "path": "drizzle/0013_learning_agents.sql",
+      "sha256": "da1a1e762a08c4ca82c464d80e9fa04a4a93f625ac1fc6dfd436d93567134b67",
+      "bytes": 1028
+    },
+    {
+      "path": "drizzle/0014_private_materials.sql",
+      "sha256": "9329c8cb8a2b3e4ffbac773032fb33700f6178ba8a8d5f6553039735778781d6",
+      "bytes": 21893
+    },
+    {
+      "path": "drizzle/0015_document_storage_uploads.sql",
+      "sha256": "5c6b594a03d3397bd88a868664d521c9a82c3fc3847faade36022f8dbdf861b2",
+      "bytes": 1221
+    }
+  ],
+  "runtime": {
+    "nodeVersion": "v24.14.1",
+    "esbuildVersion": "0.28.0",
+    "compatibilityDate": "2026-05-15",
+    "nodeExecutable": {
+      "sha256": "58e74bf02fc5bbacc41dcb8bef089961cd5bddd37830b87784e4fc624d145d1f",
+      "bytes": 91426304
+    },
+    "packages": [
+      {
+        "path": "node_modules/miniflare/package.json",
+        "sha256": "c3b5ee81d42c56d71e1fd448b134d38ee2d7e14f6418f1ab26d0cba400e163b2",
+        "bytes": 4015
+      },
+      {
+        "path": "node_modules/workerd/package.json",
+        "sha256": "db07f3fbd0cb0f43a9502f22aede4f96170469287066788d98a5e555a562431b",
+        "bytes": 676
+      },
+      {
+        "path": "node_modules/@cloudflare/workerd-windows-64/bin/workerd.exe",
+        "sha256": "74550de7abef9a2b86fa43491d57c7ecf6809e45b3f123222b2256b57a0839dc",
+        "bytes": 89875456
+      }
+    ],
+    "isolation": "fresh local D1/R2 per case",
+    "outboundPolicy": "reject all external requests"
+  },
+  "runtimeDigest": "9059fba685349eda99b134935bfee3a52e4195da35a7f64367c642e3f1bdd9b7",
+  "derivedWorker": {
+    "original": {
+      "path": "docs/verification/materials-native-acceptance/planning-worker.ts",
+      "sha256": "7d82e3e0ac65c21bd8934b7d0f7e63e995849512371b0b08540c94dd9c72e201",
+      "bytes": 26576
+    },
+    "change": "Only three policy symbol occurrences change from grounded v2 to retained source mentions v3; a provenance comment is prepended. Separate fixed input bytes declare two new cases."
+  },
+  "workerBundle": {
+    "path": "worker.mjs",
+    "sha256": "f8279606331b061e778691295229ce086d1dc17a3536e074d7ae3b587da3ec2f",
+    "bytes": 1194706
+  },
+  "limits": {
+    "realProviderCalls": 0,
+    "externalHttpAllowed": false,
+    "newActivePlanSelfAssessmentEndpoint": false,
+    "independentIsSelfReport": true,
+    "modelQualityApproved": false,
+    "gateApproved": false,
+    "publicationApproved": false
+  }
+}

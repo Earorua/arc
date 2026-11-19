@@ -1,0 +1,159 @@
+{
+  "status": "ready-for-independent-rereview",
+  "sourceFrozen": true,
+  "mappingVersion": "2026.11.7",
+  "baseHead": "24a344858cfde17888675716df488421b61fff2d",
+  "branch": "codex/materials-replan-recovery-20261106",
+  "supersedes": {
+    "path": "work/grounded-verification/course-relations-20261119-handoff-03-source.json",
+    "sha256": "8f7e8ef262b6de568d025390fa64b6c0e5156fa345cbb42bf4d18c12c0ef11df",
+    "changedFiles": [
+      "app/lib/materials/course-relation-scope.ts",
+      "tests/lib/materials/course-relations.test.ts"
+    ]
+  },
+  "preservedPreCorrection": {
+    "manifestPath": "work/grounded-verification/course-relations-20261119-pre-quality-correction/manifest.json",
+    "manifestSha256": "0df8fe69fa5f0ce7860de774fd14bdb8f6435c95e06406b97f0d384ccef25d4b",
+    "archivedSourceFiles": 10,
+    "archivedEvidenceFiles": 6,
+    "priorDiagnostic": {
+      "path": "work/grounded-verification/course-relations-20261119-component-diagnostic-result-02.json",
+      "sha256": "60d18b0aefa3bec8ed93e2ce07455f442526044fd840f142101355426cd66ccc",
+      "source": "passed",
+      "course": {
+        "passed": 146,
+        "failed": 0
+      }
+    }
+  },
+  "review": {
+    "path": "work/grounded-verification/course-relations-20261119-quality-review.md",
+    "sha256": "6a3b1ef2665cc66cef28ef29ef67674173772518e780fcdcf9212a8cb00b3bc6"
+  },
+  "files": [
+    {
+      "path": "app/lib/materials/skill-mapper.ts",
+      "sha256": "2fb992337c5112856ee9253d2da843f5d5bd0be3d09de970c49023345e133b1c"
+    },
+    {
+      "path": "app/lib/materials/course-relation-scope.ts",
+      "sha256": "461093918e389e2c5ba5b9d603e6c44f100172f0b009492e2a496295584caae3"
+    },
+    {
+      "path": "app/lib/materials/course-task-coverage.ts",
+      "sha256": "5cbca147cb1d8c707cd4e8eb32b1e02e04d6b1d6c5c16b0eb57dc635b68e640b"
+    },
+    {
+      "path": "app/lib/materials/course-task-evidence.ts",
+      "sha256": "f21a983255129082788321455b8b5dfd8f574cbae370682680fb7e9bbe8cadd4"
+    },
+    {
+      "path": "app/components/materials/material-context-review.tsx",
+      "sha256": "3fcba579de055759e72241050321224fc1de071c34d60f09791e732372fd9f01"
+    },
+    {
+      "path": "tests/lib/materials/course-relations.test.ts",
+      "sha256": "c543e2942b930dcc01fad11ee1b606e508b304175ee282607d6f664f6541118a"
+    },
+    {
+      "path": "tests/lib/materials/skill-mapper.test.ts",
+      "sha256": "cb888823d9d4746a11c9234e1d78de875311c145af5615dbb7d0b8ad388e5ef1"
+    },
+    {
+      "path": "tests/lib/materials/practice-skill-mapping.test.ts",
+      "sha256": "7cd4c88e1af0c92e4e8de2d2b81839beeb8234766d3bd9e3d9277c6ef7da3090"
+    },
+    {
+      "path": "tests/server/material-practice-priorities.test.ts",
+      "sha256": "59314cf66eb8ddc3d3e5eab8b9485038e16065e26340a634e507e2bbca9f6f84"
+    },
+    {
+      "path": "tests/components/material-context-choices.test.tsx",
+      "sha256": "9b8742703bef4a91da9e79233652ddb624e8d1bfb194dcbce45a372bd46dd852"
+    }
+  ],
+  "correction": {
+    "cause": "The remaining generic Chinese guidance/negation and bare English contrast delimiters could discard dependent qualifiers solely because the qualifier did not repeat the retained term.",
+    "finiteDelimiterAudit": [
+      "General 按 no longer splits a comma clause. A known guide (导师示例, 示例, 评审反馈) splits only when immediately followed by an action already present in the bounded task vocabulary.",
+      "General 没有 is no longer a task-clause boundary; its unknown condition remains attached.",
+      "Bare but/whereas/while no longer split without an existing actor or action start. Existing explicit comma action/actor and and-actor boundaries remain unchanged.",
+      "Terminal guide-only removal now permits exactly 按导师示例, 按示例 or 按评审反馈, alongside the existing following review notes. The terminal anchor prevents a known-guide prefix from consuming additional unknown requirements."
+    ],
+    "productionDelta": "Only the terminal wrapper regex, the task-scope delimiter regex and its explanatory comment in course-relation-scope.ts.",
+    "regression": "Extended the same qualifier group for unknown Chinese guidance, known guidance plus an unknown suffix, denied unknown audit scope, and the three existing contrast alternatives. Reused the existing actor/guidance group including separate React-form and keyboard-focus ownership.",
+    "publicTypesChanged": false,
+    "importsChanged": false,
+    "courseLeavesChanged": false,
+    "topicPredicatesChanged": false,
+    "experiencePredicatesChanged": false,
+    "priorImplementationAndValidation": "work/grounded-verification/course-relations-20261119-handoff-03-source.json"
+  },
+  "validation": {
+    "red": "First RED observed 3 Chinese qualifier losses. The English controls initially had commas that independently prevented full coverage; removing that incidental punctuation made all 6 affected qualifier assertions RED before production editing. The existing actor/guidance group passed in both RED runs.",
+    "green": "2 selected existing test groups passed; 11 skipped. These are the qualifier-boundary and existing actor/guidance groups only.",
+    "lint": "PASS for the 2 changed files.",
+    "diffCheck": "PASS for the 10 Task A paths.",
+    "types": "Prior green full-source compiler evidence reused for regex/comment/assertion changes only; no types, imports or contracts changed.",
+    "priorTypeLog": "work/grounded-verification/course-relations-20261119-types-final.log",
+    "priorTypeConfig": "work/grounded-verification/course-relations-20261119-tsconfig.json",
+    "currentNormalTypeConfig": "tsconfig.json",
+    "nonLoopbackDenials": 0,
+    "fullRepositoryRuns": 0,
+    "nativeRuns": 0,
+    "modelCalls": 0
+  },
+  "evidence": [
+    {
+      "label": "quality-qualifier-red",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-quality-qualifier-red.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-quality-qualifier-red.log",
+      "name": "course-relations-20261119-quality-qualifier-red",
+      "exit": 1,
+      "elapsedMs": 1714,
+      "logSha256": "00a5bb47cfc11e85d3e74a11d1a3da39ed03ddd2d6f4c79d39d5e788058d26b6",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-uu8WPa"
+    },
+    {
+      "label": "quality-qualifier-red-02",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-quality-qualifier-red-02.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-quality-qualifier-red-02.log",
+      "name": "course-relations-20261119-quality-qualifier-red-02",
+      "exit": 1,
+      "elapsedMs": 1716,
+      "logSha256": "dc730171a7d06d896e64c8a2072f912a9decbf4ba682e3c4d9138fde0538910f",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-5WivVb"
+    },
+    {
+      "label": "quality-qualifier-green",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-quality-qualifier-green.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-quality-qualifier-green.log",
+      "name": "course-relations-20261119-quality-qualifier-green",
+      "exit": 0,
+      "elapsedMs": 1660,
+      "logSha256": "f5d34c43ffb5d3dc95a1774a07b20121fc1ca4a485cda205da686fc66ccc23b3",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-NLlxoG"
+    },
+    {
+      "label": "quality-qualifier-lint",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-quality-qualifier-lint.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-quality-qualifier-lint.log",
+      "name": "course-relations-20261119-quality-qualifier-lint",
+      "exit": 0,
+      "elapsedMs": 3391,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-2XVbI3"
+    }
+  ],
+  "remaining": [
+    "Root owns the independent rereview and comparison of only saved diagnostic rows affected by the finite delimiter delta.",
+    "The prior diagnostic-delta reuse record belongs to handoff 03; no 30-document or 146-row replay is claimed for handoff 04.",
+    "Task B current native/source binding and full product acceptance remain required; Task 3 feasibility has been reported and no Task 3 implementation was performed.",
+    "Source is frozen. No staging, commit, push, model call, migration or deployment performed."
+  ]
+}

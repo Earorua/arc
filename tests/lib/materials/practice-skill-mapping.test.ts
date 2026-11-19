@@ -92,7 +92,7 @@ describe("source evidence for practice skill relations", () => {
     expect(project({ ...fact("SQL"), kind: "skill-claim" })).toEqual([{ itemId: "fact", skillId: "sql" }]);
   });
 
-  it.each(["2026.11.2", "2026.11.3", "2026.11.4", "2026.11.5"] as const)("uses the actual alias from legacy vocabulary %s", version => {
+  it.each(["2026.11.2", "2026.11.3", "2026.11.4", "2026.11.5", "2026.11.6"] as const)("uses the actual alias from legacy vocabulary %s", version => {
     const blueprint = { ...flagshipBlueprint, id: "research-catalog" };
     const registry = { ...flagshipUnitRegistry, blueprintId: blueprint.id };
     const item = fact("I configured QuillBin.");

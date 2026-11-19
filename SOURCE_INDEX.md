@@ -15,7 +15,7 @@
 
 此前 `714ea9e` 的[暂停说明](https://github.com/Earorua/arc/blob/714ea9e54d87b91a1fee4883176d4f1dd06ecf63/docs/verification/2026-11-08-materials-practice-priorities-pause.md)是历史失败记录，保留用于追溯，不再是最新未完成修复。复用已通过证据，仅为实际变更或缺口补必要检查；旧参考摘要不重写，主线英文界面及已发布改进必须保留。真实模型、远程迁移和部署仍按 Gate 独立授权。
 
-11 月 19 日后续已验收[采集衔接工具](./docs/verification/materials-quality-next/capture-result.md)和[当前评分适配](./docs/verification/materials-quality-next/adapter-result.md)。一次原有 30 份输入的软件对照暴露 69 项实际课程关系差异，现按[有限修复计划](./docs/superpowers/plans/2026-11-19-materials-course-relation-repair.md)继续；原九锚点验收不代表全部质量语料通过。原始失败、独立参考和已验收原生记录保留，勿复用历史授权启动模型或发布。
+11 月 19 日后续已验收[采集衔接工具](./docs/verification/materials-quality-next/capture-result.md)和[当前评分适配](./docs/verification/materials-quality-next/adapter-result.md)。原有构造输入对照暴露的 69 项课程关系差异已完成[有限修复及独立复审](./docs/verification/materials-course-relations-20261119/README.md)，软件组件诊断为 146/146；并非真实 Kimi 质量成绩。[两条新增本地原生链路及旧 14 场景复用范围](./docs/verification/materials-course-relations-20261119/native-result.md)也已通过独立规格／质量审阅。当前正将评分器接到新回执，并准备普通 PowerShell 操作包；最终应用验收尚待本批源码冻结。原始失败、独立参考和已验收原生记录保留，勿复用历史授权启动模型或发布；以[最新恢复记录](./docs/verification/2026-11-06-materials-grounding-pause.md)核对未提交进度。
 
 ## 开始任务前
 

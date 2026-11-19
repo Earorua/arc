@@ -1,0 +1,159 @@
+{
+  "schemaVersion": "materials-course-diagnostic-delta-reuse-v2",
+  "status": "passed",
+  "sourceHandoff": {
+    "path": "work/grounded-verification/course-relations-20261119-handoff-04-source.json",
+    "sha256": "1cb8c9732eb0f9303f0ffcb170c49b8e543c1921eebe9071e6534d330034009e"
+  },
+  "previousReuse": {
+    "path": "work/grounded-verification/course-relations-20261119-diagnostic-delta-reuse-result-01.json",
+    "sha256": "437e0aa7bd299e770ec56e8b06b9688c4e66d21bbadc95988417911a977e7724"
+  },
+  "priorDiagnostic": {
+    "path": "work/grounded-verification/course-relations-20261119-component-diagnostic-result-02.json",
+    "sha256": "60d18b0aefa3bec8ed93e2ce07455f442526044fd840f142101355426cd66ccc",
+    "source": "passed",
+    "course": {
+      "passed": 146,
+      "failed": 0
+    }
+  },
+  "sourceArchive": {
+    "path": "work/grounded-verification/course-relations-20261119-pre-quality-correction/manifest.json",
+    "sha256": "0df8fe69fa5f0ce7860de774fd14bdb8f6435c95e06406b97f0d384ccef25d4b"
+  },
+  "delta": "Narrow guidance/negation/contrast task delimiters and end-anchored known Chinese guide cleanup; other product files unchanged.",
+  "affectedFacts": 3,
+  "affectedMappingRows": 6,
+  "checks": [
+    {
+      "documentId": "resume-01",
+      "itemId": "candidate-1",
+      "text": "2024年在青桔实验室参与销售报表项目，按导师示例编写 SQL 汇总查询。",
+      "comparedRows": 2,
+      "observed": [
+        {
+          "itemId": "candidate-1",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal",
+          "taskCoverage": {
+            "status": "none",
+            "support": [],
+            "remaining": "unassessed-scope"
+          }
+        },
+        {
+          "itemId": "candidate-1",
+          "term": "汇总查询",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "contextual",
+          "taskCoverage": {
+            "status": "none",
+            "support": [],
+            "remaining": "unassessed-scope"
+          }
+        }
+      ],
+      "identicalToPrior": true
+    },
+    {
+      "documentId": "resume-02",
+      "itemId": "candidate-1",
+      "text": "在灯塔交互社维护 React 表单，按评审反馈修复键盘焦点顺序。",
+      "comparedRows": 3,
+      "observed": [
+        {
+          "itemId": "candidate-1",
+          "term": "React",
+          "status": "mapped",
+          "skillIds": [
+            "react"
+          ],
+          "basis": "literal",
+          "taskCoverage": {
+            "status": "full",
+            "support": [
+              "react-form"
+            ],
+            "remaining": null
+          }
+        },
+        {
+          "itemId": "candidate-1",
+          "term": "表单",
+          "status": "mapped",
+          "skillIds": [
+            "react"
+          ],
+          "basis": "contextual",
+          "taskCoverage": {
+            "status": "full",
+            "support": [
+              "react-form"
+            ],
+            "remaining": null
+          }
+        },
+        {
+          "itemId": "candidate-1",
+          "term": "键盘焦点顺序",
+          "status": "mapped",
+          "skillIds": [
+            "design-systems"
+          ],
+          "basis": "contextual",
+          "taskCoverage": {
+            "status": "full",
+            "support": [
+              "component-keyboard"
+            ],
+            "remaining": null
+          }
+        }
+      ],
+      "identicalToPrior": true
+    },
+    {
+      "documentId": "supplement-04",
+      "itemId": "candidate-2",
+      "text": "我个人只记录回滚步骤，没有操作集群。",
+      "comparedRows": 1,
+      "observed": [
+        {
+          "itemId": "candidate-2",
+          "term": "记录回滚步骤",
+          "status": "mapped",
+          "skillIds": [
+            "cloud-delivery"
+          ],
+          "basis": "contextual",
+          "taskCoverage": {
+            "status": "partial",
+            "support": [
+              "release-checklist"
+            ],
+            "remaining": "unassessed-scope"
+          }
+        }
+      ],
+      "identicalToPrior": true
+    }
+  ],
+  "unaffectedCourseRows": 140,
+  "originalEvidenceRewritten": false,
+  "fullThirtyInputDiagnosticRerun": false,
+  "realModelCalls": 0,
+  "costMicroUsd": 0,
+  "nativeExecutions": 0,
+  "gateApproved": false,
+  "limits": [
+    "Source-delta reuse of software component evidence only; independent review and native binding remain separate."
+  ]
+}

@@ -1,0 +1,63 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:42292) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/components/material-context-choices.test.tsx [2m([22m[2m31 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m30 skipped[39m[2m)[22m[32m 138[2mms[22m[39m
+     [2m[90m↓[39m[22m distinguishes course mapping from current priorities for 'mapped topic without practice'
+     [2m[90m↓[39m[22m distinguishes course mapping from current priorities for 'two courses with one practice'
+     [2m[90m↓[39m[22m distinguishes course mapping from current priorities for 'duplicate mapped course'
+     [2m[90m↓[39m[22m distinguishes course mapping from current priorities for 'ambiguous courses'
+     [2m[90m↓[39m[22m distinguishes course mapping from current priorities for 'uncovered omitted and non-learning to…'
+     [2m[90m↓[39m[22m reports only the provable priority count for a historical preview without mapping details
+     [2m[90m↓[39m[22m shows the retained labels, actual courses and contextual basis for every grouped term
+     [2m[90m↓[39m[22m shows task coverage and its remaining scope separately from topic correspondence
+[31m     [31m×[31m describes ambiguous task coverage as the combined candidate content[39m[32m 137[2mms[22m[39m
+     [2m[90m↓[39m[22m changes one term without changing other automatic mappings and supports explicit omit and return to automatic
+     [2m[90m↓[39m[22m preserves a stored multi-course choice on another term when editing one term
+     [2m[90m↓[39m[22m adopts a constraint separately and removes its explicit mappings when adoption is withdrawn
+     [2m[90m↓[39m[22m immediately invalidates the adoption reference and resets choices after 修改自评
+     [2m[90m↓[39m[22m immediately invalidates the adoption reference and resets choices after 修改课程来源
+     [2m[90m↓[39m[22m does not accept a context response after the selected material was removed
+     [2m[90m↓[39m[22m restores saved choices as read-only without persisting their labels or intent
+     [2m[90m↓[39m[22m shows an old labelled fact's saved whole-fact mapping ["sql"] without implying per-term automatic matches
+     [2m[90m↓[39m[22m shows an old labelled fact's saved whole-fact mapping ["sql","retired-course"] without implying per-term automatic matches
+     [2m[90m↓[39m[22m locks both explicit choice controls when disabled
+     [2m[90m↓[39m[22m does not offer a whole-fact override when the user retained an empty term list
+     [2m[90m↓[39m[22m requires another preview even when an intent is toggled back to its original value
+     [2m[90m↓[39m[22m does not revive private choices or an old preview when a prior source is selected again
+     [2m[90m↓[39m[22m hides a recovered snapshot immediately when its saved reference changes
+     [2m[90m↓[39m[22m keeps the parent preview invalid when reading a replacement recovery snapshot fails
+     [2m[90m↓[39m[22m rejects a pending response after changing the source away and back
+     [2m[90m↓[39m[22m does not publish a pending context after its review component was unmounted
+     [2m[90m↓[39m[22m invalidates an in-flight preview synchronously when a term changes before the next render
+     [2m[90m↓[39m[22m shows the saved ambiguous result without treating it as an automatic match
+     [2m[90m↓[39m[22m shows the saved uncovered result without treating it as an automatic match
+     [2m[90m↓[39m[22m shows the saved omitted result without treating it as an automatic match
+     [2m[90m↓[39m[22m shows the saved mapped result without treating it as an automatic match
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/components/material-context-choices.test.tsx[2m > [22mmaterial term choices and explicit learning intent[2m > [22mdescribes ambiguous task coverage as the combined candidate content
+[31m[1mError[22m: [2mexpect([22m[31melement[31m[2m).toHaveTextContent()[22m
+
+Expected element to have text content:
+[32m  Combined candidate content; choosing one course recalculates coverage[31m
+Received:
+[31m  Task coverage: Full (recognized narrow task only) · Supported: Labeled semantic forms, Component semantics, focus and contrast audits.[31m[39m
+[36m [2m❯[22m tests/components/material-context-choices.test.tsx:[2m123:50[22m[39m
+    [90m121|[39m     [35mconst[39m row [33m=[39m [34mwithin[39m([34mtermControl[39m([32m"Figma"[39m)[33m.[39m[34mclosest[39m([32m"li"[39m)[33m![39m)[33m;[39m
+    [90m122|[39m     [34mexpect[39m(row[33m.[39m[34mgetByText[39m([36m/Match needs review/[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m123|[39m     expect(row.getByText(/Task coverage: Full/)).toHaveTextContent("Co…
+    [90m   |[39m                                                  [31m^[39m
+    [90m124|[39m   })[33m;[39m
+    [90m125|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[33m30 skipped[39m[90m (31)[39m
+[2m   Start at [22m 16:30:03
+[2m   Duration [22m 1.67s[2m (transform 311ms, setup 202ms, import 489ms, tests 138ms, environment 698ms)[22m
+

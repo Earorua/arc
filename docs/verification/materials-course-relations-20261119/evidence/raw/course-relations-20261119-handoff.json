@@ -1,0 +1,252 @@
+{
+  "status": "ready-for-independent-review",
+  "sourceFrozen": true,
+  "baseHead": "24a344858cfde17888675716df488421b61fff2d",
+  "observedHead": "24a344858cfde17888675716df488421b61fff2d",
+  "branch": "codex/materials-replan-recovery-20261106",
+  "mappingVersion": "2026.11.7",
+  "files": [
+    {
+      "path": "app/lib/materials/skill-mapper.ts",
+      "sha256": "2fb992337c5112856ee9253d2da843f5d5bd0be3d09de970c49023345e133b1c"
+    },
+    {
+      "path": "app/lib/materials/course-relation-scope.ts",
+      "sha256": "ed8ca01238634e4d693e151975f531c3d85a20ea86ea9fc5a230851f7976bde8"
+    },
+    {
+      "path": "app/lib/materials/course-task-coverage.ts",
+      "sha256": "79940c7901969b1442dea85a458ebed49252306f334473b3f7f38884618086a3"
+    },
+    {
+      "path": "app/lib/materials/course-task-evidence.ts",
+      "sha256": "f21a983255129082788321455b8b5dfd8f574cbae370682680fb7e9bbe8cadd4"
+    },
+    {
+      "path": "app/components/materials/material-context-review.tsx",
+      "sha256": "3fcba579de055759e72241050321224fc1de071c34d60f09791e732372fd9f01"
+    },
+    {
+      "path": "tests/lib/materials/course-relations.test.ts",
+      "sha256": "d29bc25d22804e7501d3c3909cd4f0f4b5838de34472a11302a01ccd4ce93434"
+    },
+    {
+      "path": "tests/lib/materials/skill-mapper.test.ts",
+      "sha256": "cb888823d9d4746a11c9234e1d78de875311c145af5615dbb7d0b8ad388e5ef1"
+    },
+    {
+      "path": "tests/lib/materials/practice-skill-mapping.test.ts",
+      "sha256": "7cd4c88e1af0c92e4e8de2d2b81839beeb8234766d3bd9e3d9277c6ef7da3090"
+    },
+    {
+      "path": "tests/server/material-practice-priorities.test.ts",
+      "sha256": "59314cf66eb8ddc3d3e5eab8b9485038e16065e26340a634e507e2bbca9f6f84"
+    },
+    {
+      "path": "tests/components/material-context-choices.test.tsx",
+      "sha256": "9b8742703bef4a91da9e79233652ddb624e8d1bfb194dcbce45a372bd46dd852"
+    }
+  ],
+  "causalChanges": [
+    "Broad HTML/CSS, testing-method/tool, and tracing default aliases no longer claim literal course-name equivalence. Bounded retained technical/contextual concepts use verified flagship content; explicit alias versions 2026.11.2 through 2026.11.6 remain accepted.",
+    "A shared relation/scope helper keeps same-clause technical context, preserved raw capitalization, negation/actor boundaries, task-specific coordination, and recognized history/guidance wrappers separate from task remainder. New semantics never alter extraction or experience predicates.",
+    "Ordinary SQL joins/schema, semantic forms, React form/state/component testing, keyboard component states, focused software tests, signals, release documentation and product outcomes use actual course leaves. Aggregate/CTE/window/null/date-parameter/transformation tasks, TS formatter/async-test coverage, CSS and log-parser implementation remain unprovided.",
+    "Added only component-keyboard and product-outcomes IDs from existing content. The existing component-audit ID now additionally verifies the exact current token/semantic-fix rubric leaf. No course data changed; all old support IDs remain readable.",
+    "Ambiguity and task coverage are independent. Candidate-union narrow coverage remains visibly ambiguous; explicit selection filters support to the selected course. English UI now says combined candidate content and that choosing one recalculates coverage.",
+    "Exact meeting notes/taking meeting notes roles are non-learning. Mixed responsibilities keep unassessed remainder. Mapping and coverage do not adopt ability, personal practice, planning priority, or a secondary-JD authority."
+  ],
+  "broadRequirementInterpretation": "A standalone topic name remains none/unspecified-task. An explicit broad requirement/preference can identify only a partial named catalog subset, without asserting the source specified that subtask or any ability. Concrete unsupported work cannot use the broad fallback. Priority conflicts are untouched.",
+  "testExpectationChanges": [
+    "Default whole-text HTML/CSS relation is now uncovered because the demonstrated broad alias was removed; React.js literal mapping remains checked.",
+    "Testing tools and tracing retained-label test now supplies their actual source mentions, keeps dropped SQL excluded, and checks contextual rather than literal Jest basis.",
+    "Version assertions changed only for newly created mapping snapshots: 2026.11.6 to 2026.11.7, with explicit 2026.11.6 aliases added to compatibility tests.",
+    "A legacy whole fact that explicitly wrote SQL queries now has partial sql-joins support while its denied SQLite remainder and independent personal-practice assertion remain intact."
+  ],
+  "validation": {
+    "focusedRed": "9 grouped behavior tests failed before product edits; UI union wording also failed before its one-line product edit.",
+    "affected": "13 files: 261 passed and 3 failed. The failures were one lost testing/test inflection plus two causal expectation updates.",
+    "repairs": "Failure-only rerun: 3 files / 50 passed. Includes all 9 new relation groups, 9 existing course coverage tests and 32 practice-priority tests.",
+    "finalContentAnchor": "One additional exact token-rubric invalidation test observed RED then GREEN. No other product behavior changed after the 50-pass repair run.",
+    "types": "PASS with original compiler settings; only node_modules, work scratch, and three explicitly named relocated source snapshot folders excluded.",
+    "typesConfig": "work/grounded-verification/course-relations-20261119-tsconfig.json",
+    "typesConfigSha256": "6b1cc6a9f5d6d4d5fbe0fde8c066a8704ec5b1be7d795fffe78ebe9a834983fe",
+    "rawTypeFailures": "Unscoped tsc failed on pre-existing fake work/profile fixture syntax; work-excluded tsc failed exclusively on relocated archived snapshots with invalid relative imports. Both logs retained. Root owns repository-level config repair.",
+    "lint": "PASS for all 10 changed implementation/test files, then PASS for the final token-leaf changed subset.",
+    "diffCheck": "PASS for the 10 frozen Task A paths; concurrent root config/doc work is outside this handoff",
+    "nonLoopbackDenials": 0,
+    "broadSuiteRuns": 0,
+    "nativeRuns": 0,
+    "modelCalls": 0
+  },
+  "evidence": [
+    {
+      "label": "red",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-red.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-red.log",
+      "name": "course-relations-20261119-red",
+      "exit": 1,
+      "elapsedMs": 2122,
+      "logSha256": "8f2809b0ba3b01dfeaf2dc39caed3ea3cb1a8f95dbfddb3a08b366393d4b8cf5",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-r09V3O"
+    },
+    {
+      "label": "focused-1",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-focused-1.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-focused-1.log",
+      "name": "course-relations-20261119-focused-1",
+      "exit": 1,
+      "elapsedMs": 1730,
+      "logSha256": "23f982038f0c48d1f8c7c8cd333f274e965cf314409df8dafdde8c80050c2243",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-fTYFgc"
+    },
+    {
+      "label": "focused-2",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-focused-2.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-focused-2.log",
+      "name": "course-relations-20261119-focused-2",
+      "exit": 0,
+      "elapsedMs": 1703,
+      "logSha256": "0542a849a15c9b538a479aeeee325e989fcaf8dd396425166cd35079739ec6f1",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-bHS9Oq"
+    },
+    {
+      "label": "ui-red",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-ui-red.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-ui-red.log",
+      "name": "course-relations-20261119-ui-red",
+      "exit": 1,
+      "elapsedMs": 2012,
+      "logSha256": "bd49ed3da4d93ffeb9f5cdf7e19df02f7c8e486d3d28625ae949ef6b944c150d",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-RqCFcx"
+    },
+    {
+      "label": "affected",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-affected.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-affected.log",
+      "name": "course-relations-20261119-affected",
+      "exit": 1,
+      "elapsedMs": 10058,
+      "logSha256": "9888e7362a85f60acc0ee1fa698c52cdfb7f84a8b3e3a28d61e18b225b5c66c3",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-ZiVJ6E"
+    },
+    {
+      "label": "wording-red",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-wording-red.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-wording-red.log",
+      "name": "course-relations-20261119-wording-red",
+      "exit": 1,
+      "elapsedMs": 1696,
+      "logSha256": "e4779afa63e9a649a2fe32cc44c1e367a685025a83d427dd7071e3dbcf0d2b0b",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-3QOy3y"
+    },
+    {
+      "label": "failures",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-failures.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-failures.log",
+      "name": "course-relations-20261119-failures",
+      "exit": 0,
+      "elapsedMs": 2529,
+      "logSha256": "9bc93564fecdc09e7b6a57ed1978e754ded21257ff84b6bc5b69d242f3619c10",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-GZy8r5"
+    },
+    {
+      "label": "token-leaf-red",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-token-leaf-red.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-token-leaf-red.log",
+      "name": "course-relations-20261119-token-leaf-red",
+      "exit": 1,
+      "elapsedMs": 1679,
+      "logSha256": "47fbe441797d47edfc95c93f0ce0f576cec3d7c8951531889816b0532f8da25a",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-FPHvBP"
+    },
+    {
+      "label": "token-leaf-green",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-token-leaf-green.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-token-leaf-green.log",
+      "name": "course-relations-20261119-token-leaf-green",
+      "exit": 0,
+      "elapsedMs": 1780,
+      "logSha256": "403a4a7ddd45b7ac42377f91e1c40437beae8bf5a99a656ab6ef204e918529b0",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-JG4XM6"
+    },
+    {
+      "label": "types",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-types.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-types.log",
+      "name": "course-relations-20261119-types",
+      "exit": 2,
+      "elapsedMs": 9065,
+      "logSha256": "1f97a737f32b9f2a21ff0058d8951be1cc5d70352f04a80d36a14d441f98e66b",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-nU7ZBV"
+    },
+    {
+      "label": "types-scoped",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-types-scoped.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-types-scoped.log",
+      "name": "course-relations-20261119-types-scoped",
+      "exit": 2,
+      "elapsedMs": 16876,
+      "logSha256": "584ce15109dd1e9c84768462835b309174c557f380cec930c5931e0eeab072b1",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-DP7ttX"
+    },
+    {
+      "label": "types-final",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-types-final.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-types-final.log",
+      "name": "course-relations-20261119-types-final",
+      "exit": 0,
+      "elapsedMs": 17387,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-EUqniV"
+    },
+    {
+      "label": "lint",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-lint.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-lint.log",
+      "name": "course-relations-20261119-lint",
+      "exit": 0,
+      "elapsedMs": 6126,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-mF6QjB"
+    },
+    {
+      "label": "lint-final",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-lint-final.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-lint-final.log",
+      "name": "course-relations-20261119-lint-final",
+      "exit": 0,
+      "elapsedMs": 4158,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-etoaYg"
+    }
+  ],
+  "unchangedBoundaries": [
+    "independent gold/reference assets",
+    "adapter/current-reference loader",
+    "all historical evidence",
+    "48 course units",
+    "extraction/grounding/experience predicates",
+    "prompts/source projection",
+    "adoption and priority policy"
+  ],
+  "remaining": [
+    "Root owns the one fixed30 current-component closure diagnostic. This handoff does not claim full quality acceptance.",
+    "Independent spec review then quality review remain required; source is frozen for those reviews.",
+    "Root owns Task B native-source rebinding and minimal changed-flow checks. Old native14 evidence is not relabelled as executed on this source.",
+    "No staging, commit, push, model calls, migration, or deployment performed by this agent."
+  ]
+}

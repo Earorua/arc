@@ -32,5 +32,10 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "work",
+    "docs/verification/materials-quality-next/capture-evidence",
+    "docs/verification/materials-quality-next/adapter-evidence"
+  ]
 }

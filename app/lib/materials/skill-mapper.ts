@@ -6,11 +6,12 @@ import { createContextualSkillMatcher } from "./contextual-skill-mapping";
 import { supportsMaterialExperience } from "./experience-evidence";
 import { containsMaterialSkillLabel, normalizeMaterialSkillLabel } from "./skill-labels";
 import { findMaterialSkillMention } from "./grounded-skill-terms";
-export const MATERIAL_MAPPING_VERSION = "2026.11.6" as const;
+export const MATERIAL_MAPPING_VERSION = "2026.11.7" as const;
 const literalAliasVersion = "2026.11.2";
 const groundedAliasVersion = "2026.11.3";
 const tracingAliasVersion = "2026.11.4";
 const termAliasVersion = "2026.11.5";
+const taskAliasVersion = "2026.11.6";
 export type MaterialSkillMapping = {
     itemId: string;
     status: "mapped" | "ambiguous" | "uncovered" | "non-learning";
@@ -29,7 +30,7 @@ export type MappingOptions = {
     termMappings?: Record<string, { skillLabel: string; skillIds: string[] }[]>;
     learningIntentItemIds?: readonly string[];
     aliases?: Readonly<{
-        version: typeof MATERIAL_MAPPING_VERSION | typeof literalAliasVersion | typeof groundedAliasVersion | typeof tracingAliasVersion | typeof termAliasVersion;
+        version: typeof MATERIAL_MAPPING_VERSION | typeof literalAliasVersion | typeof groundedAliasVersion | typeof tracingAliasVersion | typeof termAliasVersion | typeof taskAliasVersion;
         skills: Record<string, string[]>;
     }>;
 };
@@ -37,7 +38,7 @@ export type MappingOptions = {
 const FLAGSHIP_ALIASES: NonNullable<MappingOptions["aliases"]> = {
     version: MATERIAL_MAPPING_VERSION,
     skills: {
-        "web-platform": ["HTML", "HTML5", "CSS", "CSS3", "JavaScript", "网页基础", "浏览器基础"],
+        "web-platform": ["JavaScript", "网页基础", "浏览器基础"],
         typescript: ["类型脚本"],
         react: ["React.js", "ReactJS"],
         "design-systems": ["design system", "设计系统", "无障碍设计", "WAI-ARIA"],
@@ -45,10 +46,10 @@ const FLAGSHIP_ALIASES: NonNullable<MappingOptions["aliases"]> = {
         "edge-runtime": ["Cloudflare Workers", "边缘运行时", "边缘计算"],
         sql: ["SQLite", "PostgreSQL", "MySQL", "关系数据库", "关系型数据库"],
         "object-storage": ["对象存储", "Cloudflare R2", "Amazon S3"],
-        testing: ["Vitest", "Jest", "Playwright", "单元测试", "自动化测试", "unit testing"],
+        testing: [],
         security: ["应用安全", "OWASP", "访问控制"],
         "cloud-delivery": ["持续部署", "持续交付", "CI/CD"],
-        observability: ["OpenTelemetry", "可观测性", "分布式追踪", "distributed tracing"],
+        observability: ["可观测性"],
         "llm-contracts": ["结构化模型输出", "结构化大模型输出", "LLM schema"],
         retrieval: ["RAG", "检索增强生成", "证据检索"],
         "product-thinking": ["产品思维"],
@@ -66,7 +67,8 @@ function resolveMaterialTerms(items: readonly ConfirmedMaterialItem[], blueprint
     const matchContextual = createContextualSkillMatcher(blueprint, registry);
     const aliases = options.aliases ?? (blueprint.id === "ai-native-full-stack-engineer" && blueprint.version === "2026.08.1" ? FLAGSHIP_ALIASES : undefined);
     const reviewed = aliases?.version === MATERIAL_MAPPING_VERSION || aliases?.version === literalAliasVersion
-      || aliases?.version === groundedAliasVersion || aliases?.version === tracingAliasVersion || aliases?.version === termAliasVersion ? aliases.skills : {};
+      || aliases?.version === groundedAliasVersion || aliases?.version === tracingAliasVersion || aliases?.version === termAliasVersion
+      || aliases?.version === taskAliasVersion ? aliases.skills : {};
     const vocabulary = blueprint.skills.map(skill => ({ id: skill.id, name: skill.name, words: [
         skill.id, skill.name, ...(reviewed[skill.id] ?? [])
     ] }));
@@ -88,6 +90,12 @@ function resolveMaterialTerms(items: readonly ConfirmedMaterialItem[], blueprint
                 itemId: item.id, term, status: "omitted", skillIds: [], basis: "manual", labels: [], practiceEvidence: new Map(),
             };
             const selected = manual ?? termMapping?.skillIds;
+            // An administrative responsibility is not a learning capability. Keep
+            // mixed phrases intact so an unknown responsibility cannot disappear.
+            if (!selected && /^(?:taking )?meeting notes$/u.test(normalizeMaterialSkillLabel(term))
+              && findMaterialSkillMention(item.text, term) !== null) return {
+                itemId: item.id, term, status: "non-learning", skillIds: [], basis: null, labels: [], practiceEvidence: new Map(),
+            };
             const termTarget: MaterialExperienceTarget = { kind: "terms", terms: [term] };
             const practiceEvidence = new Map<string, MaterialExperienceTarget[]>();
             let matches = vocabulary.filter(skill => {
@@ -136,6 +144,10 @@ function resolveMaterialTerms(items: readonly ConfirmedMaterialItem[], blueprint
                 const contextualIds = matchContextual(term, item.text);
                 matches = vocabulary.filter(skill => contextualIds.includes(skill.id));
                 for (const skill of matches) practiceEvidence.set(skill.id, [termTarget]);
+                // A language/framework plus its testing task is an explicit
+                // composition. Competing interpretations (e.g. form labels) are not.
+                explicitConjunction = contextualIds.includes("testing")
+                  && (contextualIds.includes("typescript") || contextualIds.includes("react"));
                 if (matches.length) basis = "contextual";
             }
             const status = !valid || !matches.length ? "uncovered" : !selected && matches.length > 1 && !explicitConjunction ? "ambiguous" : "mapped";

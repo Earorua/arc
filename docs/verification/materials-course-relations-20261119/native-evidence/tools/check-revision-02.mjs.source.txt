@@ -1,0 +1,165 @@
+// Independent assertions over actual captured records. No production imports or expected-state generator.
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
+const sha = value => createHash('sha256').update(value).digest('hex');
+const json = file => JSON.parse(readFileSync(file, 'utf8'));
+const input = json(resolve(dirname(fileURLToPath(import.meta.url)), 'planning-inputs.json'));
+if (process.argv.length !== 3) throw Error('Usage: check.mjs <new-native-output-directory>');
+const output = resolve(root, process.argv[2]), manifest = json(resolve(output, 'manifest.json')), collection = json(resolve(output, 'collection.json'));
+assert.equal(collection.manifestSha256, sha(readFileSync(resolve(output, 'manifest.json'))));
+assert.equal(manifest.bindingId, input.bindingId); assert.equal(manifest.oldFourteenCaseRerun, false);
+assert.deepEqual(manifest.inputDocument, input); assert.deepEqual(collection.sourceDrift, []);
+for (const file of [...manifest.sourceClosure, ...manifest.infrastructure, ...manifest.migrations]) assert.equal(sha(readFileSync(resolve(root, file.path))), file.sha256, 'Source changed: ' + file.path);
+assert.equal(sha(readFileSync(resolve(output, manifest.workerBundle.path))), manifest.workerBundle.sha256);
+const beforeSnapshot = result => result.snapshots.find(snapshot => snapshot.label === 'before');
+const snapshot = (result, label) => { const value = result.snapshots.find(snapshot => snapshot.label === label); assert.ok(value, 'Missing ' + label); return value; };
+const table = (snapshot, name) => { assert.ok(Array.isArray(snapshot.tables[name]), 'Missing table ' + name); return snapshot.tables[name]; };
+const activePath = workspace => workspace.pathVersions.find(path => path.id === workspace.activePathVersionId);
+const activePlan = workspace => workspace.planVersions.find(plan => plan.id === workspace.activePlanVersionId);
+const sorted = array => [...array].sort((left, right) => String(left.id).localeCompare(String(right.id)));
+const links = snapshot => table(snapshot, 'goal_document_links').filter(row => row.enabled === 1);
+const contextInput = (snapshot, id) => JSON.parse(table(snapshot, 'material_context_versions').find(row => row.id === id).snapshot_json);
+const calls = (result, operation, phase) => result.trace.filter(call => call.operation === operation && call.phase === phase && call.outcome === 'returned');
+function protectedState(before, after) {
+  for (const name of ['id', 'goalId', 'audit', 'availability', 'availabilityVersions', 'target']) assert.deepEqual(after.workspace[name], before.workspace[name], 'Protected ' + name);
+  assert.deepEqual(after.sourceReference, before.sourceReference);
+  assert.deepEqual(sorted(activePath(after.workspace).units), sorted(activePath(before.workspace).units));
+  const completed = before.workspace.events.filter(event => event.kind === 'completed');
+  assert.ok(completed.length); assert.deepEqual(after.workspace.events.filter(event => event.kind === 'completed'), completed);
+  for (const name of ['career_goals', 'skill_audit_versions', 'availability_versions', 'learning_events', 'proof_items', 'proof_versions', 'proof_review_events', 'user_skill_projections']) {
+    assert.deepEqual(table(after, name), table(before, name), 'Protected native rows ' + name);
+    if (name.startsWith('proof_') || name === 'user_skill_projections') assert.ok(table(before, name).length, 'Proof state missing');
+  }
+  assert.deepEqual(after.proofWorkspace, before.proofWorkspace);
+  for (const name of ['learning_path_versions', 'plan_versions', 'daily_units']) {
+    const retained = new Set(table(after, name).map(row => JSON.stringify(row)));
+    assert.ok(table(before, name).every(row => retained.has(JSON.stringify(row))), 'Historical rows changed: ' + name);
+  }
+  const oldUnits = activePath(before.workspace).units;
+  for (const path of after.workspace.pathVersions.filter(path => !before.workspace.pathVersions.some(old => old.id === path.id))) {
+    assert.deepEqual(sorted(path.units), sorted(oldUnits));
+    const seen = new Set(completed.map(event => event.unitId));
+    for (const unit of path.units) { assert.ok(unit.prerequisiteUnitIds.every(id => seen.has(id))); seen.add(unit.id); }
+    for (const event of completed) { const index = oldUnits.findIndex(unit => unit.id === event.unitId); assert.deepEqual(path.units[index], oldUnits[index]); }
+  }
+  for (const plan of after.workspace.planVersions.filter(plan => !before.workspace.planVersions.some(old => old.id === plan.id))) {
+    const path = after.workspace.pathVersions.find(path => path.id === plan.pathVersionId);
+    const availability = after.workspace.availabilityVersions.find(value => value.id === path.availabilityVersionId);
+    const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    for (const day of plan.days) {
+      const budget = availability.exceptions.find(value => value.date === day.date)?.minutes ?? availability.weekdays[weekdays[new Date(day.date + 'T12:00:00Z').getUTCDay()]];
+      const ids = [day.primaryUnitId, day.stretchUnitId].filter(Boolean);
+      const units = ids.map(id => after.workspace.dailyUnits.find(unit => unit.id === id && unit.planVersionId === plan.id));
+      assert.ok(units.every(Boolean)); assert.equal(day.budgetMinutes, budget);
+      assert.ok(units.reduce((total, unit) => total + unit.estimatedMinutes, 0) <= budget);
+    }
+  }
+}
+function detail(preview, originalId, confirmationId) {
+  const ref = preview.itemReferences.find(ref => ref.itemId === originalId && ref.confirmationId === confirmationId);
+  assert.ok(ref, 'Missing real retained item ' + originalId);
+  const mapping = preview.mappingDetails.find(mapping => mapping.itemId === ref.id);
+  assert.ok(mapping, 'Missing mapping ' + originalId);
+  return { ref, mapping };
+}
+const results = [];
+for (const entry of collection.results) {
+  assert.equal(sha(readFileSync(resolve(output, entry.path))), entry.sha256);
+  const result = json(resolve(output, entry.path)), checks = [];
+  function check(name, execute) { try { execute(); checks.push({ name, status: 'passed' }); } catch (error) { checks.push({ name, status: 'failed', message: error.message }); } }
+  check('native collection, frozen input and no external request', () => {
+    assert.equal(result.bindingId, input.bindingId); assert.equal(result.collectionStatus, 'collected', JSON.stringify(result.failure));
+    assert.equal(result.failure, null); assert.equal(result.outboundAttempts, 0);
+    assert.equal(result.sourceClosureDigest, manifest.sourceClosureDigest); assert.equal(result.inputDigest, manifest.input.sha256);
+    assert.equal(result.workerBundleDigest, manifest.workerBundle.sha256); assert.equal(result.runtimeDigest, manifest.runtimeDigest);
+    assert.equal(result.limits.modelQualityApproved, false); assert.equal(result.limits.gateApproved, false); assert.equal(result.limits.publicationApproved, false);
+    const initial = calls(result, 'cloud.importLocalState', 'setup')[0];
+    assert.equal(initial.response.status, 'imported'); assert.equal(initial.input.consent, true);
+    assert.deepEqual(initial.input.state.completedUnitIds, []); assert.deepEqual(initial.input.state.proofs, []);
+    for (const fixture of result.fixtureImports) if (fixture.candidate) {
+      assert.equal(fixture.evaluatedUpstreamExtraction, false); assert.equal(fixture.realProviderConstructed, false);
+      assert.ok(fixture.projected.items.every(item => item.sourceRef?.documentId === fixture.document.documentId));
+    }
+  });
+  check('completed work, self assessment, source, budgets and Proof retained', () => protectedState(beforeSnapshot(result), snapshot(result, 'after')));
+  check('fresh repository reload equals persisted after state', () => {
+    const after = snapshot(result, 'after'), reload = snapshot(result, 'reload');
+    for (const key of ['workspace', 'sourceReference', 'proofWorkspace', 'tables', 'r2']) assert.deepEqual(reload[key], after[key]);
+  });
+  check('new source-scoped relations retain primary JD authority without unrelated practice', () => {
+    const preview = result.refs.proposedContext.preview, confirmationId = result.refs.materials.resume.entry.confirmationId;
+    const sql = detail(preview, 'resume-sql', confirmationId), other = detail(preview, 'resume-other-react', confirmationId), css = detail(preview, 'resume-css', confirmationId);
+    assert.deepEqual(sql.mapping.skillIds, ['sql']); assert.equal(sql.mapping.basis, 'contextual'); assert.equal(sql.mapping.taskCoverage.status, 'partial');
+    // The existing contract exposes the winning priority's sources. A must
+    // requirement wins over practice; practiceItemIds is only an optional
+    // disambiguator when an explicit learning intention also contributes.
+    const primary = result.caseId === 'accept-current-primary-jd-preview' ? result.refs.replacement.entry : result.refs.materials.primary.entry;
+    const primaryItem = result.caseId === 'accept-current-primary-jd-preview' ? 'replacement-sql' : 'primary-a-sql';
+    const primarySql = detail(preview, primaryItem, primary.confirmationId);
+    const sqlPriority = preview.priorities.find(priority => priority.skillId === 'sql');
+    assert.equal(sqlPriority.tier, 0); assert.deepEqual(sqlPriority.itemIds, [primarySql.ref.id]);
+    assert.ok(!preview.priorities.some(priority => [...priority.itemIds, ...(priority.practiceItemIds ?? [])].includes(other.ref.id)), 'Colleague task became personal practice');
+    assert.equal(css.mapping.status, 'uncovered'); assert.deepEqual(css.mapping.skillIds, []); assert.equal(css.mapping.taskCoverage.status, 'none');
+    assert.ok(!preview.priorities.some(priority => [...priority.itemIds, ...(priority.practiceItemIds ?? [])].includes(css.ref.id)), 'Unsupported CSS became practice');
+  });
+  if (result.caseId === 'accept-current-primary-jd-preview') {
+    check('changed main JD preview keeps ambiguity separate from coverage', () => {
+      const preview = result.refs.proposedContext.preview, confirmationId = result.refs.replacement.entry.confirmationId;
+      const html = detail(preview, 'replacement-html', confirmationId).mapping;
+      const sql = detail(preview, 'replacement-sql', confirmationId).mapping;
+      const labels = detail(preview, 'replacement-labels', confirmationId).mapping;
+      assert.deepEqual(html.skillIds, ['web-platform']); assert.equal(html.basis, 'contextual'); assert.equal(html.taskCoverage.status, 'full');
+      assert.deepEqual(sql.skillIds, ['sql']); assert.equal(sql.basis, 'contextual'); assert.equal(sql.taskCoverage.status, 'partial');
+      assert.equal(labels.status, 'ambiguous'); assert.deepEqual([...labels.skillIds].sort(), ['design-systems', 'web-platform']); assert.equal(labels.taskCoverage.status, 'full');
+      assert.ok(preview.issues.some(issue => issue.code === 'ambiguous-mapping' && issue.itemIds.includes(labels.itemId)));
+      assert.deepEqual([...preview.overlay.mandatorySkillIds].sort(), ['sql', 'web-platform']);
+    });
+    check('proposal remains separate until explicit acceptance and correct dependencies persist', () => {
+      const before = beforeSnapshot(result), proposed = snapshot(result, 'proposed'), after = snapshot(result, 'after');
+      assert.equal(proposed.workspace.activePlanVersionId, before.workspace.activePlanVersionId);
+      assert.deepEqual(activePlan(proposed.workspace), activePlan(before.workspace));
+      assert.deepEqual(activePath(proposed.workspace), activePath(before.workspace));
+      assert.ok(links(proposed).some(link => link.document_id === result.refs.materials.primary.documentId));
+      assert.ok(!links(proposed).some(link => link.document_id === result.refs.replacement.documentId));
+      const accepted = calls(result, 'planning.acceptReplan', 'action')[0];
+      assert.ok(accepted); assert.equal(accepted.response.outcome, 'accepted');
+      assert.equal(after.workspace.activePlanVersionId, accepted.input.candidatePlanVersionId); assert.equal(after.workspace.pendingPlanVersionId, null);
+      const rows = table(after, 'material_plan_proposals').filter(row => row.candidate_plan_version_id === accepted.input.candidatePlanVersionId);
+      assert.equal(rows.length, 1); assert.equal(rows[0].state, 'accepted'); assert.equal(rows[0].context_version_id, result.refs.proposedContext.contextVersionId);
+      const adopted = contextInput(after, rows[0].context_version_id);
+      assert.equal(adopted.mappingVersion, '2026.11.7'); assert.deepEqual(adopted.audit, before.workspace.audit);
+      assert.equal(adopted.dependencies.find(row => row.slot === 'jd').documentId, result.refs.replacement.documentId);
+      for (const role of ['resume', 'supplement']) assert.ok(adopted.dependencies.some(row => row.documentId === result.refs.materials[role].documentId));
+      assert.deepEqual(links(after).map(row => row.document_id).sort(), adopted.dependencies.map(row => row.documentId).sort());
+      assert.ok(links(after).every(row => row.context_version_id === rows[0].context_version_id));
+    });
+  } else if (result.caseId === 'secondary-jd-cannot-add-must') {
+    check('secondary JD contextual requirement stays unadopted, then soft only', () => {
+      const unadopted = result.refs.unadoptedContext.preview, adopted = result.refs.proposedContext.preview;
+      const row = detail(adopted, 'secondary-react', result.refs.materials.supplement.entry.confirmationId).mapping;
+      assert.deepEqual(row.skillIds, ['react']); assert.equal(row.basis, 'contextual'); assert.equal(row.taskCoverage.status, 'full');
+      assert.ok(unadopted.issues.some(issue => issue.code === 'learning-intent-not-adopted'));
+      assert.equal(unadopted.overlay.skillRanks.react, 5); assert.equal(adopted.overlay.skillRanks.react, 3);
+      assert.deepEqual(unadopted.overlay.mandatorySkillIds, ['sql']); assert.deepEqual(adopted.overlay.mandatorySkillIds, ['sql']);
+      assert.deepEqual(snapshot(result, 'after').workspace, beforeSnapshot(result).workspace);
+      assert.deepEqual(links(snapshot(result, 'after')), links(beforeSnapshot(result)));
+      assert.equal(calls(result, 'planning.acceptReplan', 'action').length, 0);
+    });
+  } else throw Error('Unexpected case');
+  results.push({ caseId: result.caseId, status: checks.every(check => check.status === 'passed') ? 'passed' : 'failed', checks });
+}
+const report = { schemaVersion: 'materials-course-relations-native-check-v1', bindingId: input.bindingId,
+  revision: 2, originalFailedCheck: { path: 'check.json', sha256: sha(readFileSync(resolve(output, 'check.json'))) },
+  correction: 'The original checker wrongly required practiceItemIds on a must-priority row. Existing product code emits the winning requirement itemIds there. This revision checks that contract plus non-vacuous unrelated-source exclusion against the same immutable native observations; it does not demonstrate a positive practice tier under the dominating JD.',
+  manifestSha256: collection.manifestSha256, checkerSha256: sha(readFileSync(fileURLToPath(import.meta.url))),
+  status: collection.notCollected.length === 0 && results.every(result => result.status === 'passed') ? 'passed' : 'failed',
+  requestedCases: manifest.requestedCases, results, notCollected: collection.notCollected,
+  counts: { passed: results.filter(result => result.status === 'passed').length, failed: results.filter(result => result.status === 'failed').length },
+  oldFourteenCaseResultsRewritten: false, realModelCalls: 0, gateApproved: false, releaseApproved: false };
+writeFileSync(resolve(output, 'check-revision-02.json'), JSON.stringify(report, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify(report));
+if (report.status !== 'passed') process.exitCode = 1;

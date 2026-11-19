@@ -1,0 +1,75 @@
+import { readFileSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+
+const files = [
+  "app/lib/materials/skill-mapper.ts",
+  "app/lib/materials/course-relation-scope.ts",
+  "app/lib/materials/course-task-coverage.ts",
+  "app/lib/materials/course-task-evidence.ts",
+  "app/components/materials/material-context-review.tsx",
+  "tests/lib/materials/course-relations.test.ts",
+  "tests/lib/materials/skill-mapper.test.ts",
+  "tests/lib/materials/practice-skill-mapping.test.ts",
+  "tests/server/material-practice-priorities.test.ts",
+  "tests/components/material-context-choices.test.tsx",
+];
+const sha256 = path => createHash("sha256").update(readFileSync(path)).digest("hex");
+const labels = ["red", "focused-1", "focused-2", "ui-red", "affected", "wording-red", "failures", "token-leaf-red", "token-leaf-green", "types", "types-scoped", "types-final", "lint", "lint-final"];
+const evidence = labels.map(label => {
+  const prefix = `work/grounded-verification/course-relations-20261119-${label}`;
+  return { label, metadataPath: `${prefix}.json`, logPath: `${prefix}.log`, ...JSON.parse(readFileSync(`${prefix}.json`, "utf8")) };
+});
+execFileSync("git", ["-c", "core.longpaths=true", "diff", "--check", "--", ...files], { stdio: "pipe" });
+const handoff = {
+  status: "ready-for-independent-review",
+  sourceFrozen: true,
+  baseHead: "24a344858cfde17888675716df488421b61fff2d",
+  observedHead: execFileSync("git", ["-c", "core.longpaths=true", "rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
+  branch: "codex/materials-replan-recovery-20261106",
+  mappingVersion: "2026.11.7",
+  files: files.map(path => ({ path, sha256: sha256(path) })),
+  causalChanges: [
+    "Broad HTML/CSS, testing-method/tool, and tracing default aliases no longer claim literal course-name equivalence. Bounded retained technical/contextual concepts use verified flagship content; explicit alias versions 2026.11.2 through 2026.11.6 remain accepted.",
+    "A shared relation/scope helper keeps same-clause technical context, preserved raw capitalization, negation/actor boundaries, task-specific coordination, and recognized history/guidance wrappers separate from task remainder. New semantics never alter extraction or experience predicates.",
+    "Ordinary SQL joins/schema, semantic forms, React form/state/component testing, keyboard component states, focused software tests, signals, release documentation and product outcomes use actual course leaves. Aggregate/CTE/window/null/date-parameter/transformation tasks, TS formatter/async-test coverage, CSS and log-parser implementation remain unprovided.",
+    "Added only component-keyboard and product-outcomes IDs from existing content. The existing component-audit ID now additionally verifies the exact current token/semantic-fix rubric leaf. No course data changed; all old support IDs remain readable.",
+    "Ambiguity and task coverage are independent. Candidate-union narrow coverage remains visibly ambiguous; explicit selection filters support to the selected course. English UI now says combined candidate content and that choosing one recalculates coverage.",
+    "Exact meeting notes/taking meeting notes roles are non-learning. Mixed responsibilities keep unassessed remainder. Mapping and coverage do not adopt ability, personal practice, planning priority, or a secondary-JD authority.",
+  ],
+  broadRequirementInterpretation: "A standalone topic name remains none/unspecified-task. An explicit broad requirement/preference can identify only a partial named catalog subset, without asserting the source specified that subtask or any ability. Concrete unsupported work cannot use the broad fallback. Priority conflicts are untouched.",
+  testExpectationChanges: [
+    "Default whole-text HTML/CSS relation is now uncovered because the demonstrated broad alias was removed; React.js literal mapping remains checked.",
+    "Testing tools and tracing retained-label test now supplies their actual source mentions, keeps dropped SQL excluded, and checks contextual rather than literal Jest basis.",
+    "Version assertions changed only for newly created mapping snapshots: 2026.11.6 to 2026.11.7, with explicit 2026.11.6 aliases added to compatibility tests.",
+    "A legacy whole fact that explicitly wrote SQL queries now has partial sql-joins support while its denied SQLite remainder and independent personal-practice assertion remain intact.",
+  ],
+  validation: {
+    focusedRed: "9 grouped behavior tests failed before product edits; UI union wording also failed before its one-line product edit.",
+    affected: "13 files: 261 passed and 3 failed. The failures were one lost testing/test inflection plus two causal expectation updates.",
+    repairs: "Failure-only rerun: 3 files / 50 passed. Includes all 9 new relation groups, 9 existing course coverage tests and 32 practice-priority tests.",
+    finalContentAnchor: "One additional exact token-rubric invalidation test observed RED then GREEN. No other product behavior changed after the 50-pass repair run.",
+    types: "PASS with original compiler settings; only node_modules, work scratch, and three explicitly named relocated source snapshot folders excluded.",
+    typesConfig: "work/grounded-verification/course-relations-20261119-tsconfig.json",
+    typesConfigSha256: sha256("work/grounded-verification/course-relations-20261119-tsconfig.json"),
+    rawTypeFailures: "Unscoped tsc failed on pre-existing fake work/profile fixture syntax; work-excluded tsc failed exclusively on relocated archived snapshots with invalid relative imports. Both logs retained. Root owns repository-level config repair.",
+    lint: "PASS for all 10 changed implementation/test files, then PASS for the final token-leaf changed subset.",
+    diffCheck: "PASS for the 10 frozen Task A paths; concurrent root config/doc work is outside this handoff",
+    nonLoopbackDenials: evidence.reduce((sum, entry) => sum + entry.nonLoopbackDenials, 0),
+    broadSuiteRuns: 0,
+    nativeRuns: 0,
+    modelCalls: 0,
+  },
+  evidence,
+  unchangedBoundaries: ["independent gold/reference assets", "adapter/current-reference loader", "all historical evidence", "48 course units", "extraction/grounding/experience predicates", "prompts/source projection", "adoption and priority policy"],
+  remaining: [
+    "Root owns the one fixed30 current-component closure diagnostic. This handoff does not claim full quality acceptance.",
+    "Independent spec review then quality review remain required; source is frozen for those reviews.",
+    "Root owns Task B native-source rebinding and minimal changed-flow checks. Old native14 evidence is not relabelled as executed on this source.",
+    "No staging, commit, push, model calls, migration, or deployment performed by this agent.",
+  ],
+};
+const prefix = "work/grounded-verification/course-relations-20261119-handoff";
+writeFileSync(`${prefix}.json`, `${JSON.stringify(handoff, null, 2)}\n`);
+writeFileSync(`${prefix}.md`, `# Task A frozen handoff\n\nStatus: ready for independent review. Mapping version: 2026.11.7. Source hashes and causal details: [handoff JSON](./course-relations-20261119-handoff.json).\n\nThe repair separates literal course names, bounded contextual relationships, and content-backed task coverage. It preserves actor/denial/practice boundaries; SQL aggregation/CTE/window/null/date/transform tasks, TS async/formatter coverage, CSS, Figma and log-parser implementation remain unprovided. Candidate ambiguity can coexist with narrow union coverage; the English preview now explains that selecting one candidate recomputes coverage. Only two existing-content support IDs were added, plus the actual token-fix rubric leaf. Course data and independent references were untouched.\n\nValidation: 13 affected files produced 261 passes and 3 failures; the three causal repairs passed in the failure-only 50-check run. One additional token-leaf invalidation case observed RED/GREEN. Types and modified-file lint pass; raw initial type failures are preserved because workspace scratch and relocated archive copies are not executable source. The exact final type config is [course-relations-20261119-tsconfig.json](./course-relations-20261119-tsconfig.json). All verification commands used the credential-stripping/outbound-blocking wrapper with unique labels.\n\nRoot owns the fixed30 diagnostic, independent spec/quality reviews, repository type/lint config repair, and Task B native-source binding. No current full-product/native/model/release acceptance is claimed. Source remains frozen; no commit or external action was taken.\n`);
+console.log(JSON.stringify({ handoff: `${prefix}.json`, sha256: sha256(`${prefix}.json`), files: handoff.files }));

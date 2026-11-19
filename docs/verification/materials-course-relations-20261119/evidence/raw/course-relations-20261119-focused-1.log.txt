@@ -1,0 +1,181 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+ [31m❯[39m tests/lib/materials/course-relations.test.ts [2m([22m[2m9 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[32m 80[2mms[22m[39m
+     [32m✓[39m separates technical topics from unprovided query tasks[32m 32[2mms[22m[39m
+     [32m✓[39m uses ordinary schema and JOIN teaching while preserving business scope[32m 5[2mms[22m[39m
+[31m     [31m×[31m keeps recognized actor and guidance wrappers separate from narrow UI tasks[39m[32m 16[2mms[22m[39m
+[31m     [31m×[31m limits broad UI and software methods to their actually taught subset[39m[32m 7[2mms[22m[39m
+[31m     [31m×[31m gives composite testing tasks only the evidence each course actually teaches[39m[32m 4[2mms[22m[39m
+     [32m✓[39m keeps candidate choice independent from union coverage and recomputes explicit choices[32m 2[2mms[22m[39m
+     [32m✓[39m keeps tracing topics apart from practice and from parser implementation[32m 9[2mms[22m[39m
+     [32m✓[39m does not transfer coverage across terms, actors, denied qualifiers, or soft wraps[32m 3[2mms[22m[39m
+     [32m✓[39m distinguishes bare topics, broad requirement subsets, and administrative roles[32m 2[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 3 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mkeeps recognized actor and guidance wrappers separate from narrow UI tasks
+[31m[1mAssertionError[22m: 在交互社维护 React 表单，按评审反馈修复键盘焦点顺序。: expected { itemId: 'fact', term: '表单', …(3) } to match object { status: 'mapped', …(2) }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "basis": "contextual",[39m
+[32m-   "skillIds": [[39m
+[32m-     "react",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "basis": null,[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m57:40[22m[39m
+    [90m 55|[39m     ]) {
+    [90m 56|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"other"[39m])[33m;[39m
+    [90m 57|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 58|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"full"[39m)[33m;[39m
+    [90m 59|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mkeeps recognized actor and guidance wrappers separate from narrow UI tasks
+[31m[1mAssertionError[22m: 在交互社维护 React 表单，按评审反馈修复键盘焦点顺序。: expected 'none' to be 'full' // Object.is equality[39m
+
+Expected: [32m"full"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m58:49[22m[39m
+    [90m 56|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"other"[39m])[33m;[39m
+    [90m 57|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m 58|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"full"[39m)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m 59|[39m     }
+    [90m 60|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mkeeps recognized actor and guidance wrappers separate from narrow UI tasks
+[31m[1mAssertionError[22m: Required: React 组件状态设计。: expected { Object (itemId, term, ...) } to match object { status: 'mapped', …(2) }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "basis": "contextual",[39m
+[32m-   "skillIds": [[39m
+[32m-     "react",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "basis": null,[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m57:40[22m[39m
+    [90m 55|[39m     ]) {
+    [90m 56|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"other"[39m])[33m;[39m
+    [90m 57|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 58|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"full"[39m)[33m;[39m
+    [90m 59|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mkeeps recognized actor and guidance wrappers separate from narrow UI tasks
+[31m[1mAssertionError[22m: Required: React 组件状态设计。: expected 'none' to be 'full' // Object.is equality[39m
+
+Expected: [32m"full"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m58:49[22m[39m
+    [90m 56|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"other"[39m])[33m;[39m
+    [90m 57|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m 58|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"full"[39m)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m 59|[39m     }
+    [90m 60|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mlimits broad UI and software methods to their actually taught subset
+[31m[1mAssertionError[22m: Implemented a React prototype.: expected { itemId: 'fact', …(4) } to match object { status: 'mapped', …(2) }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "basis": "contextual",[39m
+[32m-   "skillIds": [[39m
+[32m-     "react",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "basis": null,[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m74:40[22m[39m
+    [90m 72|[39m     ] [35mas[39m [35mconst[39m) {
+    [90m 73|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m,[39m term)[33m;[39m
+    [90m 74|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 75|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"partial"[39m)[33m;[39m
+    [90m 76|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mlimits broad UI and software methods to their actually taught subset
+[31m[1mAssertionError[22m: Implemented a React prototype.: expected 'none' to be 'partial' // Object.is equality[39m
+
+Expected: [32m"partial"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m75:49[22m[39m
+    [90m 73|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m,[39m term)[33m;[39m
+    [90m 74|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m 75|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"partial"[39m)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m 76|[39m     }
+    [90m 77|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mgives composite testing tasks only the evidence each course actually teaches
+[31m[1mAssertionError[22m: expected { itemId: 'fact', term: '组件测试', …(3) } to match object { Object (status, skillIds) }
+(3 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "skillIds": [[39m
+[32m-     "react",[39m
+[32m-     "testing",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m84:30[22m[39m
+    [90m 82|[39m     expect(async.coverage).toMatchObject({ status: "partial", support:…
+    [90m 83|[39m     [35mconst[39m component [33m=[39m [34mrelation[39m([32m"有 React 组件测试经验者优先。"[39m[33m,[39m [32m"组件测试"[39m)[33m;[39m
+    [90m 84|[39m     expect(component.detail).toMatchObject({ status: "mapped", skillId…
+    [90m   |[39m                              [31m^[39m
+    [90m 85|[39m     expect(component.coverage).toMatchObject({ status: "full", support…
+    [90m 86|[39m     expect(relation("I wrote unit tests for a TypeScript date formatte…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m3 failed[39m[22m[2m | [22m[1m[32m6 passed[39m[22m[90m (9)[39m
+[2m   Start at [22m 16:29:12
+[2m   Duration [22m 1.40s[2m (transform 167ms, setup 217ms, import 263ms, tests 80ms, environment 679ms)[22m
+

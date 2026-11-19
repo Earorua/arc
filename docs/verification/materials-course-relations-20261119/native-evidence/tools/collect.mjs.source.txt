@@ -1,0 +1,88 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { dirname, isAbsolute, relative, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { build, version as esbuildVersion } from 'esbuild';
+import { Miniflare, Log, LogLevel } from 'miniflare';
+
+const tools = dirname(fileURLToPath(import.meta.url)), root = resolve(tools, '../../..');
+const sha = value => createHash('sha256').update(value).digest('hex');
+const json = value => JSON.stringify(value, null, 2) + '\n';
+const relativePath = value => relative(root, value).replaceAll('\\', '/');
+const binding = file => { const bytes = readFileSync(file); return { path: relativePath(file), sha256: sha(bytes), bytes: bytes.length }; };
+const git = args => execFileSync('git', ['-c', 'core.longpaths=true', ...args], { cwd: root, windowsHide: true, maxBuffer: 8 * 1024 * 1024 });
+const writeNew = (file, value) => writeFileSync(file, typeof value === 'string' ? value : json(value), { flag: 'wx' });
+const inputsPath = resolve(tools, 'planning-inputs.json'), inputs = JSON.parse(readFileSync(inputsPath, 'utf8'));
+if (process.argv.length < 4 || process.argv.length > 5) throw Error('Usage: collect.mjs <frozen-handoff.json> <unique-output-name> [case-id]');
+const outputName = process.argv[3];
+assert.match(outputName, /^course-relations-native-20261119-[a-z0-9-]+$/);
+const handoffPath = resolve(root, process.argv[2]), handoff = JSON.parse(readFileSync(handoffPath, 'utf8'));
+assert.ok(Array.isArray(handoff.files) && handoff.files.length > 0);
+function assertFrozen() {
+  for (const file of handoff.files) assert.equal(sha(readFileSync(resolve(root, file.path))), file.sha256, `Frozen source drift: ${file.path}`);
+}
+assertFrozen();
+const requested = process.argv[4] ? [process.argv[4]] : inputs.cases.map(item => item.id);
+assert.ok(requested.every(id => inputs.cases.some(item => item.id === id)));
+const original = 'docs/verification/materials-native-acceptance/planning-worker.ts';
+const originalSource = readFileSync(resolve(root, original), 'utf8');
+assert.deepEqual(Buffer.from(originalSource), git(['show', '24a344858cfde17888675716df488421b61fff2d:' + original]));
+assert.equal(originalSource.split('KIMI_GROUNDED_TERMS_POLICY_ID').length - 1, 3);
+const derived = readFileSync(resolve(tools, 'planning-worker.ts'), 'utf8');
+assert.equal(derived.slice(derived.indexOf('\n') + 1), originalSource.replaceAll('KIMI_GROUNDED_TERMS_POLICY_ID', 'KIMI_SOURCE_MENTIONS_POLICY_ID'));
+const outputBase = resolve(root, 'work/grounded-verification'), output = resolve(outputBase, outputName);
+assert.equal(dirname(output), outputBase); assert.equal(existsSync(output), false, 'Evidence cannot be overwritten');
+mkdirSync(output);
+const compilation = await build({ absWorkingDir: root, entryPoints: [resolve(tools, 'planning-worker.ts')], bundle: true,
+  write: false, format: 'esm', platform: 'browser', target: 'es2022', metafile: true, logLevel: 'silent' });
+const worker = compilation.outputFiles[0].text;
+const sourceClosure = Object.keys(compilation.metafile.inputs).sort().map(file => binding(isAbsolute(file) ? file : resolve(root, file)));
+const migrations = readdirSync(resolve(root, 'drizzle')).filter(name => /^\d{4}_.+\.sql$/.test(name) && Number(name.slice(0, 4)) <= 15)
+  .sort().map(name => binding(resolve(root, 'drizzle', name)));
+const infrastructure = ['planning-inputs.json', 'planning-worker.ts', 'collect.mjs', 'check.mjs'].map(file => binding(resolve(tools, file)));
+const runtime = { nodeVersion: process.version, esbuildVersion, compatibilityDate: '2026-05-15',
+  nodeExecutable: { sha256: sha(readFileSync(process.execPath)), bytes: readFileSync(process.execPath).length },
+  packages: ['node_modules/miniflare/package.json', 'node_modules/workerd/package.json', 'node_modules/@cloudflare/workerd-windows-64/bin/workerd.exe'].map(file => binding(resolve(root, file))),
+  isolation: 'fresh local D1/R2 per case', outboundPolicy: 'reject all external requests' };
+const manifest = { schemaVersion: 'materials-course-relations-native-collection-v1', bindingId: inputs.bindingId,
+  startedAt: new Date().toISOString(), head: git(['rev-parse', 'HEAD']).toString().trim(),
+  collectionKind: 'two-changed-relation-integration-cases', requestedCases: requested,
+  oldFourteenCaseRerun: false, oldFourteenCaseResultsRewritten: false, sourceHandoff: binding(handoffPath),
+  sourceClosure, sourceClosureDigest: sha(json(sourceClosure)), input: binding(inputsPath), inputDocument: inputs,
+  infrastructure, migrations, runtime, runtimeDigest: sha(json(runtime)),
+  derivedWorker: { original: binding(resolve(root, original)), change: 'Only three policy symbol occurrences change from grounded v2 to retained source mentions v3; a provenance comment is prepended. Separate fixed input bytes declare two new cases.' },
+  workerBundle: { path: 'worker.mjs', sha256: sha(worker), bytes: Buffer.byteLength(worker) }, limits: inputs.limits };
+writeNew(resolve(output, 'manifest.json'), manifest); writeNew(resolve(output, 'worker.mjs'), worker);
+const results = [];
+for (const caseId of requested) {
+  let outboundAttempts = 0, result;
+  const instance = new Miniflare({ cf: false, modules: true, script: worker, compatibilityDate: runtime.compatibilityDate,
+    d1Databases: { DB: 'relation-' + caseId }, r2Buckets: { MATERIALS: 'relation-' + caseId }, log: new Log(LogLevel.ERROR),
+    outboundService: async () => { outboundAttempts++; throw Error('Native relation check forbids outbound requests'); } });
+  try {
+    const db = await instance.getD1Database('DB');
+    for (const file of migrations) for (const statement of readFileSync(resolve(root, file.path), 'utf8').split('--> statement-breakpoint').map(value => value.trim()).filter(Boolean)) await db.prepare(statement).run();
+    const response = await instance.dispatchFetch('http://localhost/native-planning', { method: 'POST', body: JSON.stringify({ caseId }) });
+    assert.equal(response.status, 200);
+    result = await response.json();
+  } catch (error) {
+    result = { schemaVersion: 'materials-native-planning-case-result-v1', bindingId: inputs.bindingId, caseId,
+      collectionStatus: 'failed', failure: { name: error.name, message: error.message, stack: error.stack } };
+  } finally { await instance.dispose(); }
+  const artifact = { ...result, outboundAttempts, inputDigest: manifest.input.sha256, sourceClosureDigest: manifest.sourceClosureDigest,
+    workerBundleDigest: manifest.workerBundle.sha256, runtimeDigest: manifest.runtimeDigest };
+  const filename = caseId + '.json'; writeNew(resolve(output, filename), artifact);
+  const entry = { caseId, path: filename, sha256: sha(readFileSync(resolve(output, filename))), collectionStatus: artifact.collectionStatus, outboundAttempts };
+  results.push(entry); console.log(JSON.stringify(entry));
+  if (artifact.collectionStatus !== 'collected' || outboundAttempts) break; // Preserve failure; no automatic retry or more calls.
+}
+const sourceDrift = [...sourceClosure, ...infrastructure, ...migrations].filter(file => sha(readFileSync(resolve(root, file.path))) !== file.sha256).map(file => file.path);
+assertFrozen();
+writeNew(resolve(output, 'collection.json'), { schemaVersion: 'materials-course-relations-native-index-v1', bindingId: inputs.bindingId,
+  manifestSha256: sha(readFileSync(resolve(output, 'manifest.json'))), results, sourceDrift,
+  notCollected: requested.filter(id => !results.some(result => result.caseId === id)), completedAt: new Date().toISOString() });
+console.log(JSON.stringify({ output: relativePath(output), collected: results.filter(result => result.collectionStatus === 'collected').length,
+  failed: results.filter(result => result.collectionStatus !== 'collected').length, sourceDrift: sourceDrift.length }));
+if (sourceDrift.length || results.length !== requested.length || results.some(result => result.collectionStatus !== 'collected' || result.outboundAttempts)) process.exitCode = 1;

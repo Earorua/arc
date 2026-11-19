@@ -1,0 +1,1302 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+ [31m❯[39m tests/lib/materials/course-relations.test.ts [2m([22m[2m9 tests[22m[2m | [22m[31m9 failed[39m[2m)[22m[32m 65[2mms[22m[39m
+[31m     [31m×[31m separates technical topics from unprovided query tasks[39m[32m 30[2mms[22m[39m
+[31m     [31m×[31m uses ordinary schema and JOIN teaching while preserving business scope[39m[32m 10[2mms[22m[39m
+[31m     [31m×[31m keeps recognized actor and guidance wrappers separate from narrow UI tasks[39m[32m 5[2mms[22m[39m
+[31m     [31m×[31m limits broad UI and software methods to their actually taught subset[39m[32m 5[2mms[22m[39m
+[31m     [31m×[31m gives composite testing tasks only the evidence each course actually teaches[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m keeps candidate choice independent from union coverage and recomputes explicit choices[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m keeps tracing topics apart from practice and from parser implementation[39m[32m 9[2mms[22m[39m
+[31m     [31m×[31m does not transfer coverage across terms, actors, denied qualifiers, or soft wraps[39m[32m 3[2mms[22m[39m
+[31m     [31m×[31m distinguishes bare topics, broad requirement subsets, and administrative roles[39m[32m 1[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 9 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mseparates technical topics from unprovided query tasks
+[31m[1mAssertionError[22m: 按示例编写 SQL 汇总查询。: expected { itemId: 'fact', term: '汇总查询', …(3) } to match object { status: 'mapped', …(1) }
+(3 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "skillIds": [[39m
+[32m-     "sql",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m25:40[22m[39m
+    [90m 23|[39m     ]) {
+    [90m 24|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m)[33m;[39m
+    [90m 25|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 26|[39m       expect.soft(result.coverage, text).toMatchObject({ status: "none…
+    [90m 27|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mseparates technical topics from unprovided query tasks
+[31m[1mAssertionError[22m: Use SQL CTE for a report.: expected { itemId: 'fact', term: 'CTE', …(3) } to match object { status: 'mapped', …(1) }
+(3 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "skillIds": [[39m
+[32m-     "sql",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m25:40[22m[39m
+    [90m 23|[39m     ]) {
+    [90m 24|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m)[33m;[39m
+    [90m 25|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 26|[39m       expect.soft(result.coverage, text).toMatchObject({ status: "none…
+    [90m 27|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mseparates technical topics from unprovided query tasks
+[31m[1mAssertionError[22m: 使用 SQL 进行窗口计算。: expected { itemId: 'fact', term: '窗口计算', …(3) } to match object { status: 'mapped', …(1) }
+(3 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "skillIds": [[39m
+[32m-     "sql",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m25:40[22m[39m
+    [90m 23|[39m     ]) {
+    [90m 24|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m)[33m;[39m
+    [90m 25|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 26|[39m       expect.soft(result.coverage, text).toMatchObject({ status: "none…
+    [90m 27|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mseparates technical topics from unprovided query tasks
+[31m[1mAssertionError[22m: 练习 SQL 空值处理。: expected { itemId: 'fact', term: '空值处理', …(3) } to match object { status: 'mapped', …(1) }
+(3 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "skillIds": [[39m
+[32m-     "sql",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m25:40[22m[39m
+    [90m 23|[39m     ]) {
+    [90m 24|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m)[33m;[39m
+    [90m 25|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 26|[39m       expect.soft(result.coverage, text).toMatchObject({ status: "none…
+    [90m 27|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mseparates technical topics from unprovided query tasks
+[31m[1mAssertionError[22m: Required: write tested SQL transformations.: expected { itemId: 'fact', …(4) } to match object { status: 'mapped', …(1) }
+(3 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "skillIds": [[39m
+[32m-     "sql",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m25:40[22m[39m
+    [90m 23|[39m     ]) {
+    [90m 24|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m)[33m;[39m
+    [90m 25|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 26|[39m       expect.soft(result.coverage, text).toMatchObject({ status: "none…
+    [90m 27|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22muses ordinary schema and JOIN teaching while preserving business scope
+[31m[1mAssertionError[22m: 任职必备：设计 SQL 数据模型。: expected { itemId: 'fact', …(4) } to match object { status: 'mapped', …(1) }
+(3 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "skillIds": [[39m
+[32m-     "sql",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m41:40[22m[39m
+    [90m 39|[39m     ]) {
+    [90m 40|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"another-retained-term"[39m])[33m;[39m
+    [90m 41|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 42|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m(status)[33m;[39m
+    [90m 43|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22muses ordinary schema and JOIN teaching while preserving business scope
+[31m[1mAssertionError[22m: 任职必备：设计 SQL 数据模型。: expected 'none' to be 'full' // Object.is equality[39m
+
+Expected: [32m"full"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m42:49[22m[39m
+    [90m 40|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"another-retained-term"[39m])[33m;[39m
+    [90m 41|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m 42|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m(status)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m 43|[39m     }
+    [90m 44|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22muses ordinary schema and JOIN teaching while preserving business scope
+[31m[1mAssertionError[22m: 练习项目中，我跟随教程编写 SQL 查询。: expected { itemId: 'fact', term: '查询', …(3) } to match object { status: 'mapped', …(1) }
+(3 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "skillIds": [[39m
+[32m-     "sql",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m41:40[22m[39m
+    [90m 39|[39m     ]) {
+    [90m 40|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"another-retained-term"[39m])[33m;[39m
+    [90m 41|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 42|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m(status)[33m;[39m
+    [90m 43|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22muses ordinary schema and JOIN teaching while preserving business scope
+[31m[1mAssertionError[22m: 练习项目中，我跟随教程编写 SQL 查询。: expected 'none' to be 'full' // Object.is equality[39m
+
+Expected: [32m"full"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m42:49[22m[39m
+    [90m 40|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"another-retained-term"[39m])[33m;[39m
+    [90m 41|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m 42|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m(status)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m 43|[39m     }
+    [90m 44|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22muses ordinary schema and JOIN teaching while preserving business scope
+[31m[1mAssertionError[22m: 必备：使用 SQL 联表并检查指标口径。: expected { itemId: 'fact', term: '联表', …(3) } to match object { status: 'mapped', …(1) }
+(3 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "skillIds": [[39m
+[32m-     "sql",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m41:40[22m[39m
+    [90m 39|[39m     ]) {
+    [90m 40|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"another-retained-term"[39m])[33m;[39m
+    [90m 41|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 42|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m(status)[33m;[39m
+    [90m 43|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22muses ordinary schema and JOIN teaching while preserving business scope
+[31m[1mAssertionError[22m: 必备：使用 SQL 联表并检查指标口径。: expected 'none' to be 'full' // Object.is equality[39m
+
+Expected: [32m"full"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m42:49[22m[39m
+    [90m 40|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"another-retained-term"[39m])[33m;[39m
+    [90m 41|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m 42|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m(status)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m 43|[39m     }
+    [90m 44|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22muses ordinary schema and JOIN teaching while preserving business scope
+[31m[1mAssertionError[22m: 必备：使用 SQL 联表并检查指标口径。: expected 'none' to be 'partial' // Object.is equality[39m
+
+Expected: [32m"partial"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m42:49[22m[39m
+    [90m 40|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"another-retained-term"[39m])[33m;[39m
+    [90m 41|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m 42|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m(status)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m 43|[39m     }
+    [90m 44|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22muses ordinary schema and JOIN teaching while preserving business scope
+[31m[1mAssertionError[22m: I used SQL joins to reconcile trial and paid accounts, following review notes.: expected { itemId: 'fact', …(4) } to match object { status: 'mapped', …(1) }
+(3 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "skillIds": [[39m
+[32m-     "sql",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m41:40[22m[39m
+    [90m 39|[39m     ]) {
+    [90m 40|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"another-retained-term"[39m])[33m;[39m
+    [90m 41|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 42|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m(status)[33m;[39m
+    [90m 43|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22muses ordinary schema and JOIN teaching while preserving business scope
+[31m[1mAssertionError[22m: I used SQL joins to reconcile trial and paid accounts, following review notes.: expected 'none' to be 'partial' // Object.is equality[39m
+
+Expected: [32m"partial"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m42:49[22m[39m
+    [90m 40|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"another-retained-term"[39m])[33m;[39m
+    [90m 41|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m 42|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m(status)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m 43|[39m     }
+    [90m 44|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22muses ordinary schema and JOIN teaching while preserving business scope
+[31m[1mAssertionError[22m: Essential: model warehouse tables with SQL.: expected { itemId: 'fact', …(4) } to match object { status: 'mapped', …(1) }
+(3 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "skillIds": [[39m
+[32m-     "sql",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m41:40[22m[39m
+    [90m 39|[39m     ]) {
+    [90m 40|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"another-retained-term"[39m])[33m;[39m
+    [90m 41|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 42|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m(status)[33m;[39m
+    [90m 43|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22muses ordinary schema and JOIN teaching while preserving business scope
+[31m[1mAssertionError[22m: Essential: model warehouse tables with SQL.: expected 'none' to be 'partial' // Object.is equality[39m
+
+Expected: [32m"partial"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m42:49[22m[39m
+    [90m 40|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"another-retained-term"[39m])[33m;[39m
+    [90m 41|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m 42|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m(status)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m 43|[39m     }
+    [90m 44|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22muses ordinary schema and JOIN teaching while preserving business scope
+[31m[1mAssertionError[22m: 学习目标是理解 JOIN 的重复行问题。: expected { itemId: 'fact', term: '重复行问题', …(3) } to match object { status: 'mapped', …(1) }
+(3 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "skillIds": [[39m
+[32m-     "sql",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m41:40[22m[39m
+    [90m 39|[39m     ]) {
+    [90m 40|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"another-retained-term"[39m])[33m;[39m
+    [90m 41|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 42|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m(status)[33m;[39m
+    [90m 43|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22muses ordinary schema and JOIN teaching while preserving business scope
+[31m[1mAssertionError[22m: 学习目标是理解 JOIN 的重复行问题。: expected 'none' to be 'partial' // Object.is equality[39m
+
+Expected: [32m"partial"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m42:49[22m[39m
+    [90m 40|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"another-retained-term"[39m])[33m;[39m
+    [90m 41|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m 42|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m(status)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m 43|[39m     }
+    [90m 44|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mkeeps recognized actor and guidance wrappers separate from narrow UI tasks
+[31m[1mAssertionError[22m: 在交互社维护 React 表单，按评审反馈修复键盘焦点顺序。: expected { itemId: 'fact', term: '表单', …(3) } to match object { status: 'mapped', …(2) }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "basis": "contextual",[39m
+[32m-   "skillIds": [[39m
+[32m-     "react",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "basis": null,[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m57:40[22m[39m
+    [90m 55|[39m     ]) {
+    [90m 56|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"other"[39m])[33m;[39m
+    [90m 57|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 58|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"full"[39m)[33m;[39m
+    [90m 59|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mkeeps recognized actor and guidance wrappers separate from narrow UI tasks
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mkeeps recognized actor and guidance wrappers separate from narrow UI tasks
+[31m[1mAssertionError[22m: 在交互社维护 React 表单，按评审反馈修复键盘焦点顺序。: expected 'none' to be 'full' // Object.is equality[39m
+
+Expected: [32m"full"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m58:49[22m[39m
+    [90m 56|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"other"[39m])[33m;[39m
+    [90m 57|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m 58|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"full"[39m)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m 59|[39m     }
+    [90m 60|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mkeeps recognized actor and guidance wrappers separate from narrow UI tasks
+[31m[1mAssertionError[22m: 在交互社维护 React 表单，按评审反馈修复键盘焦点顺序。: expected { Object (itemId, term, ...) } to match object { status: 'mapped', …(2) }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "basis": "contextual",[39m
+[32m-   "skillIds": [[39m
+[32m-     "design-systems",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "basis": null,[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m57:40[22m[39m
+    [90m 55|[39m     ]) {
+    [90m 56|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"other"[39m])[33m;[39m
+    [90m 57|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 58|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"full"[39m)[33m;[39m
+    [90m 59|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mkeeps recognized actor and guidance wrappers separate from narrow UI tasks
+[31m[1mAssertionError[22m: 与设计师协作拆分按钮状态，交付组件说明。: expected { itemId: 'fact', term: '按钮状态', …(3) } to match object { status: 'mapped', …(2) }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "basis": "contextual",[39m
+[32m-   "skillIds": [[39m
+[32m-     "design-systems",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "basis": null,[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m57:40[22m[39m
+    [90m 55|[39m     ]) {
+    [90m 56|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"other"[39m])[33m;[39m
+    [90m 57|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 58|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"full"[39m)[33m;[39m
+    [90m 59|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mkeeps recognized actor and guidance wrappers separate from narrow UI tasks
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mkeeps recognized actor and guidance wrappers separate from narrow UI tasks
+[31m[1mAssertionError[22m: 与设计师协作拆分按钮状态，交付组件说明。: expected 'none' to be 'full' // Object.is equality[39m
+
+Expected: [32m"full"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m58:49[22m[39m
+    [90m 56|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"other"[39m])[33m;[39m
+    [90m 57|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m 58|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"full"[39m)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m 59|[39m     }
+    [90m 60|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mkeeps recognized actor and guidance wrappers separate from narrow UI tasks
+[31m[1mAssertionError[22m: 与设计师协作拆分按钮状态，交付组件说明。: expected { itemId: 'fact', term: '组件说明', …(3) } to match object { status: 'mapped', …(2) }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "basis": "contextual",[39m
+[32m-   "skillIds": [[39m
+[32m-     "design-systems",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "basis": null,[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m57:40[22m[39m
+    [90m 55|[39m     ]) {
+    [90m 56|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"other"[39m])[33m;[39m
+    [90m 57|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 58|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"full"[39m)[33m;[39m
+    [90m 59|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mkeeps recognized actor and guidance wrappers separate from narrow UI tasks
+[31m[1mAssertionError[22m: 必须掌握键盘可访问性的基本检查。: expected { itemId: 'fact', …(4) } to match object { status: 'mapped', …(2) }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "basis": "contextual",[39m
+[32m-   "skillIds": [[39m
+[32m-     "design-systems",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "basis": null,[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m57:40[22m[39m
+    [90m 55|[39m     ]) {
+    [90m 56|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"other"[39m])[33m;[39m
+    [90m 57|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 58|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"full"[39m)[33m;[39m
+    [90m 59|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mkeeps recognized actor and guidance wrappers separate from narrow UI tasks
+[31m[1mAssertionError[22m: 必须掌握键盘可访问性的基本检查。: expected 'none' to be 'full' // Object.is equality[39m
+
+Expected: [32m"full"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m58:49[22m[39m
+    [90m 56|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"other"[39m])[33m;[39m
+    [90m 57|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m 58|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"full"[39m)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m 59|[39m     }
+    [90m 60|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mkeeps recognized actor and guidance wrappers separate from narrow UI tasks
+[31m[1mAssertionError[22m: Required: React 组件状态设计。: expected { Object (itemId, term, ...) } to match object { status: 'mapped', …(2) }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "basis": "contextual",[39m
+[32m-   "skillIds": [[39m
+[32m-     "react",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "basis": null,[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m57:40[22m[39m
+    [90m 55|[39m     ]) {
+    [90m 56|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"other"[39m])[33m;[39m
+    [90m 57|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 58|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"full"[39m)[33m;[39m
+    [90m 59|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mkeeps recognized actor and guidance wrappers separate from narrow UI tasks
+[31m[1mAssertionError[22m: Required: React 组件状态设计。: expected 'none' to be 'full' // Object.is equality[39m
+
+Expected: [32m"full"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m58:49[22m[39m
+    [90m 56|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"other"[39m])[33m;[39m
+    [90m 57|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m 58|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"full"[39m)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m 59|[39m     }
+    [90m 60|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mkeeps recognized actor and guidance wrappers separate from narrow UI tasks
+[31m[1mAssertionError[22m: Must be able to build semantic HTML forms.: expected { itemId: 'fact', term: 'HTML', …(3) } to match object { status: 'mapped', …(2) }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "basis": "contextual",[39m
+[31m+   "basis": "literal",[39m
+[2m    "skillIds": [[22m
+[2m      "web-platform",[22m
+[2m    ],[22m
+[2m    "status": "mapped",[22m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m57:40[22m[39m
+    [90m 55|[39m     ]) {
+    [90m 56|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"other"[39m])[33m;[39m
+    [90m 57|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 58|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"full"[39m)[33m;[39m
+    [90m 59|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mkeeps recognized actor and guidance wrappers separate from narrow UI tasks
+[31m[1mAssertionError[22m: Must be able to build semantic HTML forms.: expected 'none' to be 'full' // Object.is equality[39m
+
+Expected: [32m"full"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m58:49[22m[39m
+    [90m 56|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m[33m,[39m [[32m"other"[39m])[33m;[39m
+    [90m 57|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m 58|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"full"[39m)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m 59|[39m     }
+    [90m 60|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mlimits broad UI and software methods to their actually taught subset
+[31m[1mAssertionError[22m: Must use TypeScript to implement UI logic.: expected { itemId: 'fact', …(4) } to match object { status: 'mapped', …(2) }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "basis": "contextual",[39m
+[32m-   "skillIds": [[39m
+[32m-     "typescript",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "basis": null,[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m74:40[22m[39m
+    [90m 72|[39m     ] [35mas[39m [35mconst[39m) {
+    [90m 73|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m,[39m term)[33m;[39m
+    [90m 74|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 75|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"partial"[39m)[33m;[39m
+    [90m 76|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mlimits broad UI and software methods to their actually taught subset
+[31m[1mAssertionError[22m: Must use TypeScript to implement UI logic.: expected 'none' to be 'partial' // Object.is equality[39m
+
+Expected: [32m"partial"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m75:49[22m[39m
+    [90m 73|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m,[39m term)[33m;[39m
+    [90m 74|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m 75|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"partial"[39m)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m 76|[39m     }
+    [90m 77|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mlimits broad UI and software methods to their actually taught subset
+[31m[1mAssertionError[22m: Implemented a React prototype.: expected { itemId: 'fact', …(4) } to match object { status: 'mapped', …(2) }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "basis": "contextual",[39m
+[32m-   "skillIds": [[39m
+[32m-     "react",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "basis": null,[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m74:40[22m[39m
+    [90m 72|[39m     ] [35mas[39m [35mconst[39m) {
+    [90m 73|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m,[39m term)[33m;[39m
+    [90m 74|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 75|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"partial"[39m)[33m;[39m
+    [90m 76|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mlimits broad UI and software methods to their actually taught subset
+[31m[1mAssertionError[22m: Implemented a React prototype.: expected 'none' to be 'partial' // Object.is equality[39m
+
+Expected: [32m"partial"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m75:49[22m[39m
+    [90m 73|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m,[39m term)[33m;[39m
+    [90m 74|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m 75|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"partial"[39m)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m 76|[39m     }
+    [90m 77|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mlimits broad UI and software methods to their actually taught subset
+[31m[1mAssertionError[22m: In Figma I maintain UI tokens.: expected 'none' to be 'partial' // Object.is equality[39m
+
+Expected: [32m"partial"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m75:49[22m[39m
+    [90m 73|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m,[39m term)[33m;[39m
+    [90m 74|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m 75|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"partial"[39m)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m 76|[39m     }
+    [90m 77|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[35/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mlimits broad UI and software methods to their actually taught subset
+[31m[1mAssertionError[22m: 在同事指导下设置 dbt 测试。: expected { itemId: 'fact', term: '测试', …(3) } to match object { status: 'mapped', …(2) }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "basis": "contextual",[39m
+[32m-   "skillIds": [[39m
+[32m-     "testing",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "basis": null,[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m74:40[22m[39m
+    [90m 72|[39m     ] [35mas[39m [35mconst[39m) {
+    [90m 73|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m,[39m term)[33m;[39m
+    [90m 74|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 75|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"partial"[39m)[33m;[39m
+    [90m 76|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[36/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mlimits broad UI and software methods to their actually taught subset
+[31m[1mAssertionError[22m: 在同事指导下设置 dbt 测试。: expected 'none' to be 'partial' // Object.is equality[39m
+
+Expected: [32m"partial"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m75:49[22m[39m
+    [90m 73|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m,[39m term)[33m;[39m
+    [90m 74|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m 75|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"partial"[39m)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m 76|[39m     }
+    [90m 77|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[37/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mlimits broad UI and software methods to their actually taught subset
+[31m[1mAssertionError[22m: 使用 Python 并把清洗规则写入测试。: expected { itemId: 'fact', …(4) } to match object { status: 'mapped', …(2) }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "basis": "contextual",[39m
+[32m-   "skillIds": [[39m
+[32m-     "testing",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "basis": null,[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m74:40[22m[39m
+    [90m 72|[39m     ] [35mas[39m [35mconst[39m) {
+    [90m 73|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m,[39m term)[33m;[39m
+    [90m 74|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 75|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"partial"[39m)[33m;[39m
+    [90m 76|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[38/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mlimits broad UI and software methods to their actually taught subset
+[31m[1mAssertionError[22m: 使用 Python 并把清洗规则写入测试。: expected 'none' to be 'partial' // Object.is equality[39m
+
+Expected: [32m"partial"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m75:49[22m[39m
+    [90m 73|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m,[39m term)[33m;[39m
+    [90m 74|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m 75|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"partial"[39m)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m 76|[39m     }
+    [90m 77|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mlimits broad UI and software methods to their actually taught subset
+[31m[1mAssertionError[22m: Required: define product metrics and investigate retention cohorts.: expected { itemId: 'fact', …(4) } to match object { status: 'mapped', …(2) }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "basis": "contextual",[39m
+[32m-   "skillIds": [[39m
+[32m-     "product-thinking",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "basis": null,[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m74:40[22m[39m
+    [90m 72|[39m     ] [35mas[39m [35mconst[39m) {
+    [90m 73|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m,[39m term)[33m;[39m
+    [90m 74|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 75|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"partial"[39m)[33m;[39m
+    [90m 76|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[40/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mlimits broad UI and software methods to their actually taught subset
+[31m[1mAssertionError[22m: Required: define product metrics and investigate retention cohorts.: expected 'none' to be 'partial' // Object.is equality[39m
+
+Expected: [32m"partial"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m75:49[22m[39m
+    [90m 73|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m,[39m term)[33m;[39m
+    [90m 74|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m 75|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"partial"[39m)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m 76|[39m     }
+    [90m 77|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[41/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mlimits broad UI and software methods to their actually taught subset
+[31m[1mAssertionError[22m: My contribution was reviewing the migration checklist and taking meeting notes.: expected { itemId: 'fact', …(4) } to match object { status: 'mapped', …(2) }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "basis": "contextual",[39m
+[32m-   "skillIds": [[39m
+[32m-     "cloud-delivery",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "basis": null,[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m74:40[22m[39m
+    [90m 72|[39m     ] [35mas[39m [35mconst[39m) {
+    [90m 73|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m,[39m term)[33m;[39m
+    [90m 74|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 75|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"partial"[39m)[33m;[39m
+    [90m 76|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[42/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mlimits broad UI and software methods to their actually taught subset
+[31m[1mAssertionError[22m: My contribution was reviewing the migration checklist and taking meeting notes.: expected 'none' to be 'partial' // Object.is equality[39m
+
+Expected: [32m"partial"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m75:49[22m[39m
+    [90m 73|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m,[39m term)[33m;[39m
+    [90m 74|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m 75|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"partial"[39m)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m 76|[39m     }
+    [90m 77|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[43/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mlimits broad UI and software methods to their actually taught subset
+[31m[1mAssertionError[22m: 我个人只记录回滚步骤，没有操作集群。: expected { Object (itemId, term, ...) } to match object { status: 'mapped', …(2) }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "basis": "contextual",[39m
+[32m-   "skillIds": [[39m
+[32m-     "cloud-delivery",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "basis": null,[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m74:40[22m[39m
+    [90m 72|[39m     ] [35mas[39m [35mconst[39m) {
+    [90m 73|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m,[39m term)[33m;[39m
+    [90m 74|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 75|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"partial"[39m)[33m;[39m
+    [90m 76|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[44/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mlimits broad UI and software methods to their actually taught subset
+[31m[1mAssertionError[22m: 我个人只记录回滚步骤，没有操作集群。: expected 'none' to be 'partial' // Object.is equality[39m
+
+Expected: [32m"partial"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m75:49[22m[39m
+    [90m 73|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m,[39m term)[33m;[39m
+    [90m 74|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m 75|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m([32m"partial"[39m)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m 76|[39m     }
+    [90m 77|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[45/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mgives composite testing tasks only the evidence each course actually teaches
+[31m[1mAssertionError[22m: expected { itemId: 'fact', …(4) } to match object { status: 'mapped', …(2) }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "basis": "contextual",[39m
+[32m-   "skillIds": [[39m
+[32m-     "typescript",[39m
+[32m-     "testing",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "basis": null,[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m81:26[22m[39m
+    [90m 79|[39m   it("gives composite testing tasks only the evidence each course actu…
+    [90m 80|[39m     const async = relation("Must test asynchronous TypeScript behavior…
+    [90m 81|[39m     expect(async.detail).toMatchObject({ status: "mapped", skillIds: […
+    [90m   |[39m                          [31m^[39m
+    [90m 82|[39m     expect(async.coverage).toMatchObject({ status: "partial", support:…
+    [90m 83|[39m     [35mconst[39m component [33m=[39m [34mrelation[39m([32m"有 React 组件测试经验者优先。"[39m[33m,[39m [32m"组件测试"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[46/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mkeeps candidate choice independent from union coverage and recomputes explicit choices
+[31m[1mAssertionError[22m: expected { itemId: 'fact', …(4) } to match object { status: 'ambiguous', …(1) }
+(3 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "skillIds": [[39m
+[32m-     "web-platform",[39m
+[32m-     "design-systems",[39m
+[32m-   ],[39m
+[32m-   "status": "ambiguous",[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m91:20[22m[39m
+    [90m 89|[39m   it("keeps candidate choice independent from union coverage and recom…
+    [90m 90|[39m     const { item, detail, coverage } = relation("Required: write acces…
+    [90m 91|[39m     expect(detail).toMatchObject({ status: "ambiguous", skillIds: ["we…
+    [90m   |[39m                    [31m^[39m
+    [90m 92|[39m     [34mexpect[39m(coverage[33m.[39mstatus)[33m.[39m[34mtoBe[39m([32m"full"[39m)[33m;[39m
+    [90m 93|[39m     const selected = mapMaterialItemTerms([item], flagshipBlueprint, f…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[47/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mkeeps tracing topics apart from practice and from parser implementation
+[31m[1mAssertionError[22m: I have not used distributed tracing.: expected { itemId: 'fact', …(4) } to match object { status: 'mapped', …(2) }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "basis": "contextual",[39m
+[31m+   "basis": "literal",[39m
+[2m    "skillIds": [[22m
+[2m      "observability",[22m
+[2m    ],[22m
+[2m    "status": "mapped",[22m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m109:40[22m[39m
+    [90m107|[39m     ]) {
+    [90m108|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m)[33m;[39m
+    [90m109|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m110|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m(status)[33m;[39m
+    [90m111|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[48/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mkeeps tracing topics apart from practice and from parser implementation
+[31m[1mAssertionError[22m: I have not used distributed tracing.: expected 'none' to be 'partial' // Object.is equality[39m
+
+Expected: [32m"partial"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m110:49[22m[39m
+    [90m108|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m)[33m;[39m
+    [90m109|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m110|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m(status)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m111|[39m     }
+    [90m112|[39m     const denied = relation("I have not used distributed tracing.", "d…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[49/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mkeeps tracing topics apart from practice and from parser implementation
+[31m[1mAssertionError[22m: With a mentor, I traced one failed request using OpenTelemetry.: expected { itemId: 'fact', …(4) } to match object { status: 'mapped', …(2) }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "basis": "contextual",[39m
+[32m-   "skillIds": [[39m
+[32m-     "observability",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "basis": null,[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m109:40[22m[39m
+    [90m107|[39m     ]) {
+    [90m108|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m)[33m;[39m
+    [90m109|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m110|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m(status)[33m;[39m
+    [90m111|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[50/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mkeeps tracing topics apart from practice and from parser implementation
+[31m[1mAssertionError[22m: With a mentor, I traced one failed request using OpenTelemetry.: expected 'none' to be 'partial' // Object.is equality[39m
+
+Expected: [32m"partial"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m110:49[22m[39m
+    [90m108|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m)[33m;[39m
+    [90m109|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m110|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m(status)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m111|[39m     }
+    [90m112|[39m     const denied = relation("I have not used distributed tracing.", "d…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[51/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mkeeps tracing topics apart from practice and from parser implementation
+[31m[1mAssertionError[22m: I can explain the difference between a trace and a log.: expected { itemId: 'fact', term: 'trace', …(3) } to match object { status: 'mapped', …(2) }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "basis": "contextual",[39m
+[32m-   "skillIds": [[39m
+[32m-     "observability",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "basis": null,[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m109:40[22m[39m
+    [90m107|[39m     ]) {
+    [90m108|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m)[33m;[39m
+    [90m109|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m110|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m(status)[33m;[39m
+    [90m111|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[52/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mkeeps tracing topics apart from practice and from parser implementation
+[31m[1mAssertionError[22m: I can explain the difference between a trace and a log.: expected 'none' to be 'full' // Object.is equality[39m
+
+Expected: [32m"full"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m110:49[22m[39m
+    [90m108|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m)[33m;[39m
+    [90m109|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m110|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m(status)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m111|[39m     }
+    [90m112|[39m     const denied = relation("I have not used distributed tracing.", "d…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[53/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mkeeps tracing topics apart from practice and from parser implementation
+[31m[1mAssertionError[22m: 用 Python 写过 log parser。: expected { itemId: 'fact', …(4) } to match object { status: 'mapped', …(2) }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "basis": "contextual",[39m
+[32m-   "skillIds": [[39m
+[32m-     "observability",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "basis": null,[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m109:40[22m[39m
+    [90m107|[39m     ]) {
+    [90m108|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m)[33m;[39m
+    [90m109|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m110|[39m       expect[33m.[39m[34msoft[39m(result[33m.[39mcoverage[33m.[39mstatus[33m,[39m text)[33m.[39m[34mtoBe[39m(status)[33m;[39m
+    [90m111|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[54/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mdoes not transfer coverage across terms, actors, denied qualifiers, or soft wraps
+[31m[1mAssertionError[22m: I built CSS grid layouts.: expected { itemId: 'fact', term: 'CSS', …(3) } to match object { status: 'uncovered', skillIds: [] }
+(3 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "skillIds": [],[39m
+[32m-   "status": "uncovered",[39m
+[31m+   "skillIds": [[39m
+[31m+     "web-platform",[39m
+[31m+   ],[39m
+[31m+   "status": "mapped",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m120:57[22m[39m
+    [90m118|[39m       ["I built CSS grid layouts.", "CSS"], ["I inspected paper logs, …
+    [90m119|[39m       ["I inspect logs and my colleague owns API telemetry.", "logs"],…
+    [90m120|[39m     ]) expect.soft(relation(text!, term!).detail, text).toMatchObject(…
+    [90m   |[39m                                                         [31m^[39m
+    [90m121|[39m     const unrelated = relation("Write SQL window queries and design SQ…
+    [90m122|[39m     expect(unrelated.coverage).toMatchObject({ status: "none", support…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[55/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mdoes not transfer coverage across terms, actors, denied qualifiers, or soft wraps
+[31m[1mAssertionError[22m: expected { status: 'partial', …(2) } to match object { status: 'none', support: [] }
+(1 matching property omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "status": "none",[39m
+[32m-   "support": [],[39m
+[31m+   "status": "partial",[39m
+[31m+   "support": [[39m
+[31m+     "sql-schema",[39m
+[31m+   ],[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m122:32[22m[39m
+    [90m120|[39m     ]) expect.soft(relation(text!, term!).detail, text).toMatchObject(…
+    [90m121|[39m     const unrelated = relation("Write SQL window queries and design SQ…
+    [90m122|[39m     expect(unrelated.coverage).toMatchObject({ status: "none", support…
+    [90m   |[39m                                [31m^[39m
+    [90m123|[39m     expect(relation("Build semantic HTML forms\nfor a WebGPU simulatio…
+    [90m124|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[56/59]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mdistinguishes bare topics, broad requirement subsets, and administrative roles
+[31m[1mAssertionError[22m: expected 'none' to be 'partial' // Object.is equality[39m
+
+Expected: [32m"partial"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m128:65[22m[39m
+    [90m126|[39m   it("distinguishes bare topics, broad requirement subsets, and admini…
+    [90m127|[39m     expect(relation("SQL", "SQL").coverage).toEqual({ status: "none", …
+    [90m128|[39m     expect(relation("SQL is required.", "SQL").coverage.status).toBe("…
+    [90m   |[39m                                                                 [31m^[39m
+    [90m129|[39m     expect(relation("TypeScript is preferred for this role.", "TypeScr…
+    [90m130|[39m     expect(relation("SQL window queries are required.", "SQL").coverag…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[57/59]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m9 failed[39m[22m[90m (9)[39m
+[2m   Start at [22m 16:25:31
+[2m   Duration [22m 1.76s[2m (transform 169ms, setup 270ms, import 264ms, tests 65ms, environment 870ms)[22m
+

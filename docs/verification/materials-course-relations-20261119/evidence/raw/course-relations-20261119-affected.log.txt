@@ -1,0 +1,182 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:44920) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:27272) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11608) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:25936) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:43100) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35912) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-context.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 231[2mms[22m[39m
+ [31m❯[39m tests/server/material-course-task-coverage.test.ts [2m([22m[2m9 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 530[2mms[22m[39m
+     [32m✓[39m distinguishes a topic name, a narrow taught task, an unsupported query and a mixed task[32m 124[2mms[22m[39m
+     [32m✓[39m does not merge same-topic terms with different coverage and recomputes a manual course choice[32m 93[2mms[22m[39m
+     [32m✓[39m invalidates a claim when its exact content leaf changes even at the same catalog version[32m 51[2mms[22m[39m
+     [32m✓[39m requires the exact narrowing criterion and never inherits evidence in Research or an invalid registry[32m 5[2mms[22m[39m
+[31m     [31m×[31m keeps unknown modifiers and tool-specific tasks outside full coverage[39m[32m 52[2mms[22m[39m
+     [32m✓[39m retains a soft-wrapped unknown modifier in a multi-label task scope[32m 42[2mms[22m[39m
+     [32m✓[39m recognizes the other narrow taught families without equating links with teaching[32m 49[2mms[22m[39m
+     [32m✓[39m does not use task coverage to adopt ability, practice or an unadopted priority[32m 92[2mms[22m[39m
+     [32m✓[39m distinguishes explicit topic conjunction from alternatives and keeps each actor's practice evidence[32m 21[2mms[22m[39m
+ [32m✓[39m tests/server/material-learning-intents.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 627[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/explanations.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/planning-priority.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 67[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/skill-mapper.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 48[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/practice-skill-mapping.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 65[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/contextual-skill-mapping.test.ts [2m([22m[2m89 tests[22m[2m)[22m[32m 89[2mms[22m[39m
+(node:43032) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/lib/materials/course-relations.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 114[2mms[22m[39m
+ [31m❯[39m tests/server/material-practice-priorities.test.ts [2m([22m[2m32 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 1370[2mms[22m[39m
+     [32m✓[39m keeps denied SQL mapped without borrowing personal practice[32m 119[2mms[22m[39m
+     [32m✓[39m keeps colleague SQL mapped without borrowing personal practice[32m 85[2mms[22m[39m
+     [32m✓[39m keeps future SQL mapped without borrowing personal practice[32m 58[2mms[22m[39m
+     [32m✓[39m keeps own React and colleague SQL mapped without borrowing personal practice[32m 64[2mms[22m[39m
+     [32m✓[39m retains a personal SQL practice priority[32m 39[2mms[22m[39m
+     [32m✓[39m retains bounded personal practice without changing self-assessment: I tested SQL under my mentor's guidance.[32m 50[2mms[22m[39m
+     [32m✓[39m retains bounded personal practice without changing self-assessment: I tested SQL without guidance.[32m 42[2mms[22m[39m
+     [32m✓[39m retains bounded personal practice without changing self-assessment: I tested the SQL queries supplied by my mentor.[32m 39[2mms[22m[39m
+     [32m✓[39m retains bounded personal practice without changing self-assessment: I modified the SQL supplied by my mentor.[32m 44[2mms[22m[39m
+     [32m✓[39m retains bounded personal practice without changing self-assessment: I only changed parameters in the supplied SQL queries.[32m 36[2mms[22m[39m
+     [32m✓[39m retains bounded personal practice without changing self-assessment: My mentor supplied SQL; I only changed parameters in the SQL queries.[32m 38[2mms[22m[39m
+     [32m✓[39m retains bounded personal practice without changing self-assessment: I wrote SQL queries, but I have never configured SQL for production.[32m 34[2mms[22m[39m
+     [32m✓[39m retains bounded personal practice without changing self-assessment: I wrote SQL queries for monthly reports and reviewed the results with finance to correct inconsistent totals before sending the final dataset to the reporting team.[32m 38[2mms[22m[39m
+     [32m✓[39m retains bounded personal practice without changing self-assessment: SQL[32m 37[2mms[22m[39m
+[31m     [31m×[31m checks alternative words for one automatic course independently: I wrote SQL queries, but I have never configured SQLite.[39m[32m 40[2mms[22m[39m
+     [32m✓[39m checks alternative words for one automatic course independently: I have never used SQL, but I configured SQLite.[32m 35[2mms[22m[39m
+     [32m✓[39m checks alternative words for one automatic course independently: I have never used SQL; my colleague configured SQLite.[32m 32[2mms[22m[39m
+     [32m✓[39m uses confirmed whole-fact evidence for a nonliteral manual relation: Built accessible product interfaces.[32m 34[2mms[22m[39m
+     [32m✓[39m uses confirmed whole-fact evidence for a nonliteral manual relation: I wrote SQL queries for monthly reports and reviewed the results with finance to correct inconsistent totals before sending the final dataset to the reporting team.[32m 34[2mms[22m[39m
+     [32m✓[39m uses confirmed whole-fact evidence for a nonliteral manual relation: I have never used SQL.[32m 32[2mms[22m[39m
+     [32m✓[39m uses confirmed whole-fact evidence for a nonliteral manual relation: I built React components; my colleague wrote SQL queries.[32m 31[2mms[22m[39m
+     [32m✓[39m uses the original SQL term for its manual React relation: I wrote SQL queries; my colleague built React components.[32m 34[2mms[22m[39m
+     [32m✓[39m uses the original SQL term for its manual React relation: I have never used SQL; I built React components.[32m 35[2mms[22m[39m
+     [32m✓[39m keeps removed and explicitly omitted terms out of practice[32m 57[2mms[22m[39m
+     [32m✓[39m keeps an empty retained list empty and rejects whole-fact overrides for labelled facts[32m 38[2mms[22m[39m
+     [32m✓[39m retains the ambiguity of an unlabelled fact matching multiple courses[32m 32[2mms[22m[39m
+     [32m✓[39m retains primary JD must requirements without personal practice[32m 33[2mms[22m[39m
+     [32m✓[39m retains primary JD preferred requirements without personal practice[32m 29[2mms[22m[39m
+     [32m✓[39m requires separate learning-intent adoption for a supplemental requirement[32m 51[2mms[22m[39m
+     [32m✓[39m requires separate learning-intent adoption for a supplemental constraint[32m 49[2mms[22m[39m
+     [32m✓[39m does not adopt an unsupported ordinary experience as learning intent[32m 19[2mms[22m[39m
+[31m     [31m×[31m binds new contexts to policy 2026.11.3 and mapping 2026.11.6 while preserving saved reads[39m[32m 31[2mms[22m[39m
+ [32m✓[39m tests/components/material-context-choices.test.tsx [2m([22m[2m31 tests[22m[2m)[22m[33m 1968[2mms[22m[39m
+ [32m✓[39m tests/server/material-learning-intent-flow.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 2221[2mms[22m[39m
+   [33m[2m✓[22m[39m reorders coach-only advice only after adoption, preserving the plan and Proof through discard [33m 834[2mms[22m[39m
+   [33m[2m✓[22m[39m reorders coach-only advice only after adoption, preserving the plan and Proof through accept [33m 588[2mms[22m[39m
+   [33m[2m✓[22m[39m invalidates the adopted-choice preview when the selection revision removes its coach source [33m 394[2mms[22m[39m
+   [33m[2m✓[22m[39m blocks acceptance after deleting the adopted coach source and still permits discard without changing progress or Proof [33m 403[2mms[22m[39m
+ [32m✓[39m tests/server/material-context-only-adoption.test.ts [2m([22m[2m26 tests[22m[2m)[22m[33m 8272[2mms[22m[39m
+     [33m[2m✓[22m[39m stages first material adoption without task changes and preserves completed Proof on accept [33m 598[2mms[22m[39m
+     [33m[2m✓[22m[39m stages first material adoption without task changes and preserves completed Proof on discard [33m 357[2mms[22m[39m
+     [33m[2m✓[22m[39m replaces a company JD with identical confirmed text only on accept [33m 368[2mms[22m[39m
+     [33m[2m✓[22m[39m adopts a SQL-to-React company JD replacement despite a prerequisite-constrained unchanged schedule [33m 368[2mms[22m[39m
+     [33m[2m✓[22m[39m requires acceptance to change initially adopted focus=false without task movement [33m 794[2mms[22m[39m
+     [33m[2m✓[22m[39m requires acceptance to change initially adopted focus=true without task movement [33m 734[2mms[22m[39m
+     [33m[2m✓[22m[39m returns genuine no-change for fresh selections with the same adoption, retaining its receipt and unapplied assessment [33m 313[2mms[22m[39m
+     [33m[2m✓[22m[39m retains unapplied audit warnings when replaying a context-only proposal and accepting it [33m 380[2mms[22m[39m
+     [33m[2m✓[22m[39m retains unapplied target warnings when replaying a context-only proposal and accepting it [33m 349[2mms[22m[39m
+     [33m[2m✓[22m[39m normalizes dependency, skill mapping, term skill, and intent order across fresh previews [33m 403[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 3 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-course-task-coverage.test.ts[2m > [22mcontent-backed course task coverage[2m > [22mkeeps unknown modifiers and tool-specific tasks outside full coverage
+[31m[1mAssertionError[22m: expected [ { status: 'full', …(2) }, …(4) ] to deeply equal [ { status: 'full', …(2) }, …(4) ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[33m@@ -18,14 +18,12 @@[39m
+[2m        "react-form",[22m
+[2m      ],[22m
+[2m    },[22m
+[2m    {[22m
+[2m      "remaining": "unassessed-scope",[22m
+[32m-     "status": "partial",[39m
+[32m-     "support": [[39m
+[32m-       "behavior-tests",[39m
+[32m-     ],[39m
+[31m+     "status": "none",[39m
+[31m+     "support": [],[39m
+[2m    },[22m
+[2m    {[22m
+[2m      "remaining": "unassessed-scope",[22m
+[2m      "status": "partial",[22m
+[2m      "support": [[22m
+
+[36m [2m❯[22m tests/server/material-course-task-coverage.test.ts:[2m93:134[22m[39m
+    [90m 91|[39m       fact("Build a labeled semantic HTML form. Add a WebGPU simulatio…
+    [90m 92|[39m     ])[33m;[39m
+    [90m 93|[39m     expect((await materials.create("owner-a", materialContextRequest()…
+    [90m   |[39m                                                                                                                                      [31m^[39m
+    [90m 94|[39m       { status: "full", support: ["typescript-contract"], remaining: n…
+    [90m 95|[39m       { status[33m:[39m [32m"none"[39m[33m,[39m support[33m:[39m [][33m,[39m remaining[33m:[39m [32m"unassessed-scope"[39m }[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-practice-priorities.test.ts[2m > [22mpersonal practice priorities from confirmed material relations[2m > [22mchecks alternative words for one automatic course independently: I wrote SQL queries, but I have never configured SQLite.
+[31m[1mAssertionError[22m: expected [ { …(6) } ] to deeply equal [ { …(6) } ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[33m@@ -5,13 +5,15 @@[39m
+[2m      "skillIds": [[22m
+[2m        "sql",[22m
+[2m      ],[22m
+[2m      "status": "mapped",[22m
+[2m      "taskCoverage": {[22m
+[32m-       "remaining": "unspecified-task",[39m
+[32m-       "status": "none",[39m
+[32m-       "support": [],[39m
+[31m+       "remaining": "unassessed-scope",[39m
+[31m+       "status": "partial",[39m
+[31m+       "support": [[39m
+[31m+         "sql-joins",[39m
+[31m+       ],[39m
+[2m      },[22m
+[2m      "termIndexes": [[22m
+[2m        -1,[22m
+[2m      ],[22m
+[2m    },[22m
+
+[36m [2m❯[22m tests/server/material-practice-priorities.test.ts:[2m77:36[22m[39m
+    [90m 75|[39m     [35mconst[39m { materials } [33m=[39m [34msetup[39m([[34mfact[39m(text)])[33m;[39m
+    [90m 76|[39m     const { preview } = await materials.create("owner-a", materialCont…
+    [90m 77|[39m     expect(preview.mappingDetails).toEqual([{ itemId: preview.confirme…
+    [90m   |[39m                                    [31m^[39m
+    [90m 78|[39m       taskCoverage: { status: "none", support: [], remaining: "unspeci…
+    [90m 79|[39m     expect(preview.priorities.map(row => row.skillId)).toEqual(expecte…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-practice-priorities.test.ts[2m > [22mpersonal practice priorities from confirmed material relations[2m > [22mbinds new contexts to policy 2026.11.3 and mapping 2026.11.6 while preserving saved reads
+[31m[1mAssertionError[22m: expected { audit: { …(8) }, …(14) } to match object { policyVersion: '2026.11.3', …(1) }
+(44 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "mappingVersion": "2026.11.6",[39m
+[31m+   "mappingVersion": "2026.11.7",[39m
+[2m    "policyVersion": "2026.11.3",[22m
+[2m  }[22m
+
+[36m [2m❯[22m tests/server/material-practice-priorities.test.ts:[2m172:43[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m11 passed[39m[22m[90m (13)[39m
+[2m      Tests [22m [1m[31m3 failed[39m[22m[2m | [22m[1m[32m261 passed[39m[22m[90m (264)[39m
+[2m   Start at [22m 16:30:49
+[2m   Duration [22m 9.66s[2m (transform 4.12s, setup 5.00s, import 8.01s, tests 15.61s, environment 8.83s)[22m
+

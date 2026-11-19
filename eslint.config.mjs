@@ -12,7 +12,10 @@ const eslintConfig = defineConfig([
     ".vinext/**",
     ".wrangler/**",
     "outputs/**",
-    "work/ui-preview-cache/**",
+    "work/**",
+    // Immutable historical source snapshots are evidence, not active modules.
+    "docs/verification/materials-quality-next/capture-evidence/**",
+    "docs/verification/materials-quality-next/adapter-evidence/**",
     "out/**",
     "build/**",
     "next-env.d.ts",

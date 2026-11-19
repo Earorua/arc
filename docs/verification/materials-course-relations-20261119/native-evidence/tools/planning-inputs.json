@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "materials-course-relation-native-input-v1",
+  "bindingId": "materials-course-relations-native-20261119-v1",
+  "clock": "2026-11-19T08:00:00.000Z",
+  "planningDate": "2026-11-19",
+  "goal": { "roleId": "ai-native-full-stack-engineer", "level": "beginner", "weeklyMinutes": 420, "targetWeeks": 52 },
+  "availability": { "timeZone": "UTC", "weekdays": { "monday": 60, "tuesday": 60, "wednesday": 60, "thursday": 60, "friday": 60, "saturday": 60, "sunday": 60 }, "exceptions": [], "weeklyMinutes": 420 },
+  "audit": { "defaultLevel": "conceptual", "evidence": [] },
+  "proof": { "title": "Synthetic completed task evidence", "summary": "Local synthetic evidence established before the evaluated material operation.", "artifactUrl": "https://example.com/synthetic-completed-task", "visibility": "private" },
+  "documents": {
+    "primaryA": { "kind": "jd", "name": "Synthetic initial primary JD", "text": "SQL", "items": [{ "id": "primary-a-sql", "kind": "requirement", "text": "SQL", "requirementLevel": "must" }] },
+    "primaryC": { "kind": "jd", "name": "Synthetic replacement primary JD", "text": "Required: build semantic HTML forms.\nRequired: use SQL joins to reconcile trial and paid accounts.\nPreferred: write accessible form labels.", "syntheticExtraction": true, "items": [
+      { "id": "replacement-html", "kind": "requirement", "text": "Required: build semantic HTML forms.", "requirementLevel": "must", "skillLabels": ["semantic HTML forms"], "selfLevelHint": null },
+      { "id": "replacement-sql", "kind": "requirement", "text": "Required: use SQL joins to reconcile trial and paid accounts.", "requirementLevel": "must", "skillLabels": ["SQL joins"], "selfLevelHint": null },
+      { "id": "replacement-labels", "kind": "requirement", "text": "Preferred: write accessible form labels.", "requirementLevel": "preferred", "skillLabels": ["accessible form labels"], "selfLevelHint": null }
+    ] },
+    "resume": { "kind": "resume", "name": "Synthetic scoped experience", "text": "I used SQL joins to reconcile trial and paid accounts, following review notes.\nMy colleague built React forms.\nI built CSS grid layouts with a senior developer's review.", "syntheticExtraction": true, "items": [
+      { "id": "resume-sql", "kind": "experience", "text": "I used SQL joins to reconcile trial and paid accounts, following review notes.", "requirementLevel": null, "skillLabels": ["SQL joins"], "selfLevelHint": null },
+      { "id": "resume-other-react", "kind": "experience", "text": "My colleague built React forms.", "requirementLevel": null, "skillLabels": ["React"], "selfLevelHint": null },
+      { "id": "resume-css", "kind": "experience", "text": "I built CSS grid layouts with a senior developer's review.", "requirementLevel": null, "skillLabels": ["CSS"], "selfLevelHint": null }
+    ] },
+    "focus": { "kind": "supplement", "name": "Synthetic optional focus", "text": "Coach suggests SQL practice.\nCoach suggests React practice.", "syntheticExtraction": true, "items": [
+      { "id": "focus-sql", "kind": "constraint", "text": "Coach suggests SQL practice.", "requirementLevel": null, "skillLabels": ["SQL"], "selfLevelHint": null },
+      { "id": "focus-react", "kind": "constraint", "text": "Coach suggests React practice.", "requirementLevel": null, "skillLabels": ["React"], "selfLevelHint": null }
+    ] },
+    "secondary": { "kind": "supplement", "name": "Synthetic secondary company JD", "text": "Required: React 组件状态设计。", "syntheticExtraction": true, "items": [
+      { "id": "secondary-react", "kind": "requirement", "text": "Required: React 组件状态设计。", "requirementLevel": "must", "skillLabels": ["组件状态设计"], "selfLevelHint": null }
+    ] }
+  },
+  "cases": [
+    { "id": "accept-current-primary-jd-preview", "layer": "changed-course-relations-through-native-replacement-and-acceptance", "initialIntents": [] },
+    { "id": "secondary-jd-cannot-add-must", "layer": "changed-contextual-relation-through-native-optional-focus", "supplement": "secondary", "initialIntents": [] }
+  ],
+  "reuse": { "description": "Only the recorded service operation sequence is reused; these are two new input cases, not a repeated or relabelled fourteen-case acceptance." },
+  "limits": { "realProviderCalls": 0, "externalHttpAllowed": false, "newActivePlanSelfAssessmentEndpoint": false, "independentIsSelfReport": true, "modelQualityApproved": false, "gateApproved": false, "publicationApproved": false }
+}

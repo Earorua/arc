@@ -1,0 +1,69 @@
+{
+  "purpose": "Immutable handoff 02 source before spec correction",
+  "handoffPath": "work/grounded-verification/course-relations-20261119-handoff-02.json",
+  "handoffSha256": "43dc93f1603e74c3f7328bf106ea8bd22e664ac32c98fa74899140b8e50956a9",
+  "diagnosticPath": "work/grounded-verification/course-relations-20261119-component-diagnostic-result-02.json",
+  "diagnosticSha256": "60d18b0aefa3bec8ed93e2ce07455f442526044fd840f142101355426cd66ccc",
+  "files": [
+    {
+      "path": "app/lib/materials/skill-mapper.ts",
+      "sha256": "2fb992337c5112856ee9253d2da843f5d5bd0be3d09de970c49023345e133b1c",
+      "archivedPath": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\course-relations-20261119-pre-spec-correction\\app__lib__materials__skill-mapper.ts",
+      "archivedSha256": "2fb992337c5112856ee9253d2da843f5d5bd0be3d09de970c49023345e133b1c"
+    },
+    {
+      "path": "app/lib/materials/course-relation-scope.ts",
+      "sha256": "bf7035fd82bc8b90d7abfaef9440e7a25810c663e14d098d70696cd6bbe8f096",
+      "archivedPath": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\course-relations-20261119-pre-spec-correction\\app__lib__materials__course-relation-scope.ts",
+      "archivedSha256": "bf7035fd82bc8b90d7abfaef9440e7a25810c663e14d098d70696cd6bbe8f096"
+    },
+    {
+      "path": "app/lib/materials/course-task-coverage.ts",
+      "sha256": "5cbca147cb1d8c707cd4e8eb32b1e02e04d6b1d6c5c16b0eb57dc635b68e640b",
+      "archivedPath": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\course-relations-20261119-pre-spec-correction\\app__lib__materials__course-task-coverage.ts",
+      "archivedSha256": "5cbca147cb1d8c707cd4e8eb32b1e02e04d6b1d6c5c16b0eb57dc635b68e640b"
+    },
+    {
+      "path": "app/lib/materials/course-task-evidence.ts",
+      "sha256": "f21a983255129082788321455b8b5dfd8f574cbae370682680fb7e9bbe8cadd4",
+      "archivedPath": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\course-relations-20261119-pre-spec-correction\\app__lib__materials__course-task-evidence.ts",
+      "archivedSha256": "f21a983255129082788321455b8b5dfd8f574cbae370682680fb7e9bbe8cadd4"
+    },
+    {
+      "path": "app/components/materials/material-context-review.tsx",
+      "sha256": "3fcba579de055759e72241050321224fc1de071c34d60f09791e732372fd9f01",
+      "archivedPath": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\course-relations-20261119-pre-spec-correction\\app__components__materials__material-context-review.tsx",
+      "archivedSha256": "3fcba579de055759e72241050321224fc1de071c34d60f09791e732372fd9f01"
+    },
+    {
+      "path": "tests/lib/materials/course-relations.test.ts",
+      "sha256": "459856e38778acd21b2e76d2db69298e8c938bbf7c5d51323b2b13d0dd390a6b",
+      "archivedPath": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\course-relations-20261119-pre-spec-correction\\tests__lib__materials__course-relations.test.ts",
+      "archivedSha256": "459856e38778acd21b2e76d2db69298e8c938bbf7c5d51323b2b13d0dd390a6b"
+    },
+    {
+      "path": "tests/lib/materials/skill-mapper.test.ts",
+      "sha256": "cb888823d9d4746a11c9234e1d78de875311c145af5615dbb7d0b8ad388e5ef1",
+      "archivedPath": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\course-relations-20261119-pre-spec-correction\\tests__lib__materials__skill-mapper.test.ts",
+      "archivedSha256": "cb888823d9d4746a11c9234e1d78de875311c145af5615dbb7d0b8ad388e5ef1"
+    },
+    {
+      "path": "tests/lib/materials/practice-skill-mapping.test.ts",
+      "sha256": "7cd4c88e1af0c92e4e8de2d2b81839beeb8234766d3bd9e3d9277c6ef7da3090",
+      "archivedPath": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\course-relations-20261119-pre-spec-correction\\tests__lib__materials__practice-skill-mapping.test.ts",
+      "archivedSha256": "7cd4c88e1af0c92e4e8de2d2b81839beeb8234766d3bd9e3d9277c6ef7da3090"
+    },
+    {
+      "path": "tests/server/material-practice-priorities.test.ts",
+      "sha256": "59314cf66eb8ddc3d3e5eab8b9485038e16065e26340a634e507e2bbca9f6f84",
+      "archivedPath": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\course-relations-20261119-pre-spec-correction\\tests__server__material-practice-priorities.test.ts",
+      "archivedSha256": "59314cf66eb8ddc3d3e5eab8b9485038e16065e26340a634e507e2bbca9f6f84"
+    },
+    {
+      "path": "tests/components/material-context-choices.test.tsx",
+      "sha256": "9b8742703bef4a91da9e79233652ddb624e8d1bfb194dcbce45a372bd46dd852",
+      "archivedPath": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\course-relations-20261119-pre-spec-correction\\tests__components__material-context-choices.test.tsx",
+      "archivedSha256": "9b8742703bef4a91da9e79233652ddb624e8d1bfb194dcbce45a372bd46dd852"
+    }
+  ]
+}

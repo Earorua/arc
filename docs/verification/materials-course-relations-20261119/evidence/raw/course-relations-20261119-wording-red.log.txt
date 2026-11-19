@@ -1,0 +1,80 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+ [31m❯[39m tests/lib/materials/course-relations.test.ts [2m([22m[2m9 tests[22m[2m | [22m[31m2 failed[39m[2m | [22m[33m7 skipped[39m[2m)[22m[32m 43[2mms[22m[39m
+[31m     [31m×[31m separates technical topics from unprovided query tasks[39m[32m 37[2mms[22m[39m
+     [2m[90m↓[39m[22m uses ordinary schema and JOIN teaching while preserving business scope
+     [2m[90m↓[39m[22m keeps recognized actor and guidance wrappers separate from narrow UI tasks
+     [2m[90m↓[39m[22m limits broad UI and software methods to their actually taught subset
+     [2m[90m↓[39m[22m gives composite testing tasks only the evidence each course actually teaches
+     [2m[90m↓[39m[22m keeps candidate choice independent from union coverage and recomputes explicit choices
+     [2m[90m↓[39m[22m keeps tracing topics apart from practice and from parser implementation
+     [2m[90m↓[39m[22m does not transfer coverage across terms, actors, denied qualifiers, or soft wraps
+[31m     [31m×[31m distinguishes bare topics, broad requirement subsets, and administrative roles[39m[32m 5[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mseparates technical topics from unprovided query tasks
+[31m[1mAssertionError[22m: I have never used CTE.: expected { itemId: 'fact', term: 'CTE', …(3) } to match object { status: 'mapped', …(1) }
+(3 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "skillIds": [[39m
+[32m-     "sql",[39m
+[32m-   ],[39m
+[32m-   "status": "mapped",[39m
+[31m+   "skillIds": [],[39m
+[31m+   "status": "uncovered",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m26:40[22m[39m
+    [90m 24|[39m     ]) {
+    [90m 25|[39m       [35mconst[39m result [33m=[39m [34mrelation[39m(text[33m![39m[33m,[39m term[33m![39m)[33m;[39m
+    [90m 26|[39m       expect.soft(result.detail, text).toMatchObject({ status: "mapped…
+    [90m   |[39m                                        [31m^[39m
+    [90m 27|[39m       expect.soft(result.coverage, text).toMatchObject({ status: "none…
+    [90m 28|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mdistinguishes bare topics, broad requirement subsets, and administrative roles
+[31m[1mAssertionError[22m: expected 'none' to be 'partial' // Object.is equality[39m
+
+Expected: [32m"partial"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m132:82[22m[39m
+    [90m130|[39m     expect(relation("TypeScript is preferred for this role.", "TypeScr…
+    [90m131|[39m     expect(relation("SQL window queries are required.", "SQL").coverag…
+    [90m132|[39m     expect.soft(relation("同一份补充说明同时写着 SQL 必备和 SQL 仅加分。", "SQL").covera…
+    [90m   |[39m                                                                                  [31m^[39m
+    [90m133|[39m     expect.soft(relation("SQL 必备，另需窗口计算。", "SQL").coverage.status).toB…
+    [90m134|[39m     expect(relation("My contribution was taking meeting notes.", "taki…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mdistinguishes bare topics, broad requirement subsets, and administrative roles
+[31m[1mAssertionError[22m: expected 'partial' to be 'none' // Object.is equality[39m
+
+Expected: [32m"none"[39m
+Received: [31m"partial"[39m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m133:68[22m[39m
+    [90m131|[39m     expect(relation("SQL window queries are required.", "SQL").coverag…
+    [90m132|[39m     expect.soft(relation("同一份补充说明同时写着 SQL 必备和 SQL 仅加分。", "SQL").covera…
+    [90m133|[39m     expect.soft(relation("SQL 必备，另需窗口计算。", "SQL").coverage.status).toB…
+    [90m   |[39m                                                                    [31m^[39m
+    [90m134|[39m     expect(relation("My contribution was taking meeting notes.", "taki…
+    [90m135|[39m     expect(relation("Review a release checklist and take meeting notes…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[33m7 skipped[39m[90m (9)[39m
+[2m   Start at [22m 16:32:50
+[2m   Duration [22m 1.36s[2m (transform 170ms, setup 196ms, import 267ms, tests 43ms, environment 713ms)[22m
+

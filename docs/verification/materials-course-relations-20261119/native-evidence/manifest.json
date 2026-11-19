@@ -1,0 +1,143 @@
+{
+  "schemaVersion": "materials-course-relations-native-archive-v1",
+  "createdAt": "2026-11-19T09:29:02.855Z",
+  "originalBytesPreserved": true,
+  "handoff": {
+    "path": "work/grounded-verification/course-relations-20261119-handoff-04-source.json",
+    "sha256": "1cb8c9732eb0f9303f0ffcb170c49b8e543c1921eebe9071e6534d330034009e"
+  },
+  "sourceDelta": {
+    "path": "source-delta.json",
+    "sha256": "09dbc01785e5d3039437858d738ee6b6e3a29c9e50927b8deaf92d4b068dac96"
+  },
+  "entryCount": 21,
+  "bytes": 7057735,
+  "entries": [
+    {
+      "path": "archive-script.mjs.source.txt",
+      "originalPath": "work/grounded-verification/archive-course-relations-native-20261119.mjs",
+      "sha256": "70bd110188bd20d85703fdfe9b05c9145c1a84fcbfaa9099b61f3464a2b21d60",
+      "bytes": 4639
+    },
+    {
+      "path": "course-relations-native-20261119-quality-review.md",
+      "originalPath": "work/grounded-verification/course-relations-native-20261119-quality-review.md",
+      "sha256": "0f0a3cc687eed8f385f64a9db25eab676980a3bcc200d74f02e2f5fded31e9a4",
+      "bytes": 8475
+    },
+    {
+      "path": "course-relations-native-20261119-spec-review.md",
+      "originalPath": "work/grounded-verification/course-relations-native-20261119-spec-review.md",
+      "sha256": "513705870630b314c9c894f6ebc42d90584772a2c76c8c6526231cd2c0726a9e",
+      "bytes": 15592
+    },
+    {
+      "path": "observations/accept-current-primary-jd-preview.json",
+      "originalPath": "work/grounded-verification/course-relations-native-20261119-01/accept-current-primary-jd-preview.json",
+      "sha256": "6c3aab9d459127341b302f7ad310cfd499b10c6926974a84d59ca8725b864032",
+      "bytes": 3773206
+    },
+    {
+      "path": "observations/check-revision-02.json",
+      "originalPath": "work/grounded-verification/course-relations-native-20261119-01/check-revision-02.json",
+      "sha256": "896e2e16db55e0b0390ab26c74f78bfe9f323e77428db48aa45e548d3fd2d1e0",
+      "bytes": 2912
+    },
+    {
+      "path": "observations/check.json",
+      "originalPath": "work/grounded-verification/course-relations-native-20261119-01/check.json",
+      "sha256": "50ec4560eafeb722bdfdb1f52b49e0ad9922f20e5271fca8c47f698ab03efc37",
+      "bytes": 2755
+    },
+    {
+      "path": "observations/collection.json",
+      "originalPath": "work/grounded-verification/course-relations-native-20261119-01/collection.json",
+      "sha256": "4484d5660fdd39a99fde3c6bc3323e68ec17641d8c5f68fde8a3b313f665aabe",
+      "bytes": 863
+    },
+    {
+      "path": "observations/manifest.json",
+      "originalPath": "work/grounded-verification/course-relations-native-20261119-01/manifest.json",
+      "sha256": "b3457d1329698e782a54cf34d2fe5dd2b85df5427420d5ed586ccd4c208f859f",
+      "bytes": 37834
+    },
+    {
+      "path": "observations/secondary-jd-cannot-add-must.json",
+      "originalPath": "work/grounded-verification/course-relations-native-20261119-01/secondary-jd-cannot-add-must.json",
+      "sha256": "8fd219e4ee68c9705237e1ae70eb39e19cd3eb670bcec63bb8f053a9ce37d37e",
+      "bytes": 1940921
+    },
+    {
+      "path": "observations/worker.mjs.source.txt",
+      "originalPath": "work/grounded-verification/course-relations-native-20261119-01/worker.mjs",
+      "sha256": "f8279606331b061e778691295229ce086d1dc17a3536e074d7ae3b587da3ec2f",
+      "bytes": 1194706
+    },
+    {
+      "path": "raw/course-relations-native-20261119-check-run-01.json",
+      "originalPath": "work/grounded-verification/course-relations-native-20261119-check-run-01.json",
+      "sha256": "00086d7b48bc41a0b1c0795260f4ea6e58461f4ba40014d89848bc2c0c86dfd7",
+      "bytes": 284
+    },
+    {
+      "path": "raw/course-relations-native-20261119-check-run-01.log.txt",
+      "originalPath": "work/grounded-verification/course-relations-native-20261119-check-run-01.log",
+      "sha256": "fccda646ca62af6c103086e459aba9242484e8e0a8bd8c00a94cb911251368ec",
+      "bytes": 2103
+    },
+    {
+      "path": "raw/course-relations-native-20261119-check-run-02.json",
+      "originalPath": "work/grounded-verification/course-relations-native-20261119-check-run-02.json",
+      "sha256": "595df903425cd11ccc1b5c48e066cc8517f0ea904f68b242c7c4bb39d37642ee",
+      "bytes": 284
+    },
+    {
+      "path": "raw/course-relations-native-20261119-check-run-02.log.txt",
+      "originalPath": "work/grounded-verification/course-relations-native-20261119-check-run-02.log",
+      "sha256": "ed900a2034d2cba566734f8365d72bfc750dba8e663fd588dde2807952c81319",
+      "bytes": 2257
+    },
+    {
+      "path": "raw/course-relations-native-20261119-collect-run-01.json",
+      "originalPath": "work/grounded-verification/course-relations-native-20261119-collect-run-01.json",
+      "sha256": "3d37dde7828adacd05f08c36d5f0f2c3fb295ae91105e4d14d439e28cb926879",
+      "bytes": 288
+    },
+    {
+      "path": "raw/course-relations-native-20261119-collect-run-01.log.txt",
+      "originalPath": "work/grounded-verification/course-relations-native-20261119-collect-run-01.log",
+      "sha256": "d9ae04e08ccf9367387d1661505e27a350c7117ba65d7618325de82aef3c9896",
+      "bytes": 553
+    },
+    {
+      "path": "tools/check-revision-02.mjs.source.txt",
+      "originalPath": "work/grounded-verification/course-relations-native-20261119-tools/check-revision-02.mjs",
+      "sha256": "df2b741925f964374f0e2dd176ce33bc22fa6a56f1ca3f6238dc76e8e35ebacf",
+      "bytes": 15945
+    },
+    {
+      "path": "tools/check.mjs.source.txt",
+      "originalPath": "work/grounded-verification/course-relations-native-20261119-tools/check.mjs",
+      "sha256": "0be6ac72c6fcb5d5d0e7e18a9f9f5a9f61055fa289936036841bdbe28c80c2e6",
+      "bytes": 14746
+    },
+    {
+      "path": "tools/collect.mjs.source.txt",
+      "originalPath": "work/grounded-verification/course-relations-native-20261119-tools/collect.mjs",
+      "sha256": "c2faba2c738216dbad301f7432fb8d8c70d4df0e11d6cabf6a2bd59aaa2d48ca",
+      "bytes": 8107
+    },
+    {
+      "path": "tools/planning-inputs.json",
+      "originalPath": "work/grounded-verification/course-relations-native-20261119-tools/planning-inputs.json",
+      "sha256": "0031e1e0252303e1cefdc6c3714ba4696f32ec1217f45cfb2a286bc7e710e1c0",
+      "bytes": 4483
+    },
+    {
+      "path": "tools/planning-worker.ts.source.txt",
+      "originalPath": "work/grounded-verification/course-relations-native-20261119-tools/planning-worker.ts",
+      "sha256": "09fcc107091944215394f6f041bd5abf116b0242dafc808e91c1be23a357d3ca",
+      "bytes": 26782
+    }
+  ]
+}

@@ -25,7 +25,8 @@ it("keeps existing assessments until an explicit legal adoption", () => {
 it("uses versioned production aliases only for the matching published blueprint", () => {
     const react = { ...item, text: "使用 React.js 构建页面" };
     const web = { ...item, text: "使用 HTML 和 CSS 构建页面" };
-    expect(mapMaterialItems([web], flagshipBlueprint, flagshipUnitRegistry)[0]).toMatchObject({ status: "mapped", skillIds: ["web-platform"] });
+    // Broad HTML/CSS names no longer assert the specific semantic-form relation.
+    expect(mapMaterialItems([web], flagshipBlueprint, flagshipUnitRegistry)[0]).toMatchObject({ status: "uncovered", skillIds: [] });
     expect(mapMaterialItems([react], flagshipBlueprint, flagshipUnitRegistry)[0]).toMatchObject({ status: "mapped", skillIds: ["react"] });
     const research = { ...flagshipBlueprint, id: "other-role" };
     const researchRegistry = { ...flagshipUnitRegistry, blueprintId: research.id };
@@ -43,8 +44,8 @@ it("maps the confirmed bilingual unit-testing concept only in a catalog that tea
       aliases: { version: "2026.11.2", skills: { testing: ["unit testing"] } },
     })).toMatchObject([{ status: "mapped", skillIds: ["testing"] }]);
 });
-it("maps each retained literal skill word through its own blueprint and leaves unknown words uncovered", () => {
-    const reviewed = { ...item, text: "SQL was removed during review", skillLabels: ["Jest", "Vitest", "OpenTelemetry", "unlisted-xyz"] };
+it("maps retained software methods through their own source and catalog and leaves unknown words uncovered", () => {
+    const reviewed = { ...item, text: "I used SQL, Jest, Vitest and OpenTelemetry; SQL was removed during review.", skillLabels: ["Jest", "Vitest", "OpenTelemetry", "unlisted-xyz"] };
     const mapped = mapMaterialItems([reviewed], flagshipBlueprint, flagshipUnitRegistry);
     expect(mapped.filter(result => result.status === "mapped").flatMap(result => result.skillIds).sort()).toEqual(["observability", "testing"]);
     expect(mapped.filter(result => result.status === "uncovered").flatMap(result => result.labels)).toEqual(["unlisted-xyz"]);
@@ -71,9 +72,10 @@ it("maps English distributed tracing like its reviewed Chinese equivalent withou
 });
 
 it("versions contextual mappings independently while accepting every previous literal alias version", () => {
-    expect(MATERIAL_MAPPING_VERSION).toBe("2026.11.6");
+    // Contextual method/trace relations and task scope are new 2026.11.7 semantics.
+    expect(MATERIAL_MAPPING_VERSION).toBe("2026.11.7");
     const other = { ...flagshipBlueprint, id: "other-catalog" };
-    for (const version of ["2026.11.2", "2026.11.3", "2026.11.4", "2026.11.5"] as const) {
+    for (const version of ["2026.11.2", "2026.11.3", "2026.11.4", "2026.11.5", "2026.11.6"] as const) {
       expect(mapMaterialItems([{ ...item, skillLabels: ["reviewed-term"] }], other,
         { ...flagshipUnitRegistry, blueprintId: other.id }, { aliases: { version, skills: { testing: ["reviewed-term"] } } }))
         .toMatchObject([{ status: "mapped", skillIds: ["testing"] }]);
@@ -104,7 +106,7 @@ it("overrides one retained term while preserving all other automatic mappings", 
     expect(mapMaterialItemTerms([reviewed], flagshipBlueprint, flagshipUnitRegistry, {
       termMappings: { fact: [{ skillLabel: "UI tokens", skillIds: ["design-systems"] }] },
     }).map(({ term, basis }) => ({ term, basis }))).toEqual([
-      { term: "UI tokens", basis: "manual" }, { term: "SQL", basis: "literal" }, { term: "Jest", basis: "literal" },
+      { term: "UI tokens", basis: "manual" }, { term: "SQL", basis: "literal" }, { term: "Jest", basis: "contextual" },
     ]);
 });
 

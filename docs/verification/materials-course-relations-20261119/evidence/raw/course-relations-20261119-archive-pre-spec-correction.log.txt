@@ -1,0 +1,1 @@
+{"manifest":"C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\course-relations-20261119-pre-spec-correction\\manifest.json","sha256":"a4b45f466aa58653b76710bacbf12a42303885d689d774fe6fa74db3795ab020","files":10}

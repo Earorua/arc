@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "materials-course-relations-native-index-v1",
+  "bindingId": "materials-course-relations-native-20261119-v1",
+  "manifestSha256": "b3457d1329698e782a54cf34d2fe5dd2b85df5427420d5ed586ccd4c208f859f",
+  "results": [
+    {
+      "caseId": "accept-current-primary-jd-preview",
+      "path": "accept-current-primary-jd-preview.json",
+      "sha256": "6c3aab9d459127341b302f7ad310cfd499b10c6926974a84d59ca8725b864032",
+      "collectionStatus": "collected",
+      "outboundAttempts": 0
+    },
+    {
+      "caseId": "secondary-jd-cannot-add-must",
+      "path": "secondary-jd-cannot-add-must.json",
+      "sha256": "8fd219e4ee68c9705237e1ae70eb39e19cd3eb670bcec63bb8f053a9ce37d37e",
+      "collectionStatus": "collected",
+      "outboundAttempts": 0
+    }
+  ],
+  "sourceDrift": [],
+  "notCollected": [],
+  "completedAt": "2026-11-19T09:14:59.832Z"
+}

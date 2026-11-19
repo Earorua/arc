@@ -1,0 +1,54 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+const sha = bytes => createHash('sha256').update(bytes).digest('hex');
+const work = 'work/grounded-verification';
+const output = 'docs/verification/materials-course-relations-20261119/native-evidence';
+const handoffPath = `${work}/course-relations-20261119-handoff-04-source.json`;
+const handoff = JSON.parse(readFileSync(handoffPath, 'utf8'));
+for (const file of handoff.files) assert.equal(sha(readFileSync(file.path)), file.sha256, file.path);
+const reviewPaths = ['spec', 'quality'].map(kind => `${work}/course-relations-native-20261119-${kind}-review.md`);
+for (const file of reviewPaths) assert.match(readFileSync(file, 'utf8'), /^PASS\b/u, file);
+assert.equal(existsSync(output), false, 'No archive overwrite');
+mkdirSync(output, { recursive: true });
+const entries = [];
+function copy(originalPath, targetPath) {
+  const bytes = readFileSync(originalPath), target = join(output, targetPath);
+  mkdirSync(dirname(target), { recursive: true }); writeFileSync(target, bytes, { flag: 'wx' });
+  assert.equal(sha(readFileSync(target)), sha(bytes));
+  entries.push({ path: targetPath.replaceAll('\\', '/'), originalPath: originalPath.replaceAll('\\', '/'), sha256: sha(bytes), bytes: bytes.length });
+}
+function tree(original, dest) {
+  for (const item of readdirSync(original, { withFileTypes: true })) {
+    if (item.isDirectory()) tree(join(original, item.name), join(dest, item.name));
+    else if (item.isFile()) {
+      const suffix = /\.(?:ts|tsx|mjs|cjs|ps1)$/u.test(item.name) ? '.source.txt' : item.name.endsWith('.log') ? '.txt' : '';
+      copy(join(original, item.name), join(dest, item.name + suffix));
+    } else throw Error('Unexpected evidence entry');
+  }
+}
+tree(`${work}/course-relations-native-20261119-01`, 'observations');
+tree(`${work}/course-relations-native-20261119-tools`, 'tools');
+for (const file of readdirSync(work).filter(name => /^course-relations-native-20261119-(?:collect|check)-run-\d+\.(?:json|log)$/u.test(name))) copy(`${work}/${file}`, `raw/${file}${file.endsWith('.log') ? '.txt' : ''}`);
+for (const file of reviewPaths) copy(file, file.split('/').at(-1));
+copy(`${work}/archive-course-relations-native-20261119.mjs`, 'archive-script.mjs.source.txt');
+const oldPath = 'docs/verification/materials-native-acceptance/native-evidence/manifest.json';
+const old = JSON.parse(readFileSync(oldPath, 'utf8'));
+const nativeManifest = JSON.parse(readFileSync(`${work}/course-relations-native-20261119-01/manifest.json`, 'utf8'));
+const oldFiles = old.sourceClosure.map(file => ({ path: file.path, originalSha256: file.sha256, currentSha256: sha(readFileSync(file.path)) }));
+const newFiles = nativeManifest.sourceClosure.filter(file => !old.sourceClosure.some(prior => prior.path === file.path));
+const delta = { schemaVersion: 'materials-native-course-relation-delta-v1',
+  originalManifest: { path: oldPath, sha256: sha(readFileSync(oldPath)), sourceClosureDigest: old.sourceClosureDigest },
+  originalFiles: oldFiles, unchanged: oldFiles.filter(file => file.originalSha256 === file.currentSha256).length,
+  changed: oldFiles.filter(file => file.originalSha256 !== file.currentSha256).length,
+  newNativeClosureDigest: nativeManifest.sourceClosureDigest, newNativeFiles: nativeManifest.sourceClosure.length,
+  newlyImported: newFiles, note: 'The new worker/input replace two unchanged original harness files. The new course-relation-scope helper is the only new product dependency. Original14 semantic reuse and new2 execution remain separate.' };
+writeFileSync(join(output, 'source-delta.json'), JSON.stringify(delta, null, 2) + '\n', { flag: 'wx' });
+entries.sort((a, b) => a.path.localeCompare(b.path));
+const manifest = { schemaVersion: 'materials-course-relations-native-archive-v1', createdAt: new Date().toISOString(),
+  originalBytesPreserved: true, handoff: { path: handoffPath, sha256: sha(readFileSync(handoffPath)) },
+  sourceDelta: { path: 'source-delta.json', sha256: sha(readFileSync(join(output, 'source-delta.json'))) },
+  entryCount: entries.length, bytes: entries.reduce((sum, item) => sum + item.bytes, 0), entries };
+writeFileSync(join(output, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ output, entries: entries.length, bytes: manifest.bytes, manifestSha256: sha(readFileSync(join(output, 'manifest.json'))), unchanged: delta.unchanged, changed: delta.changed, nativeClosure: delta.newNativeFiles }));

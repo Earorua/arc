@@ -1,0 +1,22 @@
+PASS — narrow Task A quality re-review, handoff 04-source, 2026-11-19.
+
+The delimiter-family P2 in the immutable initial quality review is resolved. No actionable finding remains in this narrow correction. The initial review's other source/configuration conclusions are reused; this does not accept Task B, native execution, live-model quality, Gate authorization or final product acceptance.
+
+Reviewed the actual helper/test diff against the archived handoff 03 bytes after specification PASS. All ten current source/test hashes match handoff SHA-256 `1cb8c9732eb0f9303f0ffcb170c49b8e543c1921eebe9071e6534d330034009e`; all ten archived originals match handoff 03. Specification memo SHA-256 is `28ac05bc48bbf502fc294d4d8b86baaaea39035be9fe4583ab09f4cd4d0f7197`. Exactly the helper and its test changed; the initial quality memo remains unchanged at `6a3b1ef2665cc66cef28ef29ef67674173772518e780fcdcf9212a8cb00b3bc6`.
+
+The finite correction removes arbitrary guidance/negation and bare contrast boundaries. Unknown `按` requirements, `没有` conditions, and dependent `but`/`whereas`/`while` qualifications now remain in the task scope. A known Chinese guide can split only before an existing action start; English contrast requires an explicit actor/action. This retains the legitimate React-form/keyboard-focus multi-action grammar. End-anchored cleanup removes only the three named Chinese guide-only suffixes or the existing exact English review-notes suffix; a known-guide prefix cannot consume a later unknown requirement. No topic vocabulary, course leaf, personal-practice predicate, extraction rule, import, public type or contract changes accompany this correction.
+
+The retained raw evidence directly exercises the finding family. First RED exposed the three Chinese qualifier losses; the second removed incidental commas from the English controls and exposed all six assertions before editing production. The existing actor/guidance group passed during RED. Final GREEN passes the two selected existing groups, with eleven skipped; the group includes the original English-following controls and known Chinese guidance-only behavior. Two-file lint exits 0. All four author raw-log hashes and wrapper exits independently match the handoff. Prior compiler success is appropriately reused for regex/comment/assertion-only changes; no fresh compiler or skipped-test execution is claimed.
+
+The diagnostic-reuse script checks pinned old/new handoffs, the source archive, the exact helper delta, unchanged other production bytes, the previous English-following reuse and original projection hashes. Its conservative syntax selection reaches three actual facts and six mapping/coverage rows, all identical to both saved component views; the other 140 course rows remain reusable. The saved result SHA-256 is `8fb31d03430956c7ec0f46696c570b6658ea7ddd7654269957fe958344e02f10`, and the successful wrapper log is `2f09939ea2fb723ac0c97db8bbdb1c973956e7beb180c8a5d29cf7b5f716600d`. This preserves the software-only 146/146 result without claiming a full thirty-input diagnostic ran on handoff 04.
+
+The initial reuse attempt failed at the exact-source assertion before observation evaluation because two expected comment literals used CRLF instead of LF. The retained initial script differs from the corrected script only in those literals; source/archive bytes were not normalized and the exact guard remains. The failed raw-log hash independently matches `4a51b5cfc44ee8b816a5a0fc557f80f9a937460071bcc28876d4312b15349698`.
+
+| Narrowly changed file | SHA-256 |
+| --- | --- |
+| `app/lib/materials/course-relation-scope.ts` | `461093918e389e2c5ba5b9d603e6c44f100172f0b009492e2a496295584caae3` |
+| `tests/lib/materials/course-relations.test.ts` | `c543e2942b930dcc01fad11ee1b606e508b304175ee282607d6f664f6541118a` |
+
+Selected GREEN raw log: `f5d34c43ffb5d3dc95a1774a07b20121fc1ca4a485cda205da686fc66ccc23b3`. Six-assertion RED: `dc730171a7d06d896e64c8a2072f912a9decbf4ba682e3c4d9138fde0538910f`. Empty lint log: `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+
+Root's `tsconfig.json`, `eslint.config.mjs` and B0 version expectation retain their previously reviewed hashes. The B0 expectation remains pending final acceptance. The current adapter's native-drift rejection remains intentional pending Task B. Reviewer activity was read-only diff/hash/evidence inspection and this memo only: no new probes, test or diagnostic reruns, network/model calls, source/test edits, staging or commits.

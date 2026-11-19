@@ -1,0 +1,81 @@
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+
+const sha256 = path => createHash("sha256").update(readFileSync(path)).digest("hex");
+const previousPath = "work/grounded-verification/course-relations-20261119-handoff-02.json";
+const previous = JSON.parse(readFileSync(previousPath, "utf8"));
+const archivePath = "work/grounded-verification/course-relations-20261119-pre-spec-correction/manifest.json";
+const archive = JSON.parse(readFileSync(archivePath, "utf8"));
+if (sha256(previousPath) !== archive.handoffSha256 || sha256(archive.diagnosticPath) !== archive.diagnosticSha256)
+  throw Error("Pinned handoff 02 or diagnostic 02 changed");
+for (const file of archive.files) if (sha256(file.archivedPath) !== file.archivedSha256)
+  throw Error(`Archived source changed: ${file.path}`);
+const firstArchive = JSON.parse(readFileSync(previous.preservedPreCorrection.manifestPath, "utf8"));
+if (sha256(previous.supersedes.path) !== previous.supersedes.sha256 ||
+    sha256(previous.preservedPreCorrection.manifestPath) !== previous.preservedPreCorrection.manifestSha256 ||
+    sha256(firstArchive.diagnosticPath) !== firstArchive.diagnosticSha256)
+  throw Error("First handoff, archive or diagnostic changed");
+for (const file of firstArchive.files) if (sha256(file.archivedPath) !== file.archivedSha256)
+  throw Error(`Original archived source changed: ${file.path}`);
+
+const changed = ["app/lib/materials/course-relation-scope.ts", "tests/lib/materials/course-relations.test.ts"];
+const files = previous.files.map(({ path }) => ({ path, sha256: sha256(path) }));
+for (const file of files) if (!changed.includes(file.path) && file.sha256 !== previous.files.find(prior => prior.path === file.path).sha256)
+  throw Error(`Unexpected Task A source change: ${file.path}`);
+const helperArchive = archive.files.find(file => file.path === changed[0]);
+const beforeHelper = readFileSync(helperArchive.archivedPath, "utf8");
+if (beforeHelper.replace("|following\\b", "") !== readFileSync(changed[0], "utf8"))
+  throw Error("Production delta is not the reviewed single delimiter removal");
+execFileSync("git", ["-c", "core.longpaths=true", "diff", "--check", "--", ...files.map(file => file.path)], { stdio: "pipe" });
+
+const evidence = ["spec-following-red", "spec-following-green", "spec-following-lint"].map(label => {
+  const path = `work/grounded-verification/course-relations-20261119-${label}`;
+  const metadata = JSON.parse(readFileSync(`${path}.json`, "utf8"));
+  if (sha256(`${path}.log`) !== metadata.logSha256) throw Error(`Evidence hash drift: ${label}`);
+  if (metadata.exit !== (label.endsWith("red") ? 1 : 0)) throw Error(`Unexpected check result: ${label}`);
+  return { label, metadataPath: `${path}.json`, logPath: `${path}.log`, ...metadata };
+});
+const reviewPath = "work/grounded-verification/course-relations-20261119-spec-review.md";
+const probePath = "work/grounded-verification/course-relations-20261119-spec-probe-following.json";
+const prefix = "work/grounded-verification/course-relations-20261119-handoff-03-source";
+if (existsSync(`${prefix}.json`) || existsSync(`${prefix}.md`)) throw Error("Handoff 03 already exists");
+const handoff = {
+  status: "ready-for-independent-spec-recheck", sourceFrozen: true, mappingVersion: "2026.11.7",
+  baseHead: previous.baseHead, branch: previous.branch,
+  supersedes: { path: previousPath, sha256: sha256(previousPath), changedFiles: changed },
+  preservedPreCorrection: { manifestPath: archivePath, manifestSha256: sha256(archivePath), diagnosticPath: archive.diagnosticPath, diagnosticSha256: archive.diagnosticSha256, archivedSourceFiles: 10 },
+  review: { path: reviewPath, sha256: sha256(reviewPath), probePath, probeSha256: sha256(probePath) },
+  artifactNaming: "The first writer used wrapper label handoff-03, so its wrapper metadata replaced that same new JSON output path. That wrapper record/log and the first brief are preserved. This distinct 03-source filename is the authoritative immutable source handoff; no product source or prior handoff was affected.",
+  files,
+  correction: {
+    cause: "courseTaskScopes split any comma-following clause, then dropped it because it lacked the retained term. This discarded unknown dependent qualifiers before the full-coverage check.",
+    change: "Removed only the general following delimiter. Unknown following requirements now remain in the owned task scope and produce partial/unassessed coverage. The pre-existing exact terminal following review notes removal still permits known guidance and the bare task to be full.",
+    regression: "Added the unknown HIPAA-requirements suffix and the known review-notes suffix to the existing cross-scope/qualifier regression group; expectations were observed RED before production edit.",
+    productionDelta: "One regex-alternative removal in course-relation-scope.ts, verified against archived handoff 02 bytes.",
+    publicTypesChanged: false, importsChanged: false, courseLeavesChanged: false, experiencePredicatesChanged: false,
+    priorImplementationAndValidation: previousPath,
+  },
+  validation: {
+    red: "1 selected group failed on unknown following requirements; known review-notes control passed. 12 groups skipped.",
+    green: "1 selected group passed; 12 groups skipped. No 128-test or broader suite repeat.",
+    lint: "PASS for the 2 changed files.",
+    diffCheck: "PASS for the 10 frozen Task A paths.",
+    types: "Prior green full-source compiler evidence reused for this single regex removal and paired assertions; no type, import or contract change. Root has independently checked normal/scoped compiler source-set and semantic-option equivalence.",
+    priorTypeLog: "work/grounded-verification/course-relations-20261119-types-final.log",
+    priorTypeConfig: "work/grounded-verification/course-relations-20261119-tsconfig.json",
+    currentNormalTypeConfig: "tsconfig.json",
+    nonLoopbackDenials: evidence.reduce((sum, row) => sum + row.nonLoopbackDenials, 0),
+    fullRepositoryRuns: 0, nativeRuns: 0, modelCalls: 0,
+  },
+  evidence,
+  remaining: [
+    "Root owns the independent same-probe spec recheck, quality review and final source-delta evidence decision.",
+    "Diagnostic 02 is preserved evidence for handoff 02; this handoff does not claim it ran on handoff 03.",
+    "Task B current native/source binding and full product acceptance remain required; Task 3 feasibility is paused.",
+    "Source is frozen. No staging, commit, push, model call, migration or deployment performed."
+  ],
+};
+writeFileSync(`${prefix}.json`, `${JSON.stringify(handoff, null, 2)}\n`, { flag: "wx" });
+writeFileSync(`${prefix}.md`, `# Task A qualifier correction\n\nThe comma splitter previously discarded every following clause before task coverage evaluation. Removing its general following alternative preserves unknown requirements as partial/unassessed scope; the existing exact following review notes cleanup still permits full narrow-task coverage. No topic, course, evidence leaf, experience rule, import or public type changed.\n\nThe 10 handoff 02 files were archived before editing in [the pre-spec-correction manifest](./course-relations-20261119-pre-spec-correction/manifest.json). Both prior handoffs, diagnostics and source archives remain unchanged. [Handoff 03 source](./course-relations-20261119-handoff-03-source.json) contains all final file hashes and raw evidence links. Its distinct name avoids the first writer's handoff-03 wrapper-metadata/output collision; that record is preserved.\n\nValidation: the selected existing regression group observed RED, then passed GREEN, with 12 other groups skipped. Both modified files pass lint; the frozen paths pass the diff whitespace check. Prior type evidence is reused for this regex-only delta. No wider suite, compiler, native or model run was repeated.\n\nSource is frozen for independent spec recheck and quality review. Diagnostic 02 belongs to handoff 02; root owns final evidence reuse and Task B.\n`, { flag: "wx" });
+console.log(JSON.stringify({ path: `${prefix}.json`, sha256: sha256(`${prefix}.json`), changedFiles: files.filter(file => changed.includes(file.path)) }));

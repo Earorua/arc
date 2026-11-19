@@ -1,0 +1,88 @@
+// Reuse the accepted component observations after the reviewed finite delimiter correction.
+import assert from 'node:assert/strict';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { flagshipBlueprint } from '../../app/data/flagship-blueprint.ts';
+import { flagshipUnitRegistry } from '../../app/data/flagship-unit-registry.ts';
+import { mapMaterialItemTerms } from '../../app/lib/materials/skill-mapper.ts';
+import { createCourseTaskCoverageEvaluator } from '../../app/lib/materials/course-task-coverage.ts';
+const sha = bytes => createHash('sha256').update(bytes).digest('hex');
+const read = file => readFileSync(file), json = file => JSON.parse(read(file).toString());
+if (process.argv.length !== 3) throw Error('Usage: diagnostic-reuse-04.mjs <new-output.json>');
+const handoffPath = 'work/grounded-verification/course-relations-20261119-handoff-04-source.json';
+const handoff = json(handoffPath);
+assert.equal(sha(read(handoffPath)), '1cb8c9732eb0f9303f0ffcb170c49b8e543c1921eebe9071e6534d330034009e');
+const oldPath = 'work/grounded-verification/course-relations-20261119-handoff-03-source.json';
+assert.equal(sha(read(oldPath)), '8f7e8ef262b6de568d025390fa64b6c0e5156fa345cbb42bf4d18c12c0ef11df');
+const old = json(oldPath), helper = 'app/lib/materials/course-relation-scope.ts';
+const archivePath = 'work/grounded-verification/course-relations-20261119-pre-quality-correction/manifest.json';
+assert.equal(sha(read(archivePath)), '0df8fe69fa5f0ce7860de774fd14bdb8f6435c95e06406b97f0d384ccef25d4b');
+const beforeHelper = read('work/grounded-verification/course-relations-20261119-pre-quality-correction/app__lib__materials__course-relation-scope.ts').toString();
+assert.equal(sha(beforeHelper), old.files.find(file => file.path === helper).sha256);
+assert.equal(sha(read(helper)), '461093918e389e2c5ba5b9d603e6c44f100172f0b009492e2a496295584caae3');
+const currentHelper = read(helper).toString();
+assert.equal(currentHelper.split('export function courseTaskBody')[0], beforeHelper.split('export function courseTaskBody')[0]);
+// The frozen, inspected diff is confined to the terminal known-guide cleanup,
+// task-scope delimiter and its explanatory comment. Topic/practice code is unchanged.
+const oldCleanup = '.replace(/[,，]?\\s*following review notes$/u, "").trim();';
+const newCleanup = '.replace(/[,，]?\\s*(?:following review notes|按(?:导师示例|示例|评审反馈))$/u, "").trim();';
+const oldComment = '    // Keep lists of taught properties intact. Split a comma only when it starts\n    // another action/wrapper; dependent qualifiers such as "for X" stay attached.';
+const newComment = '    // Guidance, negation and contrast alone are not separate tasks. Keep their\n    // unknown qualifiers attached; split only explicit actors/actions or a\n    // recognized guide followed by an existing task action.';
+const oldSplit = beforeHelper.split('\n').find(line => line.includes('const clauses = sentence.split'));
+const newSplit = currentHelper.split('\n').find(line => line.includes('const clauses = sentence.split'));
+assert.ok(oldSplit && newSplit && oldSplit !== newSplit);
+assert.equal(currentHelper, beforeHelper.replace(oldCleanup, newCleanup).replace(oldComment, newComment).replace(oldSplit, newSplit));
+function frozen() {
+  assert.deepEqual(handoff.files.map(file => file.path).sort(), old.files.map(file => file.path).sort());
+  for (const file of handoff.files) {
+    assert.equal(sha(read(file.path)), file.sha256, 'frozen drift: ' + file.path);
+    if (![helper, 'tests/lib/materials/course-relations.test.ts'].includes(file.path))
+      assert.equal(file.sha256, old.files.find(entry => entry.path === file.path).sha256, 'unexpected additional delta');
+  }
+}
+frozen();
+const previousReusePath = 'work/grounded-verification/course-relations-20261119-diagnostic-delta-reuse-result-01.json';
+assert.equal(sha(read(previousReusePath)), '437e0aa7bd299e770ec56e8b06b9688c4e66d21bbadc95988417911a977e7724');
+assert.equal(json(previousReusePath).status, 'passed');
+assert.equal(json(previousReusePath).sourceHandoff.sha256, sha(read(oldPath)));
+const diagnosticPath = 'work/grounded-verification/course-relations-20261119-component-diagnostic-result-02.json';
+assert.equal(sha(read(diagnosticPath)), '60d18b0aefa3bec8ed93e2ce07455f442526044fd840f142101355426cd66ccc');
+const previous = json(diagnosticPath);
+assert.equal(previous.source.status, 'passed'); assert.equal(previous.course.status, 'passed');
+assert.equal(previous.course.observations.length, 146); assert.equal(previous.observations.length, 30);
+const projectionPath = 'docs/verification/materials-quality-next/adapter-evidence/kimi-current-20261119-software-diagnostic-result.json';
+assert.equal(sha(read(projectionPath)), previous.input.sha256);
+const baseline = json(projectionPath);
+// Conservative syntactic selection covers every changed delimiter/suffix, even
+// if a particular retained term would not traverse that branch.
+const affected = previous.observations.flatMap(document => {
+  const projected = baseline.actualComponentDiagnostic.componentObservations.find(entry => entry.documentId === document.documentId).projection;
+  assert.equal(sha(JSON.stringify(projected)), document.projectionReusedSha256);
+  return projected.items.filter(item => /[,，]\s*(?:按|没有)|\b(?:but|whereas|while)\b|按(?:导师示例|示例|评审反馈)\s*[。.!]?$/iu.test(item.text))
+    .map(item => ({ document, item }));
+});
+assert.equal(affected.length, 3);
+const evaluate = createCourseTaskCoverageEvaluator(flagshipBlueprint, flagshipUnitRegistry), checks = [];
+for (const { document, item } of affected) {
+  const observed = mapMaterialItemTerms([item], flagshipBlueprint, flagshipUnitRegistry)
+    .map(mapping => ({ ...mapping, taskCoverage: evaluate(mapping, item) }));
+  const saved = document.simulatedExplicitChoice.mappings.filter(mapping => mapping.itemId === item.id);
+  assert.deepEqual(observed, saved, document.documentId + '/' + item.id);
+  assert.deepEqual(document.baseline.mappings.filter(mapping => mapping.itemId === item.id), saved);
+  checks.push({ documentId: document.documentId, itemId: item.id, text: item.text, comparedRows: observed.length, observed, identicalToPrior: true });
+}
+frozen();
+const affectedRows = checks.reduce((sum, entry) => sum + entry.comparedRows, 0);
+const result = { schemaVersion: 'materials-course-diagnostic-delta-reuse-v2', status: 'passed',
+  sourceHandoff: { path: handoffPath, sha256: sha(read(handoffPath)) },
+  previousReuse: { path: previousReusePath, sha256: sha(read(previousReusePath)) },
+  priorDiagnostic: { path: diagnosticPath, sha256: sha(read(diagnosticPath)), source: 'passed', course: { passed: 146, failed: 0 } },
+  sourceArchive: { path: archivePath, sha256: sha(read(archivePath)) },
+  delta: 'Narrow guidance/negation/contrast task delimiters and end-anchored known Chinese guide cleanup; other product files unchanged.',
+  affectedFacts: checks.length, affectedMappingRows: affectedRows, checks, unaffectedCourseRows: 146 - affectedRows,
+  originalEvidenceRewritten: false, fullThirtyInputDiagnosticRerun: false, realModelCalls: 0, costMicroUsd: 0,
+  nativeExecutions: 0, gateApproved: false,
+  limits: ['Source-delta reuse of software component evidence only; independent review and native binding remain separate.'] };
+writeFileSync(process.argv[2], JSON.stringify(result, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ status: result.status, affectedFacts: result.affectedFacts, affectedRows, unchangedOtherRows: result.unaffectedCourseRows,
+  softwareCourseResultReused: '146/146', realModelCalls: 0 }));

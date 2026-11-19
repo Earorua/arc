@@ -1,0 +1,80 @@
+{
+  "schemaVersion": "materials-course-relations-native-check-v1",
+  "bindingId": "materials-course-relations-native-20261119-v1",
+  "manifestSha256": "b3457d1329698e782a54cf34d2fe5dd2b85df5427420d5ed586ccd4c208f859f",
+  "checkerSha256": "0be6ac72c6fcb5d5d0e7e18a9f9f5a9f61055fa289936036841bdbe28c80c2e6",
+  "status": "failed",
+  "requestedCases": [
+    "accept-current-primary-jd-preview",
+    "secondary-jd-cannot-add-must"
+  ],
+  "results": [
+    {
+      "caseId": "accept-current-primary-jd-preview",
+      "status": "failed",
+      "checks": [
+        {
+          "name": "native collection, frozen input and no external request",
+          "status": "passed"
+        },
+        {
+          "name": "completed work, self assessment, source, budgets and Proof retained",
+          "status": "passed"
+        },
+        {
+          "name": "fresh repository reload equals persisted after state",
+          "status": "passed"
+        },
+        {
+          "name": "new source-scoped course relations do not become unrelated personal practice",
+          "status": "failed",
+          "message": "The expression evaluated to a falsy value:\n\n  assert.ok(preview.priorities.find(priority => priority.skillId === 'sql')?.practiceItemIds?.includes(sql.ref.id))\n"
+        },
+        {
+          "name": "changed main JD preview keeps ambiguity separate from coverage",
+          "status": "passed"
+        },
+        {
+          "name": "proposal remains separate until explicit acceptance and correct dependencies persist",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "caseId": "secondary-jd-cannot-add-must",
+      "status": "failed",
+      "checks": [
+        {
+          "name": "native collection, frozen input and no external request",
+          "status": "passed"
+        },
+        {
+          "name": "completed work, self assessment, source, budgets and Proof retained",
+          "status": "passed"
+        },
+        {
+          "name": "fresh repository reload equals persisted after state",
+          "status": "passed"
+        },
+        {
+          "name": "new source-scoped course relations do not become unrelated personal practice",
+          "status": "failed",
+          "message": "The expression evaluated to a falsy value:\n\n  assert.ok(preview.priorities.find(priority => priority.skillId === 'sql')?.practiceItemIds?.includes(sql.ref.id))\n"
+        },
+        {
+          "name": "secondary JD contextual requirement stays unadopted, then soft only",
+          "status": "passed"
+        }
+      ]
+    }
+  ],
+  "notCollected": [],
+  "counts": {
+    "passed": 0,
+    "failed": 2
+  },
+  "oldFourteenCaseResultsRewritten": false,
+  "realModelCalls": 0,
+  "gateApproved": false,
+  "releaseApproved": false
+}

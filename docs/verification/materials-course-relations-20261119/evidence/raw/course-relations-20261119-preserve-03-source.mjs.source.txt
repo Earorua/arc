@@ -1,0 +1,32 @@
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { join } from "node:path";
+const sha256 = path => createHash("sha256").update(readFileSync(path)).digest("hex");
+const handoffPath = "work/grounded-verification/course-relations-20261119-handoff-03-source.json";
+const handoffSha256 = "8f7e8ef262b6de568d025390fa64b6c0e5156fa345cbb42bf4d18c12c0ef11df";
+if (sha256(handoffPath) !== handoffSha256) throw Error("Handoff 03 changed");
+const handoff = JSON.parse(readFileSync(handoffPath, "utf8"));
+const directory = "work/grounded-verification/course-relations-20261119-pre-quality-correction";
+if (existsSync(directory)) throw Error("Archive already exists");
+for (const file of handoff.files) if (sha256(file.path) !== file.sha256) throw Error(`Source drift: ${file.path}`);
+const evidencePaths = [handoffPath, handoffPath.replace(/\.json$/u, ".md"),
+  "work/grounded-verification/course-relations-20261119-diagnostic-delta-reuse-result-01.json",
+  "work/grounded-verification/course-relations-20261119-diagnostic-delta-reuse-01.json",
+  "work/grounded-verification/course-relations-20261119-diagnostic-delta-reuse-01.log",
+  "work/grounded-verification/course-relations-20261119-spec-probe-following-03.json"];
+const reuse = JSON.parse(readFileSync(evidencePaths[2], "utf8"));
+if (reuse.sourceHandoff.sha256 !== handoffSha256 || sha256(reuse.priorDiagnostic.path) !== reuse.priorDiagnostic.sha256)
+  throw Error("Prior diagnostic/reuse binding drift");
+mkdirSync(directory);
+const preserve = (path, expected) => {
+  const bytes = readFileSync(path), archivedPath = join(directory, path.replaceAll("/", "__"));
+  if (expected && sha256(path) !== expected) throw Error(`Unexpected hash: ${path}`);
+  writeFileSync(archivedPath, bytes, { flag: "wx" });
+  return { path, sha256: sha256(path), archivedPath, archivedSha256: sha256(archivedPath) };
+};
+const manifest = { purpose: "Immutable handoff 03 source and source-delta reuse evidence before quality correction",
+  handoffPath, handoffSha256, priorDiagnostic: reuse.priorDiagnostic,
+  files: handoff.files.map(file => preserve(file.path, file.sha256)), evidence: evidencePaths.map(path => preserve(path)) };
+const manifestPath = join(directory, "manifest.json");
+writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ manifestPath, sha256: sha256(manifestPath), sourceFiles: manifest.files.length, evidenceFiles: manifest.evidence.length }));

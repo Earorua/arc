@@ -1,0 +1,50 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+ [31m❯[39m tests/lib/materials/course-relations.test.ts [2m([22m[2m10 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m9 skipped[39m[2m)[22m[32m 21[2mms[22m[39m
+     [2m[90m↓[39m[22m separates technical topics from unprovided query tasks
+     [2m[90m↓[39m[22m uses ordinary schema and JOIN teaching while preserving business scope
+     [2m[90m↓[39m[22m keeps recognized actor and guidance wrappers separate from narrow UI tasks
+     [2m[90m↓[39m[22m limits broad UI and software methods to their actually taught subset
+[31m     [31m×[31m requires the current token-fix content for UI-token task support[39m[32m 20[2mms[22m[39m
+     [2m[90m↓[39m[22m gives composite testing tasks only the evidence each course actually teaches
+     [2m[90m↓[39m[22m keeps candidate choice independent from union coverage and recomputes explicit choices
+     [2m[90m↓[39m[22m keeps tracing topics apart from practice and from parser implementation
+     [2m[90m↓[39m[22m does not transfer coverage across terms, actors, denied qualifiers, or soft wraps
+     [2m[90m↓[39m[22m distinguishes bare topics, broad requirement subsets, and administrative roles
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/course-relations.test.ts[2m > [22mbounded current-course relations[2m > [22mrequires the current token-fix content for UI-token task support
+[31m[1mAssertionError[22m: expected { status: 'partial', …(2) } to deeply equal { status: 'none', support: [], …(1) }[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "remaining": "unverified-content",[39m
+[32m-   "status": "none",[39m
+[32m-   "support": [],[39m
+[31m+   "remaining": "unassessed-scope",[39m
+[31m+   "status": "partial",[39m
+[31m+   "support": [[39m
+[31m+     "component-audit",[39m
+[31m+   ],[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/lib/materials/course-relations.test.ts:[2m86:8[22m[39m
+    [90m 84|[39m       .find(unit => unit.id === "design-systems-calibrate-01")!.rubric…
+    [90m 85|[39m     expect(createCourseTaskCoverageEvaluator(flagshipBlueprint, change…
+    [90m 86|[39m       .toEqual({ status: "none", support: [], remaining: "unverified-c…
+    [90m   |[39m        [31m^[39m
+    [90m 87|[39m   })[33m;[39m
+    [90m 88|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[33m9 skipped[39m[90m (10)[39m
+[2m   Start at [22m 16:35:41
+[2m   Duration [22m 1.33s[2m (transform 173ms, setup 201ms, import 268ms, tests 21ms, environment 701ms)[22m
+
