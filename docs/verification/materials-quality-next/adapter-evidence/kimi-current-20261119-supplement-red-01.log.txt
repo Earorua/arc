@@ -1,0 +1,41 @@
+✔ current loader checks all frozen assets, integrated review and the exact accepted native delta (569.9995ms)
+✔ actual file drift in frozen tools, review memos, current mapping and native closure is rejected (477.5642ms)
+✔ 24-file reader binds the original writer bytes and retains a null decoded candidate and raw finish (21.8478ms)
+✔ source input keeps decoded labels and hints while projection removals remain explicit failures (35.2772ms)
+✔ no-choice and simulated eligible choices stay separate; no-label facts use null literals (5.2542ms)
+✔ null, malformed and missing extraction fields cannot become valid empty source documents (1.6323ms)
+✔ the authored SQL joins probe exposes the real reference mismatch without model or plan claims (27.7616ms)
+✖ six-document adapter reopens only the originally pinned ledger and keeps its missing telemetry explicit (3.6557ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 7
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3241.5632
+
+✖ failing tests:
+
+test at docs\verification\materials-quality-next\current-quality.test.mjs:157:1
+✖ six-document adapter reopens only the originally pinned ledger and keeps its missing telemetry explicit (3.6557ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-quality-next\current-quality.test.mjs:158:10)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

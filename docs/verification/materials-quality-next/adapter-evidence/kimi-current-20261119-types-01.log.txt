@@ -1,0 +1,1 @@
+docs/verification/materials-quality-next/current-adapter.ts(65,53): error TS18048: 'raw' is possibly 'undefined'.

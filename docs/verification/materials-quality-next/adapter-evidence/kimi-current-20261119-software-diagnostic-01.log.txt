@@ -1,0 +1,1 @@
+{"output":"work/grounded-verification/kimi-current-20261119-software-diagnostic-result.json","scorerSoftwareControl":{"source":"passed","course":"passed"},"actualSource":"passed","actualCourse":"failed","adapterIssues":0,"courseMismatches":69,"gateApproved":false,"actualModelQualityEvaluated":false}

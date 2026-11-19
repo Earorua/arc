@@ -1,0 +1,84 @@
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { join } from 'node:path';
+import corpus from '../../tests/fixtures/documents/quality-corpus.json';
+import supplements from '../../tests/fixtures/documents/supplement-quality-corpus.json';
+import { HttpDocumentAnalysisProvider, calculateDocumentReservation, documentProviderQualificationSchema } from '../../worker/document-executor/provider-http';
+import { qualificationInput } from '../../scripts/materials-qualification-inputs';
+import { documentAnalysisConfigurationSchema, KIMI_SOURCE_MENTIONS_POLICY_ID } from '../../app/server/documents/policy';
+import { documentAcceptanceConfigurationDigest } from '../../worker/document-executor/acceptance-policy';
+import type { DocumentProviderInput } from '../../app/server/documents/provider';
+
+const hash = (bytes: string | Buffer) => createHash('sha256').update(bytes).digest('hex');
+const sourceInputs = [
+  { path: 'tests/fixtures/documents/quality-corpus.json', sha256: '69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750' },
+  { path: 'tests/fixtures/documents/supplement-quality-corpus.json', sha256: '9775b595f4b44563beb9e3b7f9249b171e731658b454e0f26279d2b46db213d7' },
+];
+for (const file of sourceInputs) if (hash(readFileSync(file.path)) !== file.sha256) throw Error('frozen-corpus-drift');
+const historical = JSON.parse(readFileSync('docs/verification/materials-gate-1b-b1/b2-settings.canonical-model.review.json', 'utf8'));
+const directory = 'work/grounded-verification/kimi-packet-20261119-request-draft';
+mkdirSync(directory);
+mkdirSync(join(directory, 'bodies'));
+const configurations: Record<string, unknown> = {}, records: unknown[] = [];
+const fixtureCredential = 'offline-materials-body-inspection-only';
+let interceptedPosts = 0;
+for (const [group, count, budget] of [['resume-jd', 24, 2_000_000], ['supplement', 6, 450_000]] as const) {
+  const publicConfig = { ...historical.config, providerPolicyId: KIMI_SOURCE_MENTIONS_POLICY_ID,
+    userDailyMicroUsd: budget, globalDailyMicroUsd: budget };
+  // This in-memory fixture lets the actual builder run against an intercepted transport. It grants nothing.
+  const fixtureQualification = documentProviderQualificationSchema.parse({ ...historical.qualification,
+    qualified: true, providerPolicyId: KIMI_SOURCE_MENTIONS_POLICY_ID });
+  const config = documentAnalysisConfigurationSchema.parse({ ...publicConfig, apiKey: fixtureCredential });
+  const reserve = calculateDocumentReservation(config, fixtureQualification);
+  if (reserve !== 72_960 || reserve * count > budget) throw Error('budget-proposal-mismatch');
+  configurations[group] = { config: publicConfig, qualification: { ...fixtureQualification, qualified: false },
+    configurationSha256: await documentAcceptanceConfigurationDigest(publicConfig, fixtureQualification),
+    perRequestReservationMicroUsd: reserve, totalReservationMicroUsd: reserve * count,
+    proposedBudgetMicroUsd: budget, proposedMaxRequests: count, authorization: null };
+  const documents = group === 'resume-jd' ? corpus.documents : supplements.documents;
+  if (documents.length !== count) throw Error('corpus-count');
+  for (const doc of documents) {
+    const input: DocumentProviderInput = group === 'resume-jd'
+      ? qualificationInput(doc as typeof corpus.documents[number], KIMI_SOURCE_MENTIONS_POLICY_ID)
+      : { kind: 'supplement', text: doc.text, segments: doc.segments, textVersionId: doc.textVersionId,
+        providerPolicyId: KIMI_SOURCE_MENTIONS_POLICY_ID, outputSchemaVersion: '2026.11.1' };
+    let captured = 0;
+    const provider = new HttpDocumentAnalysisProvider(config, { qualification: fixtureQualification, fetch: async (url, init) => {
+      if (String(url) !== config.endpoint || init?.method !== 'POST' || typeof init.body !== 'string' || ++captured !== 1)
+        throw Error('unexpected-intercept');
+      interceptedPosts++;
+      const headers = new Headers(init.headers), body = JSON.parse(init.body);
+      if ([...headers.keys()].sort().join(',') !== 'authorization,content-type'
+        || body.model !== config.model || body.max_tokens !== 4096 || body.stream !== false
+        || body.provider.zdr !== true || body.provider.allow_fallbacks !== false || body.provider.data_collection !== 'deny'
+        || JSON.stringify(body.provider.only) !== '["moonshotai/mxfp4"]'
+        || JSON.stringify(body.provider.order) !== '["moonshotai/mxfp4"]'
+        || body.provider.max_price.prompt !== 2 || body.provider.max_price.completion !== 10 || body.provider.max_price.request !== 0
+        || ['plugins', 'tools', 'preset'].some(key => Object.hasOwn(body, key))
+        || body.messages.length !== 2 || body.messages[0].role !== 'system' || body.messages[1].role !== 'user')
+        throw Error('request-policy-mismatch');
+      const data = JSON.parse(body.messages[1].content);
+      if (Object.keys(data).sort().join(',') !== 'kind,segments' || data.kind !== input.kind
+        || data.segments.map((value: { text: string }) => value.text).join('') !== doc.text)
+        throw Error('request-source-mismatch');
+      const file = `bodies/${doc.id}.json`;
+      writeFileSync(join(directory, file), init.body, { flag: 'wx' });
+      records.push({ group, documentId: doc.id, documentVersionId: doc.documentVersionId, textVersionId: doc.textVersionId,
+        sourceTextSha256: hash(doc.text), requestBodySha256: hash(init.body), requestBodyBytes: Buffer.byteLength(init.body), path: file,
+        headerNames: [...headers.keys()].sort(), platformResponseCacheRequested: false });
+      // No real fetch is reachable. The builder receives a local non-200 after its exact body is recorded.
+      return new Response(null, { status: 418 });
+    } });
+    const outcome = await provider.analyze(input, new AbortController().signal);
+    if (captured !== 1 || outcome.kind !== 'unknown') throw Error('request-not-intercepted');
+  }
+}
+if (records.length !== 30 || interceptedPosts !== 30) throw Error('incomplete-request-draft');
+const result = { schemaVersion: 'materials-kimi-request-draft-v1', status: 'offline-intercepted-not-authorized',
+  basisCommit: 'be9d15f39dd4f0d0e22ef0d9ed685253756fb844', finalExecutionCommit: null,
+  sourceInputs, configurations, records, interceptedLocalPosts: interceptedPosts, realModelCalls: 0, outboundRequests: 0,
+  authorization: null, totalReservationMicroUsd: 2_188_800, proposedCombinedBudgetMicroUsd: 2_450_000,
+  limits: ['Final operator/source freeze and quality acceptance pending.', 'No fresh account/key/endpoint UUID proof.'] };
+writeFileSync(join(directory, 'manifest.json'), JSON.stringify(result, null, 2) + '\n', { flag: 'wx' });
+process.stdout.write(JSON.stringify({ records: records.length, realModelCalls: 0, reservationMicroUsd: 2_188_800,
+  proposedBudgetMicroUsd: 2_450_000, manifestSha256: hash(readFileSync(join(directory, 'manifest.json'))) }) + '\n');

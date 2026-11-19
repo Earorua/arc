@@ -1,0 +1,39 @@
+✔ current loader checks all frozen assets, integrated review and the exact accepted native delta (581.4845ms)
+✔ actual file drift in frozen tools, review memos, current mapping and native closure is rejected (606.9571ms)
+✔ 24-file reader binds the original writer bytes and retains a null decoded candidate and raw finish (21.5721ms)
+✔ source input keeps decoded labels and hints while projection removals remain explicit failures (37.3802ms)
+✔ no-choice and simulated eligible choices stay separate; no-label facts use null literals (5.345ms)
+✖ null, malformed and missing extraction fields cannot become valid empty source documents (22.9504ms)
+(node:19156) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ the authored SQL joins probe exposes the real reference mismatch without model or plan claims (26.9207ms)
+✔ six-document adapter reopens only the originally pinned ledger and keeps its missing telemetry explicit (312.341ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 7
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3918.3639
+
+✖ failing tests:
+
+test at docs\verification\materials-quality-next\current-quality.test.mjs:130:1
+✖ null, malformed and missing extraction fields cannot become valid empty source documents (22.9504ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'passed'
+  - 'not-evaluated'
+  
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-quality-next\current-quality.test.mjs:140:10)
+      at async Test.run (node:internal/test_runner/test:1125:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'passed',
+    expected: 'not-evaluated',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,178 @@
+✖ current loader checks all frozen assets, integrated review and the exact accepted native delta (0.9761ms)
+✖ actual file drift in frozen tools, review memos, current mapping and native closure is rejected (0.1986ms)
+✖ 24-file reader binds the original writer bytes and retains a null decoded candidate and raw finish (0.2094ms)
+✖ source input keeps decoded labels and hints while projection removals remain explicit failures (0.1401ms)
+✖ no-choice and simulated eligible choices stay separate; no-label facts use null literals (0.2009ms)
+✖ null, malformed and missing extraction fields cannot become valid empty source documents (0.1706ms)
+✖ the authored SQL joins probe exposes the real reference mismatch without model or plan claims (0.1858ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 0
+ℹ fail 7
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1775.8252
+
+✖ failing tests:
+
+test at docs\verification\materials-quality-next\current-quality.test.mjs:38:1
+✖ current loader checks all frozen assets, integrated review and the exact accepted native delta (0.9761ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at refs (file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/docs/verification/materials-quality-next/current-quality.test.mjs:30:32)
+      at TestContext.<anonymous> (file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/docs/verification/materials-quality-next/current-quality.test.mjs:39:23)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.start (node:internal/test_runner/test:1015:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-quality-next\current-quality.test.mjs:48:1
+✖ actual file drift in frozen tools, review memos, current mapping and native closure is rejected (0.1986ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at refs (file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/docs/verification/materials-quality-next/current-quality.test.mjs:30:32)
+      at TestContext.<anonymous> (file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/docs/verification/materials-quality-next/current-quality.test.mjs:49:23)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-quality-next\current-quality.test.mjs:65:1
+✖ 24-file reader binds the original writer bytes and retains a null decoded candidate and raw finish (0.2094ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/docs/verification/materials-quality-next/current-quality.test.mjs:66:10)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-quality-next\current-quality.test.mjs:100:1
+✖ source input keeps decoded labels and hints while projection removals remain explicit failures (0.1401ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/docs/verification/materials-quality-next/current-quality.test.mjs:101:10)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-quality-next\current-quality.test.mjs:112:1
+✖ no-choice and simulated eligible choices stay separate; no-label facts use null literals (0.2009ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/docs/verification/materials-quality-next/current-quality.test.mjs:113:10)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-quality-next\current-quality.test.mjs:128:1
+✖ null, malformed and missing extraction fields cannot become valid empty source documents (0.1706ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/docs/verification/materials-quality-next/current-quality.test.mjs:129:10)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-quality-next\current-quality.test.mjs:139:1
+✖ the authored SQL joins probe exposes the real reference mismatch without model or plan claims (0.1858ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/docs/verification/materials-quality-next/current-quality.test.mjs:140:10)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

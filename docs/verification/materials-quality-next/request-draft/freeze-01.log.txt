@@ -1,0 +1,1 @@
+{"records":30,"realModelCalls":0,"reservationMicroUsd":2188800,"proposedBudgetMicroUsd":2450000,"manifestSha256":"06238bde3fbc45aa33efb38da95234cfbb74d34d162bf1941d9ac0c56c964ac7"}

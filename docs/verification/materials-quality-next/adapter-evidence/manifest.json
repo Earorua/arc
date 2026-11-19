@@ -1,0 +1,280 @@
+{
+  "schemaVersion": "materials-current-adapter-evidence-v1",
+  "status": "adapter-offline-reviewed",
+  "tests": {
+    "focusedPassed": 8,
+    "focusedFailed": 0,
+    "types": "PASS",
+    "lint": "PASS",
+    "reviewerTestRuns": 0
+  },
+  "softwareDiagnostic": {
+    "source": "passed",
+    "adapterIssues": 0,
+    "coursePassed": 77,
+    "courseFailed": 69,
+    "observations": 146,
+    "actualModelQualityEvaluated": false,
+    "productCourseGapsResolved": false
+  },
+  "historicalFailuresRetained": true,
+  "realModelCalls": 0,
+  "costMicroUsd": 0,
+  "gateApproved": false,
+  "sourceFiles": [
+    {
+      "path": "docs/verification/materials-quality-next/current-references.mjs",
+      "sha256": "7dbf68bac79074c8fd5c7e4a6b7af68e604f01155580a550ec33acf640e1e9dc",
+      "bytes": 10570
+    },
+    {
+      "path": "docs/verification/materials-quality-next/current-captures.ts",
+      "sha256": "51ca39305da87167f6eb12cc8544e20cbd9b7f2e7d890a7de182c4577a299b78",
+      "bytes": 14517
+    },
+    {
+      "path": "docs/verification/materials-quality-next/current-adapter.ts",
+      "sha256": "e62afaa5a839f7886f3cfe9f7280c23dbe354ab15080162eb92cc91ec77ac05c",
+      "bytes": 13838
+    },
+    {
+      "path": "docs/verification/materials-quality-next/current-quality.test.mjs",
+      "sha256": "192e8e75ec685240aa622e99a83ec43ec4e0b9d9f1ce72cc8537d55c37e57469",
+      "bytes": 18693
+    },
+    {
+      "path": "docs/verification/materials-quality-next/run-software-control.mjs",
+      "sha256": "6e1f662c73f172b9c4ccaf4f1d1e7d634ebc8e23f2410677874b831c2145330f",
+      "bytes": 3300
+    },
+    {
+      "path": "docs/verification/materials-quality-next/current-adapter.md",
+      "sha256": "26b05658f130d46273b59748f651db45e096274759e8b27ccb5560cfec16158d",
+      "bytes": 7351
+    }
+  ],
+  "entries": [
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-absent-course-red-01.json",
+      "path": "kimi-current-20261119-absent-course-red-01.json",
+      "bytes": 282,
+      "sha256": "fe57993689679231a049ac0ec6144e9a720dcbf481f7d81a56d865960b9dddc1"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-absent-course-red-01.log",
+      "path": "kimi-current-20261119-absent-course-red-01.log.txt",
+      "bytes": 2000,
+      "sha256": "751480fc77f4f475875bc5af8752d3a49fff85e8eb7d3f82639edfb7c91eac90"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-cross-receipt-red-01.json",
+      "path": "kimi-current-20261119-cross-receipt-red-01.json",
+      "bytes": 282,
+      "sha256": "2065187b7858799a65f74c73972d016bd01820ebb7b75f4dbeeabe4102292594"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-cross-receipt-red-01.log",
+      "path": "kimi-current-20261119-cross-receipt-red-01.log.txt",
+      "bytes": 1952,
+      "sha256": "10fe5f55b45541e4946199ca13a6293121aea81f1a310428e5f276ad6a3b7f64"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-diagnostic-source/current-adapter.ts",
+      "path": "kimi-current-20261119-diagnostic-source/current-adapter.ts",
+      "bytes": 13667,
+      "sha256": "1d728877e55c98619124d0ff66ccdce3e3612cdab0bd9f9c05446ae5aadb109b"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-diagnostic-source/current-captures.ts",
+      "path": "kimi-current-20261119-diagnostic-source/current-captures.ts",
+      "bytes": 14517,
+      "sha256": "51ca39305da87167f6eb12cc8544e20cbd9b7f2e7d890a7de182c4577a299b78"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-diagnostic-source/current-references.mjs",
+      "path": "kimi-current-20261119-diagnostic-source/current-references.mjs",
+      "bytes": 10570,
+      "sha256": "7dbf68bac79074c8fd5c7e4a6b7af68e604f01155580a550ec33acf640e1e9dc"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-diagnostic-source/run-software-control.mjs",
+      "path": "kimi-current-20261119-diagnostic-source/run-software-control.mjs",
+      "bytes": 3300,
+      "sha256": "6e1f662c73f172b9c4ccaf4f1d1e7d634ebc8e23f2410677874b831c2145330f"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-final-01.json",
+      "path": "kimi-current-20261119-final-01.json",
+      "bytes": 270,
+      "sha256": "1a46cdee7f8a581738a30723e0c7d179550f0615f596b3561673db84e4279646"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-final-01.log",
+      "path": "kimi-current-20261119-final-01.log.txt",
+      "bytes": 1174,
+      "sha256": "be24f09359e2f6af3321520985d9cff1d786bff1a67860460f8e92ec60fbe38f"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-green-01.json",
+      "path": "kimi-current-20261119-green-01.json",
+      "bytes": 270,
+      "sha256": "91a35b4de735ff335cc78a7b1becb9afb38cde3e238b4e484d7529f317e4ef61"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-green-01.log",
+      "path": "kimi-current-20261119-green-01.log.txt",
+      "bytes": 2353,
+      "sha256": "fbb5695762074ab6d3e80effd82d99a429764f2ff49717c2d57190ae4847948d"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-green-02.json",
+      "path": "kimi-current-20261119-green-02.json",
+      "bytes": 270,
+      "sha256": "1d62397d00abf9e4926fad2f854b49eea49a5211c741e58b00fd63571bd81558"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-green-02.log",
+      "path": "kimi-current-20261119-green-02.log.txt",
+      "bytes": 2116,
+      "sha256": "6f82a62b0399d10d7515b1c1d7a19cfa4336b51f84c9903239662ff2330eb72e"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-green-03.json",
+      "path": "kimi-current-20261119-green-03.json",
+      "bytes": 270,
+      "sha256": "59f010894dc8784d81660d51c7b61872be0ecdb9156534908a9fd90f57575775"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-green-03.log",
+      "path": "kimi-current-20261119-green-03.log.txt",
+      "bytes": 1172,
+      "sha256": "6ca6ee6c938bdb2f6669d25d60225bbc10b034b72fb83e5f0fa2526860531bfc"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-handoff.json",
+      "path": "kimi-current-20261119-handoff.json",
+      "bytes": 10646,
+      "sha256": "a2d9744daf155fa84cda2f5e1041531f69fe0bba8bfb0c8e911b7101b25a326d"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-lint-01.json",
+      "path": "kimi-current-20261119-lint-01.json",
+      "bytes": 269,
+      "sha256": "71ce09d1bd1af8239f9f2e06e989d18aeafa39a0c9d7e5f518949817951f38ea"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-lint-01.log",
+      "path": "kimi-current-20261119-lint-01.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-lint-final-01.json",
+      "path": "kimi-current-20261119-lint-final-01.json",
+      "bytes": 275,
+      "sha256": "6ffbea472e515dacbbadcd09df91125a924f1e96dff9ce919e4fb6b2491f5665"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-lint-final-01.log",
+      "path": "kimi-current-20261119-lint-final-01.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-quality-review.md",
+      "path": "kimi-current-20261119-quality-review.md",
+      "bytes": 5163,
+      "sha256": "e96ec3f87979314aa7429ef3f2c142149b69f36c05b854bbd7a903e6c432a14f"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-red-01.json",
+      "path": "kimi-current-20261119-red-01.json",
+      "bytes": 268,
+      "sha256": "8e22df073657511d6e63df7557d54e000b8cfd3bdea8a518727e5b38fd7c6d43"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-red-01.log",
+      "path": "kimi-current-20261119-red-01.log.txt",
+      "bytes": 8550,
+      "sha256": "aedf48962e2f721a41daae53d8553a3265243eed430189c2286f459a774e3416"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-software-diagnostic-01.json",
+      "path": "kimi-current-20261119-software-diagnostic-01.json",
+      "bytes": 284,
+      "sha256": "5f15d202e97a822734ba39f26119c872569e88e87f65755bae240bd40aaed0a2"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-software-diagnostic-01.log",
+      "path": "kimi-current-20261119-software-diagnostic-01.log.txt",
+      "bytes": 301,
+      "sha256": "8fb568a228cf07f79bae36fc89088d55b078978fd72211316bce610751ed1fda"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-software-diagnostic-result.json",
+      "path": "kimi-current-20261119-software-diagnostic-result.json",
+      "bytes": 664216,
+      "sha256": "13ad19db21a0d8e4abbd1e1b700645c449a9b5d28170541163d8ec806281c430"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-spec-review.md",
+      "path": "kimi-current-20261119-spec-review.md",
+      "bytes": 8299,
+      "sha256": "cb482ea99fe8464324c835d2bda0c08bb0aeb990b41ba14e414cc4493e674477"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-supplement-red-01.json",
+      "path": "kimi-current-20261119-supplement-red-01.json",
+      "bytes": 279,
+      "sha256": "a97142a38f5c1dc7aba4242f1c62a551215da36906c791db34d6f0555b0b8d71"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-supplement-red-01.log",
+      "path": "kimi-current-20261119-supplement-red-01.log.txt",
+      "bytes": 2090,
+      "sha256": "7fcd140b3dba718dcd0db7951e3e03d93bd36cde6c1b1629ceae016aa6cb57dd"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-types-01.json",
+      "path": "kimi-current-20261119-types-01.json",
+      "bytes": 270,
+      "sha256": "50efa5a6f2adf686bcf5fa3b34b536d4c8ba430bdb6da622882858a82f5bea9c"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-types-01.log",
+      "path": "kimi-current-20261119-types-01.log.txt",
+      "bytes": 115,
+      "sha256": "0230a7098197f7004e37d348add69f5d2837b43ce8e1bb4152456e42c9069e28"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-types-02.json",
+      "path": "kimi-current-20261119-types-02.json",
+      "bytes": 270,
+      "sha256": "8775c3ddeed73523af3aa22a9eeeecea15ad4d1e7b0d494775bfb48813d1409b"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-types-02.log",
+      "path": "kimi-current-20261119-types-02.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-types-final-01.json",
+      "path": "kimi-current-20261119-types-final-01.json",
+      "bytes": 276,
+      "sha256": "6923fdeede0a58c5f1b5437638a72a77de3a86576b8391a0dd88972737d20a31"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-types-final-01.log",
+      "path": "kimi-current-20261119-types-final-01.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "work/grounded-verification/kimi-current-20261119-types.json",
+      "path": "kimi-current-20261119-types.json",
+      "bytes": 289,
+      "sha256": "d2e3f5bd425c0aff813567650467844d91967d08edf0a59f78fbacb98a63a7b4"
+    }
+  ]
+}

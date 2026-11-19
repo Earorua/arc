@@ -23,6 +23,8 @@ Keep the 24-document and six-document authorization and durable accounting paths
 
 ## Task 2 — current-binding quality adapter
 
+Completed offline, 2026-11-19: eight focused tests, types/lint, independent specification and quality review passed. Raw evidence is preserved in `docs/verification/materials-quality-next/adapter-result.md`. The one software diagnostic exposed 69 current course-relation failures; this tool acceptance does not accept those product gaps. Complete `2026-11-19-materials-course-relation-repair.md` before paid readiness and final Task 3 binding.
+
 Add separately versioned verification tooling rather than editing `materials-quality-v2`'s historical loader or its WeakSet trust credential.
 
 - Verify all frozen reference/tool hashes, original corpora/basis, the new integrated binding verifier and independent review receipt; check actual current files. Reuse the original source/course scoring primitives and thresholds unchanged. Do not manufacture an old checkout to satisfy the old loader.

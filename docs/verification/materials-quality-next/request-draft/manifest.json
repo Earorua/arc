@@ -1,0 +1,584 @@
+{
+  "schemaVersion": "materials-kimi-request-draft-v1",
+  "status": "offline-intercepted-not-authorized",
+  "basisCommit": "be9d15f39dd4f0d0e22ef0d9ed685253756fb844",
+  "finalExecutionCommit": null,
+  "sourceInputs": [
+    {
+      "path": "tests/fixtures/documents/quality-corpus.json",
+      "sha256": "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750"
+    },
+    {
+      "path": "tests/fixtures/documents/supplement-quality-corpus.json",
+      "sha256": "9775b595f4b44563beb9e3b7f9249b171e731658b454e0f26279d2b46db213d7"
+    }
+  ],
+  "configurations": {
+    "resume-jd": {
+      "config": {
+        "provider": "OpenRouter / Moonshot AI",
+        "model": "moonshotai/kimi-k3.1-pro",
+        "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+        "providerPolicyId": "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v3",
+        "routingPolicy": {
+          "policyVersion": "2026.11.3",
+          "providerOrder": [
+            "moonshotai/mxfp4"
+          ],
+          "allowFallback": false,
+          "dataPolicy": "zdr-only"
+        },
+        "priceVersion": "2026.11.3",
+        "userDailyMicroUsd": 2000000,
+        "globalDailyMicroUsd": 2000000,
+        "maxJobMicroUsd": 75000,
+        "maxInputTokens": 16000,
+        "maxOutputTokens": 4096,
+        "httpTimeoutMs": 180000
+      },
+      "qualification": {
+        "qualified": false,
+        "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+        "model": "moonshotai/kimi-k3.1-pro",
+        "providerPolicyId": "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v3",
+        "priceVersion": "2026.11.3",
+        "routingPolicy": {
+          "policyVersion": "2026.11.3",
+          "providerOrder": [
+            "moonshotai/mxfp4"
+          ],
+          "allowFallback": false,
+          "dataPolicy": "zdr-only"
+        },
+        "receiptRoute": {
+          "providerName": "Moonshot AI",
+          "endpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+          "generationModel": "moonshotai/kimi-k3.1-pro-20261023"
+        },
+        "inputMicroUsdPerMillionTokens": 2000000,
+        "outputMicroUsdPerMillionTokens": 10000000,
+        "inputTokenBound": "utf8-bytes-plus-4096"
+      },
+      "configurationSha256": "892574c4a5d37288614fca6c8e6fe812fdd291f4ecb5af2d1c1d4bd86998eaa8",
+      "perRequestReservationMicroUsd": 72960,
+      "totalReservationMicroUsd": 1751040,
+      "proposedBudgetMicroUsd": 2000000,
+      "proposedMaxRequests": 24,
+      "authorization": null
+    },
+    "supplement": {
+      "config": {
+        "provider": "OpenRouter / Moonshot AI",
+        "model": "moonshotai/kimi-k3.1-pro",
+        "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+        "providerPolicyId": "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v3",
+        "routingPolicy": {
+          "policyVersion": "2026.11.3",
+          "providerOrder": [
+            "moonshotai/mxfp4"
+          ],
+          "allowFallback": false,
+          "dataPolicy": "zdr-only"
+        },
+        "priceVersion": "2026.11.3",
+        "userDailyMicroUsd": 450000,
+        "globalDailyMicroUsd": 450000,
+        "maxJobMicroUsd": 75000,
+        "maxInputTokens": 16000,
+        "maxOutputTokens": 4096,
+        "httpTimeoutMs": 180000
+      },
+      "qualification": {
+        "qualified": false,
+        "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+        "model": "moonshotai/kimi-k3.1-pro",
+        "providerPolicyId": "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v3",
+        "priceVersion": "2026.11.3",
+        "routingPolicy": {
+          "policyVersion": "2026.11.3",
+          "providerOrder": [
+            "moonshotai/mxfp4"
+          ],
+          "allowFallback": false,
+          "dataPolicy": "zdr-only"
+        },
+        "receiptRoute": {
+          "providerName": "Moonshot AI",
+          "endpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+          "generationModel": "moonshotai/kimi-k3.1-pro-20261023"
+        },
+        "inputMicroUsdPerMillionTokens": 2000000,
+        "outputMicroUsdPerMillionTokens": 10000000,
+        "inputTokenBound": "utf8-bytes-plus-4096"
+      },
+      "configurationSha256": "f8b30f2605f5a23b67fca755c8cf2882d3ba50552e1164c9566d2bf7079de467",
+      "perRequestReservationMicroUsd": 72960,
+      "totalReservationMicroUsd": 437760,
+      "proposedBudgetMicroUsd": 450000,
+      "proposedMaxRequests": 6,
+      "authorization": null
+    }
+  },
+  "records": [
+    {
+      "group": "resume-jd",
+      "documentId": "resume-01",
+      "documentVersionId": "resume-01-version-1",
+      "textVersionId": "resume-01-text-1",
+      "sourceTextSha256": "5e86e6dcd87c9011ac5eadcea7e55a91b87746fb8cf7d5922755bfaf15910a95",
+      "requestBodySha256": "00fde737c66c035284ab1a9fcff73be99ffb9cc252770f592270b7dc0976a785",
+      "requestBodyBytes": 4101,
+      "path": "bodies/resume-01.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "resume-02",
+      "documentVersionId": "resume-02-version-1",
+      "textVersionId": "resume-02-text-1",
+      "sourceTextSha256": "2245d4a91217deee57a93eb87d1c2d51470832c5f88bffd8598b52d50496877c",
+      "requestBodySha256": "a1850c3fe1fc572b43b6088c81b51ae2ded46aea2dfd2be2dbb37d4e6ede2478",
+      "requestBodyBytes": 4091,
+      "path": "bodies/resume-02.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "resume-03",
+      "documentVersionId": "resume-03-version-1",
+      "textVersionId": "resume-03-text-1",
+      "sourceTextSha256": "7b2a15c60937d44001047ef04170a2651eee0b0b027484de023976a8b2debd62",
+      "requestBodySha256": "7d19c0d1999dfdff18e31c4f2a6a513238eec076a83a09fb40616aa7224864ef",
+      "requestBodyBytes": 4074,
+      "path": "bodies/resume-03.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "resume-04",
+      "documentVersionId": "resume-04-version-1",
+      "textVersionId": "resume-04-text-1",
+      "sourceTextSha256": "6f592a5fc6dea4931da805210df1ca257e5bc964a7fd218228e68f6958b766a8",
+      "requestBodySha256": "dd9be71c18b920eaac44ef1f9f9a786aa29edddd91b90907316f487b3c14be57",
+      "requestBodyBytes": 4073,
+      "path": "bodies/resume-04.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "resume-05",
+      "documentVersionId": "resume-05-version-1",
+      "textVersionId": "resume-05-text-1",
+      "sourceTextSha256": "7157372127da28b012b9be687d1b5a6436fa31060df94a2aefcc1319f07f8e98",
+      "requestBodySha256": "b41e2822abde73e9846f6e97a089d7fc2ce0ea4115a25835ca5e0727adb7a57b",
+      "requestBodyBytes": 4090,
+      "path": "bodies/resume-05.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "resume-06",
+      "documentVersionId": "resume-06-version-1",
+      "textVersionId": "resume-06-text-1",
+      "sourceTextSha256": "408a70965fe9c08a56d94c7940afe8ee2e67a8fd959963c4a205f600ac7c18fc",
+      "requestBodySha256": "171c311b7252b2e3a133389ee6d9e813a7c3ed3ae25d4c8da9a9ec91703135fa",
+      "requestBodyBytes": 4098,
+      "path": "bodies/resume-06.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "resume-07",
+      "documentVersionId": "resume-07-version-1",
+      "textVersionId": "resume-07-text-1",
+      "sourceTextSha256": "25a9023dfd1f6cfe63f539075eca366180e1cbf084f3c67f92c590d678678155",
+      "requestBodySha256": "dba83d9f89bb7c9867a622700a1ca3efba68b43ca19575e05325a1fceefd6f1f",
+      "requestBodyBytes": 4046,
+      "path": "bodies/resume-07.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "resume-08",
+      "documentVersionId": "resume-08-version-1",
+      "textVersionId": "resume-08-text-1",
+      "sourceTextSha256": "ad6ae2ed8374e692a9cdc2f28cf2aaba818cb2297680656fb8eeb735b04ae871",
+      "requestBodySha256": "a28c668079575d579823158b29b1caa9e3b57a268d3a69173c7637bcc88415c4",
+      "requestBodyBytes": 4062,
+      "path": "bodies/resume-08.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "resume-09",
+      "documentVersionId": "resume-09-version-1",
+      "textVersionId": "resume-09-text-1",
+      "sourceTextSha256": "d2f087ac7f7502b05f7bef5bf70a62d48413026f08d20f9d5f04169a6a3d7358",
+      "requestBodySha256": "755bbba038f1d4a2f4ec8077e6f0636690795d95e3cf9e0dc9cb5604187f36a2",
+      "requestBodyBytes": 4069,
+      "path": "bodies/resume-09.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "jd-01",
+      "documentVersionId": "jd-01-version-1",
+      "textVersionId": "jd-01-text-1",
+      "sourceTextSha256": "6c125c0f259b530f50d1c3d55260ce865439f51465edea3217c56420b1f8c95c",
+      "requestBodySha256": "646928b99a21d1c3eab28c1b0a699998291b4a90dee53d9ee4a12ac9d4a4fca5",
+      "requestBodyBytes": 4018,
+      "path": "bodies/jd-01.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "jd-02",
+      "documentVersionId": "jd-02-version-1",
+      "textVersionId": "jd-02-text-1",
+      "sourceTextSha256": "98c82fa1a7e939ac80764ad166e20d046bbba20b2aaf67088ff21368e5462879",
+      "requestBodySha256": "878a05da22b60586c2c8eede9bb226d325e30aa667b55460ab3454e35c638674",
+      "requestBodyBytes": 4170,
+      "path": "bodies/jd-02.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "jd-03",
+      "documentVersionId": "jd-03-version-1",
+      "textVersionId": "jd-03-text-1",
+      "sourceTextSha256": "b23dd7d97d0036727400b947ed94b285db48bcc93d79493d5e57acebaee0edb9",
+      "requestBodySha256": "6a8f7dd9e7933bae5fc31fd1ab25e84b3d4a6fba8d731ac92b4f3e756040651e",
+      "requestBodyBytes": 4140,
+      "path": "bodies/jd-03.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "jd-04",
+      "documentVersionId": "jd-04-version-1",
+      "textVersionId": "jd-04-text-1",
+      "sourceTextSha256": "251577e57a79c29aa18b993c4116078f5d1b1609315241b505c6942bb27a164c",
+      "requestBodySha256": "bf115d3991f9eee4f2e4139f3d2bfbdf2c85a53bfe772ac9a8d0249286eabc76",
+      "requestBodyBytes": 4034,
+      "path": "bodies/jd-04.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "jd-05",
+      "documentVersionId": "jd-05-version-1",
+      "textVersionId": "jd-05-text-1",
+      "sourceTextSha256": "3d1d78ffbb0840936ee476a70cf3fb420d681b1cf2196ad8105aa497e7e77e19",
+      "requestBodySha256": "81379d86c5dac7c1adc252b883a1a30642aa5c0247e3cb35271260b985d96693",
+      "requestBodyBytes": 4163,
+      "path": "bodies/jd-05.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "jd-06",
+      "documentVersionId": "jd-06-version-1",
+      "textVersionId": "jd-06-text-1",
+      "sourceTextSha256": "5260c8bee8b908a5161500487124dbf28173194e84df42d37e5ef736f0d7083c",
+      "requestBodySha256": "5c0e6f2baf19663929e51eccac13faa9ea3aea26f53bba210d41e4706a54a4a8",
+      "requestBodyBytes": 4147,
+      "path": "bodies/jd-06.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "jd-07",
+      "documentVersionId": "jd-07-version-1",
+      "textVersionId": "jd-07-text-1",
+      "sourceTextSha256": "c3d37e33fabc74e3b9e8d78fd6d60fc012dd02f05c6fd8f596caba44f5052968",
+      "requestBodySha256": "57d94f90d2d815f1d1246f82d36c5d0aa197494405d318045e4b88472061b6ca",
+      "requestBodyBytes": 4005,
+      "path": "bodies/jd-07.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "jd-08",
+      "documentVersionId": "jd-08-version-1",
+      "textVersionId": "jd-08-text-1",
+      "sourceTextSha256": "ba7748177b04bc0153c3d71028553b4fb882d690953c4e51e78c7757fc3b9cba",
+      "requestBodySha256": "b29b4359c7c3ad07dfec81c185f205bd62c946f0168439501db0261d60c0500e",
+      "requestBodyBytes": 4142,
+      "path": "bodies/jd-08.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "jd-09",
+      "documentVersionId": "jd-09-version-1",
+      "textVersionId": "jd-09-text-1",
+      "sourceTextSha256": "e4385d3e9a70aa091f13ced7c918ac111a2c9e8d161b4ea9c7a364013db101c1",
+      "requestBodySha256": "0e4bf26702f2c68ed4f8ee06b4524ce2a39b521c26168d9c079ef2824d9c3f51",
+      "requestBodyBytes": 4024,
+      "path": "bodies/jd-09.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "resume-10",
+      "documentVersionId": "resume-10-version-1",
+      "textVersionId": "resume-10-text-1",
+      "sourceTextSha256": "ba1be3e62a02c7022049d8e13413c0f37120e34e8da928bf11b126e2970fba3b",
+      "requestBodySha256": "0384bb5f29e246b4b4a4b41793bfdf6b3487525b151ea3386138006ffccd1d92",
+      "requestBodyBytes": 4095,
+      "path": "bodies/resume-10.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "resume-11",
+      "documentVersionId": "resume-11-version-1",
+      "textVersionId": "resume-11-text-1",
+      "sourceTextSha256": "4364ca73e0171cdd189a1106f3b39c8a9e280cf6472ff98dbbf44bbc3dab6021",
+      "requestBodySha256": "50f212a525e36745707127145a6b62eec673edc821170ba7c0ac996e1862ec4f",
+      "requestBodyBytes": 4093,
+      "path": "bodies/resume-11.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "resume-12",
+      "documentVersionId": "resume-12-version-1",
+      "textVersionId": "resume-12-text-1",
+      "sourceTextSha256": "0558d678a5b012a1e49145ce94b2f2ee565cd8c28368a351f3a671acbd78ce57",
+      "requestBodySha256": "6882f71f094e6201f2a41c0acfabfeb23e61ea5c02409a504efcff738f2cb98d",
+      "requestBodyBytes": 4063,
+      "path": "bodies/resume-12.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "jd-10",
+      "documentVersionId": "jd-10-version-1",
+      "textVersionId": "jd-10-text-1",
+      "sourceTextSha256": "beac97c08b025909990f96e08a6d5ca7198f3e4e87741f54baad4ca0c0db8d2f",
+      "requestBodySha256": "809e34775c14e0358e7d351830e36aac311cb0d28fbe2bee9065168ba162a0c1",
+      "requestBodyBytes": 4076,
+      "path": "bodies/jd-10.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "jd-11",
+      "documentVersionId": "jd-11-version-1",
+      "textVersionId": "jd-11-text-1",
+      "sourceTextSha256": "2a8e533613e4201c422e41773c70ded5773bebde13005dd50a5f33f88ea54efb",
+      "requestBodySha256": "681b81148756b0a8257dac713ec30121d492b33c089f2d17f15e4a8061945834",
+      "requestBodyBytes": 4071,
+      "path": "bodies/jd-11.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "jd-12",
+      "documentVersionId": "jd-12-version-1",
+      "textVersionId": "jd-12-text-1",
+      "sourceTextSha256": "b1c95010fca788ebfe7ff9aa51fc4526edc6603df080957b104994cf1d181ef1",
+      "requestBodySha256": "04f011a74a87628437e2be2d9c1fd69123a738e30a4c74305d30b02f2f8aad7b",
+      "requestBodyBytes": 4046,
+      "path": "bodies/jd-12.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "supplement",
+      "documentId": "supplement-01",
+      "documentVersionId": "supplement-01-v1",
+      "textVersionId": "supplement-01-text-1",
+      "sourceTextSha256": "95cdb9b8826d4514bbb1a4aa69d47178175fe7cd039c9f04e1a613e0da5b5d2e",
+      "requestBodySha256": "9bd9975137b78697dea0065d293d9ad0ade391dd36b8891bd76bf30af0d05eeb",
+      "requestBodyBytes": 3680,
+      "path": "bodies/supplement-01.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "supplement",
+      "documentId": "supplement-02",
+      "documentVersionId": "supplement-02-v1",
+      "textVersionId": "supplement-02-text-1",
+      "sourceTextSha256": "171336bfa57d9ebc1194ce217150f4cb63427e65b67a17c2aad904ccfc3d81c3",
+      "requestBodySha256": "f585da7f2c69c2e29d9e51888fe7f7ae2efe652ef2904a00d8f8bf1638a571ca",
+      "requestBodyBytes": 3698,
+      "path": "bodies/supplement-02.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "supplement",
+      "documentId": "supplement-03",
+      "documentVersionId": "supplement-03-v1",
+      "textVersionId": "supplement-03-text-1",
+      "sourceTextSha256": "59a137b2530519d13bff6c78611f37af2b58efbe42c1cf33b74f19f7b67bde0c",
+      "requestBodySha256": "d9d81175050b7ac5c5daf920457374ed620264de7884b951b7f3437d65a90584",
+      "requestBodyBytes": 3685,
+      "path": "bodies/supplement-03.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "supplement",
+      "documentId": "supplement-04",
+      "documentVersionId": "supplement-04-v1",
+      "textVersionId": "supplement-04-text-1",
+      "sourceTextSha256": "bf64f3a974d1c582b6c534b02609efd7071276081a4b34d80f17fe9b7129535f",
+      "requestBodySha256": "a5b9c2b1796837255094128606f66a74bef4381c1c9e89016bb9c2de2cff21e6",
+      "requestBodyBytes": 3673,
+      "path": "bodies/supplement-04.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "supplement",
+      "documentId": "supplement-05",
+      "documentVersionId": "supplement-05-v1",
+      "textVersionId": "supplement-05-text-1",
+      "sourceTextSha256": "348fd724a7a96542d040f6d4bd6ce6e9bec86e13a2acca07c5d51944da0211ba",
+      "requestBodySha256": "ca36fe3d6adfea4ed016e1ff42e62fb9f07659d2562f2de2a8195a0b09f93323",
+      "requestBodyBytes": 3687,
+      "path": "bodies/supplement-05.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    },
+    {
+      "group": "supplement",
+      "documentId": "supplement-06",
+      "documentVersionId": "supplement-06-v1",
+      "textVersionId": "supplement-06-text-1",
+      "sourceTextSha256": "fc41a939856c3c1fd1d566f865ca346ccf1a6f00c45e3aed78f630251a25b9e7",
+      "requestBodySha256": "6733ecdb8f21f230deed535a6cc15d0a4c3100497d1a47d772ee331e6f8ab8d9",
+      "requestBodyBytes": 3698,
+      "path": "bodies/supplement-06.json",
+      "headerNames": [
+        "authorization",
+        "content-type"
+      ],
+      "platformResponseCacheRequested": false
+    }
+  ],
+  "interceptedLocalPosts": 30,
+  "realModelCalls": 0,
+  "outboundRequests": 0,
+  "authorization": null,
+  "totalReservationMicroUsd": 2188800,
+  "proposedCombinedBudgetMicroUsd": 2450000,
+  "limits": [
+    "Final operator/source freeze and quality acceptance pending.",
+    "No fresh account/key/endpoint UUID proof."
+  ]
+}

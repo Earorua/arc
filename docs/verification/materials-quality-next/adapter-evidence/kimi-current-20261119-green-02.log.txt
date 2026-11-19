@@ -1,0 +1,38 @@
+✔ current loader checks all frozen assets, integrated review and the exact accepted native delta (590.7866ms)
+✔ actual file drift in frozen tools, review memos, current mapping and native closure is rejected (634.7288ms)
+✔ 24-file reader binds the original writer bytes and retains a null decoded candidate and raw finish (21.5256ms)
+✔ source input keeps decoded labels and hints while projection removals remain explicit failures (33.8025ms)
+✔ no-choice and simulated eligible choices stay separate; no-label facts use null literals (5.9528ms)
+✔ null, malformed and missing extraction fields cannot become valid empty source documents (2.1028ms)
+(node:46572) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ the authored SQL joins probe exposes the real reference mismatch without model or plan claims (25.2611ms)
+✖ six-document adapter reopens only the originally pinned ledger and keeps its missing telemetry explicit (221.362ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 7
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3840.5545
+
+✖ failing tests:
+
+test at docs\verification\materials-quality-next\current-quality.test.mjs:157:1
+✖ six-document adapter reopens only the originally pinned ledger and keeps its missing telemetry explicit (221.362ms)
+  ZodError: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "authorization",
+        "ledgerSha256"
+      ],
+      "message": "Invalid input: expected string, received undefined"
+    }
+  ]
+      at Module.readPinnedSupplementIssuance (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\scripts\materials-supplement-ledger.ts:36:33)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-quality-next\current-quality.test.mjs:178:95)
+      at async Test.run (node:internal/test_runner/test:1125:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7)
