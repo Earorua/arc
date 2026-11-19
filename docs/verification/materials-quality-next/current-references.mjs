@@ -6,10 +6,12 @@ import { verifySourceLedger } from "../materials-quality-v2/candidate-source.mjs
 
 const defaultRoot = fileURLToPath(new URL("../../../", import.meta.url));
 const native = "docs/verification/materials-native-acceptance";
+const relations = "docs/verification/materials-course-relations-20261119";
 const historical = "docs/verification/materials-quality-v2";
 const verified = new WeakMap();
 // These are independently reviewed receipts, not mutable approval fields in a binding.
 const pins = Object.freeze({
+  [`${relations}/native-review-receipt.json`]: "60f2b15784b9029efac08b7d96ad0e1a71d53a3b1dc7c123e6ca771072731eea",
   [`${native}/course-binding.integrated.json`]: "0abfafdde4125cabf7a2b56aea7497b2e1dbd75b9c8406896fa42566af858d6a",
   [`${native}/verify-integrated-course-binding.mjs`]: "4949812876d6f2b26e13aa7c1e199fe5105f6ea78fb9ec5a57d56a117d6fb19b",
   [`${native}/integrated-course-review-receipt.json`]: "e18eae6e138179ba87c7e4d2a3f765948422aa4285f72d55908f8a0a0e7a1779",
@@ -18,14 +20,9 @@ const pins = Object.freeze({
   [`${native}/native-evidence/manifest.json`]: "c65d84b1048dbad28f0eea7e21e81c77c4c577b43c0bb67ab77fb978fd1b6d4d",
   [`${native}/native-evidence/check.json`]: "d9026957497342116e47e7c77071839fe669119b33958adf89c304fc216461de",
   "scripts/materials-qualification-capture.ts": "f55c6df1f9580b170f29e0cb0b254d81fc4f3bc5b905c7f7d9a6f67bbde91c32",
-  "scripts/materials-qualification-runner.ts": "a8a2c715d9d097795849d71c337a66b01f060add948ae346c35611e6ce0969bb",
-  "scripts/collect-materials-supplements.ts": "27118e3e594040dd5eb881ab68da0d7a5b8b842b88e694f92a4ac2fa60a400ce",
+  "scripts/materials-qualification-runner.ts": "fe1120a44f8d8dd79f702b45381ca3666b364d609acdd7ac75da157ca8017099",
+  "scripts/collect-materials-supplements.ts": "33a9bcec44772776dddc498255f1cdf0303dab53050a456a2b062552877670d4",
   "scripts/materials-supplement-ledger.ts": "297661629ce0aa55a194fe65cbdaa13085e0ca4de6937cb05c39af33fa594f04",
-});
-const nativeDelta = Object.freeze({
-  "app/data/flagship-role.ts": ["e57cb6a20bb27ca2622fa43677f91be9c8c964cbd48847759007824ae9b37eef", "7070068cd2edb6bb176b61f01e9e2e2f1800b24179c908e3619e11be5560572e"],
-  "app/lib/materials/course-task-evidence.ts": ["ecf8aa41e10ee63ae55b91356c257a131b90e252ee0a4720c41e550f1c62e469", "9918053c28c8577cfee0f4d416290908c189cd4202964d91a35508924d39b49e"],
-  "app/lib/materials/explanations.ts": ["9d953c2d15611c32062e2c98a126ad1ef65ebec8a71e24a863983ae6ea816534", "4890a600779022b9a956682076d3a3cfddc5759a154e314fed41a6c18fb5d0b8"],
 });
 const fail = message => { throw new Error(`current-reference-integrity: ${message}`); };
 async function checked(root, file) {
@@ -72,13 +69,62 @@ export async function loadCurrentReviewedReferences(root = defaultRoot) {
       || receipt.sourceClosureDigest !== manifest.sourceClosureDigest || receipt.nativeResults.matrixRuns !== 1
       || check.status !== "passed" || check.counts.passed !== 14 || check.counts.failed !== 0 || check.counts.notCollected !== 0
       || check.manifestSha256 !== pins[`${native}/native-evidence/manifest.json`]) fail("native receipt mismatch");
+    // The old fourteen-case run remains immutable. A separate, independently
+    // reviewed receipt binds behavioral source changes and two new executions.
+    const relation = await json({ path: `${relations}/native-review-receipt.json`, sha256: pins[`${relations}/native-review-receipt.json`] });
+    if (relation.schemaVersion !== "materials-course-relations-native-receipt-v1"
+      || relation.status !== "accepted-bounded-relation-source-delta" || relation.mappingVersion !== "2026.11.7"
+      || relation.reviews.specification.status !== "PASS" || relation.reviews.quality.status !== "PASS"
+      || relation.originalAcceptance.sha256 !== pins[`${native}/planning-acceptance-receipt.json`]
+      || relation.limits.originalFourteenReexecuted !== false || relation.limits.originalSerializedBytesEqualCurrent !== false
+      || relation.limits.crossVersionPreviewReuseApproved !== false || relation.limits.gateApproved !== false
+      || relation.limits.modelQualityApproved !== false || relation.limits.releaseApproved !== false) fail("relation review is not accepted");
+    await Promise.all([relation.originalAcceptance, ...Object.values(relation.reviews), ...Object.values(relation.taskA)].map(take));
+    const relationArchive = await json(relation.archive), delta = await json(relation.sourceDelta);
+    const archiveRoot = `${relations}/native-evidence`;
+    const archived = new Map(relationArchive.entries.map(file => [file.originalPath, file]));
+    if (archived.size !== relationArchive.entries.length || relationArchive.sourceDelta.sha256 !== relation.sourceDelta.sha256) fail("relation archive differs");
+    await Promise.all(relationArchive.entries.map(file => take({ path: `${archiveRoot}/${file.path}`, sha256: file.sha256, byteLength: file.bytes })));
+    if (delta.originalManifest.sha256 !== pins[`${native}/native-evidence/manifest.json`]
+      || delta.originalManifest.sourceClosureDigest !== manifest.sourceClosureDigest || delta.originalFiles.length !== 146
+      || new Set(delta.originalFiles.map(file => file.path)).size !== 146) fail("relation original closure differs");
     let changes = 0;
     await Promise.all(manifest.sourceClosure.map(async file => {
-      const delta = nativeDelta[file.path];
-      if (delta) { if (delta[0] !== file.sha256) fail("native delta before hash differs"); changes++; }
-      await take({ path: file.path, sha256: delta?.[1] ?? file.sha256 });
+      const reviewed = delta.originalFiles.find(value => value.path === file.path);
+      if (!reviewed || reviewed.originalSha256 !== file.sha256) fail("relation before hash differs");
+      if (reviewed.currentSha256 !== file.sha256) changes++;
+      await take({ path: file.path, sha256: reviewed.currentSha256 });
     }));
-    if (changes !== 3) fail("native three-file delta differs");
+    if (changes !== 5 || delta.changed !== 5 || delta.unchanged !== 141) fail("reviewed five-file delta differs");
+    const changedManifest = await json(relation.newNative.manifest), changedCollection = await json(relation.newNative.collection);
+    const changedCheck = await json(relation.newNative.check);
+    const caseIds = ["accept-current-primary-jd-preview", "secondary-jd-cannot-add-must"];
+    const sameCases = rows => JSON.stringify(rows) === JSON.stringify(caseIds);
+    if (changedManifest.bindingId !== relation.bindingId || changedManifest.oldFourteenCaseRerun !== false
+      || changedManifest.sourceClosure.length !== 147 || new Set(changedManifest.sourceClosure.map(file => file.path)).size !== 147
+      || changedManifest.sourceClosureDigest !== sha256(`${JSON.stringify(changedManifest.sourceClosure, null, 2)}\n`)
+      || changedManifest.sourceClosureDigest !== relation.newNative.sourceClosureDigest
+      || changedManifest.sourceClosureDigest !== delta.newNativeClosureDigest
+      || changedManifest.sourceHandoff.sha256 !== relation.taskA.handoff.sha256
+      || changedCollection.manifestSha256 !== relation.newNative.manifest.sha256
+      || changedCollection.sourceDrift.length || changedCollection.notCollected.length
+      || !sameCases(changedManifest.requestedCases) || !sameCases(changedCollection.results.map(row => row.caseId))
+      || !sameCases(changedCheck.results.map(row => row.caseId)) || !sameCases(relation.newNative.cases)
+      || changedCollection.results.some(row => row.collectionStatus !== "collected" || row.outboundAttempts !== 0)
+      || changedCheck.status !== "passed" || changedCheck.counts.passed !== 2 || changedCheck.counts.failed !== 0
+      || changedCheck.manifestSha256 !== relation.newNative.manifest.sha256
+      || changedCheck.results.some(row => row.status !== "passed" || row.checks.some(check => check.status !== "passed"))
+      || changedCheck.results.reduce((sum, row) => sum + row.checks.length, 0) !== 11) fail("changed-relation native evidence differs");
+    const takeNative = async file => {
+      if (!file.path.startsWith("work/")) return take(file);
+      const archivedFile = archived.get(file.path);
+      if (!archivedFile || archivedFile.sha256 !== file.sha256) fail("native harness archive differs");
+      return take({ path: `${archiveRoot}/${archivedFile.path}`, sha256: file.sha256, byteLength: file.bytes });
+    };
+    await Promise.all([...changedManifest.sourceClosure, ...changedManifest.infrastructure, ...changedManifest.migrations].map(takeNative));
+    const originalOutput = path.posix.dirname(relationArchive.entries.find(file => file.path === "observations/manifest.json").originalPath);
+    await takeNative({ ...changedManifest.workerBundle, path: `${originalOutput}/${changedManifest.workerBundle.path}` });
+    await Promise.all(changedCollection.results.map(row => take({ path: `${archiveRoot}/observations/${row.path}`, sha256: row.sha256 })));
     const archive = JSON.parse(await readFile(path.join(root, native, "native-evidence/archive-manifest.json")));
     await take({ path: `${native}/native-evidence/${archive.archive}`, sha256: archive.archiveSha256, byteLength: archive.archiveBytes });
     const snapshot = JSON.parse(await readFile(path.join(root, binding.currentCapture.path)));
@@ -93,17 +139,22 @@ export async function loadCurrentReviewedReferences(root = defaultRoot) {
     const corpora = (await Promise.all(source.inputHashes.slice(0, 2).map(async file => JSON.parse(await readFile(path.join(root, file.path))).documents)))
       .flat().map(({ id, documentVersionId, textVersionId, text, segments, kind }) => ({ id, documentVersionId, textVersionId, text, segments, kind }));
     verifySourceLedger(source, corpora);
-    const references = { schemaVersion: "materials-current-reviewed-references-v1", source, course, corpora, snapshot,
+    const references = { schemaVersion: "materials-current-reviewed-references-v2", source, course, corpora, snapshot,
       skillIds: snapshot.inventory.blueprintSkillIds,
       integratedCourse: { valid: true, frozenAssetsChecked: integrated.frozenAssetsChecked, frozenInputsChecked: integrated.frozenInputsChecked,
         dependencies: integrated.dependencies, teachingUnits: integrated.teachingUnits },
       nativeBehaviorReuse: { status: "accepted-source-delta-reuse", newExecution: false, originalApplicationCommit: receipt.applicationCommit,
-        originalSourceClosureDigest: manifest.sourceClosureDigest, sourceClosure: { files: 146, unchanged: 143, reviewedChanges: 3 },
-        nativeCasesPassed: 14, matrixRuns: 1, reviewMemoSha256: pins[`${native}/planning-integration-reuse-review.md`],
+        originalSourceClosureDigest: manifest.sourceClosureDigest, sourceClosure: { files: 146, unchanged: 141, reviewedChanges: 5 },
+        nativeCasesPassed: 14, matrixRuns: 1, reviewMemoSha256: relation.reviews.quality.sha256,
+        relationReviewReceiptSha256: pins[`${relations}/native-review-receipt.json`],
+        changedRelationExecution: { newExecution: true, bindingId: relation.bindingId, casesPassed: 2, assertionGroups: 11,
+          sourceClosureFiles: 147, sourceClosureDigest: changedManifest.sourceClosureDigest,
+          manifestSha256: relation.newNative.manifest.sha256, checkSha256: relation.newNative.check.sha256,
+          positivePracticeUnderDominatingMustDemonstrated: false },
         currentEnglishSerializedBytesTestedByOriginalRun: false, crossVersionPreviewReuseApproved: false },
       digests: { assets: prior.frozenAssetHashes, frozenInputs: prior.frozenInputs, integratedBinding: pins[`${native}/course-binding.integrated.json`],
         integratedReview: pins[`${native}/integrated-course-review-receipt.json`], currentCapture: binding.currentCapture.sha256,
-        nativeAcceptance: pins[`${native}/planning-acceptance-receipt.json`] },
+        nativeAcceptance: pins[`${native}/planning-acceptance-receipt.json`], relationNativeReview: pins[`${relations}/native-review-receipt.json`] },
       integrityFiles: [...files.values()].sort((a, b) => a.path.localeCompare(b.path)) };
     deepFreeze(references); verified.set(references, root); return references;
   } catch (error) {

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "materials-current-binding-v2-handoff",
+  "files": [
+    {
+      "path": "docs/verification/materials-quality-next/current-references.mjs",
+      "sha256": "77d28ca1ab5b6d62dc6ba54b1d3d73a63ba66882719cd7422852777062467cd5"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/current-quality.test.mjs",
+      "sha256": "a6107a4465bcdce8c3f998fa4403c9f0f6a54387fd0939892228b357ee4625a9"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/current-adapter.md",
+      "sha256": "78a35a2ae70105fa4884a3c431674ca292e18ef37bf1865e4ec9d328ed19ddf7"
+    }
+  ],
+  "nativeReceiptSha256": "60f2b15784b9029efac08b7d96ad0e1a71d53a3b1dc7c123e6ca771072731eea",
+  "tests": {
+    "name": "course-relations-binding-20261119-tests-01",
+    "passed": 8,
+    "logSha256": "a1a02ed62996686ed0e9c4bbfbbd2b831b55ee21d9e710354d56d3f8587a38c9"
+  },
+  "lint": {
+    "name": "course-relations-binding-20261119-lint-01",
+    "passed": true,
+    "laterChange": "Only two collector SHA string pins updated to frozen author source before tests; no other post-lint code change."
+  },
+  "collectorReviewPending": true,
+  "realModelCalls": 0,
+  "nativeReruns": 0,
+  "softwareThirtyReruns": 0,
+  "fullRepositoryAcceptance": false
+}

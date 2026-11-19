@@ -1,0 +1,16 @@
+{
+  "status": "planned-commands-actual-results-recorded-separately",
+  "node": "C:/Program Files/nodejs/node.exe",
+  "wrapper": "work/grounded-verification/run.mjs",
+  "cwd": "C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision",
+  "sourceFreeze": "work/grounded-verification/course-relations-final-20261119-source.json",
+  "commands": {
+    "course-relations-final-20261119-types-01": ["node_modules/typescript/bin/tsc", "--noEmit", "--incremental", "false"],
+    "course-relations-final-20261119-lint-01": ["node_modules/eslint/bin/eslint.js", ".", "--ignore-pattern", "dist", "--ignore-pattern", ".next"],
+    "course-relations-final-20261119-build-01": ["scripts/run-vinext.mjs", "build"],
+    "course-relations-final-20261119-rendered-01": ["--test", "tests/rendered-html.test.mjs"],
+    "course-relations-final-20261119-vitest-01": ["node_modules/vitest/vitest.mjs", "run", "--maxWorkers=4"],
+    "course-relations-final-20261119-node-01": ["--test", "--test-concurrency=1", "tests/build/brand-assets.test.mjs", "tests/build/restricted-candidate-files.test.mjs", "tests/build/restricted-research-candidate.test.mjs", "tests/offline-uat/entry.test.mjs", "tests/offline-uat/http-clients.test.mjs", "tests/offline-uat/legacy-recovery.test.mjs", "tests/offline-uat/research-public-recovery.test.mjs", "tests/offline-uat/research-recovery.test.mjs", "tests/offline-uat/retained-compatibility.test.mjs", "tests/scripts/auth-tail.test.mjs"]
+  },
+  "rules": ["One final integrated application acceptance after reviews; no repeated native matrix or thirty-input software diagnostic.", "Preserve source and raw failures; repair and rerun only demonstrated affected failures.", "Node build/offline UAT tests run sequentially without another heavy validation process.", "Wrapper disables live gates, strips credentials, isolates the profile and blocks non-loopback traffic."]
+}

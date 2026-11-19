@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "materials-current-binding-v2-evidence-v1",
+  "createdAt": "2026-11-19T09:45:41.248Z",
+  "handoffSha256": "3f53d84dbedceafc01b8750425e9e6f1462fdcd326cf64cbbd01e57b470edecd",
+  "entryCount": 11,
+  "totalBytes": 61691,
+  "originalBytesPreserved": true,
+  "focusedTestsPassed": 8,
+  "nativeReexecuted": false,
+  "thirtyControlReexecuted": false,
+  "operatorAccepted": false,
+  "gateApproved": false,
+  "entries": [
+    {
+      "path": "archive-script.mjs.source.txt",
+      "originalPath": "work/grounded-verification/archive-course-relations-binding-20261119.mjs",
+      "sha256": "96eab795df2c8661a3787205758175b08a37b3c007cd2ff33b11963a255aaaf4",
+      "bytes": 2486
+    },
+    {
+      "path": "raw/course-relations-binding-20261119-handoff.json",
+      "originalPath": "work/grounded-verification/course-relations-binding-20261119-handoff.json",
+      "sha256": "3f53d84dbedceafc01b8750425e9e6f1462fdcd326cf64cbbd01e57b470edecd",
+      "bytes": 1283
+    },
+    {
+      "path": "raw/course-relations-binding-20261119-lint-01.json",
+      "originalPath": "work/grounded-verification/course-relations-binding-20261119-lint-01.json",
+      "sha256": "2d25d91f33141c85fe8641b79d1a61231e83572ae524383c3ff66be421ef0836",
+      "bytes": 281
+    },
+    {
+      "path": "raw/course-relations-binding-20261119-lint-01.log.txt",
+      "originalPath": "work/grounded-verification/course-relations-binding-20261119-lint-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "raw/course-relations-binding-20261119-quality-review.md",
+      "originalPath": "work/grounded-verification/course-relations-binding-20261119-quality-review.md",
+      "sha256": "e0769eac49aa71da6da1067c908f47a114f7803f6bb85210e25b4f47a262bd64",
+      "bytes": 5449
+    },
+    {
+      "path": "raw/course-relations-binding-20261119-spec-review.md",
+      "originalPath": "work/grounded-verification/course-relations-binding-20261119-spec-review.md",
+      "sha256": "26c60a9556a1d4d9e2d5408391dac77c9349b8a27a2f9492a9ae7bedac114f95",
+      "bytes": 6965
+    },
+    {
+      "path": "raw/course-relations-binding-20261119-tests-01.json",
+      "originalPath": "work/grounded-verification/course-relations-binding-20261119-tests-01.json",
+      "sha256": "6adae0e5150f679de9a3781e16c353c57f5338a98b4ab4790448509aac23dd7d",
+      "bytes": 282
+    },
+    {
+      "path": "raw/course-relations-binding-20261119-tests-01.log.txt",
+      "originalPath": "work/grounded-verification/course-relations-binding-20261119-tests-01.log",
+      "sha256": "a1a02ed62996686ed0e9c4bbfbbd2b831b55ee21d9e710354d56d3f8587a38c9",
+      "bytes": 1167
+    },
+    {
+      "path": "source/current-adapter.md.source.txt",
+      "originalPath": "docs/verification/materials-quality-next/current-adapter.md",
+      "sha256": "78a35a2ae70105fa4884a3c431674ca292e18ef37bf1865e4ec9d328ed19ddf7",
+      "bytes": 8476
+    },
+    {
+      "path": "source/current-quality.test.mjs.source.txt",
+      "originalPath": "docs/verification/materials-quality-next/current-quality.test.mjs",
+      "sha256": "a6107a4465bcdce8c3f998fa4403c9f0f6a54387fd0939892228b357ee4625a9",
+      "bytes": 19486
+    },
+    {
+      "path": "source/current-references.mjs.source.txt",
+      "originalPath": "docs/verification/materials-quality-next/current-references.mjs",
+      "sha256": "77d28ca1ab5b6d62dc6ba54b1d3d73a63ba66882719cd7422852777062467cd5",
+      "bytes": 15816
+    }
+  ]
+}

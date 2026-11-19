@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+const work = 'work/grounded-verification', output = 'docs/verification/materials-quality-next/binding-v2-evidence';
+const sha = bytes => createHash('sha256').update(bytes).digest('hex');
+const handoff = JSON.parse(readFileSync(`${work}/course-relations-binding-20261119-handoff.json`, 'utf8'));
+for (const file of handoff.files) assert.equal(sha(readFileSync(file.path)), file.sha256, file.path);
+for (const kind of ['spec', 'quality']) assert.match(readFileSync(`${work}/course-relations-binding-20261119-${kind}-review.md`, 'utf8'), /^PASS\b/u);
+assert.equal(existsSync(output), false); mkdirSync(output, { recursive: true });
+const entries = [];
+function copy(originalPath, path) {
+  const bytes = readFileSync(originalPath), destination = join(output, path);
+  mkdirSync(dirname(destination), { recursive: true }); writeFileSync(destination, bytes, { flag: 'wx' });
+  assert.equal(sha(readFileSync(destination)), sha(bytes));
+  entries.push({ path, originalPath, sha256: sha(bytes), bytes: bytes.length });
+}
+for (const name of readdirSync(work).filter(name => name.startsWith('course-relations-binding-20261119-'))) {
+  const suffix = /\.(?:mjs|ts)$/u.test(name) ? '.source.txt' : name.endsWith('.log') ? '.txt' : '';
+  copy(`${work}/${name}`, `raw/${name}${suffix}`);
+}
+for (const file of handoff.files) copy(file.path, 'source/' + file.path.split('/').at(-1) + '.source.txt');
+copy(`${work}/archive-course-relations-binding-20261119.mjs`, 'archive-script.mjs.source.txt');
+entries.sort((a,b) => a.path.localeCompare(b.path));
+const manifest = { schemaVersion: 'materials-current-binding-v2-evidence-v1', createdAt: new Date().toISOString(),
+  handoffSha256: sha(readFileSync(`${work}/course-relations-binding-20261119-handoff.json`)),
+  entryCount: entries.length, totalBytes: entries.reduce((sum, file) => sum + file.bytes, 0), originalBytesPreserved: true,
+  focusedTestsPassed: 8, nativeReexecuted: false, thirtyControlReexecuted: false, operatorAccepted: false, gateApproved: false, entries };
+writeFileSync(join(output, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ output, entries: entries.length, bytes: manifest.totalBytes, manifestSha256: sha(readFileSync(join(output, 'manifest.json'))) }));

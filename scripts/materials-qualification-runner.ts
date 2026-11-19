@@ -129,7 +129,10 @@ type RunDependencies = {
   fetch: DocumentFetch; checkpoint(value: QualificationCheckpoint): Promise<void>;
   mode: QualificationResult["mode"]; now?: () => Date;
 };
-type CaptureDependency = { capture?: (value: QualificationOutputCapture) => Promise<void> };
+export type MaterialCollectionBeforeSend = (request: Readonly<{
+  documentId: string; url: string; bodySha256: string | null; redirect: RequestRedirect | undefined;
+}>) => Promise<void>;
+type CaptureDependency = { capture?: (value: QualificationOutputCapture) => Promise<void>; beforeSend?: MaterialCollectionBeforeSend };
 type ExecutionDependencies = Omit<RunDependencies, "checkpoint"> & { checkpoint?: RunDependencies["checkpoint"] } & CaptureDependency;
 export function runDocumentQualification(env: Environment, dependencies: RunDependencies & CaptureDependency) {
   return runAuthorizedDocuments(env, dependencies, "full");
@@ -219,6 +222,14 @@ async function runAuthorizedDocuments(env: Environment, dependencies: ExecutionD
         || createHash("sha256").update(init.body, "utf8").digest("hex") !== pilotScope.documents[index]!.bodySha256)) {
         admissionReason = "pilot-body-scope-mismatch";
         throw new Error("qualification-before-send");
+      }
+      // The optional full-run hook can only refuse an already configured request.
+      // Check before sent accounting; a local refusal releases its reservation.
+      if (profile === "full" && dependencies.beforeSend) {
+        try {
+          await dependencies.beforeSend(Object.freeze({ documentId: document.id, url: String(url), redirect: init.redirect,
+            bodySha256: typeof init.body === "string" ? createHash("sha256").update(init.body, "utf8").digest("hex") : null }));
+        } catch { admissionReason = "operator-before-send-refused"; throw new Error("qualification-before-send"); }
       }
       const handoff = now();
       admissionReason = checkWindow(handoff);

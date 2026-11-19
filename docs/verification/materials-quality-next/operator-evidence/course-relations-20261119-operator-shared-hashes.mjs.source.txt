@@ -1,0 +1,4 @@
+import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+console.log(JSON.stringify(["scripts/materials-qualification-runner.ts", "scripts/collect-materials-supplements.ts"].map(path => ({ path,
+  sha256: createHash("sha256").update(readFileSync(path)).digest("hex") }))));

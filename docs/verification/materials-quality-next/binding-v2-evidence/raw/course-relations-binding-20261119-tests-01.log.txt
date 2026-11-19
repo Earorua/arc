@@ -1,0 +1,18 @@
+✔ current loader checks all frozen assets, integrated review and the exact accepted native delta (571.0549ms)
+✔ actual file drift in frozen tools, review memos, current mapping and native closure is rejected (804.4941ms)
+✔ 24-file reader binds the original writer bytes and retains a null decoded candidate and raw finish (21.5011ms)
+✔ source input keeps decoded labels and hints while projection removals remain explicit failures (43.5201ms)
+✔ no-choice and simulated eligible choices stay separate; no-label facts use null literals (6.6138ms)
+✔ null, malformed and missing extraction fields cannot become valid empty source documents (25.9352ms)
+(node:16380) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ the authored SQL joins probe observes the reviewed repair without model or plan claims (62.6053ms)
+✔ six-document adapter reopens only the originally pinned ledger and keeps its missing telemetry explicit (346.3931ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4156.1342

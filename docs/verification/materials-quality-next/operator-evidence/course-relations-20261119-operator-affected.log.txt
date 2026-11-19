@@ -1,0 +1,35 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:44516) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:47204) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/document-model-qualification-guards.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 132[2mms[22m[39m
+ [32m✓[39m tests/server/materials-current-quality-operator.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 1005[2mms[22m[39m
+   [33m[2m✓[22m[39m provides a default read-only hidden-input launcher without a secret argument or transcript [33m 903[2mms[22m[39m
+ [32m✓[39m tests/server/materials-supplement-collection.test.ts [2m([22m[2m49 tests[22m[2m)[22m[33m 18372[2mms[22m[39m
+   [33m[2m✓[22m[39m prints the six public identity commitments and worst-case price offline for an issuer [33m 3080[2mms[22m[39m
+   [33m[2m✓[22m[39m uses the CLI's actual source bytes despite Git overrides, assume-unchanged files and ignored shadow modules [33m 6748[2mms[22m[39m
+   [33m[2m✓[22m[39m pins the grounded supplement policy and archives its product-decoded terms beside the untouched wire [33m 504[2mms[22m[39m
+   [33m[2m✓[22m[39m runs the separately pinned source-span collector end to end and preserves the original replies beside the scored output [33m 378[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps verified billing separate from a source-span quality failure: legacy-shape [33m 364[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps verified billing separate from a source-span quality failure: invented-source [33m 369[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps verified billing separate from a source-span quality failure: output-limit [33m 361[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps verified billing separate from a source-span quality failure: generation-limit [33m 363[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps verified billing separate from a source-span quality failure: missing-fact [33m 368[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses to replay a raw archive mismatch instead of rescoring an alternative [33m 478[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses to replay a canonical archive mismatch instead of rescoring an alternative [33m 370[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses to replay a missing archive mismatch instead of rescoring an alternative [33m 393[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses to replay a version archive mismatch instead of rescoring an alternative [33m 383[2mms[22m[39m
+   [33m[2m✓[22m[39m cannot turn six truncated source-span replies into a passing legacy run by changing the stored issuance before scoring [33m 360[2mms[22m[39m
+   [33m[2m✓[22m[39m durably reserves before each handoff, freezes the exact content before each GET, and scores the six settled captures [33m 383[2mms[22m[39m
+   [33m[2m✓[22m[39m exports actual captured output read-only and rejects altered source, document or receipt bindings [33m 646[2mms[22m[39m
+   [33m[2m✓[22m[39m fails quality on malformed unedited content with a verified bill and never retries the inference [33m 305[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses a second simultaneous start and a failed durable reservation never reaches transport [33m 339[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m83 passed[39m[22m[90m (83)[39m
+[2m   Start at [22m 17:35:01
+[2m   Duration [22m 19.32s[2m (transform 1.04s, setup 767ms, import 1.73s, tests 19.51s, environment 0ms)[22m
+

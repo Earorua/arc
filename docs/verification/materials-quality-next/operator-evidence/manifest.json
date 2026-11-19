@@ -1,0 +1,646 @@
+{
+  "schemaVersion": "materials-current-operator-evidence-v1",
+  "status": "raw-evidence-preserved",
+  "createdAt": "2026-11-19T10:22:13.180Z",
+  "fileCount": 106,
+  "bytes": 860133,
+  "handoffSha256": "77dbef1b4b12b9b96d64789cbabf4620bffa0aad39290a07eddc0ede6893042b",
+  "files": [
+    {
+      "originalPath": "work/grounded-verification/archive-materials-operator-20261119.mjs",
+      "path": "docs/verification/materials-quality-next/operator-evidence/archive-materials-operator-20261119.mjs.source.txt",
+      "bytes": 3111,
+      "sha256": "851338b39c5b391966a6214565af5a48ac799b8c52b0ff15d4a00c3019e673fe"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-affected.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-affected.json",
+      "bytes": 284,
+      "sha256": "86d440f9656742710923e3b3de7ece860e7eff228446679faca43dc7c12e97f7"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-affected.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-affected.log.txt",
+      "bytes": 3909,
+      "sha256": "e54c401776fb0112aa2c6d4ea6b6d78800a9a55ab970dbb419966cddf9d272f7"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-bootstrap-red.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-bootstrap-red.json",
+      "bytes": 288,
+      "sha256": "3ec0b3267791edd57d5cab803280b08291609c14714bc54d2479c228070f8796"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-bootstrap-red.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-bootstrap-red.log.txt",
+      "bytes": 9690,
+      "sha256": "02df857b16a3b1e82165483dadb205214192005474544b849bd95057bd26cd49"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-capture-green.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-capture-green.json",
+      "bytes": 288,
+      "sha256": "49a8449fd6c45273a171ac7105e239425b5a029e3317a40133ee1a9ecf7ef5f5"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-capture-green.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-capture-green.log.txt",
+      "bytes": 773,
+      "sha256": "071f762754cabc9ced7ddddf46c7e1aab137e2a5e2362d93bde5bbe7baf7f5cd"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-capture-red.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-capture-red.json",
+      "bytes": 285,
+      "sha256": "958b7a06c31357d0cc139b0f88df28c2f81367c657ab1547c71b7cb1feb6b689"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-capture-red.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-capture-red.log.txt",
+      "bytes": 2736,
+      "sha256": "c298abc884a8b0b4f770b6b171425e6923e6b026568a67dbff83903f01ce66d1"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-compatibility-green.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-compatibility-green.json",
+      "bytes": 294,
+      "sha256": "fda20da8f634bbaa9ffc8d410fc292e99932fa935b5db75f51fad7c89e3722ab"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-compatibility-green.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-compatibility-green.log.txt",
+      "bytes": 918,
+      "sha256": "0cf4cadf1b995b87396705ee47c2fbee857d05457701ba421bb3d85c0eb7e3f9"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-doc-scope-green.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-doc-scope-green.json",
+      "bytes": 290,
+      "sha256": "67c1dc0f2eca509e728bfc74ae6517f9a26bbd89b75a58678e461304e47b2923"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-doc-scope-green.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-doc-scope-green.log.txt",
+      "bytes": 775,
+      "sha256": "e1f76e507a07b4305578276bfa95cf7e7cf18f56616e3c51e0c2fa1478499926"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-doc-scope-lint.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-doc-scope-lint.json",
+      "bytes": 289,
+      "sha256": "9ab15195c4c91a15924e0fbccf249475650161be6b32b31a2864fc32f503dfff"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-doc-scope-lint.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-doc-scope-lint.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-doc-scope-red.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-doc-scope-red.json",
+      "bytes": 288,
+      "sha256": "b0916fa031632bf1d513fd7e6abc55d2a0625b5fe2ce28c14f4498cb983c9df6"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-doc-scope-red.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-doc-scope-red.log.txt",
+      "bytes": 7331,
+      "sha256": "be8cae2564c5d08cd4d1a26289c0d129d2d8dfab796606c1b3fda17509cca07a"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-final-boundaries-green.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-final-boundaries-green.json",
+      "bytes": 297,
+      "sha256": "47e7c9d5af8b9a34d9a80531afe4d7af6418cca56e2d8d1587bcc9d721924e29"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-final-boundaries-green.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-final-boundaries-green.log.txt",
+      "bytes": 918,
+      "sha256": "18f60d1e6b00f430d1e3a5f0c9de2bf50b483798c042943b22fee52f0964fa64"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-final-clean-lint.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-final-clean-lint.json",
+      "bytes": 291,
+      "sha256": "a20a95c3142b4efee62fa2c0839b5bf94fecfc457bc86f26680cc40d87f216df"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-final-clean-lint.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-final-clean-lint.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-freeze-lint.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-freeze-lint.json",
+      "bytes": 286,
+      "sha256": "04269b0c80eefcd41b1e2bf3cc0508450c1a1a369381c2d72859625827b53ae6"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-freeze-lint.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-freeze-lint.log.txt",
+      "bytes": 258,
+      "sha256": "5f0fbd2fe6361f533c721e0acabda976b7520ed33345eb25a0ea40ed88ba74b5"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-freeze-tests.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-freeze-tests.json",
+      "bytes": 287,
+      "sha256": "f3b2fb1e2f77fcb9c9fcc203384d3b830bfbbd65403a702c8a5927a519d10e7d"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-freeze-tests.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-freeze-tests.log.txt",
+      "bytes": 859,
+      "sha256": "edd2a1a5358429dd43bd93a7350818d0d4f7252b90f1d0202cc238643a6da206"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-freeze-types.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-freeze-types.json",
+      "bytes": 288,
+      "sha256": "7273fe32c3022126c9b2d8edde71f046bde8cd0efc5b25ecbb25dc51abb45812"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-freeze-types.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-freeze-types.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-handoff-01.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-handoff-01.json",
+      "bytes": 20491,
+      "sha256": "4e57e9b2b18d77bf52562b47ccbce4080c2f3ef62ac855c2856c9633b6afa7b8"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-handoff-01.md",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-handoff-01.md",
+      "bytes": 1594,
+      "sha256": "bd5a7a0534d0b53142b51b4963d69c2930798e00b7853f20ace08453ad77c68a"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-handoff-02.diff",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-handoff-02.diff",
+      "bytes": 5490,
+      "sha256": "2ccceabbcbf622c0470e01efe275a45e3e4c688986d0c7f4c8a36fca3fc16bb2"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-handoff-02.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-handoff-02.json",
+      "bytes": 9088,
+      "sha256": "779993d135f3c3eb883b8a8d957ab92d170fdef57a6ff11d0af4694a6eb5a1c4"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-handoff-02.md",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-handoff-02.md",
+      "bytes": 1108,
+      "sha256": "c51958cf9edcad575c54d6b9087b4ae55be7431d39ca8648cbb24de1ab69663f"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-handoff-03.diff",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-handoff-03.diff",
+      "bytes": 11616,
+      "sha256": "6eb7e711b00add86837f73fbaf35253f90a7149c69dc1f13872364d09376f274"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-handoff-03.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-handoff-03.json",
+      "bytes": 14024,
+      "sha256": "77dbef1b4b12b9b96d64789cbabf4620bffa0aad39290a07eddc0ede6893042b"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-handoff-03.md",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-handoff-03.md",
+      "bytes": 1292,
+      "sha256": "0ad7df6668dac77e86016cc6cbf8942f688e7f3b89469211c68c55959a55dfca"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-hooks-green.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-hooks-green.json",
+      "bytes": 286,
+      "sha256": "9ee8b6b947fa4236af19ec4fddada8e51593472f3bfc025808be0f67d955ed74"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-hooks-green.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-hooks-green.log.txt",
+      "bytes": 940,
+      "sha256": "1a05a0515867fa8595c213c3b5e738623ad41ddf7586bf4d90b9e30e41b4b7a3"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-hooks-red.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-hooks-red.json",
+      "bytes": 284,
+      "sha256": "603f2e8f1fe3d276f6c8bb92b1fb3084c9fcfcde4cce7636e5ad020fc28798c8"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-hooks-red.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-hooks-red.log.txt",
+      "bytes": 12171,
+      "sha256": "b815e87605f1a95d11fbde0e4344936cb1146a89bd0815886216eca042a54121"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-launcher-check.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-launcher-check.json",
+      "bytes": 289,
+      "sha256": "b39d326a94fdbed97860a3a5c25e59ee2be54ab8a363bbca287551b9c7dcd955"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-launcher-check.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-launcher-check.log.txt",
+      "bytes": 918,
+      "sha256": "151549082df9fff97f64dda5546ea92aa79ecb95719fde1e71d4a405a93e68c9"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-ledger-red.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-ledger-red.json",
+      "bytes": 285,
+      "sha256": "dc18407bdf2ab8b0523e61595778be0ca35ec63e854eac789a7236258b26bb0f"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-ledger-red.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-ledger-red.log.txt",
+      "bytes": 3001,
+      "sha256": "95aeef7308d44ba9f584ded82cebe4bc21833778db530e9064e9001289533cbc"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-lint-final.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-lint-final.json",
+      "bytes": 285,
+      "sha256": "74d72af45918b5e42b28f978950a9f7b4e6dd62241437504937e0f75ec211a6e"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-lint-final.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-lint-final.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-lint.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-lint.json",
+      "bytes": 279,
+      "sha256": "d85dd1d77ff33edb7bce0b3b9f244bbc12bb6b10f532fe0bee33bf1bf5616754"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-lint.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-lint.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-policy-green-01.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-policy-green-01.json",
+      "bytes": 289,
+      "sha256": "5959f268c12ee21121f21e38af770fd1c3f4f1b1d266f9e53a317b4274832cdb"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-policy-green-01.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-policy-green-01.log.txt",
+      "bytes": 603,
+      "sha256": "3cd20580c18030d23f900b4db4eb14c76abc19aad187999cd3b5ae4467d1e459"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-policy-red.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-policy-red.json",
+      "bytes": 284,
+      "sha256": "b95c02c49c821c21e52a7b4697da6cc794ce653488763784faaf459261c83eb9"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-policy-red.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-policy-red.log.txt",
+      "bytes": 8492,
+      "sha256": "1a06d974bf2129644404a1f2a5f5194221bd6df22bd9bf37fd5a74a97bab364a"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-pre-quality-fix/manifest.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-pre-quality-fix__manifest.json",
+      "bytes": 2249,
+      "sha256": "948d6b1ea147b1fb8533fe0e7f07e045aadc755afc9b728ce0f8dc4169d618bb"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-pre-quality-fix/scripts__collect-materials-supplements.ts.source.txt",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-pre-quality-fix__scripts__collect-materials-supplements.ts.source.txt",
+      "bytes": 18838,
+      "sha256": "33a9bcec44772776dddc498255f1cdf0303dab53050a456a2b062552877670d4"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-pre-quality-fix/scripts__invoke-materials-current-quality.ps1.source.txt",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-pre-quality-fix__scripts__invoke-materials-current-quality.ps1.source.txt",
+      "bytes": 4784,
+      "sha256": "d54cd5b60cfa7bf231c6934fbfdb07630f9f27541b9b2ecddebbba683f7bc064"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-pre-quality-fix/scripts__materials-current-quality-operator.ts.source.txt",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-pre-quality-fix__scripts__materials-current-quality-operator.ts.source.txt",
+      "bytes": 33097,
+      "sha256": "fbc0a71b83d610dad39f6f0ccbb4c6c54003da522277417d60bec4c3eb223b16"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-pre-quality-fix/scripts__materials-qualification-runner.ts.source.txt",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-pre-quality-fix__scripts__materials-qualification-runner.ts.source.txt",
+      "bytes": 23482,
+      "sha256": "fe1120a44f8d8dd79f702b45381ca3666b364d609acdd7ac75da157ca8017099"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-pre-quality-fix/tests__server__document-model-qualification-guards.test.ts.source.txt",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-pre-quality-fix__tests__server__document-model-qualification-guards.test.ts.source.txt",
+      "bytes": 26676,
+      "sha256": "43aa5eba691673296f1745b3f02ab924ec2ef2920bb0626a6077a927fb9e270a"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-pre-quality-fix/tests__server__materials-current-quality-operator.test.ts.source.txt",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-pre-quality-fix__tests__server__materials-current-quality-operator.test.ts.source.txt",
+      "bytes": 15870,
+      "sha256": "688e5bb71e3f27fdb2065e543ed9dbbb42baeb7bf72c60bf5f25fb2603bebe12"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-pre-quality-fix/tests__server__materials-supplement-collection.test.ts.source.txt",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-pre-quality-fix__tests__server__materials-supplement-collection.test.ts.source.txt",
+      "bytes": 57446,
+      "sha256": "700510fb8c70a4a45f22c7c787bcb5e2cebd3cee68dcdd1fcf9c53e538192124"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-pre-spec-fix/manifest.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-pre-spec-fix__manifest.json",
+      "bytes": 1703,
+      "sha256": "ee78edb5ef2b07aad299e9601d4e76585ee1bd46435fb4ea107f84029fd452d5"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-pre-spec-fix/scripts__collect-materials-supplements.ts.source.txt",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-pre-spec-fix__scripts__collect-materials-supplements.ts.source.txt",
+      "bytes": 18838,
+      "sha256": "33a9bcec44772776dddc498255f1cdf0303dab53050a456a2b062552877670d4"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-pre-spec-fix/scripts__invoke-materials-current-quality.ps1.source.txt",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-pre-spec-fix__scripts__invoke-materials-current-quality.ps1.source.txt",
+      "bytes": 4784,
+      "sha256": "d54cd5b60cfa7bf231c6934fbfdb07630f9f27541b9b2ecddebbba683f7bc064"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-pre-spec-fix/scripts__materials-current-quality-operator.ts.source.txt",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-pre-spec-fix__scripts__materials-current-quality-operator.ts.source.txt",
+      "bytes": 32598,
+      "sha256": "c1507c7ac97d924ae32e673ba328b5dfe7ee5451a1358c06ba85994fa61c07b0"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-pre-spec-fix/scripts__materials-qualification-runner.ts.source.txt",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-pre-spec-fix__scripts__materials-qualification-runner.ts.source.txt",
+      "bytes": 23482,
+      "sha256": "fe1120a44f8d8dd79f702b45381ca3666b364d609acdd7ac75da157ca8017099"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-pre-spec-fix/tests__server__document-model-qualification-guards.test.ts.source.txt",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-pre-spec-fix__tests__server__document-model-qualification-guards.test.ts.source.txt",
+      "bytes": 26676,
+      "sha256": "43aa5eba691673296f1745b3f02ab924ec2ef2920bb0626a6077a927fb9e270a"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-pre-spec-fix/tests__server__materials-current-quality-operator.test.ts.source.txt",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-pre-spec-fix__tests__server__materials-current-quality-operator.test.ts.source.txt",
+      "bytes": 14836,
+      "sha256": "b270e18a0830c9bfda7d600eb5e61b0111082ebbfed1032509723a7eb494e1f2"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-pre-spec-fix/tests__server__materials-supplement-collection.test.ts.source.txt",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-pre-spec-fix__tests__server__materials-supplement-collection.test.ts.source.txt",
+      "bytes": 57446,
+      "sha256": "700510fb8c70a4a45f22c7c787bcb5e2cebd3cee68dcdd1fcf9c53e538192124"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-quality-review-01.md",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-quality-review-01.md",
+      "bytes": 8615,
+      "sha256": "bfdedaacde9323e179407ec529a4ec6d062fbaa09d061a73453a578eed077ba6"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-quality-review-02.md",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-quality-review-02.md",
+      "bytes": 4408,
+      "sha256": "aca297b9604d861499e581a255e60c39dec1c94fe6c0a813d92cdb2ac5eca34c"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-resolution-green.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-resolution-green.json",
+      "bytes": 291,
+      "sha256": "bc70916451063a3a4219280f67014eaf60d9494a54ebe3973a54a3fe3f8e4a39"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-resolution-green.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-resolution-green.log.txt",
+      "bytes": 916,
+      "sha256": "f4fddd66296e3a5241849b3a4459d9aec1f76cf521229c73af1948e090e3464e"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-resolution-lint.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-resolution-lint.json",
+      "bytes": 290,
+      "sha256": "ccab74e29c14009c95339177ae45e4dc3ecb9b79e079582da3ee45710617d9ba"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-resolution-lint.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-resolution-lint.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-resolution-probe-01/current-adapter.js",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-resolution-probe-01__current-adapter.js",
+      "bytes": 44,
+      "sha256": "6c0ab70c1cf55754b27d50b9a697fe2583d83e1a05b0ef4011849850316e506c"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-resolution-probe-01/current-adapter.ts",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-resolution-probe-01__current-adapter.ts.source.txt",
+      "bytes": 42,
+      "sha256": "b8a472082a847d0e0583ec078835c389bf9c45a100a7bd6b2b908dcda593a37d"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-resolution-probe-01/current-captures.js",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-resolution-probe-01__current-captures.js",
+      "bytes": 45,
+      "sha256": "ec843202fa63826f33dfe10333be36908873f3d0f9245680fdee360a07594f29"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-resolution-probe-01/current-captures.ts",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-resolution-probe-01__current-captures.ts.source.txt",
+      "bytes": 43,
+      "sha256": "bb0197e12b80cc0fa84d2ea52ef0e098d28e8487760671a6ca6b04059b4903fe"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-resolution-probe-01/current-references.mjs",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-resolution-probe-01__current-references.mjs.source.txt",
+      "bytes": 46,
+      "sha256": "bc3622102a7fc12fb90b9e97b6cb304da2b8ce9830460f176727f4b57b4a0794"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-resolution-probe-01/current-references.mts",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-resolution-probe-01__current-references.mts",
+      "bytes": 48,
+      "sha256": "207ef69bf3ed7fa46c8fb8fc4cd8aae913d83794036e7e68af969eb2a7d4bc09"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-resolution-probe-01/entry.ts",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-resolution-probe-01__entry.ts.source.txt",
+      "bytes": 236,
+      "sha256": "fc6376c1d4954fa94737c8b86d3b4138b195f7e4053688f0a43df81f55fd1b6d"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-resolution-probe-01/result.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-resolution-probe-01__result.json",
+      "bytes": 1428,
+      "sha256": "89446558d23c52eeada866e0be07c32063104b7379f6a67b533ad449df9d4ed3"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-resolution-red-helper.source.txt",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-resolution-red-helper.source.txt",
+      "bytes": 522,
+      "sha256": "f1e0e91318054a2144dbcb169a7655324550a4237776fceb7eb0d35bf69b66cd"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-resolution-red.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-resolution-red.json",
+      "bytes": 289,
+      "sha256": "e5d8fef9853aed887231ae6de9c7e7d966528b69c52b853c2e010d1f30e6f23e"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-resolution-red.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-resolution-red.log.txt",
+      "bytes": 5630,
+      "sha256": "910d0790c81052fcf8179caabcec9593d9273d07d661d62e633b17f62e7753a8"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-shared-freeze.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-shared-freeze.json",
+      "bytes": 286,
+      "sha256": "d8c7516c76baf89a7ffca9ec226e7e3ad7fcabf5ce0cff62fc4072920d421bea"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-shared-freeze.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-shared-freeze.log.txt",
+      "bytes": 259,
+      "sha256": "a06282fde5a85b086bb211ed385d7f249889ce96257c1c4ffdcebd7d27e904ab"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-shared-hashes.mjs",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-shared-hashes.mjs.source.txt",
+      "bytes": 299,
+      "sha256": "f026e406e289919789f339cbcdc444ae9f2b99c58b3c3bd3bcddbd6ef3a162c2"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-spec-review-01.md",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-spec-review-01.md",
+      "bytes": 9323,
+      "sha256": "88cc25f44fc0113980523cee538a4df240149350a84cdefe1143a27a65e29f3b"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-spec-review-02.md",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-spec-review-02.md",
+      "bytes": 3231,
+      "sha256": "33873a9673ed565a12eaeae1f118e46c95089b16fe3d179c0687fe9ee25b3369"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-spec-review-03.md",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-spec-review-03.md",
+      "bytes": 4081,
+      "sha256": "322699fa092ed16d58c9660467e4b934b7485deb94bdb8903c380df985d9ea8c"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-type-scope.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-type-scope.json",
+      "bytes": 137395,
+      "sha256": "f3e9ba860dce73f266f017b1d2ed4c62e4295c9553cdfcbf83a30d8fb7c89c21"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-types-final.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-types-final.json",
+      "bytes": 287,
+      "sha256": "ab6267deca530f278119ea161517cbb0220e5d804278a4eb68f2cccfa010a4ae"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-types-final.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-types-final.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-types.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-types.json",
+      "bytes": 281,
+      "sha256": "b38aaa7dbde3e6b03127f2fa9920e2832a6133264071a1dd9f5960dc9726ca17"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-20261119-operator-types.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-20261119-operator-types.log.txt",
+      "bytes": 2874,
+      "sha256": "9572a72b897b15c68d81c9f0de4ba72bec275a8af61607365db1cab275a76da6"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-current-ledger-registration-20261119-01.json",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-current-ledger-registration-20261119-01.json",
+      "bytes": 296,
+      "sha256": "5f0fefa36aba09243a2b1ee1f21d0d1f528b556584855b704b13a5f63a28a28d"
+    },
+    {
+      "originalPath": "work/grounded-verification/course-relations-current-ledger-registration-20261119-01.log",
+      "path": "docs/verification/materials-quality-next/operator-evidence/course-relations-current-ledger-registration-20261119-01.log.txt",
+      "bytes": 374,
+      "sha256": "bcc3bad1f58b16a93503b2c712a23e4a390760429054689baa49157878bcda59"
+    },
+    {
+      "originalPath": "work/grounded-verification/prepare-current-supplement-ledger-20261119.mjs",
+      "path": "docs/verification/materials-quality-next/operator-evidence/prepare-current-supplement-ledger-20261119.mjs.source.txt",
+      "bytes": 1984,
+      "sha256": "7f62528f465afd782eda63aabf5884c34893941cbc889ef1a472642e762d9751"
+    },
+    {
+      "originalPath": "scripts/materials-current-quality-operator.ts",
+      "path": "docs/verification/materials-quality-next/operator-evidence/final-source__scripts__materials-current-quality-operator.ts.source.txt",
+      "bytes": 32945,
+      "sha256": "dde53f3f5f44f5b24a291a4f4028e0493c1ec909c236d1d9c97e581a0c67913f"
+    },
+    {
+      "originalPath": "scripts/invoke-materials-current-quality.ps1",
+      "path": "docs/verification/materials-quality-next/operator-evidence/final-source__scripts__invoke-materials-current-quality.ps1.source.txt",
+      "bytes": 4784,
+      "sha256": "d54cd5b60cfa7bf231c6934fbfdb07630f9f27541b9b2ecddebbba683f7bc064"
+    },
+    {
+      "originalPath": "scripts/materials-qualification-runner.ts",
+      "path": "docs/verification/materials-quality-next/operator-evidence/final-source__scripts__materials-qualification-runner.ts.source.txt",
+      "bytes": 23482,
+      "sha256": "fe1120a44f8d8dd79f702b45381ca3666b364d609acdd7ac75da157ca8017099"
+    },
+    {
+      "originalPath": "scripts/collect-materials-supplements.ts",
+      "path": "docs/verification/materials-quality-next/operator-evidence/final-source__scripts__collect-materials-supplements.ts.source.txt",
+      "bytes": 18838,
+      "sha256": "33a9bcec44772776dddc498255f1cdf0303dab53050a456a2b062552877670d4"
+    },
+    {
+      "originalPath": "tests/server/materials-current-quality-operator.test.ts",
+      "path": "docs/verification/materials-quality-next/operator-evidence/final-source__tests__server__materials-current-quality-operator.test.ts.source.txt",
+      "bytes": 19544,
+      "sha256": "d41156762b59d514b393cfcad4ab791bc969336e3ca5b0668a8de94ddff5982c"
+    },
+    {
+      "originalPath": "tests/server/document-model-qualification-guards.test.ts",
+      "path": "docs/verification/materials-quality-next/operator-evidence/final-source__tests__server__document-model-qualification-guards.test.ts.source.txt",
+      "bytes": 26676,
+      "sha256": "43aa5eba691673296f1745b3f02ab924ec2ef2920bb0626a6077a927fb9e270a"
+    },
+    {
+      "originalPath": "tests/server/materials-supplement-collection.test.ts",
+      "path": "docs/verification/materials-quality-next/operator-evidence/final-source__tests__server__materials-supplement-collection.test.ts.source.txt",
+      "bytes": 57446,
+      "sha256": "700510fb8c70a4a45f22c7c787bcb5e2cebd3cee68dcdd1fcf9c53e538192124"
+    },
+    {
+      "originalPath": "scripts/materials-current-quality-runtime.ts",
+      "path": "docs/verification/materials-quality-next/operator-evidence/final-source__scripts__materials-current-quality-runtime.ts.source.txt",
+      "bytes": 1608,
+      "sha256": "eaa87e6fcb7d9018987a8f03321e58a010f5ee8a0a1b05be9fbe27ad0ec4fc09"
+    }
+  ]
+}

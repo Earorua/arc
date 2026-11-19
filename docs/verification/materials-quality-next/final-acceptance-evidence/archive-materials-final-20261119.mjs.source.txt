@@ -1,0 +1,33 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+const work = 'work/grounded-verification/', prefix = 'course-relations-final-20261119-';
+const destination = 'docs/verification/materials-quality-next/final-acceptance-evidence';
+assert.equal(existsSync(destination), false, 'Preserve existing acceptance archive');
+const digest = bytes => createHash('sha256').update(bytes).digest('hex');
+const acceptancePath = work + prefix + 'acceptance.json';
+const acceptance = JSON.parse(readFileSync(acceptancePath, 'utf8'));
+assert.equal(acceptance.status, 'OFFLINE_ACCEPTED');
+for (const receipt of Object.values(acceptance.runs)) {
+  assert.equal(receipt.exit, 0); assert.equal(receipt.nonLoopbackDenials, 0);
+  assert.equal(digest(readFileSync(work + receipt.name + '.log')), receipt.logSha256);
+}
+const paths = readdirSync(work, { withFileTypes: true }).filter(entry => entry.isFile() && entry.name.startsWith(prefix)).map(entry => work + entry.name);
+paths.push(work + 'archive-materials-final-20261119.mjs');
+mkdirSync(destination, { recursive: true });
+const files = [];
+for (const originalPath of paths.sort()) {
+  let filename = originalPath.slice(work.length);
+  if (filename.endsWith('.mjs')) filename += '.source.txt';
+  else if (filename.endsWith('.log')) filename += '.txt';
+  const path = destination + '/' + filename, bytes = readFileSync(originalPath), sha256 = digest(bytes);
+  writeFileSync(path, bytes, { flag: 'wx' }); assert.equal(digest(readFileSync(path)), sha256);
+  files.push({ originalPath, path, bytes: bytes.length, sha256 });
+}
+const manifest = { schemaVersion: 'materials-course-relations-final-evidence-v1', createdAt: new Date().toISOString(),
+  sourceDigest: acceptance.sourceDigest, acceptanceSha256: digest(readFileSync(acceptancePath)),
+  fileCount: files.length, bytes: files.reduce((sum, file) => sum + file.bytes, 0), files };
+const manifestPath = destination + '/manifest.json';
+writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ fileCount: manifest.fileCount, bytes: manifest.bytes, manifestSha256: digest(readFileSync(manifestPath)),
+  acceptanceSha256: manifest.acceptanceSha256, sourceDigest: manifest.sourceDigest }));

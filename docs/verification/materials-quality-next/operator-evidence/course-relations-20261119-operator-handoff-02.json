@@ -1,0 +1,146 @@
+{
+  "status": "source-frozen-for-independent-spec-rereview",
+  "sourceFrozen": true,
+  "head": "6fcf81a36fe92bb0084ea0fa10bb6ddd87b73f37",
+  "branch": "codex/materials-replan-recovery-20261106",
+  "priorHandoff": {
+    "path": "work/grounded-verification/course-relations-20261119-operator-handoff-01.json",
+    "sha256": "4e57e9b2b18d77bf52562b47ccbce4080c2f3ef62ac855c2856c9633b6afa7b8"
+  },
+  "specReview": {
+    "path": "work/grounded-verification/course-relations-20261119-operator-spec-review-01.md",
+    "sha256": "88cc25f44fc0113980523cee538a4df240149350a84cdefe1143a27a65e29f3b"
+  },
+  "preservedArchive": {
+    "path": "work/grounded-verification/course-relations-20261119-operator-pre-spec-fix",
+    "manifestSha256": "ee78edb5ef2b07aad299e9601d4e76585ee1bd46435fb4ea107f84029fd452d5",
+    "verifiedFiles": 7
+  },
+  "files": [
+    {
+      "path": "scripts/materials-current-quality-operator.ts",
+      "sha256": "fbc0a71b83d610dad39f6f0ccbb4c6c54003da522277417d60bec4c3eb223b16",
+      "previousSha256": "c1507c7ac97d924ae32e673ba328b5dfe7ee5451a1358c06ba85994fa61c07b0",
+      "changed": true
+    },
+    {
+      "path": "scripts/invoke-materials-current-quality.ps1",
+      "sha256": "d54cd5b60cfa7bf231c6934fbfdb07630f9f27541b9b2ecddebbba683f7bc064",
+      "previousSha256": "d54cd5b60cfa7bf231c6934fbfdb07630f9f27541b9b2ecddebbba683f7bc064",
+      "changed": false
+    },
+    {
+      "path": "scripts/materials-qualification-runner.ts",
+      "sha256": "fe1120a44f8d8dd79f702b45381ca3666b364d609acdd7ac75da157ca8017099",
+      "previousSha256": "fe1120a44f8d8dd79f702b45381ca3666b364d609acdd7ac75da157ca8017099",
+      "changed": false
+    },
+    {
+      "path": "scripts/collect-materials-supplements.ts",
+      "sha256": "33a9bcec44772776dddc498255f1cdf0303dab53050a456a2b062552877670d4",
+      "previousSha256": "33a9bcec44772776dddc498255f1cdf0303dab53050a456a2b062552877670d4",
+      "changed": false
+    },
+    {
+      "path": "tests/server/materials-current-quality-operator.test.ts",
+      "sha256": "688e5bb71e3f27fdb2065e543ed9dbbb42baeb7bf72c60bf5f25fb2603bebe12",
+      "previousSha256": "b270e18a0830c9bfda7d600eb5e61b0111082ebbfed1032509723a7eb494e1f2",
+      "changed": true
+    },
+    {
+      "path": "tests/server/document-model-qualification-guards.test.ts",
+      "sha256": "43aa5eba691673296f1745b3f02ab924ec2ef2920bb0626a6077a927fb9e270a",
+      "previousSha256": "43aa5eba691673296f1745b3f02ab924ec2ef2920bb0626a6077a927fb9e270a",
+      "changed": false
+    },
+    {
+      "path": "tests/server/materials-supplement-collection.test.ts",
+      "sha256": "700510fb8c70a4a45f22c7c787bcb5e2cebd3cee68dcdd1fcf9c53e538192124",
+      "previousSha256": "700510fb8c70a4a45f22c7c787bcb5e2cebd3cee68dcdd1fcf9c53e538192124",
+      "changed": false
+    }
+  ],
+  "exactDelta": {
+    "path": "work/grounded-verification/course-relations-20261119-operator-handoff-02.diff",
+    "sha256": "2ccceabbcbf622c0470e01efe275a45e3e4c688986d0c7f4c8a36fca3fc16bb2",
+    "production": "Eight added lines: a private array of the three exact current runtime docs paths, then a Set membership/cardinality check immediately after approval schema parsing. Missing modules or duplicate attachment paths throw the existing invalid-packet refusal before window validation, key-dependent execution or startup claims. Existing per-file byte/hash checks are unchanged.",
+    "tests": "The approval fixture now includes all three required modules alongside its original extra attachment. One grouped regression accepts complete unique attachments and rejects each of the three omissions plus duplicates of both required and unrelated attachment paths.",
+    "unchanged": "The launcher, both shared collectors, their tests, prompts, scorers, current references and adapter are unchanged by this correction. No generic import closure or new policy machinery was added."
+  },
+  "requiredAttachments": [
+    "docs/verification/materials-quality-next/current-references.mjs",
+    "docs/verification/materials-quality-next/current-captures.ts",
+    "docs/verification/materials-quality-next/current-adapter.ts"
+  ],
+  "validation": {
+    "red": "One focused regression failed on all five expected denial cases before production editing; the complete-scope positive already passed.",
+    "green": "One focused regression passed; ten unrelated operator tests were skipped. No broad suite was repeated.",
+    "lint": "Both modified TypeScript files passed with no output or warnings.",
+    "diffCheck": "Owned-file git diff --check passed.",
+    "commands": [
+      "& 'C:/Program Files/nodejs/node.exe' work/grounded-verification/run.mjs course-relations-20261119-operator-doc-scope-red node_modules/vitest/vitest.mjs run tests/server/materials-current-quality-operator.test.ts -t 'requires every exact current runtime attachment'",
+      "& 'C:/Program Files/nodejs/node.exe' work/grounded-verification/run.mjs course-relations-20261119-operator-doc-scope-green node_modules/vitest/vitest.mjs run tests/server/materials-current-quality-operator.test.ts -t 'requires every exact current runtime attachment'",
+      "& 'C:/Program Files/nodejs/node.exe' work/grounded-verification/run.mjs course-relations-20261119-operator-doc-scope-lint node_modules/eslint/bin/eslint.js scripts/materials-current-quality-operator.ts tests/server/materials-current-quality-operator.test.ts"
+    ],
+    "compiler": {
+      "freshRunForThisCorrection": false,
+      "priorCommand": "& 'C:/Program Files/nodejs/node.exe' work/grounded-verification/run.mjs course-relations-20261119-operator-freeze-types node_modules/typescript/bin/tsc --noEmit --incremental false",
+      "priorExit": 0,
+      "priorElapsedMs": 17426,
+      "priorScopePath": "work/grounded-verification/course-relations-20261119-operator-type-scope.json",
+      "priorScopeSha256": "f3e9ba860dce73f266f017b1d2ed4c62e4295c9553cdfcbf83a30d8fb7c89c21",
+      "priorSourceFileCount": 889,
+      "priorLogPath": "work/grounded-verification/course-relations-20261119-operator-freeze-types.log",
+      "priorLogSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "boundary": "The prior successful normal global compiler evidence is preserved, not relabeled as a fresh result. This correction adds only local string-array/Set logic and test data/assertions, with no imports, exports, schema types or public signatures changed. Root owns final application acceptance and any fresh compiler run."
+    },
+    "networkCalls": 0,
+    "modelCalls": 0,
+    "realCredentialReads": 0,
+    "nativeRuns": 0,
+    "fullRepositoryRuns": 0
+  },
+  "evidence": [
+    {
+      "label": "operator-doc-scope-red",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-operator-doc-scope-red.json",
+      "metadataSha256": "b0916fa031632bf1d513fd7e6abc55d2a0625b5fe2ce28c14f4498cb983c9df6",
+      "logPath": "work/grounded-verification/course-relations-20261119-operator-doc-scope-red.log",
+      "name": "course-relations-20261119-operator-doc-scope-red",
+      "exit": 1,
+      "elapsedMs": 1277,
+      "logSha256": "be8cae2564c5d08cd4d1a26289c0d129d2d8dfab796606c1b3fda17509cca07a",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-DCuXe3"
+    },
+    {
+      "label": "operator-doc-scope-green",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-operator-doc-scope-green.json",
+      "metadataSha256": "67c1dc0f2eca509e728bfc74ae6517f9a26bbd89b75a58678e461304e47b2923",
+      "logPath": "work/grounded-verification/course-relations-20261119-operator-doc-scope-green.log",
+      "name": "course-relations-20261119-operator-doc-scope-green",
+      "exit": 0,
+      "elapsedMs": 1439,
+      "logSha256": "e1f76e507a07b4305578276bfa95cf7e7cf18f56616e3c51e0c2fa1478499926",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-MhvCCZ"
+    },
+    {
+      "label": "operator-doc-scope-lint",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-operator-doc-scope-lint.json",
+      "metadataSha256": "9ab15195c4c91a15924e0fbccf249475650161be6b32b31a2864fc32f503dfff",
+      "logPath": "work/grounded-verification/course-relations-20261119-operator-doc-scope-lint.log",
+      "name": "course-relations-20261119-operator-doc-scope-lint",
+      "exit": 0,
+      "elapsedMs": 4891,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-8igccR"
+    }
+  ],
+  "remaining": [
+    "Independent narrow specification recheck and subsequent quality review remain required.",
+    "Root owns the final current source/adapter packet pins and application acceptance; no current grant was issued or paid-readiness claim made.",
+    "Fresh account/key observation, externally reviewed Credits lower-bound proof and any cap change or fee/cache authorization remain separate operator preparation. This correction does not change that funding path."
+  ]
+}

@@ -1,0 +1,70 @@
+diff --git "a/work\\grounded-verification\\course-relations-20261119-operator-pre-spec-fix\\scripts__materials-current-quality-operator.ts.source.txt" b/scripts/materials-current-quality-operator.ts
+index bce6e2c..9595f1b 100644
+--- "a/work\\grounded-verification\\course-relations-20261119-operator-pre-spec-fix\\scripts__materials-current-quality-operator.ts.source.txt"
++++ b/scripts/materials-current-quality-operator.ts
+@@ -26,6 +26,11 @@ import { evaluateCurrentQuality } from "../docs/verification/materials-quality-n
+ import { loadCurrentReviewedReferences } from "../docs/verification/materials-quality-next/current-references.mjs";
+ 
+ export const CURRENT_REQUEST_DRAFT_SHA256 = "06238bde3fbc45aa33efb38da95234cfbb74d34d162bf1941d9ac0c56c964ac7";
++const REQUIRED_RUNTIME_ATTACHMENTS = [
++  "docs/verification/materials-quality-next/current-references.mjs",
++  "docs/verification/materials-quality-next/current-captures.ts",
++  "docs/verification/materials-quality-next/current-adapter.ts",
++];
+ const MAX_WINDOW_MS = 2 * 60 * 60 * 1000, READBACK_MAX_AGE_MS = 15 * 60 * 1000;
+ const reasons = {
+   "invalid-packet": "Check the externally issued packet, digest and private file permissions.",
+@@ -73,6 +78,9 @@ function inWindow(approval: Approval, time: Date) {
+ export function readCurrentApproval(raw: string, externalSha256: string, now: Date) {
+   requireMatch(Buffer.byteLength(raw) <= 32_768 && digest.safeParse(externalSha256).success && hash(raw) === externalSha256);
+   const approval = approvalSchema.parse(JSON.parse(raw));
++  const attachmentPaths = new Set(approval.attachments.map(attachment => attachment.path));
++  requireMatch(attachmentPaths.size === approval.attachments.length
++    && REQUIRED_RUNTIME_ATTACHMENTS.every(path => attachmentPaths.has(path)), "invalid-packet");
+   inWindow(approval, now);
+   requireMatch(approval.qualification.runId !== approval.supplement.runId && approval.qualification.authorizationId !== approval.supplement.authorizationId);
+   return approval;
+
+diff --git "a/work\\grounded-verification\\course-relations-20261119-operator-pre-spec-fix\\tests__server__materials-current-quality-operator.test.ts.source.txt" b/tests/server/materials-current-quality-operator.test.ts
+index a0d1634..ed00bd0 100644
+--- "a/work\\grounded-verification\\course-relations-20261119-operator-pre-spec-fix\\tests__server__materials-current-quality-operator.test.ts.source.txt"
++++ b/tests/server/materials-current-quality-operator.test.ts
+@@ -14,11 +14,17 @@ import { DatabaseSync } from "node:sqlite";
+ const sha = (value: string) => createHash("sha256").update(value).digest("hex");
+ const now = () => new Date("2026-11-19T10:05:00.000Z");
+ const digest = "a".repeat(64), attachment = { path: "fixture.json", sha256: digest };
++const runtimeModulePaths = [
++  "docs/verification/materials-quality-next/current-references.mjs",
++  "docs/verification/materials-quality-next/current-captures.ts",
++  "docs/verification/materials-quality-next/current-adapter.ts",
++];
+ const account = { creatorUserId: "fixture-owner", organizationId: null, workspaceId: "fixture-workspace" };
+ const approval = (): ReturnType<typeof operator.readCurrentApproval> => ({ version: "materials-current-quality-v1", status: "owner-approved", packetId: "fixture-current-quality",
+   candidateCommit: "b".repeat(40), packetCommit: "c".repeat(40), approvedAt: "2026-11-19T10:00:00.000Z", expiresAt: "2026-11-19T12:00:00.000Z",
+   credentialSha256: sha("synthetic-current-operator-key"), ownerApproval: attachment, accountReadback: attachment,
+-  sourceManifest: { path: "docs/fixture-source.json", sha256: digest }, attachments: [{ path: "docs/fixture-review.json", sha256: digest }],
++  sourceManifest: { path: "docs/fixture-source.json", sha256: digest },
++  attachments: [...runtimeModulePaths.map(path => ({ path, sha256: digest })), { path: "docs/fixture-review.json", sha256: digest }],
+   qualification: { runId: "fixture-24", authorizationId: "fixture-grant-24", issuance: attachment },
+   supplement: { runId: "fixture-six", authorizationId: "fixture-grant-six", issuance: attachment },
+   requestDraftSha256: "06238bde3fbc45aa33efb38da95234cfbb74d34d162bf1941d9ac0c56c964ac7",
+@@ -53,6 +59,19 @@ it("requires externally pinned fresh approval without issuing or extending it",
+   expect(() => operator.readCurrentApproval(changed, sha(changed), now())).toThrow();
+ });
+ 
++it("requires every exact current runtime attachment once and rejects all duplicate paths", () => {
++  const complete = approval();
++  const read = (attachments: typeof complete.attachments) => {
++    const raw = JSON.stringify({ ...complete, attachments });
++    return operator.readCurrentApproval(raw, sha(raw), now());
++  };
++  expect(read(complete.attachments).attachments).toEqual(complete.attachments);
++  for (const missing of runtimeModulePaths)
++    expect.soft(() => read(complete.attachments.filter(file => file.path !== missing)), missing).toThrow();
++  for (const duplicate of [complete.attachments[0]!, complete.attachments.at(-1)!])
++    expect.soft(() => read([...complete.attachments, duplicate]), duplicate.path).toThrow();
++});
++
+ it("keeps reviewed Credits as a fresh conservative lower bound and key budgets exact", () => {
+   expect(operator.readCurrentCredits(JSON.stringify(credits()), approval(), now())).toMatchObject({ minimumMicroUsd: 4_000_000 });
+   for (const change of [{ displayedUsd: "2.99" }, { precision: "exact-usd" }, { capturedAt: "2026-11-19T09:00:00Z" },

@@ -1,0 +1,7 @@
+import { readQualificationCaptures, readSupplementCaptures } from "../docs/verification/materials-quality-next/current-captures";
+import { evaluateCurrentQuality } from "../docs/verification/materials-quality-next/current-adapter";
+import { loadCurrentReviewedReferences } from "../docs/verification/materials-quality-next/current-references.mjs";
+
+export async function loadCurrentQualityRuntime() {
+  return { readQualificationCaptures, readSupplementCaptures, evaluateCurrentQuality, loadCurrentReviewedReferences };
+}

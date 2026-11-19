@@ -1,0 +1,86 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:668) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/server/materials-current-quality-operator.test.ts [2m([22m[2m11 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m10 skipped[39m[2m)[22m[32m 8[2mms[22m[39m
+   [2m[90m↓[39m[22m requires externally pinned fresh approval without issuing or extending it
+[31m   [31m×[31m requires every exact current runtime attachment once and rejects all duplicate paths[39m[32m 7[2mms[22m[39m
+   [2m[90m↓[39m[22m keeps reviewed Credits as a fresh conservative lower bound and key budgets exact
+   [2m[90m↓[39m[22m inspects an insufficient current key before approval without claiming funding or exposing its label
+   [2m[90m↓[39m[22m reports only fixed actionable refusal reasons without upstream exception text
+   [2m[90m↓[39m[22m refuses source, destination, body, clock and duplicate sends at the final handoff
+   [2m[90m↓[39m[22m claims a distinct durable once-only startup slot for each existing run
+   [2m[90m↓[39m[22m checks the existing six ledger identity and unresolved runs read-only before starting 24
+   [2m[90m↓[39m[22m continues only after complete capture and settled receipts, retaining quality failures
+   [2m[90m↓[39m[22m wires the actual journal and capture while a later denial stops before the second paid handoff
+   [2m[90m↓[39m[22m provides a default read-only hidden-input launcher without a secret argument or transcript
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/server/materials-current-quality-operator.test.ts[2m > [22mrequires every exact current runtime attachment once and rejects all duplicate paths
+[31m[1mAssertionError[22m: docs/verification/materials-quality-next/current-references.mjs: expected [Function] to throw an error[39m
+[36m [2m❯[22m tests/server/materials-current-quality-operator.test.ts:[2m70:98[22m[39m
+    [90m 68|[39m   expect(read(complete.attachments).attachments).toEqual(complete.atta…
+    [90m 69|[39m   [35mfor[39m ([35mconst[39m missing [35mof[39m runtimeModulePaths)
+    [90m 70|[39m     expect.soft(() => read(complete.attachments.filter(file => file.pa…
+    [90m   |[39m                                                                                                  [31m^[39m
+    [90m 71|[39m   for (const duplicate of [complete.attachments[0]!, complete.attachme…
+    [90m 72|[39m     expect.soft(() => read([...complete.attachments, duplicate]), dupl…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/materials-current-quality-operator.test.ts[2m > [22mrequires every exact current runtime attachment once and rejects all duplicate paths
+[31m[1mAssertionError[22m: docs/verification/materials-quality-next/current-captures.ts: expected [Function] to throw an error[39m
+[36m [2m❯[22m tests/server/materials-current-quality-operator.test.ts:[2m70:98[22m[39m
+    [90m 68|[39m   expect(read(complete.attachments).attachments).toEqual(complete.atta…
+    [90m 69|[39m   [35mfor[39m ([35mconst[39m missing [35mof[39m runtimeModulePaths)
+    [90m 70|[39m     expect.soft(() => read(complete.attachments.filter(file => file.pa…
+    [90m   |[39m                                                                                                  [31m^[39m
+    [90m 71|[39m   for (const duplicate of [complete.attachments[0]!, complete.attachme…
+    [90m 72|[39m     expect.soft(() => read([...complete.attachments, duplicate]), dupl…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/materials-current-quality-operator.test.ts[2m > [22mrequires every exact current runtime attachment once and rejects all duplicate paths
+[31m[1mAssertionError[22m: docs/verification/materials-quality-next/current-adapter.ts: expected [Function] to throw an error[39m
+[36m [2m❯[22m tests/server/materials-current-quality-operator.test.ts:[2m70:98[22m[39m
+    [90m 68|[39m   expect(read(complete.attachments).attachments).toEqual(complete.atta…
+    [90m 69|[39m   [35mfor[39m ([35mconst[39m missing [35mof[39m runtimeModulePaths)
+    [90m 70|[39m     expect.soft(() => read(complete.attachments.filter(file => file.pa…
+    [90m   |[39m                                                                                                  [31m^[39m
+    [90m 71|[39m   for (const duplicate of [complete.attachments[0]!, complete.attachme…
+    [90m 72|[39m     expect.soft(() => read([...complete.attachments, duplicate]), dupl…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/materials-current-quality-operator.test.ts[2m > [22mrequires every exact current runtime attachment once and rejects all duplicate paths
+[31m[1mAssertionError[22m: docs/verification/materials-quality-next/current-references.mjs: expected [Function] to throw an error[39m
+[36m [2m❯[22m tests/server/materials-current-quality-operator.test.ts:[2m72:83[22m[39m
+    [90m 70|[39m     expect.soft(() => read(complete.attachments.filter(file => file.pa…
+    [90m 71|[39m   for (const duplicate of [complete.attachments[0]!, complete.attachme…
+    [90m 72|[39m     expect.soft(() => read([...complete.attachments, duplicate]), dupl…
+    [90m   |[39m                                                                                   [31m^[39m
+    [90m 73|[39m })[33m;[39m
+    [90m 74|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/materials-current-quality-operator.test.ts[2m > [22mrequires every exact current runtime attachment once and rejects all duplicate paths
+[31m[1mAssertionError[22m: docs/fixture-review.json: expected [Function] to throw an error[39m
+[36m [2m❯[22m tests/server/materials-current-quality-operator.test.ts:[2m72:83[22m[39m
+    [90m 70|[39m     expect.soft(() => read(complete.attachments.filter(file => file.pa…
+    [90m 71|[39m   for (const duplicate of [complete.attachments[0]!, complete.attachme…
+    [90m 72|[39m     expect.soft(() => read([...complete.attachments, duplicate]), dupl…
+    [90m   |[39m                                                                                   [31m^[39m
+    [90m 73|[39m })[33m;[39m
+    [90m 74|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[33m10 skipped[39m[90m (11)[39m
+[2m   Start at [22m 18:01:03
+[2m   Duration [22m 939ms[2m (transform 424ms, setup 182ms, import 594ms, tests 8ms, environment 0ms)[22m
+

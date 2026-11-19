@@ -1,0 +1,25 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { DatabaseSync } from 'node:sqlite';
+import { registerSupplementLedger } from '../../scripts/materials-supplement-ledger.ts';
+const directory = resolve('work/materials-supplement-collection'), database = directory + '/ledger.sqlite';
+const output = 'C:/Users/XF/.arc-materials/gate-1b/materials-b2/quality-preflight/20261119/supplement-registration.json';
+assert.equal(existsSync(database), false, 'Do not replace an existing ledger');
+assert.equal(existsSync(output), false, 'Preserve existing registration');
+const ledgerSha256 = registerSupplementLedger(directory);
+const db = new DatabaseSync(database, { readOnly: true });
+let runs, attempts;
+try {
+  runs = db.prepare('SELECT count(*) AS n FROM collection_runs').get().n;
+  attempts = db.prepare('SELECT count(*) AS n FROM attempts').get().n;
+} finally { db.close(); }
+assert.equal(runs, 0); assert.equal(attempts, 0);
+const record = { schemaVersion: 'materials-first-supplement-ledger-registration-v1', createdAt: new Date().toISOString(),
+  directory, ledgerSha256, databaseSha256: createHash('sha256').update(readFileSync(database)).digest('hex'), runs, attempts,
+  basis: 'No supplement ledger existed in the current checkout or the other five registered worktrees. Six supplement inferences have never been authorized or executed. Initialized once with the existing registerSupplementLedger API before new issuance; no historical database replaced or relocated.',
+  newInferenceRequests: 0, authorizationIssued: false };
+writeFileSync(output, JSON.stringify(record, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ registered: true, runs, attempts, newInferenceRequests: 0, authorizationIssued: false,
+  privateRecordWritten: true, recordSha256: createHash('sha256').update(readFileSync(output)).digest('hex') }));

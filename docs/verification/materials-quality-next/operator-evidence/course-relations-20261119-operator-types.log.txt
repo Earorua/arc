@@ -1,0 +1,19 @@
+scripts/materials-current-quality-operator.ts(95,36): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+scripts/materials-current-quality-operator.ts(95,63): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+scripts/materials-current-quality-operator.ts(96,53): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+scripts/materials-current-quality-operator.ts(97,78): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+scripts/materials-current-quality-operator.ts(97,83): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+scripts/materials-current-quality-operator.ts(97,88): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+scripts/materials-current-quality-operator.ts(219,5): error TS2769: No overload matches this call.
+  Overload 1 of 8, '(file: string, args: readonly string[], options: ExecFileSyncOptionsWithStringEncoding): string', gave the following error.
+    Property 'NODE_ENV' is missing in type '{ SystemRoot: string | undefined; PATH: string | undefined; }' but required in type 'ProcessEnv'.
+  Overload 2 of 8, '(file: string, args: readonly string[], options: ExecFileSyncOptionsWithBufferEncoding): NonSharedBuffer', gave the following error.
+    Property 'NODE_ENV' is missing in type '{ SystemRoot: string | undefined; PATH: string | undefined; }' but required in type 'ProcessEnv'.
+  Overload 3 of 8, '(file: string, args?: readonly string[] | undefined, options?: ExecFileSyncOptions | undefined): string | NonSharedBuffer', gave the following error.
+    Property 'NODE_ENV' is missing in type '{ SystemRoot: string | undefined; PATH: string | undefined; }' but required in type 'ProcessEnv'.
+scripts/materials-current-quality-operator.ts(261,7): error TS2769: No overload matches this call.
+  Overload 3 of 8, '(file: string, args?: readonly string[] | undefined, options?: ExecFileSyncOptions | undefined): string | NonSharedBuffer', gave the following error.
+    Property 'NODE_ENV' is missing in type '{ PATH: string | undefined; SystemRoot: string | undefined; GIT_CONFIG_GLOBAL: string; GIT_CONFIG_NOSYSTEM: string; GIT_ALLOW_PROTOCOL: string; GIT_TERMINAL_PROMPT: string; }' but required in type 'ProcessEnv'.
+tests/server/materials-current-quality-operator.test.ts(145,5): error TS2769: No overload matches this call.
+  Overload 3 of 8, '(command: string, args?: readonly string[] | undefined, options?: SpawnSyncOptions | undefined): SpawnSyncReturns<string | NonSharedBuffer>', gave the following error.
+    Property 'NODE_ENV' is missing in type '{ PATH: string | undefined; SystemRoot: string | undefined; USERPROFILE: string | undefined; TEMP: string | undefined; TMP: string | undefined; }' but required in type 'ProcessEnv'.

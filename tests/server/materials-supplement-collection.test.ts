@@ -154,6 +154,18 @@ const fixtureBinding = (grant: unknown) => {
   return collector.supplementCaptureBinding(raw, sha(raw), "offline-test");
 };
 
+it("releases a locally denied operator handoff before marking the supplement sent", async () => {
+  const directory = temporaryDirectory(), raw = JSON.stringify(await issued(directory));
+  const fetch = vi.fn<DocumentFetch>(async () => new Response(null, { status: 403 }));
+  const beforeSend = vi.fn(async () => { throw new Error("private operator denial detail"); });
+  const result = await collector.collectSupplementRun(raw, environment(raw), { ...options(directory, fetch), beforeSend });
+  expect(beforeSend).toHaveBeenCalledOnce();
+  expect(fetch).not.toHaveBeenCalled();
+  expect(result).toMatchObject({ requestsSent: 0, heldMicroUsd: 0, settledMicroUsd: 0, reason: "operator-before-send-refused" });
+  expect(inspectDb(directory, "SELECT state,sent_at FROM attempts")).toEqual([{ state: "released", sent_at: null }]);
+  expect(JSON.stringify(result)).not.toContain("private operator denial detail");
+});
+
 async function sourceSpanFixture(directory: string, providerPolicyId = KIMI_SOURCE_SPAN_POLICY_ID) {
   const legacy = await issued(directory);
   const config = { ...legacy.config, providerPolicyId };

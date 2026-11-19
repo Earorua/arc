@@ -1,0 +1,116 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:43152) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/server/document-model-qualification-guards.test.ts [2m([22m[2m27 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m26 skipped[39m[2m)[22m[32m 11[2mms[22m[39m
+[31m     [31m×[31m releases a locally denied operator handoff before marking any request sent[39m[32m 10[2mms[22m[39m
+     [2m[90m↓[39m[22m captures exact transport content and decoded candidates without changing the legacy report
+     [2m[90m↓[39m[22m stops after capture failure while durably preserving attributable=true accounting
+     [2m[90m↓[39m[22m stops after capture failure while durably preserving attributable=false accounting
+     [2m[90m↓[39m[22m withholds component diagnostics from rejected production envelopes while preserving a valid empty extraction
+     [2m[90m↓[39m[22m requires the owner authorization to bind the exact generation model separately from the chat alias
+     [2m[90m↓[39m[22m rejects disabled or incomplete qualification before any network call
+     [2m[90m↓[39m[22m keeps the real suite outside ordinary test discovery with retry disabled
+     [2m[90m↓[39m[22m cannot send if the durable pre-send reservation fails
+     [2m[90m↓[39m[22m locks endpoint, pricing, routing, corpus and expiry to an explicit authorization
+     [2m[90m↓[39m[22m adds only uncovered transport segments and preserves annotated source coordinates
+     [2m[90m↓[39m[22m rejects the dedicated credential embedded in an otherwise public evidence URL or report field
+     [2m[90m↓[39m[22m persists the full reservation before sending and halts with held unknown cost
+     [2m[90m↓[39m[22m does not send when worst-case reservation cannot fit the remaining budget
+     [2m[90m↓[39m[22m scores actual source-validated review points from the injected provider for all 24 fixtures
+     [2m[90m↓[39m[22m runs the fixed 24 in order without retries and never uses gold review points as provider output
+     [2m[90m↓[39m[22m holds the first reservation and stops the quality run when its two raw cost reports disagree
+     [2m[90m↓[39m[22m settles an attributable charge even with the wrong upstream, quarantines the result and sends no next document
+     [2m[90m↓[39m[22m journals all three statuses on an R1-like stop and never starts the next document
+     [2m[90m↓[39m[22m records a repeated generation once, holds the second reservation and never queries that ID again
+     [2m[90m↓[39m[22m blocks the next POST until the previous metadata and durable settlement finished; includes per-document processing times
+     [2m[90m↓[39m[22m checks authorization again after the durable write and before the POST
+     [2m[90m↓[39m[22m latches a local clock rollback before sending (2026-11-03T23:00:00Z)
+     [2m[90m↓[39m[22m latches a local clock rollback before sending (2026-11-04T07:59:59Z)
+     [2m[90m↓[39m[22m validates the window at the transport handoff when expiry occurs between admission and send
+     [2m[90m↓[39m[22m journals the exact completion ID and observed cost before reading metadata, then halts on an unwritable settlement
+     [2m[90m↓[39m[22m settles a charge over the worst-case reservation, preserving both readings without scoring the candidate
+ [31m❯[39m tests/server/materials-supplement-collection.test.ts [2m([22m[2m49 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m48 skipped[39m[2m)[22m[32m 82[2mms[22m[39m
+   [2m[90m↓[39m[22m prints the six public identity commitments and worst-case price offline for an issuer
+   [2m[90m↓[39m[22m uses the CLI's actual source bytes despite Git overrides, assume-unchanged files and ignored shadow modules
+   [2m[90m↓[39m[22m rejects a junction or symlink that makes another checkout's registered ledger appear local
+[31m   [31m×[31m releases a locally denied operator handoff before marking the supplement sent[39m[32m 81[2mms[22m[39m
+   [2m[90m↓[39m[22m pins the grounded supplement policy and archives its product-decoded terms beside the untouched wire
+   [2m[90m↓[39m[22m runs the separately pinned source-span collector end to end and preserves the original replies beside the scored output
+   [2m[90m↓[39m[22m keeps verified billing separate from a source-span quality failure: legacy-shape
+   [2m[90m↓[39m[22m keeps verified billing separate from a source-span quality failure: invented-source
+   [2m[90m↓[39m[22m keeps verified billing separate from a source-span quality failure: output-limit
+   [2m[90m↓[39m[22m keeps verified billing separate from a source-span quality failure: generation-limit
+   [2m[90m↓[39m[22m keeps verified billing separate from a source-span quality failure: missing-fact
+   [2m[90m↓[39m[22m settles an observed charge and stops before the second POST when the decoded output cannot be recorded
+   [2m[90m↓[39m[22m requires the durable original to match the received unedited content before recording its decoded output
+   [2m[90m↓[39m[22m holds the source-span reservation and preserves the reply when neither side supplies a trusted price
+   [2m[90m↓[39m[22m refuses to replay a raw archive mismatch instead of rescoring an alternative
+   [2m[90m↓[39m[22m refuses to replay a canonical archive mismatch instead of rescoring an alternative
+   [2m[90m↓[39m[22m refuses to replay a missing archive mismatch instead of rescoring an alternative
+   [2m[90m↓[39m[22m refuses to replay a version archive mismatch instead of rescoring an alternative
+   [2m[90m↓[39m[22m does not persist an escaped credential in the original or decoded source-span evidence
+   [2m[90m↓[39m[22m does not enable the supplement collector while the separate diagnostic pilot is enabled
+   [2m[90m↓[39m[22m refuses cross-policy issuances and never expands the legacy one-GET allowance for a source-span run
+   [2m[90m↓[39m[22m cannot turn six truncated source-span replies into a passing legacy run by changing the stored issuance before scoring
+   [2m[90m↓[39m[22m fails closed on a stored issuance digest change with before-send accounting
+   [2m[90m↓[39m[22m fails closed on a stored issuance digest change with unknown-cost accounting
+   [2m[90m↓[39m[22m cannot label an injected clock, candidate predicate, directory and transport as live evidence
+   [2m[90m↓[39m[22m accepts only the fixed placeholder in injectable fixtures, and refuses a public run ID containing the key or its fingerprint
+   [2m[90m↓[39m[22m requires a separate pinned issuance before opening the ledger or reading the dedicated credential
+   [2m[90m↓[39m[22m durably reserves before each handoff, freezes the exact content before each GET, and scores the six settled captures
+   [2m[90m↓[39m[22m stops on cost-conflict, preserving known charges and holding only unresolved costs
+   [2m[90m↓[39m[22m stops on route-mismatch, preserving known charges and holding only unresolved costs
+   [2m[90m↓[39m[22m stops on metadata-unavailable, preserving known charges and holding only unresolved costs
+   [2m[90m↓[39m[22m stops before the next reservation when a smaller issued budget cannot cover it
+   [2m[90m↓[39m[22m honors the separate one-GET scope even when a 404 would otherwise be retried
+   [2m[90m↓[39m[22m uses a newly issued three-GET allowance without retrying inference; available=true
+   [2m[90m↓[39m[22m uses a newly issued three-GET allowance without retrying inference; available=false
+   [2m[90m↓[39m[22m exports actual captured output read-only and rejects altered source, document or receipt bindings
+   [2m[90m↓[39m[22m fails quality on malformed unedited content with a verified bill and never retries the inference
+   [2m[90m↓[39m[22m holds an expired fixture response without accepting its extraction, sending another request or permitting a replay
+   [2m[90m↓[39m[22m rechecks the window at transport handoff and blocks metadata after expiry or a clock rollback
+   [2m[90m↓[39m[22m releases a durably reserved but unsent case if the window closes between reservation and POST
+   [2m[90m↓[39m[22m retains an attributable charge when capture persistence fails and stops before another request
+   [2m[90m↓[39m[22m refuses coordinated substitutions of endpoint, model, route, receipt identity or reviewed rates in public settings
+   [2m[90m↓[39m[22m holds the full reservation when neither side supplies an attributable charge, without GET or POST retries
+   [2m[90m↓[39m[22m checkpoints metadata-only billing evidence before a failed final state transition
+   [2m[90m↓[39m[22m checkpoints same-micro-conflict billing evidence before a failed final state transition
+   [2m[90m↓[39m[22m holds a success-looking 202 POST without freezing provisional output or looking up its generation
+   [2m[90m↓[39m[22m binds the issuance to the registered durable ledger and path, rejecting a missing, copied or replacement database
+   [2m[90m↓[39m[22m persists only validated public issuance fields even when a shadowed JSON value contains the fixture credential
+   [2m[90m↓[39m[22m refuses a second simultaneous start and a failed durable reservation never reaches transport
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/server/document-model-qualification-guards.test.ts[2m > [22mmodel qualification offline guards[2m > [22mreleases a locally denied operator handoff before marking any request sent
+[31m[1mAssertionError[22m: expected "vi.fn()" to be called once, but got 0 times[39m
+[36m [2m❯[22m tests/server/document-model-qualification-guards.test.ts:[2m40:24[22m[39m
+    [90m 38|[39m     const result = await runDocumentQualification(environment(), { fet…
+    [90m 39|[39m       checkpoint: async value => { checkpoints.push(value); }, beforeS…
+    [90m 40|[39m     [34mexpect[39m(beforeSend)[33m.[39m[34mtoHaveBeenCalledOnce[39m()[33m;[39m
+    [90m   |[39m                        [31m^[39m
+    [90m 41|[39m     [34mexpect[39m(fetch)[33m.[39mnot[33m.[39m[34mtoHaveBeenCalled[39m()[33m;[39m
+    [90m 42|[39m     expect(result).toMatchObject({ requestsSent: 0, heldMicroUsd: 0, s…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/materials-supplement-collection.test.ts[2m > [22mreleases a locally denied operator handoff before marking the supplement sent
+[31m[1mAssertionError[22m: expected "vi.fn()" to be called once, but got 0 times[39m
+[36m [2m❯[22m tests/server/materials-supplement-collection.test.ts:[2m162:22[22m[39m
+    [90m160|[39m   const beforeSend = vi.fn(async () => { throw new Error("private oper…
+    [90m161|[39m   const result = await collector.collectSupplementRun(raw, environment…
+    [90m162|[39m   [34mexpect[39m(beforeSend)[33m.[39m[34mtoHaveBeenCalledOnce[39m()[33m;[39m
+    [90m   |[39m                      [31m^[39m
+    [90m163|[39m   [34mexpect[39m(fetch)[33m.[39mnot[33m.[39m[34mtoHaveBeenCalled[39m()[33m;[39m
+    [90m164|[39m   expect(result).toMatchObject({ requestsSent: 0, heldMicroUsd: 0, set…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m2 failed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[33m74 skipped[39m[90m (76)[39m
+[2m   Start at [22m 17:20:02
+[2m   Duration [22m 870ms[2m (transform 498ms, setup 381ms, import 902ms, tests 92ms, environment 0ms)[22m
+

@@ -31,6 +31,20 @@ const reply = (id: string) => Response.json({ id, model: "approved-model", usage
 const now = () => new Date("2026-11-04T08:00:00.000Z");
 afterEach(() => vi.unstubAllGlobals());
 describe("model qualification offline guards", () => {
+  it("releases a locally denied operator handoff before marking any request sent", async () => {
+    const checkpoints: QualificationCheckpoint[] = [];
+    const fetch = vi.fn<DocumentFetch>(async () => new Response(null, { status: 403 }));
+    const beforeSend = vi.fn(async () => { throw new Error("private operator denial detail"); });
+    const result = await runDocumentQualification(environment(), { fetch, mode: "offline-test", now,
+      checkpoint: async value => { checkpoints.push(value); }, beforeSend });
+    expect(beforeSend).toHaveBeenCalledOnce();
+    expect(fetch).not.toHaveBeenCalled();
+    expect(result).toMatchObject({ requestsSent: 0, heldMicroUsd: 0, settledMicroUsd: 0, stoppedReason: "operator-before-send-refused" });
+    expect(checkpoints.filter(value => value.type === "settlement")).toEqual([
+      expect.objectContaining({ state: "released", sentAt: null, actualMicroUsd: null }),
+    ]);
+    expect(JSON.stringify({ result, checkpoints })).not.toContain("private operator denial detail");
+  });
   it("captures exact transport content and decoded candidates without changing the legacy report", async () => {
     let index = 0;
     const contents = [' \n{"schemaVersion":"2026.11.1","items":[],"reviewPoints":[]}\n ', "{invalid", '{"unexpected":"keep this actual field"}'];

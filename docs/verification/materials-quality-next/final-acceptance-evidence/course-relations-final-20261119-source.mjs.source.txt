@@ -1,0 +1,26 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+const output = 'work/grounded-verification/course-relations-final-20261119-source.json';
+const sha = bytes => createHash('sha256').update(bytes).digest('hex');
+const git = (...args) => execFileSync('git', ['-c', 'core.longpaths=true', ...args], { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
+assert.equal(git('ls-files', '-u'), '', 'Unmerged source');
+const paths = [...new Set(git('ls-files', '--cached', '--others', '--exclude-standard', '-z').split('\0').filter(Boolean))]
+  .filter(file => !file.startsWith('docs/') && !file.endsWith('.md')).sort();
+const files = Object.fromEntries(paths.map(file => [file, sha(readFileSync(file))]));
+if (process.argv[2] === '--verify') {
+  const prior = JSON.parse(readFileSync(output, 'utf8'));
+  assert.deepEqual(files, prior.files, 'Runtime/test/config files changed during acceptance');
+  console.log(JSON.stringify({ verified: true, count: paths.length, digest: prior.digest }));
+} else {
+  assert.equal(existsSync(output), false, 'Preserve previous freeze');
+  const result = { schemaVersion: 'materials-course-relations-final-source-v1', createdAt: new Date().toISOString(),
+    head: git('rev-parse', 'HEAD').trim(), branch: git('branch', '--show-current').trim(),
+    scope: 'Tracked/unignored runtime, tests, configuration and assets. Active docs verification tools are separately source-pinned; archival copies remain immutable evidence.',
+    count: paths.length, digest: sha(JSON.stringify(files)), files,
+    vitestFiles: paths.filter(file => /^tests\/.+\.test\.(?:ts|tsx)$/u.test(file)),
+    nodeFiles: paths.filter(file => /^tests\/.+\.test\.mjs$/u.test(file)) };
+  writeFileSync(output, JSON.stringify(result, null, 2) + '\n', { flag: 'wx' });
+  console.log(JSON.stringify({ count: result.count, digest: result.digest, vitestFiles: result.vitestFiles.length, nodeFiles: result.nodeFiles.length }));
+}

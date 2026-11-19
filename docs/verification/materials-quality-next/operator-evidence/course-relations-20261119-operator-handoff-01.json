@@ -1,0 +1,324 @@
+{
+  "status": "ready-for-independent-spec-then-quality-review",
+  "sourceFrozen": true,
+  "head": "6fcf81a36fe92bb0084ea0fa10bb6ddd87b73f37",
+  "branch": "codex/materials-replan-recovery-20261106",
+  "files": [
+    {
+      "path": "scripts/materials-current-quality-operator.ts",
+      "sha256": "c1507c7ac97d924ae32e673ba328b5dfe7ee5451a1358c06ba85994fa61c07b0"
+    },
+    {
+      "path": "scripts/invoke-materials-current-quality.ps1",
+      "sha256": "d54cd5b60cfa7bf231c6934fbfdb07630f9f27541b9b2ecddebbba683f7bc064"
+    },
+    {
+      "path": "scripts/materials-qualification-runner.ts",
+      "sha256": "fe1120a44f8d8dd79f702b45381ca3666b364d609acdd7ac75da157ca8017099"
+    },
+    {
+      "path": "scripts/collect-materials-supplements.ts",
+      "sha256": "33a9bcec44772776dddc498255f1cdf0303dab53050a456a2b062552877670d4"
+    },
+    {
+      "path": "tests/server/materials-current-quality-operator.test.ts",
+      "sha256": "b270e18a0830c9bfda7d600eb5e61b0111082ebbfed1032509723a7eb494e1f2"
+    },
+    {
+      "path": "tests/server/document-model-qualification-guards.test.ts",
+      "sha256": "43aa5eba691673296f1745b3f02ab924ec2ef2920bb0626a6077a927fb9e270a"
+    },
+    {
+      "path": "tests/server/materials-supplement-collection.test.ts",
+      "sha256": "700510fb8c70a4a45f22c7c787bcb5e2cebd3cee68dcdd1fcf9c53e538192124"
+    }
+  ],
+  "sharedCollectorFreezeUnchanged": true,
+  "implementation": [
+    "One fixed current-30 operator and a PowerShell launcher. They consume externally pinned owner approval and separate original 24/six grants; there is no issuer, limit increase, account purchase, replacement ledger or generic authorization service.",
+    "Default PowerShell without packet arguments performs only hidden-input account inspection via fixed GET /api/v1/key. It retains only selected non-secret metadata and the credential SHA in a bounded terminal summary, including an insufficient-current-cap diagnosis. It does not require or manufacture fee approval, UI account evidence or a startup slot.",
+    "Packet CheckOnly remains read-only; ExecuteApproved requires the owner-approved digest, shared two-hour window, current candidate/packet/source/docs/request/config pins, credential binding, independently reviewed Credits/guardrail record and separate unused startup slots.",
+    "Exact key source number lexemes are parsed conservatively and every enforcement budget checked. Credits are explicitly a whole-dollar lower bound floored from a separately reviewed two-decimal UI display, not an exact Credits API amount. Evidence must be at most 15 minutes old at startup; its hash/account/key binding is pinned externally. No /credits endpoint, management credential or UI scraping is used.",
+    "Existing 24 runner/journal/capture and six private collector/SQLite/export do all accounting. Denial-only hooks run before sent/markSending and release local refusals without unknown-paid accounting. Six's live bridge fixes the real transport, ledger path and source verifier; fixtures remain offline-only.",
+    "The existing supplement ledger identity and collecting/held state are read-only checked before 24 and again before six. Complete captures, verified unique settled receipts, zero held cost and a fresh key allowance are required to start six. Settled quality failures remain captured and scored without retry.",
+    "Source/body/window guards run at each inference handoff. The provider retains its existing one POST and up-to-three generation GET bounds. Private approval/output permissions use owner/SYSTEM/admin SID checks; plaintext secrets never enter arguments, persisted configuration or summaries. Fixed refusal codes replace raw upstream errors."
+  ],
+  "validation": {
+    "red": "Retained expected REDs for two pre-send hooks, initial operator boundaries, actual capture composition, ledger startup preflight and preapproval metadata/refusal UX.",
+    "affected": "83 tests passed across the two shared collector guard suites and the then-seven-test operator suite.",
+    "finalOperator": "10 operator tests passed after three additional startup/metadata/refusal boundary groups. The accepted shared suites were not repeated. These run totals overlap and are not added together.",
+    "powershell": "Actual PowerShell AST parsing and invalid-packet execution passed; refusal returned code 2 before input and the calling terminal executed its continuation marker.",
+    "lint": "All six changed TS files passed; final operator/test lint is clean. One transient unused-binding warning is retained in operator-freeze-lint and fixed by an intentional void discard/comment.",
+    "diffCheck": "PASS for the seven owned files.",
+    "types": {
+      "command": "& 'C:/Program Files/nodejs/node.exe' work/grounded-verification/run.mjs course-relations-20261119-operator-freeze-types node_modules/typescript/bin/tsc --noEmit --incremental false",
+      "cwd": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision",
+      "config": "tsconfig.json",
+      "scopePath": "work/grounded-verification/course-relations-20261119-operator-type-scope.json",
+      "scopeSha256": "f3e9ba860dce73f266f017b1d2ed4c62e4295c9553cdfcbf83a30d8fb7c89c21",
+      "sourceFileCount": 889,
+      "exit": 0,
+      "elapsedMs": 17426,
+      "completedAtFromMetadataMtimeUtc": "2026-11-19T09:46:44.032Z",
+      "approximateStartedAtUtc": "2026-11-19T09:46:26.606Z",
+      "logPath": "work/grounded-verification/course-relations-20261119-operator-freeze-types.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "finalSourceDelta": "After this successful compiler run, only void _budgets plus its explanatory comment was added to mark the already-discarded terminal-summary field intentional. No value, type, import, API, branch or output changed; final clean lint covers those exact bytes.",
+      "earlierFailure": "Initial normal compiler run found only BigInt literal target compatibility and required NODE_ENV fields in new child-process environment objects; both corrected. Its raw failure is retained."
+    },
+    "nonLoopbackDenials": 0,
+    "fullRepositoryRuns": 0,
+    "nativeRuns": 0,
+    "realCredentialReads": 0,
+    "networkCalls": 0,
+    "modelCalls": 0
+  },
+  "evidence": [
+    {
+      "label": "operator-hooks-red",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-operator-hooks-red.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-operator-hooks-red.log",
+      "name": "course-relations-20261119-operator-hooks-red",
+      "exit": 1,
+      "elapsedMs": 1214,
+      "logSha256": "b815e87605f1a95d11fbde0e4344936cb1146a89bd0815886216eca042a54121",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-wZZad0"
+    },
+    {
+      "label": "operator-hooks-green",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-operator-hooks-green.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-operator-hooks-green.log",
+      "name": "course-relations-20261119-operator-hooks-green",
+      "exit": 0,
+      "elapsedMs": 1187,
+      "logSha256": "1a05a0515867fa8595c213c3b5e738623ad41ddf7586bf4d90b9e30e41b4b7a3",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-N1nJQl"
+    },
+    {
+      "label": "operator-policy-red",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-operator-policy-red.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-operator-policy-red.log",
+      "name": "course-relations-20261119-operator-policy-red",
+      "exit": 1,
+      "elapsedMs": 708,
+      "logSha256": "1a06d974bf2129644404a1f2a5f5194221bd6df22bd9bf37fd5a74a97bab364a",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-ungYCq"
+    },
+    {
+      "label": "operator-policy-green-01",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-operator-policy-green-01.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-operator-policy-green-01.log",
+      "name": "course-relations-20261119-operator-policy-green-01",
+      "exit": 0,
+      "elapsedMs": 873,
+      "logSha256": "3cd20580c18030d23f900b4db4eb14c76abc19aad187999cd3b5ae4467d1e459",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-zb5c3G"
+    },
+    {
+      "label": "operator-capture-red",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-operator-capture-red.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-operator-capture-red.log",
+      "name": "course-relations-20261119-operator-capture-red",
+      "exit": 1,
+      "elapsedMs": 834,
+      "logSha256": "c298abc884a8b0b4f770b6b171425e6923e6b026568a67dbff83903f01ce66d1",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-mb2nAl"
+    },
+    {
+      "label": "operator-capture-green",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-operator-capture-green.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-operator-capture-green.log",
+      "name": "course-relations-20261119-operator-capture-green",
+      "exit": 0,
+      "elapsedMs": 1396,
+      "logSha256": "071f762754cabc9ced7ddddf46c7e1aab137e2a5e2362d93bde5bbe7baf7f5cd",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-tX359a"
+    },
+    {
+      "label": "operator-launcher-check",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-operator-launcher-check.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-operator-launcher-check.log",
+      "name": "course-relations-20261119-operator-launcher-check",
+      "exit": 0,
+      "elapsedMs": 2030,
+      "logSha256": "151549082df9fff97f64dda5546ea92aa79ecb95719fde1e71d4a405a93e68c9",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-43naz1"
+    },
+    {
+      "label": "operator-affected",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-operator-affected.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-operator-affected.log",
+      "name": "course-relations-20261119-operator-affected",
+      "exit": 0,
+      "elapsedMs": 19692,
+      "logSha256": "e54c401776fb0112aa2c6d4ea6b6d78800a9a55ab970dbb419966cddf9d272f7",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-wQy4pV"
+    },
+    {
+      "label": "operator-types",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-operator-types.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-operator-types.log",
+      "name": "course-relations-20261119-operator-types",
+      "exit": 2,
+      "elapsedMs": 19961,
+      "logSha256": "9572a72b897b15c68d81c9f0de4ba72bec275a8af61607365db1cab275a76da6",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-1BSV6P"
+    },
+    {
+      "label": "operator-lint",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-operator-lint.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-operator-lint.log",
+      "name": "course-relations-20261119-operator-lint",
+      "exit": 0,
+      "elapsedMs": 5623,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-P9HybB"
+    },
+    {
+      "label": "operator-shared-freeze",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-operator-shared-freeze.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-operator-shared-freeze.log",
+      "name": "course-relations-20261119-operator-shared-freeze",
+      "exit": 0,
+      "elapsedMs": 47,
+      "logSha256": "a06282fde5a85b086bb211ed385d7f249889ce96257c1c4ffdcebd7d27e904ab",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-wKBEAy"
+    },
+    {
+      "label": "operator-types-final",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-operator-types-final.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-operator-types-final.log",
+      "name": "course-relations-20261119-operator-types-final",
+      "exit": 0,
+      "elapsedMs": 17246,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-OBwyXe"
+    },
+    {
+      "label": "operator-compatibility-green",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-operator-compatibility-green.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-operator-compatibility-green.log",
+      "name": "course-relations-20261119-operator-compatibility-green",
+      "exit": 0,
+      "elapsedMs": 2192,
+      "logSha256": "0cf4cadf1b995b87396705ee47c2fbee857d05457701ba421bb3d85c0eb7e3f9",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-TiQhJt"
+    },
+    {
+      "label": "operator-lint-final",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-operator-lint-final.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-operator-lint-final.log",
+      "name": "course-relations-20261119-operator-lint-final",
+      "exit": 0,
+      "elapsedMs": 4285,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-qBFGX2"
+    },
+    {
+      "label": "operator-ledger-red",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-operator-ledger-red.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-operator-ledger-red.log",
+      "name": "course-relations-20261119-operator-ledger-red",
+      "exit": 1,
+      "elapsedMs": 1283,
+      "logSha256": "95aeef7308d44ba9f584ded82cebe4bc21833778db530e9064e9001289533cbc",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-dw0BnU"
+    },
+    {
+      "label": "operator-bootstrap-red",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-operator-bootstrap-red.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-operator-bootstrap-red.log",
+      "name": "course-relations-20261119-operator-bootstrap-red",
+      "exit": 1,
+      "elapsedMs": 1293,
+      "logSha256": "02df857b16a3b1e82165483dadb205214192005474544b849bd95057bd26cd49",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-wcWQ1I"
+    },
+    {
+      "label": "operator-final-boundaries-green",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-operator-final-boundaries-green.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-operator-final-boundaries-green.log",
+      "name": "course-relations-20261119-operator-final-boundaries-green",
+      "exit": 0,
+      "elapsedMs": 2066,
+      "logSha256": "18f60d1e6b00f430d1e3a5f0c9de2bf50b483798c042943b22fee52f0964fa64",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-wgXU5X"
+    },
+    {
+      "label": "operator-freeze-tests",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-operator-freeze-tests.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-operator-freeze-tests.log",
+      "name": "course-relations-20261119-operator-freeze-tests",
+      "exit": 0,
+      "elapsedMs": 2365,
+      "logSha256": "edd2a1a5358429dd43bd93a7350818d0d4f7252b90f1d0202cc238643a6da206",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-HPPg9B"
+    },
+    {
+      "label": "operator-freeze-types",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-operator-freeze-types.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-operator-freeze-types.log",
+      "name": "course-relations-20261119-operator-freeze-types",
+      "exit": 0,
+      "elapsedMs": 17426,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-0p3391"
+    },
+    {
+      "label": "operator-freeze-lint",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-operator-freeze-lint.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-operator-freeze-lint.log",
+      "name": "course-relations-20261119-operator-freeze-lint",
+      "exit": 0,
+      "elapsedMs": 4342,
+      "logSha256": "5f0fbd2fe6361f533c721e0acabda976b7520ed33345eb25a0ea40ed88ba74b5",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-uivtgl"
+    },
+    {
+      "label": "operator-final-clean-lint",
+      "metadataPath": "work/grounded-verification/course-relations-20261119-operator-final-clean-lint.json",
+      "logPath": "work/grounded-verification/course-relations-20261119-operator-final-clean-lint.log",
+      "name": "course-relations-20261119-operator-final-clean-lint",
+      "exit": 0,
+      "elapsedMs": 3603,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-fvbrCp"
+    }
+  ],
+  "operation": {
+    "inspect": "& .\\scripts\\invoke-materials-current-quality.ps1",
+    "checkApprovedPacket": "& .\\scripts\\invoke-materials-current-quality.ps1 -CheckOnly -PacketId <reviewed-id> -PacketSha256 <external-approved-digest>",
+    "execute": "& .\\scripts\\invoke-materials-current-quality.ps1 -ExecuteApproved -PacketId <reviewed-id> -PacketSha256 <external-approved-digest>",
+    "privatePacketLocation": "%USERPROFILE%/.arc-materials/gate-1b/materials-b2/quality-approvals/current/<packetId>/approved.json",
+    "privateRecordSchema": "The bounded schema is in scripts/materials-current-quality-operator.ts. approved.json binds the external owner reply, account readback and screenshot/evidence hash, both existing issuance files, candidate/packet commits, source manifest, docs review attachments and fixed request-draft digest. Each is read and checked, never issued by the operator.",
+    "outputs": "24 journal/captures and final reports stay within the restricted private packet directory. Six retains work/materials-supplement-collection and its registered ledger identity, whose ACL must already be restricted. Startup funding summaries contain selected non-secret values and precision/provenance, never the key."
+  },
+  "remaining": [
+    "Independent specification then quality review is required before the final packet/source freeze or real execution.",
+    "No live key metadata, fresh Credits UI evidence, account identity/guardrail binding or new paid approval has been collected by this implementation. The current USD 2.00 key cap is expected to be insufficient and the read-only path reports that fact; any proposed USD 3.00 cap change requires separate explicit approval/action.",
+    "Root owns final source/adapter/native pinning, application acceptance and preparation of the concrete packet. Neither 6fcf81a nor this handoff is automatically an execution candidate or a grant.",
+    "The Credits path is now explicit: independently reviewed UI-derived whole-dollar lower bound plus exact ordinary /key enforcement budgets. The remaining work is fresh account observation and review, not obtaining a management key or assuming the rounded UI amount is exact.",
+    "No application/course/UI, historical evidence, trusted adapter/pins, deployment, migration, staging or commit was changed by this slice. Source is frozen for review."
+  ]
+}

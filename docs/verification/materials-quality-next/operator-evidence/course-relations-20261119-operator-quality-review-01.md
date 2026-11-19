@@ -1,0 +1,43 @@
+CHANGES REQUESTED — bounded Task 3 operator code-quality review, 2026-11-19.
+
+One reproducible P2 source-binding defect remains. The reviewed authorization, accounting, funding, capture and transport boundaries otherwise need no expansion. This is not acceptance of a concrete paid packet, account evidence, operator readiness or final application acceptance.
+
+**[P2] Bind the runtime module actually selected by the installed launcher before evaluating it.** In `scripts/materials-current-quality-operator.ts:26`, the explicit import of `../docs/verification/materials-quality-next/current-references.mjs` does not guarantee that those pinned bytes execute under `node --import tsx`. Installed Node `v24.14.1` / tsx `4.22.1` selects a same-basename `current-references.mts` ahead of the existing `.mjs`. The new required-attachment check pins `.mjs`, while `verifySource` at lines 311–327 hashes that attachment and delegates non-doc source coverage to `inspectDiagnosticPilotSourceManifest`, which deliberately excludes `docs/`. An added, unpinned `.mts` sibling therefore is not rejected by that source account. The current adapter also imports this `.mjs` loader and the pinned candidate scorer `.mjs` modules, so their fixed `.mjs` resolution paths require the same bounded treatment.
+
+This is a demonstrated resolution mismatch, not a claim that an alternate currently exists in the application checkout. The isolated fixture retained both purportedly pinned files and alternates, used the actual installed launcher/runtime and repository configuration, and returned:
+
+```json
+{"captures":"pinned-ts-captures","adapter":"pinned-ts-adapter","references":"unpinned-mts-references"}
+```
+
+The two extensionless TypeScript imports resolve to their `.ts` files; the initial `.js` shadow suspicion is not a finding. The `.mjs`→`.mts` selection is the concrete defect. Evidence is preserved at `work/grounded-verification/course-relations-20261119-operator-resolution-probe-01/`, including all seven fixture files and `result.json`, SHA-256 `89446558d23c52eeada866e0be07c32063104b7379f6a67b533ad449df9d4ed3`. The child exited 0 with empty stderr. It imported no application modules and used no credential, transport or model.
+
+Use a small fixed bootstrap/resolution boundary for the affected reviewed runtime paths: ensure the pinned module is the actual selected file, or reject its demonstrated `.mts` alternate **before importing/evaluating the affected docs modules**. Preserve the historical modules and their hashes. The current static top-level imports execute before `loadPacket` or `verifySource`; adding only a later send-time/packet guard would detect an alternate after it has already executed. Spelling `.mjs` explicitly is also insufficient, as the fixture shows. Cover the operator and its actual adapter/loader/scorer path with a bounded regression under the installed launcher; no generic import discovery, new source framework, speculative extension campaign or broad test rerun is needed.
+
+Reviewed the seven actual owned files, shared collector diffs against `6fcf81a36fe92bb0084ea0fa10bb6ddd87b73f37`, the recorded eight-line attachment correction, Task 3 plan, feasibility decision, both specification memos and linked primitives. Handoff 01 matches `4e57e9b2b18d77bf52562b47ccbce4080c2f3ef62ac855c2856c9633b6afa7b8`; handoff 02 matches `779993d135f3c3eb883b8a8d957ab92d170fdef57a6ff11d0af4694a6eb5a1c4`. Specification memos remain `88cc25f44fc0113980523cee538a4df240149350a84cdefe1143a27a65e29f3b` and `33873a9673ed565a12eaeae1f118e46c95089b16fe3d179c0687fe9ee25b3369`. All seven current source hashes match:
+
+| File | SHA-256 |
+| --- | --- |
+| `scripts/materials-current-quality-operator.ts` | `fbc0a71b83d610dad39f6f0ccbb4c6c54003da522277417d60bec4c3eb223b16` |
+| `scripts/invoke-materials-current-quality.ps1` | `d54cd5b60cfa7bf231c6934fbfdb07630f9f27541b9b2ecddebbba683f7bc064` |
+| `scripts/materials-qualification-runner.ts` | `fe1120a44f8d8dd79f702b45381ca3666b364d609acdd7ac75da157ca8017099` |
+| `scripts/collect-materials-supplements.ts` | `33a9bcec44772776dddc498255f1cdf0303dab53050a456a2b062552877670d4` |
+| `tests/server/materials-current-quality-operator.test.ts` | `688e5bb71e3f27fdb2065e543ed9dbbb42baeb7bf72c60bf5f25fb2603bebe12` |
+| `tests/server/document-model-qualification-guards.test.ts` | `43aa5eba691673296f1745b3f02ab924ec2ef2920bb0626a6077a927fb9e270a` |
+| `tests/server/materials-supplement-collection.test.ts` | `700510fb8c70a4a45f22c7c787bcb5e2cebd3cee68dcdd1fcf9c53e538192124` |
+
+The attachment correction resolves the initial specification omission: all three exact runtime attachments are required, duplicate paths are rejected, and existing byte checks remain. It does not resolve the distinct runtime selection issue above.
+
+Other inspected boundaries are sound within the fixed operator scope:
+
+- Approval is externally hash-bound, time-limited to at most two hours and tied to distinct 24/six run and grant identities. No issuer, automatic renewal, purchase, cap increase or replacement ledger is introduced. Source, exact request body/order/destination and window are checked at handoff. The six ledger identity and unresolved runs are inspected read-only before 24 and again before six.
+- Account Credits remain separately reviewed, fresh, account/key-bound evidence with an explicitly conservative whole-dollar floor. Key number lexemes are retained and converted conservatively for limits, spending and every returned budget. Ordinary `/key` inspection is separate from the approved send mode; no management-only Credits request is introduced. Private funding records preserve provenance and precision.
+- Both new collector hooks run before marking a request sent. A local refusal releases its reservation, records a fixed reason and makes no transport call. Existing provider logic retains one inference POST and at most three bounded receipt GETs for the new grant, with the historical supplement default of one unchanged. No inference retry is introduced.
+- The actual journal and capture writer are connected. Persistence/unknown-cost/capture failures stop continuation; the first group's complete ordered captures, unique verified receipts, settled sum, zero held cost and absence of a stop reason are required before six. A settled quality failure is preserved rather than retried. Separate exclusive, synced startup claims and original ledgers remain in use.
+- The PowerShell launcher uses hidden input, a hidden child and a restricted environment, removes the credential entry, disposes the secure value and exposes fixed refusal reasons instead of raw errors. Its ordinary mode is read-only. Saved launcher evidence exercises actual PowerShell parsing and refusal before input, then observes the original terminal's continuation marker. The default terminal summary omits detailed budget identities and retains no key label; detailed selected metadata is written only to the restricted private packet directory in approved mode.
+
+Independently matched all 24 saved raw-log hashes and wrapper exit/hash records across both handoffs. Read the meaningful success/failure output: 83 affected tests across three files passed; the later ten-operator-test run passed; these overlapping runs are not summed. The attachment regression failed all five intended denial assertions, then passed one selected test with ten skipped. Raw logs respectively include `e54c401776fb0112aa2c6d4ea6b6d78800a9a55ab970dbb419966cddf9d272f7`, `edd2a1a5358429dd43bd93a7350818d0d4f7252b90f1d0202cc238643a6da206`, `be8cae2564c5d08cd4d1a26289c0d129d2d8dfab796606c1b3fda17509cca07a` and `e1f76e507a07b4305578276bfa95cf7e7cf18f56616e3c51e0c2fa1478499926`.
+
+The recorded compiler exit 0 covers the normal 889-file scope (`f3e9ba860dce73f266f017b1d2ed4c62e4295c9553cdfcbf83a30d8fb7c89c21`). It is not relabeled as a fresh run after the harmless void discard and subsequent local attachment Set/test-data correction. The final clean lint and correction lint logs are empty (`e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`). Earlier compiler failure, lint warning and REDs remain preserved. None of these saved checks exercises the demonstrated alternate-module selection.
+
+Reviewer writes were this memo and the explicitly approved isolated resolution fixture/receipt. No application/source/test edits, ordinary test or native/full-suite reruns, account/key reads, network/model calls, staging or commits. The other accepted review boundaries and saved evidence can be reused for a narrow correction; root retains ownership of final application acceptance.

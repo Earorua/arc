@@ -1,0 +1,37 @@
+[
+  {
+    "originalPath": "scripts/materials-current-quality-operator.ts",
+    "path": "work/grounded-verification/course-relations-20261119-operator-pre-quality-fix/scripts__materials-current-quality-operator.ts.source.txt",
+    "sha256": "fbc0a71b83d610dad39f6f0ccbb4c6c54003da522277417d60bec4c3eb223b16"
+  },
+  {
+    "originalPath": "scripts/invoke-materials-current-quality.ps1",
+    "path": "work/grounded-verification/course-relations-20261119-operator-pre-quality-fix/scripts__invoke-materials-current-quality.ps1.source.txt",
+    "sha256": "d54cd5b60cfa7bf231c6934fbfdb07630f9f27541b9b2ecddebbba683f7bc064"
+  },
+  {
+    "originalPath": "scripts/materials-qualification-runner.ts",
+    "path": "work/grounded-verification/course-relations-20261119-operator-pre-quality-fix/scripts__materials-qualification-runner.ts.source.txt",
+    "sha256": "fe1120a44f8d8dd79f702b45381ca3666b364d609acdd7ac75da157ca8017099"
+  },
+  {
+    "originalPath": "scripts/collect-materials-supplements.ts",
+    "path": "work/grounded-verification/course-relations-20261119-operator-pre-quality-fix/scripts__collect-materials-supplements.ts.source.txt",
+    "sha256": "33a9bcec44772776dddc498255f1cdf0303dab53050a456a2b062552877670d4"
+  },
+  {
+    "originalPath": "tests/server/materials-current-quality-operator.test.ts",
+    "path": "work/grounded-verification/course-relations-20261119-operator-pre-quality-fix/tests__server__materials-current-quality-operator.test.ts.source.txt",
+    "sha256": "688e5bb71e3f27fdb2065e543ed9dbbb42baeb7bf72c60bf5f25fb2603bebe12"
+  },
+  {
+    "originalPath": "tests/server/document-model-qualification-guards.test.ts",
+    "path": "work/grounded-verification/course-relations-20261119-operator-pre-quality-fix/tests__server__document-model-qualification-guards.test.ts.source.txt",
+    "sha256": "43aa5eba691673296f1745b3f02ab924ec2ef2920bb0626a6077a927fb9e270a"
+  },
+  {
+    "originalPath": "tests/server/materials-supplement-collection.test.ts",
+    "path": "work/grounded-verification/course-relations-20261119-operator-pre-quality-fix/tests__server__materials-supplement-collection.test.ts.source.txt",
+    "sha256": "700510fb8c70a4a45f22c7c787bcb5e2cebd3cee68dcdd1fcf9c53e538192124"
+  }
+]

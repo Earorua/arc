@@ -1,0 +1,150 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:47816) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/server/materials-current-quality-operator.test.ts [2m([22m[2m10 tests[22m[2m | [22m[31m3 failed[39m[2m | [22m[33m7 skipped[39m[2m)[22m[32m 10[2mms[22m[39m
+   [2m[90m↓[39m[22m requires externally pinned fresh approval without issuing or extending it
+   [2m[90m↓[39m[22m keeps reviewed Credits as a fresh conservative lower bound and key budgets exact
+[31m   [31m×[31m inspects an insufficient current key before approval without claiming funding or exposing its label[39m[32m 5[2mms[22m[39m
+[31m   [31m×[31m reports only fixed actionable refusal reasons without upstream exception text[39m[32m 1[2mms[22m[39m
+   [2m[90m↓[39m[22m refuses source, destination, body, clock and duplicate sends at the final handoff
+   [2m[90m↓[39m[22m claims a distinct durable once-only startup slot for each existing run
+   [2m[90m↓[39m[22m checks the existing six ledger identity and unresolved runs read-only before starting 24
+   [2m[90m↓[39m[22m continues only after complete capture and settled receipts, retaining quality failures
+   [2m[90m↓[39m[22m wires the actual journal and capture while a later denial stops before the second paid handoff
+[31m   [31m×[31m provides a default read-only hidden-input launcher without a secret argument or transcript[39m[32m 3[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 3 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/server/materials-current-quality-operator.test.ts[2m > [22minspects an insufficient current key before approval without claiming funding or exposing its label
+[31m[1mAssertionError[22m: expected undefined to match object { account: { …(3) }, …(4) }[39m
+
+[32m- Expected:[39m
+{
+  "account": {
+    "creatorUserId": "fixture-owner",
+    "organizationId": null,
+    "workspaceId": "fixture-workspace",
+  },
+  "amounts": {
+    "limit": "2",
+    "remaining": "1.452849",
+  },
+  "eligibleForProposedRun": false,
+  "minimumMicroUsd": 1452849,
+  "reasons": [
+    "insufficient-funds",
+  ],
+}
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m tests/server/materials-current-quality-operator.test.ts:[2m73:18[22m[39m
+    [90m 71|[39m     budgets: [{ ...budget(), limit_usd: 2, remaining_usd: 1.452849 }],…
+    [90m 72|[39m   const report = operator.inspectCurrentKeyReadback(JSON.stringify({ d…
+    [90m 73|[39m   expect(report).toMatchObject({ account, eligibleForProposedRun: fals…
+    [90m   |[39m                  [31m^[39m
+    [90m 74|[39m     amounts: { limit: "2", remaining: "1.452849" }, minimumMicroUsd: 1…
+    [90m 75|[39m   [34mexpect[39m([33mJSON[39m[33m.[39m[34mstringify[39m(report))[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"must-not-be-retained"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/materials-current-quality-operator.test.ts[2m > [22mreports only fixed actionable refusal reasons without upstream exception text
+[31m[1mAssertionError[22m: expected undefined to match object { status: 'refused', …(2) }[39m
+
+[32m- Expected:[39m
+{
+  "message": Any<String>,
+  "reason": "key-readback",
+  "status": "refused",
+}
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m tests/server/materials-current-quality-operator.test.ts:[2m81:6[22m[39m
+    [90m 79|[39m it("reports only fixed actionable refusal reasons without upstream exc…
+    [90m 80|[39m   expect(operator.operatorFailure(new Error("private-secret-from-upstr…
+    [90m 81|[39m     .toMatchObject({ status: "refused", reason: "key-readback", messag…
+    [90m   |[39m      [31m^[39m
+    [90m 82|[39m   expect(JSON.stringify(operator.operatorFailure(new Error("private-se…
+    [90m 83|[39m   [35mconst[39m raw [33m=[39m [33mJSON[39m[33m.[39m[34mstringify[39m([34mapproval[39m())[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/materials-current-quality-operator.test.ts[2m > [22mprovides a default read-only hidden-input launcher without a secret argument or transcript
+[31m[1mAssertionError[22m: expected '#requires -Version 7.2\n[CmdletBindin…' to contain '--inspect-account'[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- --inspect-account[39m
+[31m+ #requires -Version 7.2[39m
+[31m+ [CmdletBinding(DefaultParameterSetName='Check')][39m
+[31m+ param([39m
+[31m+     [Parameter(ParameterSetName='Check')][switch]$CheckOnly,[39m
+[31m+     [Parameter(ParameterSetName='Live',Mandatory)][switch]$ExecuteApproved,[39m
+[31m+     [string]$PacketId,[39m
+[31m+     [string]$PacketSha256[39m
+[31m+ )[39m
+[31m+ $ErrorActionPreference='Stop'[39m
+[31m+ $taskRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))[39m
+[31m+ $nodeExe='C:\Program Files\nodejs\node.exe'[39m
+[31m+ $secureKey=$null;$exitCode=2[39m
+[31m+ function Invoke-CurrentOperator([string]$mode,[Security.SecureString]$credential) {[39m
+[31m+     $psi=[Diagnostics.ProcessStartInfo]::new();$child=$null[39m
+[31m+     try {[39m
+[31m+         $psi.FileName=$nodeExe;$psi.WorkingDirectory=$taskRoot;$psi.UseShellExecute=$false;$psi.CreateNoWindow=$true[39m
+[31m+         $psi.RedirectStandardOutput=$true;$psi.RedirectStandardError=$true;$psi.Environment.Clear()[39m
+[31m+         foreach($name in 'SystemRoot','PATH','PATHEXT','TEMP','TMP','USERPROFILE','LOCALAPPDATA','APPDATA','ComSpec','SystemDrive') {[39m
+[31m+             $value=[Environment]::GetEnvironmentVariable($name);if($value){$psi.Environment[$name]=$value}[39m
+[31m+         }[39m
+[31m+         foreach($argument in '--import','tsx','scripts/materials-current-quality-operator.ts',$mode,$PacketId,$PacketSha256){$psi.ArgumentList.Add($argument)}[39m
+[31m+         if($credential){$psi.Environment['ARC_CURRENT_MATERIALS_KEY']=[Net.NetworkCredential]::new('', $credential).Password}[39m
+[31m+         $child=[Diagnostics.Process]::Start($psi)[39m
+[31m+         $null=$psi.Environment.Remove('ARC_CURRENT_MATERIALS_KEY')[39m
+[31m+         $stdout=$child.StandardOutput.ReadToEndAsync();$stderr=$child.StandardError.ReadToEndAsync()[39m
+[31m+         $child.WaitForExit()[39m
+[31m+         $output=$stdout.GetAwaiter().GetResult();$null=$stderr.GetAwaiter().GetResult()[39m
+[31m+         if($child.ExitCode -ne 0){throw 'Operator refused or stopped'}[39m
+[31m+         # Only the fixed host's bounded summary is printed; stderr and exceptions are never echoed.[39m
+[31m+         if($output.Length -gt 4096){throw 'Unexpected operator output'}[39m
+[31m+         Write-Host $output.Trim()[39m
+[31m+     } finally { $psi.Environment.Clear();if($child){$child.Dispose()} }[39m
+[31m+ }[39m
+[31m+ try {[39m
+[31m+     if($PacketId -notmatch '^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$' -or $PacketSha256 -notmatch '^[a-f0-9]{64}$'){throw 'A separately approved packet and digest are required'}[39m
+[31m+     Invoke-CurrentOperator '--verify' $null[39m
+[31m+     Write-Host 'Only the dedicated materials key is accepted. Input stays hidden and in process memory.'[39m
+[31m+     $secureKey=Read-Host 'Enter the dedicated materials key (hidden)' -AsSecureString[39m
+[31m+     if(!$secureKey -or $secureKey.Length -eq 0){throw 'No credential supplied'}[39m
+[31m+     if($ExecuteApproved) {[39m
+[31m+         Write-Host 'Executing the separately approved 24, then six, once. Keep this terminal open; do not repeat the command.'[39m
+[31m+         Invoke-CurrentOperator '--execute' $secureKey[39m
+[31m+     } else { Invoke-CurrentOperator '--check' $secureKey }[39m
+[31m+     Write-Host 'Finished. Existing evidence is retained; this command does not approve model quality or release.'[39m
+[31m+     $exitCode=0[39m
+[31m+ } catch {[39m
+[31m+     Write-Host 'Current quality operator refused or stopped. Check the approved packet and retained evidence. Do not retry an inference run.'[39m
+[31m+ } finally { if($secureKey){$secureKey.Dispose();$secureKey=$null} }[39m
+[31m+ exit $exitCode[39m
+[31m+[39m
+
+[36m [2m❯[22m tests/server/materials-current-quality-operator.test.ts:[2m173:18[22m[39m
+    [90m171|[39m   [34mexpect[39m(source)[33m.[39m[34mtoContain[39m([32m"$psi.Environment.Clear()"[39m)[33m;[39m
+    [90m172|[39m   [34mexpect[39m(source)[33m.[39m[34mtoContain[39m([32m"$psi.CreateNoWindow=$true"[39m)[33m;[39m
+    [90m173|[39m   [34mexpect[39m(source)[33m.[39m[34mtoContain[39m([32m"--inspect-account"[39m)[33m;[39m
+    [90m   |[39m                  [31m^[39m
+    [90m174|[39m   expect(source).not.toMatch(/ArgumentList\.Add\(\$(?:rawKey|secureKey…
+    [90m175|[39m   [35mconst[39m script [33m=[39m [34mrealpathSync[39m(path)[33m.[39m[34mreplaceAll[39m([32m"'"[39m[33m,[39m [32m"''"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m3 failed[39m[22m[2m | [22m[33m7 skipped[39m[90m (10)[39m
+[2m   Start at [22m 17:41:18
+[2m   Duration [22m 941ms[2m (transform 437ms, setup 183ms, import 603ms, tests 10ms, environment 0ms)[22m
+

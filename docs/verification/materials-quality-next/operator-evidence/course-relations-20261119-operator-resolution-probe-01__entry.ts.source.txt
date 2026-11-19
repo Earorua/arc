@@ -1,0 +1,4 @@
+import { value as captures } from "./current-captures";
+import { value as adapter } from "./current-adapter";
+import { value as references } from "./current-references.mjs";
+console.log(JSON.stringify({captures, adapter, references}));

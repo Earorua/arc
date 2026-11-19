@@ -1,0 +1,134 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+ [31m❯[39m tests/server/materials-current-quality-operator.test.ts [2m([22m[2m6 tests[22m[2m | [22m[31m6 failed[39m[2m)[22m[32m 12[2mms[22m[39m
+[31m   [31m×[31m requires externally pinned fresh approval without issuing or extending it[39m[32m 5[2mms[22m[39m
+[31m   [31m×[31m keeps reviewed Credits as a fresh conservative lower bound and key budgets exact[39m[32m 1[2mms[22m[39m
+[31m   [31m×[31m refuses source, destination, body, clock and duplicate sends at the final handoff[39m[32m 2[2mms[22m[39m
+[31m   [31m×[31m claims a distinct durable once-only startup slot for each existing run[39m[32m 3[2mms[22m[39m
+[31m   [31m×[31m continues only after complete capture and settled receipts, retaining quality failures[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m provides a default read-only hidden-input launcher without a secret argument or transcript[39m[32m 0[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 6 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/server/materials-current-quality-operator.test.ts[2m > [22mrequires externally pinned fresh approval without issuing or extending it
+[31m[1mAssertionError[22m: expected undefined to match object { packetId: 'fixture-current-quality' }[39m
+
+[32m- Expected:[39m
+{
+  "packetId": "fixture-current-quality",
+}
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m tests/server/materials-current-quality-operator.test.ts:[2m45:62[22m[39m
+    [90m 43|[39m it("requires externally pinned fresh approval without issuing or exten…
+    [90m 44|[39m   [35mconst[39m raw [33m=[39m [33mJSON[39m[33m.[39m[34mstringify[39m([34mapproval[39m())[33m;[39m
+    [90m 45|[39m   expect(operator.readCurrentApproval(raw, sha(raw), now())).toMatchOb…
+    [90m   |[39m                                                              [31m^[39m
+    [90m 46|[39m   expect(() => operator.readCurrentApproval(raw, digest, now())).toThr…
+    [90m 47|[39m   expect(() => operator.readCurrentApproval(raw, sha(raw), new Date("2…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/materials-current-quality-operator.test.ts[2m > [22mkeeps reviewed Credits as a fresh conservative lower bound and key budgets exact
+[31m[1mAssertionError[22m: expected undefined to match object { minimumMicroUsd: 4000000 }[39m
+
+[32m- Expected:[39m
+{
+  "minimumMicroUsd": 4000000,
+}
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m tests/server/materials-current-quality-operator.test.ts:[2m53:85[22m[39m
+    [90m 51|[39m
+    [90m 52|[39m it("keeps reviewed Credits as a fresh conservative lower bound and key…
+    [90m 53|[39m   expect(operator.readCurrentCredits(JSON.stringify(credits()), approv…
+    [90m   |[39m                                                                                     [31m^[39m
+    [90m 54|[39m   for (const change of [{ displayedUsd: "2.99" }, { precision: "exact-…
+    [90m 55|[39m     { credentialSha256[33m:[39m digest }[33m,[39m { source[33m:[39m [32m"rounded-catalog-guess"[39m }])
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/materials-current-quality-operator.test.ts[2m > [22mrefuses source, destination, body, clock and duplicate sends at the final handoff
+[31m[1mAssertionError[22m: expected 'undefined' to be 'function' // Object.is equality[39m
+
+Expected: [32m"[7mf[27mun[7mction[27m"[39m
+Received: [31m"un[7mdefined[27m"[39m
+
+[36m [2m❯[22m tests/server/materials-current-quality-operator.test.ts:[2m70:24[22m[39m
+    [90m 68|[39m     redirect[33m:[39m [32m"manual"[39m [35mas[39m [35mconst[39m[33m,[39m bodySha256[33m:[39m row[33m.[39mrequestBodySha256 }[33m;[39m
+    [90m 69|[39m   const guard = operator.createCurrentSendGuard(approval(), "resume-jd…
+    [90m 70|[39m   [34mexpect[39m([35mtypeof[39m guard)[33m.[39m[34mtoBe[39m([32m"function"[39m)[33m;[39m
+    [90m   |[39m                        [31m^[39m
+    [90m 71|[39m   [35mawait[39m [34mguard[39m[33m![39m(request)[33m;[39m
+    [90m 72|[39m   [34mexpect[39m(source)[33m.[39m[34mtoHaveBeenCalledOnce[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/materials-current-quality-operator.test.ts[2m > [22mclaims a distinct durable once-only startup slot for each existing run
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/server/materials-current-quality-operator.test.ts:[2m85:61[22m[39m
+    [90m 83|[39m   const directory = mkdtempSync(join(tmpdir(), "arc-current-operator-"…
+    [90m 84|[39m   [35mawait[39m operator[33m.[39m[34mclaimCurrentSlot[39m(directory[33m,[39m [32m"fixture-24"[39m[33m,[39m digest)[33m;[39m
+    [90m 85|[39m   [34mexpect[39m([34mexistsSync[39m([34mjoin[39m(directory[33m,[39m [32m"fixture-24.started"[39m)))[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   |[39m                                                             [31m^[39m
+    [90m 86|[39m   await expect(operator.claimCurrentSlot(directory, "fixture-24", dige…
+    [90m 87|[39m   [35mawait[39m operator[33m.[39m[34mclaimCurrentSlot[39m(directory[33m,[39m [32m"fixture-six"[39m[33m,[39m digest)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/materials-current-quality-operator.test.ts[2m > [22mcontinues only after complete capture and settled receipts, retaining quality failures
+[31m[1mAssertionError[22m: expected undefined to be true // Object.is equality[39m
+
+[32m- Expected:[39m
+true
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m tests/server/materials-current-quality-operator.test.ts:[2m95:77[22m[39m
+    [90m 93|[39m     accounting: "settled", actualMicroUsd: 7, receiptId: `fixture-${in…
+    [90m 94|[39m   const result = { requestsSent: 24, heldMicroUsd: 0, settledMicroUsd:…
+    [90m 95|[39m   expect(operator.currentQualificationComplete(result, { complete: tru…
+    [90m   |[39m                                                                             [31m^[39m
+    [90m 96|[39m   expect(operator.currentQualificationComplete(result, { complete: fal…
+    [90m 97|[39m   expect(operator.currentQualificationComplete({ ...result, heldMicroU…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/materials-current-quality-operator.test.ts[2m > [22mprovides a default read-only hidden-input launcher without a secret argument or transcript
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/server/materials-current-quality-operator.test.ts:[2m103:28[22m[39m
+    [90m101|[39m it("provides a default read-only hidden-input launcher without a secre…
+    [90m102|[39m   [35mconst[39m path [33m=[39m [32m"scripts/invoke-materials-current-quality.ps1"[39m[33m;[39m
+    [90m103|[39m   [34mexpect[39m([34mexistsSync[39m(path))[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   |[39m                            [31m^[39m
+    [90m104|[39m   [35mconst[39m source [33m=[39m [34mreadFileSync[39m(path[33m,[39m [32m"utf8"[39m)[33m;[39m
+    [90m105|[39m   [34mexpect[39m(source)[33m.[39m[34mtoContain[39m([32m"DefaultParameterSetName='Check'"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m6 failed[39m[22m[90m (6)[39m
+[2m   Start at [22m 17:25:25
+[2m   Duration [22m 385ms[2m (transform 39ms, setup 186ms, import 34ms, tests 12ms, environment 0ms)[22m
+

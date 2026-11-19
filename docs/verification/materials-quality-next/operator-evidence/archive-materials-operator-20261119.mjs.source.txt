@@ -1,0 +1,48 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+const work = 'work/grounded-verification/', stem = 'course-relations-20261119-operator';
+const destination = 'docs/verification/materials-quality-next/operator-evidence';
+assert.equal(existsSync(destination), false, 'Preserve existing archive');
+const digest = bytes => createHash('sha256').update(bytes).digest('hex');
+const files = [];
+function walk(directory) {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const path = directory + '/' + entry.name;
+    if (entry.isDirectory()) walk(path); else if (entry.isFile()) files.push(path);
+    else throw Error('Unexpected artifact type: ' + path);
+  }
+}
+for (const entry of readdirSync(work, { withFileTypes: true }).filter(entry => entry.name.startsWith(stem))) {
+  if (entry.isDirectory()) walk(work + entry.name); else if (entry.isFile()) files.push(work + entry.name);
+  else throw Error('Unexpected artifact type');
+}
+files.push('work/grounded-verification/archive-materials-operator-20261119.mjs');
+files.push('work/grounded-verification/prepare-current-supplement-ledger-20261119.mjs',
+  'work/grounded-verification/course-relations-current-ledger-registration-20261119-01.json',
+  'work/grounded-verification/course-relations-current-ledger-registration-20261119-01.log');
+const handoffPath = work + stem + '-handoff-03.json';
+assert.equal(digest(readFileSync(handoffPath)), '77dbef1b4b12b9b96d64789cbabf4620bffa0aad39290a07eddc0ede6893042b');
+const handoff = JSON.parse(readFileSync(handoffPath, 'utf8'));
+for (const source of handoff.files) assert.equal(digest(readFileSync(source.path)), source.sha256, source.path);
+mkdirSync(destination, { recursive: true });
+const entries = [];
+function save(originalPath, relativePath) {
+  const bytes = readFileSync(originalPath), sha256 = digest(bytes), path = destination + '/' + relativePath;
+  writeFileSync(path, bytes, { flag: 'wx' });
+  assert.equal(digest(readFileSync(path)), sha256);
+  entries.push({ originalPath, path, bytes: bytes.length, sha256 });
+}
+for (const path of files.sort()) {
+  let name = path.slice(work.length).replaceAll('/', '__');
+  if (/\.(?:ts|tsx|mjs|ps1)$/u.test(name)) name += '.source.txt';
+  else if (name.endsWith('.log')) name += '.txt';
+  save(path, name);
+}
+for (const source of handoff.files) save(source.path, 'final-source__' + source.path.replaceAll('/', '__') + '.source.txt');
+const manifest = { schemaVersion: 'materials-current-operator-evidence-v1', status: 'raw-evidence-preserved',
+  createdAt: new Date().toISOString(), fileCount: entries.length, bytes: entries.reduce((sum, file) => sum + file.bytes, 0),
+  handoffSha256: digest(readFileSync(handoffPath)), files: entries };
+const manifestPath = destination + '/manifest.json';
+writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ fileCount: manifest.fileCount, bytes: manifest.bytes, manifestSha256: digest(readFileSync(manifestPath)) }));

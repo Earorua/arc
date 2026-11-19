@@ -1,0 +1,44 @@
+{
+  "purpose": "Isolated installed-tsx module-resolution fixture; no application imports, transport or real credentials.",
+  "node": "v24.14.1",
+  "tsx": "4.22.1",
+  "command": [
+    "node",
+    "--import",
+    "tsx",
+    "work\\grounded-verification\\course-relations-20261119-operator-resolution-probe-01\\entry.ts"
+  ],
+  "status": 0,
+  "stdout": "{\"captures\":\"pinned-ts-captures\",\"adapter\":\"pinned-ts-adapter\",\"references\":\"unpinned-mts-references\"}\n",
+  "stderr": "",
+  "files": [
+    {
+      "path": "entry.ts",
+      "sha256": "fc6376c1d4954fa94737c8b86d3b4138b195f7e4053688f0a43df81f55fd1b6d"
+    },
+    {
+      "path": "current-captures.ts",
+      "sha256": "bb0197e12b80cc0fa84d2ea52ef0e098d28e8487760671a6ca6b04059b4903fe"
+    },
+    {
+      "path": "current-captures.js",
+      "sha256": "ec843202fa63826f33dfe10333be36908873f3d0f9245680fdee360a07594f29"
+    },
+    {
+      "path": "current-adapter.ts",
+      "sha256": "b8a472082a847d0e0583ec078835c389bf9c45a100a7bd6b2b908dcda593a37d"
+    },
+    {
+      "path": "current-adapter.js",
+      "sha256": "6c0ab70c1cf55754b27d50b9a697fe2583d83e1a05b0ef4011849850316e506c"
+    },
+    {
+      "path": "current-references.mjs",
+      "sha256": "bc3622102a7fc12fb90b9e97b6cb304da2b8ce9830460f176727f4b57b4a0794"
+    },
+    {
+      "path": "current-references.mts",
+      "sha256": "207ef69bf3ed7fa46c8fb8fc4cd8aae913d83794036e7e68af969eb2a7d4bc09"
+    }
+  ]
+}

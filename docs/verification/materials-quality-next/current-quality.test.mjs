@@ -37,10 +37,15 @@ async function removeTemporary(dir) {
 
 test("current loader checks all frozen assets, integrated review and the exact accepted native delta", async () => {
   const value = await refs();
+  assert.equal(value.schemaVersion, "materials-current-reviewed-references-v2");
   assert.deepEqual(value.integratedCourse, { valid: true, frozenAssetsChecked: 26, frozenInputsChecked: 5, dependencies: 85, teachingUnits: 48 });
   assert.equal(value.nativeBehaviorReuse.status, "accepted-source-delta-reuse");
-  assert.deepEqual(value.nativeBehaviorReuse.sourceClosure, { files: 146, unchanged: 143, reviewedChanges: 3 });
+  assert.deepEqual(value.nativeBehaviorReuse.sourceClosure, { files: 146, unchanged: 141, reviewedChanges: 5 });
   assert.equal(value.nativeBehaviorReuse.newExecution, false);
+  assert.equal(value.nativeBehaviorReuse.changedRelationExecution.newExecution, true);
+  assert.equal(value.nativeBehaviorReuse.changedRelationExecution.casesPassed, 2);
+  assert.equal(value.nativeBehaviorReuse.changedRelationExecution.assertionGroups, 11);
+  assert.equal(value.nativeBehaviorReuse.changedRelationExecution.positivePracticeUnderDominatingMustDemonstrated, false);
   assert.equal(current.isCurrentReviewedReferences(structuredClone(value)), false);
   assert.equal(Object.isFrozen(value), true);
 });
@@ -53,7 +58,8 @@ test("actual file drift in frozen tools, review memos, current mapping and nativ
       await cp(path.join(root, file.path), destination);
     }
     for (const relative of ["docs/verification/materials-quality-v2/candidate-course.mjs", `${native}/integrated-course-quality-review.md`,
-      "app/lib/materials/skill-mapper.ts", "app/server/documents/service.ts"]) {
+      "app/lib/materials/skill-mapper.ts", "app/server/documents/service.ts", "app/lib/materials/course-relation-scope.ts",
+      "docs/verification/materials-course-relations-20261119/native-evidence/course-relations-native-20261119-quality-review.md"]) {
       const target = path.join(dir, relative), bytes = await readFile(target);
       await writeFile(target, Buffer.concat([bytes, Buffer.from("\n// drift\n")]));
       await assert.rejects(current.loadCurrentReviewedReferences(dir), /current-reference-integrity|integrated-course-binding/u);
@@ -142,7 +148,7 @@ test("null, malformed and missing extraction fields cannot become valid empty so
   assert.equal(report.componentObservations[0].decodedCandidateState, "null");
 });
 
-test("the authored SQL joins probe exposes the real reference mismatch without model or plan claims", async () => {
+test("the authored SQL joins probe observes the reviewed repair without model or plan claims", async () => {
   assert.equal(typeof adapter.evaluateCurrentQuality, "function");
   const doc = raw("resume-04"), candidate = extraction([item(doc, 1, { skillLabels: ["SQL joins"] })]);
   const result = await adapter.evaluateCurrentQuality({ controls: [authored(doc, candidate)] }, await refs());
@@ -151,8 +157,10 @@ test("the authored SQL joins probe exposes the real reference mismatch without m
   assert.equal(result.actualProductIntegrationVerified, false);
   assert.equal(result.captureAccounting.status, "incomplete");
   assert.equal(result.course.view, "simulated-explicit-choice");
-  assert.ok(result.course.errors.some(error => error.documentId === "resume-04" && error.literal === "SQL joins" && error.code === "course-topic"));
-  assert.ok(result.course.errors.some(error => error.documentId === "resume-04" && error.literal === "SQL joins" && error.code === "task-coverage"));
+  assert.equal(result.course.errors.some(error => error.documentId === "resume-04" && error.literal === "SQL joins" && ["course-topic", "course-basis", "task-coverage"].includes(error.code)), false);
+  const sql = result.componentObservations[0].views.baseline.observations.find(row => row.literal === "SQL joins");
+  assert.deepEqual(sql.topic, { status: "mapped", skillIds: ["sql"], basis: "contextual" });
+  assert.equal(sql.taskCoverage.status, "partial");
   assert.equal(Object.hasOwn(result, "planObservations"), false);
   assert.equal(result.nativeBehaviorReuse.newExecution, false);
   await assert.rejects(adapter.evaluateCurrentQuality({ controls: [] }, structuredClone(await refs())), /current-reference-unverified/u);

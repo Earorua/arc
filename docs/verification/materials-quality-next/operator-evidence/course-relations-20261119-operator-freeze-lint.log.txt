@@ -1,0 +1,6 @@
+
+C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\scripts\materials-current-quality-operator.ts
+  376:24  warning  '_budgets' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 1 problem (0 errors, 1 warning)
+

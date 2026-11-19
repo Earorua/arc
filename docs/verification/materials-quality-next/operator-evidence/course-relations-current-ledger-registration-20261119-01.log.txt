@@ -1,0 +1,3 @@
+{"registered":true,"runs":0,"attempts":0,"newInferenceRequests":0,"authorizationIssued":false,"privateRecordWritten":true,"recordSha256":"1ad413d4e8e91cc4f30ebb3b5a184d0ddd7d469a4e406223818ac8129f6ba2f7"}
+(node:38460) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

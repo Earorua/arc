@@ -41,6 +41,8 @@ Before requesting paid approval, use a small, openly authored software control t
 
 ## Task 3 — freeze and present one concrete operator packet
 
+Implementation accepted offline, 2026-11-19: the fixed PowerShell/operator path, denial-only collector hooks, mandatory runtime attachment scope and installed-resolver guard passed focused checks and independent specification/quality rechecks. See `docs/verification/materials-quality-next/operator-result.md` and its 106 preserved raw artifacts. Final application acceptance passed 389 Vitest files / 10,068 tests, 291 Node tests, five render checks, types, lint and build. Candidate/packet commits, precise key readback and new owner fee/cache approval remain unfinished. This is not a completed live packet or permission to collect.
+
 After both slices pass their reviews, freeze the actual execution commit, source/tool hashes and all 30 exact outbound request-body digests using intercepted offline transport. Keep separate fresh run IDs and startup slots for 24 and six; reuse existing authorization/journal machinery and do not execute historical launch scripts.
 
 Prepare ordinary PowerShell hidden-input entry with clear errors and no disappearing window. Read-only account/guardrail/funding verification is separate from the send mode; no key is printed, persisted, committed or placed in command-line arguments. Defer live account reads until the user supplies the key locally. Never bypass missing account evidence with the public model catalog.

@@ -1,0 +1,42 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:39140) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/server/materials-current-quality-operator.test.ts [2m([22m[2m8 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m7 skipped[39m[2m)[22m[32m 19[2mms[22m[39m
+   [2m[90m↓[39m[22m requires externally pinned fresh approval without issuing or extending it
+   [2m[90m↓[39m[22m keeps reviewed Credits as a fresh conservative lower bound and key budgets exact
+   [2m[90m↓[39m[22m refuses source, destination, body, clock and duplicate sends at the final handoff
+   [2m[90m↓[39m[22m claims a distinct durable once-only startup slot for each existing run
+[31m   [31m×[31m checks the existing six ledger identity and unresolved runs read-only before starting 24[39m[32m 18[2mms[22m[39m
+   [2m[90m↓[39m[22m continues only after complete capture and settled receipts, retaining quality failures
+   [2m[90m↓[39m[22m wires the actual journal and capture while a later denial stops before the second paid handoff
+   [2m[90m↓[39m[22m provides a default read-only hidden-input launcher without a secret argument or transcript
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/server/materials-current-quality-operator.test.ts[2m > [22mchecks the existing six ledger identity and unresolved runs read-only before starting 24
+[31m[1mAssertionError[22m: expected undefined to be true // Object.is equality[39m
+
+[32m- Expected:[39m
+true
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m tests/server/materials-current-quality-operator.test.ts:[2m98:76[22m[39m
+    [90m 96|[39m   const directory = mkdtempSync(join(tmpdir(), "arc-current-operator-"…
+    [90m 97|[39m   [35mconst[39m ledgerSha256 [33m=[39m [34mregisterSupplementLedger[39m(directory)[33m;[39m
+    [90m 98|[39m   expect(operator.inspectCurrentSupplementLedger(directory, ledgerSha2…
+    [90m   |[39m                                                                            [31m^[39m
+    [90m 99|[39m   expect(() => operator.inspectCurrentSupplementLedger(directory, dige…
+    [90m100|[39m   [35mconst[39m db [33m=[39m [35mnew[39m [33mDatabaseSync[39m([34mjoin[39m(directory[33m,[39m [32m"ledger.sqlite"[39m))[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[33m7 skipped[39m[90m (8)[39m
+[2m   Start at [22m 17:38:25
+[2m   Duration [22m 948ms[2m (transform 429ms, setup 184ms, import 606ms, tests 19ms, environment 0ms)[22m
+

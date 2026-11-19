@@ -1,0 +1,64 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { stripVTControlCharacters } from 'node:util';
+const dir = 'work/grounded-verification/', prefix = 'course-relations-final-20261119-';
+const json = path => JSON.parse(readFileSync(path, 'utf8'));
+const hash = path => createHash('sha256').update(readFileSync(path)).digest('hex');
+const source = json(dir + prefix + 'source.json');
+for (const [path, digest] of Object.entries(source.files)) assert.equal(hash(path), digest, path);
+const runs = Object.fromEntries(['vitest-01', 'node-01', 'types-01', 'lint-01', 'build-01', 'rendered-01'].map(name => {
+  const path = dir + prefix + name, receipt = json(path + '.json');
+  assert.equal(receipt.exit, 0, name); assert.equal(receipt.nonLoopbackDenials, 0, name);
+  assert.equal(hash(path + '.log'), receipt.logSha256, name);
+  return [name, receipt];
+}));
+const plain = name => stripVTControlCharacters(readFileSync(dir + prefix + name + '.log', 'utf8'));
+const vitestText = plain('vitest-01');
+const rows = [...vitestText.matchAll(/^\s*[✓✔]\s+(tests\/\S+\.test\.(?:ts|tsx))\s+\((\d+) tests?\)/gm)]
+  .map(([, file, count]) => ({ file, tests: Number(count) }));
+assert.deepEqual(rows.map(row => row.file).sort(), source.vitestFiles);
+const suiteSummary = /Test Files\s+(\d+) passed \((\d+)\)/u.exec(vitestText);
+const testSummary = /Tests\s+(\d+) passed \((\d+)\)/u.exec(vitestText);
+assert.ok(suiteSummary && testSummary, 'All-pass summary without skipped or failed cases');
+assert.equal(Number(suiteSummary[1]), rows.length); assert.equal(suiteSummary[1], suiteSummary[2]);
+const vitestCount = rows.reduce((sum, row) => sum + row.tests, 0);
+assert.equal(Number(testSummary[1]), vitestCount); assert.equal(testSummary[1], testSummary[2]);
+function nodeCounts(name) {
+  const text = plain(name), result = {};
+  for (const key of ['tests', 'pass', 'fail', 'cancelled', 'skipped', 'todo']) {
+    const match = new RegExp('^[ℹ#] ' + key + ' (\\d+)', 'm').exec(text);
+    assert.ok(match, name + ': ' + key); result[key] = Number(match[1]);
+  }
+  assert.equal(result.tests, result.pass);
+  for (const key of ['fail', 'cancelled', 'skipped', 'todo']) assert.equal(result[key], 0);
+  return result;
+}
+const node = nodeCounts('node-01'), rendered = nodeCounts('rendered-01');
+assert.equal(rendered.tests, 5);
+const lint = plain('lint-01');
+assert.match(lint, /0 errors, 4 warnings/u);
+const references = {
+  'docs/verification/materials-course-relations-20261119/evidence/manifest.json': '023666bb21d98830a71aea077930affeaa7d0e91f5dac1f2dd1a87d89c64e095',
+  'docs/verification/materials-course-relations-20261119/native-review-receipt.json': '60f2b15784b9029efac08b7d96ad0e1a71d53a3b1dc7c123e6ca771072731eea',
+  'docs/verification/materials-course-relations-20261119/native-evidence/manifest.json': '2eac7bf42067a894c9caca5d7a150e4e207ee52696f880661df772e9dcd3d24d',
+  'docs/verification/materials-quality-next/binding-v2-evidence/manifest.json': '01f65dc8783285d9335b93c60932c94eab014e1a551825c0b736fc31814b7a48',
+  'docs/verification/materials-quality-next/current-references.mjs': '77d28ca1ab5b6d62dc6ba54b1d3d73a63ba66882719cd7422852777062467cd5',
+  'docs/verification/materials-quality-next/operator-evidence/manifest.json': '8845314211725e583c1308882e4e8279eb1c382f151637333c34e0e5622585a7',
+  'docs/verification/materials-quality-next/request-draft/manifest.json': '06238bde3fbc45aa33efb38da95234cfbb74d34d162bf1941d9ac0c56c964ac7',
+};
+for (const [path, digest] of Object.entries(references)) assert.equal(hash(path), digest, path);
+const result = {
+  schemaVersion: 'materials-course-relations-final-acceptance-v1', status: 'OFFLINE_ACCEPTED',
+  sourceHead: source.head, sourceDigest: source.digest, sourceFiles: source.count,
+  vitest: { files: rows.length, tests: vitestCount, failed: 0, skipped: 0, rows }, node, rendered,
+  types: 'PASS', lint: { errors: 0, warnings: 4 }, build: 'PASS', runs, references,
+  evidenceReuse: { oldNativeCases: 14, changedRelationNativeCases: 2, newNativeRunsDuringFinalAcceptance: 0,
+    currentBindingV2: '8/8 plus independent spec and quality reviews; not repeated',
+    softwareThirtyInputDiagnosticRepeated: false },
+  exclusions: { newModelRequests: 0, newModelCostUsd: 0, remoteMigration: false, deployed: false,
+    gate1BAccepted: false, productionReleased: false },
+};
+writeFileSync(dir + prefix + 'acceptance.json', JSON.stringify(result, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ status: result.status, vitestFiles: rows.length, vitestTests: vitestCount, node, rendered,
+  sourceDigest: source.digest, warnings: 4, acceptanceSha256: hash(dir + prefix + 'acceptance.json') }));

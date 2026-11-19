@@ -1,0 +1,89 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:44400) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/server/materials-current-quality-operator.test.ts [2m([22m[2m12 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m11 skipped[39m[2m)[22m[33m 961[2mms[22m[39m
+   [2m[90m↓[39m[22m requires externally pinned fresh approval without issuing or extending it
+   [2m[90m↓[39m[22m requires every exact current runtime attachment once and rejects all duplicate paths
+[31m   [31m×[31m checks installed runtime resolution before any current or nested scorer evaluation[39m[33m 960[2mms[22m[39m
+   [2m[90m↓[39m[22m keeps reviewed Credits as a fresh conservative lower bound and key budgets exact
+   [2m[90m↓[39m[22m inspects an insufficient current key before approval without claiming funding or exposing its label
+   [2m[90m↓[39m[22m reports only fixed actionable refusal reasons without upstream exception text
+   [2m[90m↓[39m[22m refuses source, destination, body, clock and duplicate sends at the final handoff
+   [2m[90m↓[39m[22m claims a distinct durable once-only startup slot for each existing run
+   [2m[90m↓[39m[22m checks the existing six ledger identity and unresolved runs read-only before starting 24
+   [2m[90m↓[39m[22m continues only after complete capture and settled receipts, retaining quality failures
+   [2m[90m↓[39m[22m wires the actual journal and capture while a later denial stops before the second paid handoff
+   [2m[90m↓[39m[22m provides a default read-only hidden-input launcher without a secret argument or transcript
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/server/materials-current-quality-operator.test.ts[2m > [22mchecks installed runtime resolution before any current or nested scorer evaluation
+[31m[1mAssertionError[22m: materials-quality-next/current-references.mts: expected { status: 'loaded', …(3) } to deeply equal { status: 'refused', …(2) }[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "evaluated": [],[39m
+[32m-   "message": "current-runtime-resolution-mismatch",[39m
+[32m-   "status": "refused",[39m
+[31m+   "adapter": "pinned-course:alternate",[39m
+[31m+   "captures": "pinned-ts-captures",[39m
+[31m+   "evaluated": [[39m
+[31m+     "captures",[39m
+[31m+     "candidate-course",[39m
+[31m+     "unpinned-alternate",[39m
+[31m+     "adapter",[39m
+[31m+   ],[39m
+[31m+   "status": "loaded",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/server/materials-current-quality-operator.test.ts:[2m113:53[22m[39m
+    [90m111|[39m     [34mexpect[39m(result[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m0[39m)[33m;[39m [34mexpect[39m(result[33m.[39mstderr)[33m.[39m[34mtoBe[39m([32m""[39m)[33m;[39m
+    [90m112|[39m     [35mconst[39m observed [33m=[39m [33mJSON[39m[33m.[39m[34mparse[39m(result[33m.[39mstdout)[33m;[39m
+    [90m113|[39m     if (alternate) expect.soft(observed, alternate).toEqual({ status: …
+    [90m   |[39m                                                     [31m^[39m
+    [90m114|[39m     else expect(observed).toMatchObject({ status: "loaded", captures: …
+    [90m115|[39m   }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/materials-current-quality-operator.test.ts[2m > [22mchecks installed runtime resolution before any current or nested scorer evaluation
+[31m[1mAssertionError[22m: materials-quality-v2/candidate-course.mts: expected { status: 'loaded', …(3) } to deeply equal { status: 'refused', …(2) }[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "evaluated": [],[39m
+[32m-   "message": "current-runtime-resolution-mismatch",[39m
+[32m-   "status": "refused",[39m
+[31m+   "adapter": "alternate:pinned-mjs-references",[39m
+[31m+   "captures": "pinned-ts-captures",[39m
+[31m+   "evaluated": [[39m
+[31m+     "captures",[39m
+[31m+     "unpinned-alternate",[39m
+[31m+     "references",[39m
+[31m+     "adapter",[39m
+[31m+   ],[39m
+[31m+   "status": "loaded",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/server/materials-current-quality-operator.test.ts:[2m113:53[22m[39m
+    [90m111|[39m     [34mexpect[39m(result[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m0[39m)[33m;[39m [34mexpect[39m(result[33m.[39mstderr)[33m.[39m[34mtoBe[39m([32m""[39m)[33m;[39m
+    [90m112|[39m     [35mconst[39m observed [33m=[39m [33mJSON[39m[33m.[39m[34mparse[39m(result[33m.[39mstdout)[33m;[39m
+    [90m113|[39m     if (alternate) expect.soft(observed, alternate).toEqual({ status: …
+    [90m   |[39m                                                     [31m^[39m
+    [90m114|[39m     else expect(observed).toMatchObject({ status: "loaded", captures: …
+    [90m115|[39m   }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[33m11 skipped[39m[90m (12)[39m
+[2m   Start at [22m 18:14:51
+[2m   Duration [22m 2.01s[2m (transform 462ms, setup 245ms, import 649ms, tests 961ms, environment 0ms)[22m
+

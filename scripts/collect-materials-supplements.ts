@@ -21,11 +21,13 @@ import { KIMI_SOURCE_SPAN_ROUTE, sourceSpanPolicy } from "../worker/document-exe
 import { openSupplementLedger, readPinnedSupplementIssuance, readSupplementCaptureArchive, registerSupplementLedger, supplementLimits as limits, supplementPurpose as purpose,
   supplementSettingsSchema as settingsSchema, supplementFixtureToken as fixtureToken, type SupplementIssuanceBinding } from "./materials-supplement-ledger";
 import { inspectDiagnosticPilotSourceManifest } from "./materials-diagnostic-pilot-host";
+import type { MaterialCollectionBeforeSend } from "./materials-qualification-runner";
 import { readFrozenSupplementDocuments, scoreSupplementBatch, supplementCorpusSha256 } from "./score-materials-supplements";
 
 const sha = (value: string) => createHash("sha256").update(value, "utf8").digest("hex");
 type Environment = Readonly<Record<string, string | undefined>>;
-type CollectionOptions = { directory: string; fetch: DocumentFetch; matchesCandidate: (commit: string) => boolean | Promise<boolean>; now?: () => Date };
+type CollectionOptions = { directory: string; fetch: DocumentFetch; matchesCandidate: (commit: string) => boolean | Promise<boolean>;
+  now?: () => Date; beforeSend?: MaterialCollectionBeforeSend };
 
 function requireSupplementGate(env: Environment) {
   if (env.ARC_SUPPLEMENT_COLLECTION_ENABLED !== "true" || env.ARC_DOCUMENT_QUALIFICATION_ENABLED === "true" || env.ARC_DOCUMENT_PILOT_ENABLED === "true"
@@ -150,6 +152,13 @@ async function collect(raw: string, env: Environment, options: CollectionOptions
         ...(maxMetadataReads === 1 ? { singleMetadataRead: true as const } : {}), fetch: async (url, init) => {
         assertWindow();
         if (init?.method === "POST" && !sent) {
+          if (options.beforeSend) {
+            try {
+              await options.beforeSend(Object.freeze({ documentId: doc.id, url: String(url), redirect: init.redirect,
+                bodySha256: typeof init.body === "string" ? sha(init.body) : null }));
+            } catch { handoffFailure = "operator-before-send-refused"; throw new Error(handoffFailure); }
+            assertWindow();
+          }
           ledger.markSending(doc.id, now().toISOString());
           assertWindow();
           sent = true;
@@ -213,6 +222,13 @@ const root = fileURLToPath(new URL("../", import.meta.url));
 const ledgerDirectory = fileURLToPath(new URL("../work/materials-supplement-collection/", import.meta.url));
 function frozenSource(commit: string) {
   return inspectDiagnosticPilotSourceManifest(root, commit);
+}
+
+/** Fixed live boundary for the current operator; transport, source and ledger are not injectable. */
+export function collectAuthorizedSupplementForOperator(raw: string, env: Environment, beforeSend: MaterialCollectionBeforeSend) {
+  if (typeof beforeSend !== "function") throw new Error("supplement-disabled");
+  return collect(raw, env, { directory: ledgerDirectory, fetch: globalThis.fetch, beforeSend,
+    matchesCandidate: async commit => (await frozenSource(commit)).candidateCommit === commit }, "authorized-live");
 }
 
 if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {
