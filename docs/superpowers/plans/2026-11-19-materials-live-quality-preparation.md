@@ -1,0 +1,44 @@
+# Prepare the next bounded Kimi quality evaluation
+
+Status: offline execution authorized by the active materials goal; no paid authorization has been issued. Continue after accepted integrated source `a5d2fda9d037ee8301b10a5637a6169a67293e99`. Use subagent-driven implementation, specification review, then quality review for each code slice. Keep the same worktree and preserve all historical evidence.
+
+## Fixed scope
+
+Use the existing 24 resume/JD documents plus six supplement documents, their original bytes and IDs, the reviewed independent source/course scoring functions, the integrated course binding, and accepted native 14-case behavior evidence. Keep the old 84-field scorer and all old reference assets unchanged. Do not make another generic billing system, expand the corpus/parser/course content, rerun the native matrix, or repeat the accepted full application suite for isolated qualification tooling.
+
+The November 19 public read-only check still lists Kimi K3.1 Pro, `moonshotai/mxfp4`, generation model `moonshotai/kimi-k3.1-pro-20261023`, input/output USD 2/10 per million tokens. The strict ZDR catalog lists `safety_retention:false` and implicit caching. This is not fresh account, credential, funding or endpoint-UUID proof. No secret is read from chat, disk history or browser internals.
+
+## Task 1 — preserve actual collection output
+
+Keep the 24-document and six-document authorization and durable accounting paths separate. The existing 24-document runner already receives actual production-decoded candidates but discards them after legacy scoring. Add the smallest optional, bounded capture boundary for this qualification path and a local writer/adapter; do not change the HTTP provider or ordinary product service.
+
+- Preserve the actual assistant content, actual finish/decode status including null/invalid output, exact decoded candidate, document/version/text identity, request-body digest, receipt ID and verified accounting identity. Raw content and production projection must remain separate. Never repair terms, hints or reminders from gold during collection.
+- Continue honoring before-send expiry/budget guards, once-only execution, durable receipt claims and settlement. A capture write failure must stop further inference while keeping already attributable cost settled; unknown costs remain held. Do not make capture success a substitute for receipt verification or discard failed outputs to improve quality.
+- Existing calls without the optional capture feature retain their behavior and report shape; the diagnostic pilot is not broadened. The actual qualification entry will opt in only through the new frozen operator packet.
+- Reuse the supplement ledger's existing raw and decoded capture. Add a read-only export that verifies its original issuance/source/document/receipt binding and does not reopen a run for sending.
+- Correct the demonstrated supplement metadata timing gap with the existing bounded generation lookup path: at most three read-only GET attempts per document, still one inference POST. R2's 24 first-lookups were all 404, so keeping a one-GET limit would knowingly waste a paid attempt. This offline implementation choice needs no separate permission; the future concrete paid authorization must explicitly include the three-GET bound. Never silently expand an already-issued authorization.
+- Test only the new boundaries: faithful output/identity capture, invalid/null output retention, capture-write failure after settlement, tampered export identity, and the bounded read-only retry with no extra POST. Reuse existing relevant qualification/supplement tests; no new broad model/mock campaign.
+
+## Task 2 — current-binding quality adapter
+
+Add separately versioned verification tooling rather than editing `materials-quality-v2`'s historical loader or its WeakSet trust credential.
+
+- Verify all frozen reference/tool hashes, original corpora/basis, the new integrated binding verifier and independent review receipt; check actual current files. Reuse the original source/course scoring primitives and thresholds unchanged. Do not manufacture an old checkout to satisfy the old loader.
+- Transform only actual captured fields into candidate input. Preserve raw assistant output, production-decoded extraction, source validation/projection, removed terms and current course observations as distinct evidence. Call the current actual mapping/coverage functions using current blueprint/registry. No standard-answer imports may construct observations; missing/unrepresentable observations produce explicit failure/incompleteness.
+- Pin accepted native manifest/check/reviews and the independently reviewed three-file integration delta. Reuse this as a separate native behavior receipt. Do not fabricate `planObservations` matching synthetic reference after-states or relabel the old raw run as executed on current English bytes.
+- Keep historical evaluator flags and result files untouched. The new aggregate report must distinguish capture/accounting completion, source quality, course quality, native behavior reuse, and Gate authorization. It cannot grant a paid call, production qualification or release.
+- Add a few focused positive/negative controls for actual-adapter projection and integrity drift. Existing evaluator control tests are software tests only, never real Kimi results. Run types/lint and changed tooling tests; no full repository or native rerun absent a demonstrated shared-behavior change.
+
+## Task 3 — freeze and present one concrete operator packet
+
+After both slices pass their reviews, freeze the actual execution commit, source/tool hashes and all 30 exact outbound request-body digests using intercepted offline transport. Keep separate fresh run IDs and startup slots for 24 and six; reuse existing authorization/journal machinery and do not execute historical launch scripts.
+
+Prepare ordinary PowerShell hidden-input entry with clear errors and no disappearing window. Read-only account/guardrail/funding verification is separate from the send mode; no key is printed, persisted, committed or placed in command-line arguments. Defer live account reads until the user supplies the key locally. Never bypass missing account evidence with the public model catalog.
+
+Budget proposal, subject to exact configuration validation: 24 requests capped at USD 2.00 plus six capped at USD 0.45, combined authorization maximum USD 2.45; one request maximum USD 0.075. At 16,000 input and 4,096 output tokens, reserve USD 0.072960 per request, total USD 2.188800. New inferences may begin only within two hours of explicit approval; no automatic inference retries. Include up to three read-only generation lookups per request, strict ZDR/no fallback/no training or content logging, and the disclosed upstream implicit cache boundary. Include current OpenRouter ZDR exceptions accurately; do not promise absolute zero storage.
+
+Only after the concrete packet, offline checks and source integrity are complete, request the user's new scoped approval required by Gate 1B. The previous R2/P1 approvals remain expired. No real user records, remote migrations, hosted B3/B4/B5 or deployment are covered by this plan or the proposed synthetic-evaluation approval.
+
+## Completion and evidence reuse
+
+Success for this preparation means an independently reviewed collector/adapter, reproducible fixed input/configuration commitments, a reviewable authorization sheet, and a safe local operator command. Report actual remaining account/approval blockers; do not claim model-quality success until actual receipts and measurements exist. Preserve the integrated application acceptance and rerun only tests affected by demonstrated changes.
