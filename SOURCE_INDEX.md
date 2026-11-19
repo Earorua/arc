@@ -15,6 +15,8 @@
 
 此前 `714ea9e` 的[暂停说明](https://github.com/Earorua/arc/blob/714ea9e54d87b91a1fee4883176d4f1dd06ecf63/docs/verification/2026-11-08-materials-practice-priorities-pause.md)是历史失败记录，保留用于追溯，不再是最新未完成修复。复用已通过证据，仅为实际变更或缺口补必要检查；旧参考摘要不重写，主线英文界面及已发布改进必须保留。真实模型、远程迁移和部署仍按 Gate 独立授权。
 
+11 月 19 日后续已验收[采集衔接工具](./docs/verification/materials-quality-next/capture-result.md)，当前继续评分适配。付费前离线检查发现一项真实的 `SQL joins` 课程对应缺口，仍待修复；原有限课程覆盖验收不代表全部质量语料已通过。详见最新恢复记录，勿复用历史授权启动模型或发布。
+
 ## 开始任务前
 
 ```bash

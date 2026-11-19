@@ -1,0 +1,28 @@
+{
+  "observedAt": "2026-11-19T07:11:58.7561226+00:00",
+  "model": "moonshotai/kimi-k3.1-pro",
+  "generationModel": "moonshotai/kimi-k3.1-pro-20261023",
+  "tag": "moonshotai/mxfp4",
+  "provider": "Moonshot AI",
+  "promptUsdPerMillion": 2,
+  "completionUsdPerMillion": 10,
+  "cacheReadUsdPerMillion": 0.2,
+  "supportsImplicitCaching": true,
+  "safetyRetention": false,
+  "publicEndpointUuidPublished": false,
+  "accountConfigurationVerified": false,
+  "rawFiles": [
+    {
+      "path": "kimi-20261119-public-endpoints.json",
+      "sha256": "84e256f907ea61dd0800fe87fc89231fb5dff83a18642c102412fc5d444ddd74"
+    },
+    {
+      "path": "kimi-20261119-public-zdr.json",
+      "sha256": "2869dfa5ca988109a52fef3c40d838495907d8670db46422fd90ef0926ce72a0"
+    },
+    {
+      "path": "kimi-20261119-public-models.json",
+      "sha256": "e9fb71dfafaf9848a552a3b0e58d5d285a6ff16fbd5c27c4503b073882cb2131"
+    }
+  ]
+}

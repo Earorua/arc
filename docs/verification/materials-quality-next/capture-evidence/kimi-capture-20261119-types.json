@@ -1,0 +1,18 @@
+{
+  "include": [
+    "../../scripts/materials-qualification-capture.ts",
+    "../../scripts/materials-qualification-runner.ts",
+    "../../scripts/collect-materials-supplements.ts",
+    "../../scripts/materials-supplement-ledger.ts",
+    "../../tests/server/document-model-qualification-guards.test.ts",
+    "../../tests/server/document-qualification-capture.test.ts",
+    "../../tests/server/materials-supplement-collection.test.ts"
+  ],
+  "exclude": [
+    "../../node_modules"
+  ],
+  "compilerOptions": {
+    "incremental": false
+  },
+  "extends": "../../tsconfig.json"
+}

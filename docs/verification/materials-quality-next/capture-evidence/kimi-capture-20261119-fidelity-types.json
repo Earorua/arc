@@ -1,0 +1,13 @@
+{
+  "exclude": [
+    "../../node_modules"
+  ],
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "incremental": false
+  },
+  "include": [
+    "../../scripts/materials-qualification-capture.ts",
+    "../../tests/server/document-qualification-capture.test.ts"
+  ]
+}

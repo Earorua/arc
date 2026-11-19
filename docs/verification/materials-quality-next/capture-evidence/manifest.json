@@ -1,0 +1,333 @@
+{
+  "schemaVersion": "materials-quality-capture-evidence-v1",
+  "status": "offline-reviewed",
+  "tests": {
+    "originalAffectedFiles": 6,
+    "originalAffectedPassed": 102,
+    "finalWriterPassed": 2,
+    "reconciledFiles": 6,
+    "reconciledPassed": 103,
+    "types": "PASS",
+    "lint": "PASS",
+    "reviewerTestRuns": 0
+  },
+  "historicalFailuresRetained": true,
+  "realModelCalls": 0,
+  "costMicroUsd": 0,
+  "sourceFiles": [
+    {
+      "sha256": "f55c6df1f9580b170f29e0cb0b254d81fc4f3bc5b905c7f7d9a6f67bbde91c32",
+      "path": "scripts/materials-qualification-capture.ts",
+      "changedFromPrior": true,
+      "bytes": 6899
+    },
+    {
+      "sha256": "a8a2c715d9d097795849d71c337a66b01f060add948ae346c35611e6ce0969bb",
+      "path": "scripts/materials-qualification-runner.ts",
+      "changedFromPrior": false,
+      "bytes": 22638
+    },
+    {
+      "sha256": "27118e3e594040dd5eb881ab68da0d7a5b8b842b88e694f92a4ac2fa60a400ce",
+      "path": "scripts/collect-materials-supplements.ts",
+      "changedFromPrior": false,
+      "bytes": 17776
+    },
+    {
+      "sha256": "297661629ce0aa55a194fe65cbdaa13085e0ca4de6937cb05c39af33fa594f04",
+      "path": "scripts/materials-supplement-ledger.ts",
+      "changedFromPrior": false,
+      "bytes": 21864
+    },
+    {
+      "sha256": "99a5d025930945871279e25b428890fd9f0e3427286d0a9f214ec64ac864402b",
+      "path": "tests/server/document-qualification-capture.test.ts",
+      "changedFromPrior": true,
+      "bytes": 5807
+    },
+    {
+      "sha256": "b5e5fb37a0332fc331724085f65e26b5aa08b56f8243c8ea3f7fcce647b64ef9",
+      "path": "tests/server/document-model-qualification-guards.test.ts",
+      "changedFromPrior": false,
+      "bytes": 25646
+    },
+    {
+      "sha256": "14619f1938bf388efaca33a0d78f376d696b031b6721ea92eec6895887cdf867",
+      "path": "tests/server/materials-supplement-collection.test.ts",
+      "changedFromPrior": false,
+      "bytes": 56532
+    }
+  ],
+  "entries": [
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-affected-01.json",
+      "path": "kimi-capture-20261119-affected-01.json",
+      "bytes": 274,
+      "sha256": "ffa4aa7c526be84bacd607cd00108112ce2d5fff4c392b4860d5f09fd256e683"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-affected-01.log",
+      "path": "kimi-capture-20261119-affected-01.log.txt",
+      "bytes": 3977,
+      "sha256": "0244d0841548f4f2d3f515d5fed512d691e6b2310a80f7c37244b88a3428ae08"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-fidelity-green-01.json",
+      "path": "kimi-capture-20261119-fidelity-green-01.json",
+      "bytes": 278,
+      "sha256": "04efd615bc26b57870231ba24229077ec097f3e90061f0eb13439e03e1d31f31"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-fidelity-green-01.log",
+      "path": "kimi-capture-20261119-fidelity-green-01.log.txt",
+      "bytes": 538,
+      "sha256": "ed5951498fd77f903bee187ab4400d996a9db5479abef21cefc6e9091aa086df"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-fidelity-handoff.json",
+      "path": "kimi-capture-20261119-fidelity-handoff.json",
+      "bytes": 2586,
+      "sha256": "8951a8f611abd3d579386b1f3f6bb6b812d69036f1bc768337e636a3841777cc"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-fidelity-lint-01.json",
+      "path": "kimi-capture-20261119-fidelity-lint-01.json",
+      "bytes": 278,
+      "sha256": "02e4b90d1fa02344f59e8b19433dfae471cd6c67ea24d386b680a228b75fb135"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-fidelity-lint-01.log",
+      "path": "kimi-capture-20261119-fidelity-lint-01.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-fidelity-originals/prior-handoff.json",
+      "path": "kimi-capture-20261119-fidelity-originals/prior-handoff.json",
+      "bytes": 3020,
+      "sha256": "1577c211fef7e586e0d06834133b3e623e572e937299445c469f02a48a1c64b8"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-fidelity-originals/prior-spec-review.md",
+      "path": "kimi-capture-20261119-fidelity-originals/prior-spec-review.md",
+      "bytes": 7638,
+      "sha256": "aa580a808639e5a4e50dc70f1b8d4d4660dc8b464bdb97cc255651e4f84f4e71"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-fidelity-originals/scripts__collect-materials-supplements.ts",
+      "path": "kimi-capture-20261119-fidelity-originals/scripts__collect-materials-supplements.ts",
+      "bytes": 17776,
+      "sha256": "27118e3e594040dd5eb881ab68da0d7a5b8b842b88e694f92a4ac2fa60a400ce"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-fidelity-originals/scripts__materials-qualification-capture.ts",
+      "path": "kimi-capture-20261119-fidelity-originals/scripts__materials-qualification-capture.ts",
+      "bytes": 6615,
+      "sha256": "5c6e7a62cffbb60d2d51b0c60e50f58e01603678a18fd2137c0d24cca9bc6cac"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-fidelity-originals/scripts__materials-qualification-runner.ts",
+      "path": "kimi-capture-20261119-fidelity-originals/scripts__materials-qualification-runner.ts",
+      "bytes": 22638,
+      "sha256": "a8a2c715d9d097795849d71c337a66b01f060add948ae346c35611e6ce0969bb"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-fidelity-originals/scripts__materials-supplement-ledger.ts",
+      "path": "kimi-capture-20261119-fidelity-originals/scripts__materials-supplement-ledger.ts",
+      "bytes": 21864,
+      "sha256": "297661629ce0aa55a194fe65cbdaa13085e0ca4de6937cb05c39af33fa594f04"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-fidelity-originals/tests__server__document-model-qualification-guards.test.ts",
+      "path": "kimi-capture-20261119-fidelity-originals/tests__server__document-model-qualification-guards.test.ts",
+      "bytes": 25646,
+      "sha256": "b5e5fb37a0332fc331724085f65e26b5aa08b56f8243c8ea3f7fcce647b64ef9"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-fidelity-originals/tests__server__document-qualification-capture.test.ts",
+      "path": "kimi-capture-20261119-fidelity-originals/tests__server__document-qualification-capture.test.ts",
+      "bytes": 3289,
+      "sha256": "e29133e63d8f54b50b8bb3e97d95e4460f63de3f0902f7de616bf9587681594d"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-fidelity-originals/tests__server__materials-supplement-collection.test.ts",
+      "path": "kimi-capture-20261119-fidelity-originals/tests__server__materials-supplement-collection.test.ts",
+      "bytes": 56532,
+      "sha256": "14619f1938bf388efaca33a0d78f376d696b031b6721ea92eec6895887cdf867"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-fidelity-quality-review.md",
+      "path": "kimi-capture-20261119-fidelity-quality-review.md",
+      "bytes": 2686,
+      "sha256": "2d04bc8c532cbc6bff000b99edd28f10bfa2e28c7941163d4bbc865b29c13127"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-fidelity-red-01.json",
+      "path": "kimi-capture-20261119-fidelity-red-01.json",
+      "bytes": 276,
+      "sha256": "9f586bb13bfe5f0c90d2a98fd84acbe0a51f8b55dcb5e6773538a51ac85d9e4b"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-fidelity-red-01.log",
+      "path": "kimi-capture-20261119-fidelity-red-01.log.txt",
+      "bytes": 2089,
+      "sha256": "e2cbcb2e8504099edf472e02aca72c5fc37e3f8dad3eed47f3c033dd38c9137f"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-fidelity-spec-review.md",
+      "path": "kimi-capture-20261119-fidelity-spec-review.md",
+      "bytes": 3864,
+      "sha256": "7c55eb4908e426ee1cbe1466eea29c3c89fdf002c4fabb145a7eaf8cbeede504"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-fidelity-types-01.json",
+      "path": "kimi-capture-20261119-fidelity-types-01.json",
+      "bytes": 279,
+      "sha256": "b86ea4fcba5ad15f9e53dfc06f929e44d756e3e841cf316f53728382467d9277"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-fidelity-types-01.log",
+      "path": "kimi-capture-20261119-fidelity-types-01.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-fidelity-types.json",
+      "path": "kimi-capture-20261119-fidelity-types.json",
+      "bytes": 290,
+      "sha256": "7959608708e83ad1c49439156bf4e2edcdc75dd4117d1a0cee04da52fcc31459"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-green-01.json",
+      "path": "kimi-capture-20261119-green-01.json",
+      "bytes": 271,
+      "sha256": "5353e8c485f15976a5ae880cbe82cb010c761c430b65f3b92a84f11df7c90006"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-green-01.log",
+      "path": "kimi-capture-20261119-green-01.log.txt",
+      "bytes": 11153,
+      "sha256": "b60c4f9155003dbe3b11a9057cddea23ca49bc939c5fd774aec8a5f0444610b9"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-green-02.json",
+      "path": "kimi-capture-20261119-green-02.json",
+      "bytes": 270,
+      "sha256": "dfaad8cfb8ac6f98e7a10cf545846b5000a8af060675809b4b4e886ae88273b2"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-green-02.log",
+      "path": "kimi-capture-20261119-green-02.log.txt",
+      "bytes": 1220,
+      "sha256": "07a86d8ee2a34f031eb8184a2fe2e6facd5428856120ec8374401a3232922c13"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-handoff.json",
+      "path": "kimi-capture-20261119-handoff.json",
+      "bytes": 3020,
+      "sha256": "1577c211fef7e586e0d06834133b3e623e572e937299445c469f02a48a1c64b8"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-lint-01.json",
+      "path": "kimi-capture-20261119-lint-01.json",
+      "bytes": 269,
+      "sha256": "11102398f6bfed2c8ccf21dac0a17e6035adf59bf9bcd31fb87a82ab7da923ff"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-lint-01.log",
+      "path": "kimi-capture-20261119-lint-01.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-originals/manifest.json",
+      "path": "kimi-capture-20261119-originals/manifest.json",
+      "bytes": 782,
+      "sha256": "aac374b187ef86886f4806267721ecf31a3bf3e159afd0da9dbfee1f9a39cc36"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-originals/scripts__collect-materials-supplements.ts",
+      "path": "kimi-capture-20261119-originals/scripts__collect-materials-supplements.ts",
+      "bytes": 16544,
+      "sha256": "e57a596091534ff6faafae93551337cb7e73f284ea0452549aae500138e3b425"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-originals/scripts__materials-qualification-runner.ts",
+      "path": "kimi-capture-20261119-originals/scripts__materials-qualification-runner.ts",
+      "bytes": 20479,
+      "sha256": "29cf748eadb61a03b006b9d3450097b0b4f546543448fcc2184555500f197968"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-originals/scripts__materials-supplement-ledger.ts",
+      "path": "kimi-capture-20261119-originals/scripts__materials-supplement-ledger.ts",
+      "bytes": 16077,
+      "sha256": "533ea83c1f1d204b1d59f0aed18f87d0688133e5d659dc84ed7795d074bd34ac"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-originals/tests__server__document-model-qualification-guards.test.ts",
+      "path": "kimi-capture-20261119-originals/tests__server__document-model-qualification-guards.test.ts",
+      "bytes": 21971,
+      "sha256": "7b2b737b12b80015cea437f40a824e39b8fcefc3397f900715ab6a8562152214"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-originals/tests__server__materials-supplement-collection.test.ts",
+      "path": "kimi-capture-20261119-originals/tests__server__materials-supplement-collection.test.ts",
+      "bytes": 52459,
+      "sha256": "53ad00dbe46eee87f549287d65bbd1e4af9ffff8e5c64dc8501fab0961a7819c"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-quality-review.md",
+      "path": "kimi-capture-20261119-quality-review.md",
+      "bytes": 3302,
+      "sha256": "a09c9b0374f2967aedb613e321f8ba06cafc560955558a2921c8636c36311fd4"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-red-01.json",
+      "path": "kimi-capture-20261119-red-01.json",
+      "bytes": 268,
+      "sha256": "7c4dbcb922c0f7d21a2333e0d76950d503fd1043bf7aabfce0ea40f6c8efba56"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-red-01.log",
+      "path": "kimi-capture-20261119-red-01.log.txt",
+      "bytes": 16569,
+      "sha256": "3ac27227d303b9853913c61a90cd470b4dfb86363d2c9535c6030e3b53f0cf7b"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-spec-review.md",
+      "path": "kimi-capture-20261119-spec-review.md",
+      "bytes": 7638,
+      "sha256": "aa580a808639e5a4e50dc70f1b8d4d4660dc8b464bdb97cc255651e4f84f4e71"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-types-01.json",
+      "path": "kimi-capture-20261119-types-01.json",
+      "bytes": 270,
+      "sha256": "835f7325888e0c195d80b50a07f754c7f95968ab7d940368abff48557f11361d"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-types-01.log",
+      "path": "kimi-capture-20261119-types-01.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-types.json",
+      "path": "kimi-capture-20261119-types.json",
+      "bytes": 592,
+      "sha256": "1fcadeca713ae1775dc8b13c14ea5b3875e085d6f89354dedde08de7e0ad9a40"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-writer-red-01.json",
+      "path": "kimi-capture-20261119-writer-red-01.json",
+      "bytes": 274,
+      "sha256": "ac6eb9c141e397d26143c1581aacc4b98cf7433f28c0fd6ace4315fee33d0ad5"
+    },
+    {
+      "original": "work/grounded-verification/kimi-capture-20261119-writer-red-01.log",
+      "path": "kimi-capture-20261119-writer-red-01.log.txt",
+      "bytes": 1862,
+      "sha256": "6508707ac2b4f7198da298be5affa66c0c8fd19e1cddef96279f59c474588bd6"
+    }
+  ]
+}

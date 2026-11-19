@@ -9,6 +9,7 @@ import { documentReceiptRouteSchema, type DocumentReceiptAudit } from "../app/se
 import { HttpDocumentAnalysisProvider, calculateDocumentReservation, documentProviderQualificationSchema, isDocumentProviderQualified, type DocumentFetch } from "../worker/document-executor/provider-http";
 import { corpusDigest, qualificationInput, qualificationSegments, QualificationRunError } from "./materials-qualification-inputs";
 import { readDiagnosticPilotConfiguration } from "./materials-diagnostic-pilot-policy";
+import { assertQualificationCaptureHasNoCredential, captureQualificationChat, emptyQualificationChat, type QualificationOutputCapture } from "./materials-qualification-capture";
 
 export { QualificationRunError, qualificationSegments };
 export { inspectDiagnosticPilotScope, readDiagnosticPilotConfiguration } from "./materials-diagnostic-pilot-policy";
@@ -128,15 +129,16 @@ type RunDependencies = {
   fetch: DocumentFetch; checkpoint(value: QualificationCheckpoint): Promise<void>;
   mode: QualificationResult["mode"]; now?: () => Date;
 };
-type ExecutionDependencies = Omit<RunDependencies, "checkpoint"> & { checkpoint?: RunDependencies["checkpoint"] };
-export function runDocumentQualification(env: Environment, dependencies: RunDependencies) {
+type CaptureDependency = { capture?: (value: QualificationOutputCapture) => Promise<void> };
+type ExecutionDependencies = Omit<RunDependencies, "checkpoint"> & { checkpoint?: RunDependencies["checkpoint"] } & CaptureDependency;
+export function runDocumentQualification(env: Environment, dependencies: RunDependencies & CaptureDependency) {
   return runAuthorizedDocuments(env, dependencies, "full");
 }
 export function runDocumentDiagnosticPilot(env: Environment, dependencies: RunDependencies | { mode: "authorized-live" }) {
   // A caller cannot substitute the live clock, paid transport, or durable journal.
   return runAuthorizedDocuments(env, dependencies.mode === "authorized-live" ? { mode: "authorized-live", fetch: globalThis.fetch } : dependencies, "pilot");
 }
-function runAuthorizedDocuments(env: Environment, dependencies: RunDependencies, profile: "full"): Promise<Extract<QualificationResult, { maxRequests: 24 }>>;
+function runAuthorizedDocuments(env: Environment, dependencies: RunDependencies & CaptureDependency, profile: "full"): Promise<Extract<QualificationResult, { maxRequests: 24 }>>;
 function runAuthorizedDocuments(env: Environment, dependencies: ExecutionDependencies, profile: "pilot"): Promise<Extract<QualificationResult, { maxRequests: 4 }>>;
 async function runAuthorizedDocuments(env: Environment, dependencies: ExecutionDependencies, profile: "full" | "pilot"): Promise<QualificationResult> {
   const clock = dependencies.now ?? (() => new Date());
@@ -150,6 +152,8 @@ async function runAuthorizedDocuments(env: Environment, dependencies: ExecutionD
   const settings = profile === "pilot" ? await readDiagnosticPilotConfiguration(env, now(), dependencies.mode)
     : { ...readQualificationConfiguration(env, now()), pilotScope: null, documents: corpus.documents, openLiveJournal: null };
   const { config, authorization, qualification, runId, reservationMicroUsd, pilotScope, documents: selected } = settings;
+  // The pilot's public dependency surface and live host do not acquire a capture capability.
+  const capture = profile === "full" ? dependencies.capture : undefined;
   const journal = settings.openLiveJournal ? await settings.openLiveJournal() : null;
   const persist = journal?.checkpoint ?? dependencies.checkpoint;
   if (!persist) throw new QualificationRunError("qualification-checkpoint-failed");
@@ -199,6 +203,7 @@ async function runAuthorizedDocuments(env: Environment, dependencies: ExecutionD
     result.heldMicroUsd += reservationMicroUsd;
 
     let admissionReason: string | null = null;
+    let capturedChat = emptyQualificationChat(), requestBodySha256: string | null = null;
     let generationReads = 0, claimedGenerationUrl: string | null = null;
     const provider = new HttpDocumentAnalysisProvider(config, { qualification, now, fetch: async (url, init) => {
       if (init?.method !== "POST") {
@@ -221,8 +226,10 @@ async function runAuthorizedDocuments(env: Environment, dependencies: ExecutionD
       if (admissionReason) throw new Error("qualification-before-send");
       result.requestsSent++;
       entry.sentAt = handoff.toISOString();
+      if (capture && typeof init.body === "string") requestBodySha256 = createHash("sha256").update(init.body, "utf8").digest("hex");
       const response = await dependencies.fetch(url, init);
       entry.returnedAt = now().toISOString();
+      if (capture) capturedChat = await captureQualificationChat(response, init.signal!);
       return response;
     } });
     const outcome = await provider.analyze(input, new AbortController().signal, undefined, async (receiptId, observed) => {
@@ -269,6 +276,23 @@ async function runAuthorizedDocuments(env: Environment, dependencies: ExecutionD
         entry.quality = scoreCandidate(document, input.segments, outcome.candidate, config.providerPolicyId);
         entry.status = entry.quality.passed ? "passed" : "failed";
       }
+    }
+    if (capture && entry.sentAt !== null) {
+      try {
+        if (requestBodySha256 === null) throw new Error("qualification-capture-body-missing");
+        const value: QualificationOutputCapture = {
+          schemaVersion: "materials-qualification-output-v1", runId, authorizationId: authorization.id, mode: dependencies.mode,
+          documentId: document.id, documentVersionId: document.documentVersionId, textVersionId: document.textVersionId,
+          sourceTextSha256: createHash("sha256").update(document.text, "utf8").digest("hex"),
+          providerPolicyId: config.providerPolicyId, endpoint: config.endpoint, model: config.model, requestBodySha256,
+          chat: capturedChat, outcome, accounting: { state: entry.accounting as "settled" | "released" | "held-unknown",
+            reservedMicroUsd: reservationMicroUsd, actualMicroUsd: entry.actualMicroUsd },
+        };
+        assertQualificationCaptureHasNoCredential(value, config.apiKey);
+        // A sink cannot mutate the provider outcome/audit used for the durable accounting checkpoint.
+        await capture(structuredClone(value));
+        if (capturedChat.status === "unreadable") throw new Error("qualification-capture-unreadable");
+      } catch { stop ??= "capture-failed"; entry.status = entry.accounting === "held-unknown" ? "cost-unknown" : "failed"; }
     }
     entry.reason = stop ?? (entry.status === "passed" ? null : "quality-threshold-failed");
     entry.processingEndedAt = now().toISOString();

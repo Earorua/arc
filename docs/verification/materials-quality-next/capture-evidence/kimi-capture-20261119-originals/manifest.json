@@ -1,0 +1,22 @@
+[
+  {
+    "path": "scripts/materials-qualification-runner.ts",
+    "sha256": "29cf748eadb61a03b006b9d3450097b0b4f546543448fcc2184555500f197968"
+  },
+  {
+    "path": "scripts/collect-materials-supplements.ts",
+    "sha256": "e57a596091534ff6faafae93551337cb7e73f284ea0452549aae500138e3b425"
+  },
+  {
+    "path": "scripts/materials-supplement-ledger.ts",
+    "sha256": "533ea83c1f1d204b1d59f0aed18f87d0688133e5d659dc84ed7795d074bd34ac"
+  },
+  {
+    "path": "tests/server/document-model-qualification-guards.test.ts",
+    "sha256": "7b2b737b12b80015cea437f40a824e39b8fcefc3397f900715ab6a8562152214"
+  },
+  {
+    "path": "tests/server/materials-supplement-collection.test.ts",
+    "sha256": "53ad00dbe46eee87f549287d65bbd1e4af9ffff8e5c64dc8501fab0961a7819c"
+  }
+]

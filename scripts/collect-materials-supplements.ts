@@ -18,7 +18,7 @@ import { documentAcceptanceConfigurationDigest } from "../worker/document-execut
 import { readDocumentHttpJson } from "../worker/document-executor/generation-receipt";
 import { calculateDocumentReservation, HttpDocumentAnalysisProvider, isDocumentProviderQualified, type DocumentFetch } from "../worker/document-executor/provider-http";
 import { KIMI_SOURCE_SPAN_ROUTE, sourceSpanPolicy } from "../worker/document-executor/source-span-extraction";
-import { openSupplementLedger, readPinnedSupplementIssuance, registerSupplementLedger, supplementLimits as limits, supplementPurpose as purpose,
+import { openSupplementLedger, readPinnedSupplementIssuance, readSupplementCaptureArchive, registerSupplementLedger, supplementLimits as limits, supplementPurpose as purpose,
   supplementSettingsSchema as settingsSchema, supplementFixtureToken as fixtureToken, type SupplementIssuanceBinding } from "./materials-supplement-ledger";
 import { inspectDiagnosticPilotSourceManifest } from "./materials-diagnostic-pilot-host";
 import { readFrozenSupplementDocuments, scoreSupplementBatch, supplementCorpusSha256 } from "./score-materials-supplements";
@@ -55,6 +55,15 @@ export async function inspectSupplementSettings(input: unknown) {
 /** Supply the original externally pinned issuance when reopening an archive. This function grants no transport access. */
 export function supplementCaptureBinding(raw: string, issuanceSha256: string, mode: SupplementIssuanceBinding["mode"]) {
   return readPinnedSupplementIssuance(raw, issuanceSha256, mode).binding;
+}
+
+/** No credential, gate enablement or transport. This verifies the original source commitment, not a new live grant. */
+export async function exportSupplementRun(raw: string, issuanceSha256: string, directory: string, mode: SupplementIssuanceBinding["mode"]) {
+  const { issued, binding } = readPinnedSupplementIssuance(raw, issuanceSha256, mode);
+  const scope = await inspectSupplementSettings({ config: issued.config, qualification: issued.qualification });
+  if (scope.configurationSha256 !== issued.authorization.configurationSha256 || JSON.stringify(scope.documents) !== JSON.stringify(issued.authorization.documents))
+    throw new Error("supplement-run-binding-mismatch");
+  return readSupplementCaptureArchive(directory, binding);
 }
 async function verifyIssuance(raw: string, env: Environment, options: CollectionOptions, now: Date, mode: SupplementIssuanceBinding["mode"]) {
   requireSupplementGate(env);
@@ -130,13 +139,15 @@ async function collect(raw: string, env: Environment, options: CollectionOptions
       if (balance.requestsSent >= authorization.maxRequests) { reason = "request-limit"; break; }
       if (balance.settledMicroUsd + balance.heldMicroUsd + reservation > authorization.totalBudgetMicroUsd) { reason = "budget-exhausted"; break; }
       ledger.reserve(authorization.documents[index]!, reservation, now().toISOString());
-      let sent = false, metadataRead = false, captureFailed = false, handoffFailure: string | null = null;
+      let sent = false, metadataReads = 0, captureFailed = false, handoffFailure: string | null = null;
+      const maxMetadataReads = authorization.maxMetadataReadsPerDocument ?? 1;
       let rawDigest: string | null = null;
       const assertWindow = () => {
         handoffFailure = admissionFailure();
         if (handoffFailure) throw new Error(handoffFailure);
       };
-      const provider = new HttpDocumentAnalysisProvider(config, { qualification, now, singleMetadataRead: true, fetch: async (url, init) => {
+      const provider = new HttpDocumentAnalysisProvider(config, { qualification, now,
+        ...(maxMetadataReads === 1 ? { singleMetadataRead: true as const } : {}), fetch: async (url, init) => {
         assertWindow();
         if (init?.method === "POST" && !sent) {
           ledger.markSending(doc.id, now().toISOString());
@@ -148,9 +159,9 @@ async function collect(raw: string, env: Environment, options: CollectionOptions
           // Even if capture failed, let the adapter attribute a trustworthy chat charge without another HTTP request.
           return response;
         }
-        if (init?.method !== "GET" || !sent || metadataRead || captureFailed) throw new Error("supplement-request-refused");
-        metadataRead = true;
-        // This scope permits one GET. Let the auditor see its actual HTTP status.
+        if (init?.method !== "GET" || !sent || metadataReads >= maxMetadataReads || captureFailed) throw new Error("supplement-request-refused");
+        metadataReads++;
+        // The existing provider supplies bounded delays/deadlines; this grant supplies the read ceiling.
         return options.fetch(url, init);
       } });
       const outcome = await provider.analyze({ kind: "supplement", text: doc.text, segments: doc.segments, textVersionId: doc.textVersionId,
@@ -214,7 +225,11 @@ if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) 
       process.stdout.write(JSON.stringify({ candidateCommit, candidateTree, checkedFiles: files.length }) + "\n");
     }
     else if (mode === "--inspect") process.stdout.write(JSON.stringify(await inspectSupplementSettings(JSON.parse(readSettingsFile(path))), null, 2) + "\n");
-    else if (mode === "--collect") {
+    else if (mode === "--export") {
+      const digest = process.env.ARC_SUPPLEMENT_ISSUANCE_SHA256;
+      if (!digest) throw new Error();
+      process.stdout.write(JSON.stringify(await exportSupplementRun(readSettingsFile(path), digest, ledgerDirectory, "authorized-live")) + "\n");
+    } else if (mode === "--collect") {
       requireSupplementGate(process.env);
       const result = await collect(readSettingsFile(path), process.env, {
         matchesCandidate: async commit => (await frozenSource(commit)).candidateCommit === commit, directory: ledgerDirectory, fetch: globalThis.fetch,

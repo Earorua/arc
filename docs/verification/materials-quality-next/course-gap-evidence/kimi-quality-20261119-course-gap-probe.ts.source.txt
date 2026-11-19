@@ -1,0 +1,44 @@
+import { writeFileSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { createHash } from 'node:crypto';
+import corpus from '../../tests/fixtures/documents/quality-corpus.json';
+import { flagshipBlueprint } from '../../app/data/flagship-blueprint';
+import { flagshipUnitRegistry } from '../../app/data/flagship-unit-registry';
+import { mapMaterialItemTerms } from '../../app/lib/materials/skill-mapper';
+import { createCourseTaskCoverageEvaluator } from '../../app/lib/materials/course-task-coverage';
+import { validateDocumentExtraction } from '../../app/server/documents/extraction-validator';
+import { KIMI_SOURCE_MENTIONS_POLICY_ID } from '../../app/server/documents/policy';
+import { DOCUMENT_SCHEMA_VERSION } from '../../app/contracts/documents';
+import { qualificationSegments } from '../../scripts/materials-qualification-inputs';
+
+// One openly authored software control. No model, gold-derived candidate or user action.
+const doc = corpus.documents.find(value => value.id === 'resume-04')!;
+const quote = 'I used SQL joins to reconcile trial and paid accounts, following review notes.';
+const segments = qualificationSegments(doc);
+const segment = segments.find(value => doc.text.slice(value.start, value.end).includes(quote))!;
+const candidate = { schemaVersion: DOCUMENT_SCHEMA_VERSION,
+  items: [{ id: 'probe-sql-joins', kind: 'experience', text: quote, source: { segmentId: segment.id, quote },
+    skillLabels: ['SQL joins'], selfLevelHint: null, requirementLevel: null }], reviewPoints: [] };
+const projection = validateDocumentExtraction(candidate, 'quality-fixture-owner', {
+  ownerId: 'quality-fixture-owner', documentId: doc.id, documentVersionId: doc.documentVersionId,
+  textVersionId: doc.textVersionId, lifecycle: 'active', text: doc.text, segments,
+}, KIMI_SOURCE_MENTIONS_POLICY_ID);
+const mapping = mapMaterialItemTerms(projection.items, flagshipBlueprint, flagshipUnitRegistry, {});
+const coverage = createCourseTaskCoverageEvaluator(flagshipBlueprint, flagshipUnitRegistry, 'flagship');
+const actual = mapping.map(detail => ({ ...detail, coverage: coverage(detail, projection.items.find(item => item.id === detail.itemId)!) }));
+// Read the independent expected relation only after the real product observation exists.
+const referencePath = 'docs/verification/materials-quality-v2/course-annotations.draft.json';
+const bytes = readFileSync(resolve(referencePath));
+const reference = JSON.parse(bytes.toString('utf8'));
+const expected = reference.documents.find((value: { documentId: string }) => value.documentId === doc.id)
+  .fields.find((value: { fieldId: string }) => value.fieldId === 'resume-04-field-2')
+  .relations.find((value: { literal: string }) => value.literal === 'SQL joins');
+const mismatch = actual.length !== 1 || actual[0].coverage.status !== expected.taskCoverage.status;
+const result = { kind: 'constructed-control', actualModelOutput: false, realModelCalls: 0,
+  sourceTextUnchanged: true, candidate, projection, actual,
+  reference: { path: referencePath, sha256: createHash('sha256').update(bytes).digest('hex'),
+    documentId: doc.id, fieldId: 'resume-04-field-2', literal: 'SQL joins', expectedCoverage: expected.taskCoverage.status },
+  mismatch, reason: 'One specific pre-spend coverage suspicion; no entire corpus or native matrix replay.' };
+writeFileSync(resolve('work/grounded-verification/kimi-quality-20261119-course-gap-observation.json'), JSON.stringify(result, null, 2) + '\n', { flag: 'wx' });
+process.stdout.write(JSON.stringify({ kind: result.kind, realModelCalls: 0, actual, expectedCoverage: expected.taskCoverage.status, mismatch }) + '\n');
+process.exitCode = mismatch ? 1 : 0;

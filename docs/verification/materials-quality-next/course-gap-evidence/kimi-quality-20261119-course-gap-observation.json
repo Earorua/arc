@@ -1,0 +1,74 @@
+{
+  "kind": "constructed-control",
+  "actualModelOutput": false,
+  "realModelCalls": 0,
+  "sourceTextUnchanged": true,
+  "candidate": {
+    "schemaVersion": "2026.11.1",
+    "items": [
+      {
+        "id": "probe-sql-joins",
+        "kind": "experience",
+        "text": "I used SQL joins to reconcile trial and paid accounts, following review notes.",
+        "source": {
+          "segmentId": "resume-04-segment-2",
+          "quote": "I used SQL joins to reconcile trial and paid accounts, following review notes."
+        },
+        "skillLabels": [
+          "SQL joins"
+        ],
+        "selfLevelHint": null,
+        "requirementLevel": null
+      }
+    ],
+    "reviewPoints": []
+  },
+  "projection": {
+    "reviewProjection": "source-skill-mentions-v3",
+    "items": [
+      {
+        "id": "probe-sql-joins",
+        "kind": "experience",
+        "text": "I used SQL joins to reconcile trial and paid accounts, following review notes.",
+        "origin": "extracted",
+        "sourceRef": {
+          "documentId": "resume-04",
+          "documentVersionId": "resume-04-version-1",
+          "textVersionId": "resume-04-text-1",
+          "start": 133,
+          "end": 211
+        },
+        "requirementLevel": null,
+        "skillLabels": [
+          "SQL joins"
+        ]
+      }
+    ],
+    "selfAssessmentHints": [],
+    "reviewPoints": []
+  },
+  "actual": [
+    {
+      "itemId": "probe-sql-joins",
+      "term": "SQL joins",
+      "status": "uncovered",
+      "skillIds": [],
+      "basis": null,
+      "coverage": {
+        "status": "none",
+        "support": [],
+        "remaining": "unassessed-scope"
+      }
+    }
+  ],
+  "reference": {
+    "path": "docs/verification/materials-quality-v2/course-annotations.draft.json",
+    "sha256": "c602035d36fba77a36287149891b775c2ed9420d64612f0cbd76309fc02d6bcf",
+    "documentId": "resume-04",
+    "fieldId": "resume-04-field-2",
+    "literal": "SQL joins",
+    "expectedCoverage": "partial"
+  },
+  "mismatch": true,
+  "reason": "One specific pre-spend coverage suspicion; no entire corpus or native matrix replay."
+}

@@ -1,0 +1,36 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+ [31m❯[39m tests/server/document-qualification-capture.test.ts [2m([22m[2m2 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m1 skipped[39m[2m)[22m[32m 14[2mms[22m[39m
+[31m   [31m×[31m rejects a parsed overflowing exponent before writing while preserving the original wire string[39m[32m 13[2mms[22m[39m
+   [2m[90m↓[39m[22m writes exclusive bounded capture files bound to the frozen document and execution identity
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/server/document-qualification-capture.test.ts[2m > [22mrejects a parsed overflowing exponent before writing while preserving the original wire string
+[31m[1mAssertionError[22m: promise resolved "undefined" instead of rejecting[39m
+
+[32m- Expected:[39m
+Error {
+  "message": "rejected promise",
+}
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m tests/server/document-qualification-capture.test.ts:[2m26:40[22m[39m
+    [90m 24|[39m       outcome: { kind: "received", candidate, actualMicroUsd: 7, recei…
+    [90m 25|[39m       accounting: { state: "settled", actualMicroUsd: 7, reservedMicro…
+    [90m 26|[39m     await expect(writer.capture(value)).rejects.toThrow("qualification…
+    [90m   |[39m                                        [31m^[39m
+    [90m 27|[39m     expect(existsSync(join(writer.directory, doc.id + ".json"))).toBe(…
+    [90m 28|[39m     const rejectedOutput = { ...value, outcome: { ...value.outcome, ca…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[33m1 skipped[39m[90m (2)[39m
+[2m   Start at [22m 15:46:47
+[2m   Duration [22m 605ms[2m (transform 154ms, setup 198ms, import 250ms, tests 14ms, environment 0ms)[22m
+

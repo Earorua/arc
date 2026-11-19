@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "materials-course-preflight-gap-v1",
+  "applicationCommit": "a5d2fda9d037ee8301b10a5637a6169a67293e99",
+  "actualModelOutput": false,
+  "realModelCalls": 0,
+  "firstRun": "reference-locator-error",
+  "secondRun": "actual-product-gap-confirmed",
+  "entries": [
+    {
+      "path": "kimi-quality-20261119-course-gap-01.json",
+      "bytes": 275,
+      "sha256": "9406ac46ac3358c62afb280b64b9a36900d2bb45e80199b702d6abc60b0ade58"
+    },
+    {
+      "path": "kimi-quality-20261119-course-gap-01.log.txt",
+      "bytes": 835,
+      "sha256": "be0a41bc2e2d1a310f0ad77a74f6d161aebbe15398a87189321e69dfe63ea7a0"
+    },
+    {
+      "path": "kimi-quality-20261119-course-gap-02.json",
+      "bytes": 275,
+      "sha256": "924f7e64f7189864f874764c40f95bcf505191afd821f32d8b8d01d4c706cd5b"
+    },
+    {
+      "path": "kimi-quality-20261119-course-gap-02.log.txt",
+      "bytes": 275,
+      "sha256": "d997a16c057c61bd5dfb72a2f5cab4a39a136231abc85d89ce28d532621530fb"
+    },
+    {
+      "path": "kimi-quality-20261119-course-gap-observation.json",
+      "bytes": 2083,
+      "sha256": "a784b430157ff7b490f69d801f0152e9b598a40fdf116eb8557261eb3284396b"
+    },
+    {
+      "path": "kimi-quality-20261119-course-gap-probe-01.source.txt",
+      "bytes": 3682,
+      "sha256": "255eeda27d3bc642eaab7318e0aa59139f4b667582091fa15ccb69bcab858d03"
+    },
+    {
+      "path": "kimi-quality-20261119-course-gap-probe.ts.source.txt",
+      "bytes": 3682,
+      "sha256": "63f2d00057c9adc48b2fa624b97de5c3e10d8d42b2c00b4985db71c2e7b69135"
+    }
+  ]
+}

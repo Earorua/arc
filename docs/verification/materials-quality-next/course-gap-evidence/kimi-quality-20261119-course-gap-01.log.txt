@@ -1,0 +1,11 @@
+C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\work\grounded-verification\kimi-quality-20261119-course-gap-probe.ts:36
+const mismatch = actual.length !== 1 || actual[0].coverage.status !== expected.taskCoverage.status;
+                                                                               ^
+
+TypeError: Cannot read properties of undefined (reading 'taskCoverage')
+    at <anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\work\grounded-verification\kimi-quality-20261119-course-gap-probe.ts:36:80)
+    at ModuleJob.run (node:internal/modules/esm/module_job:430:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:661:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.14.1

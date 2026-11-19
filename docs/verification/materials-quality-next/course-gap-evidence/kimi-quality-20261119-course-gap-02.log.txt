@@ -1,0 +1,1 @@
+{"kind":"constructed-control","realModelCalls":0,"actual":[{"itemId":"probe-sql-joins","term":"SQL joins","status":"uncovered","skillIds":[],"basis":null,"coverage":{"status":"none","support":[],"remaining":"unassessed-scope"}}],"expectedCoverage":"partial","mismatch":true}

@@ -34,6 +34,7 @@ function temporaryDirectory() {
   return directory;
 }
 afterEach(() => {
+  vi.useRealTimers();
   for (const directory of directories.splice(0)) {
     const target = realpathSync(directory);
     if (dirname(target) !== realpathSync(tmpdir()) || !basename(target).startsWith("arc-supplement-collection-")) throw new Error("unexpected temporary directory");
@@ -494,6 +495,62 @@ it("honors the separate one-GET scope even when a 404 would otherwise be retried
   const row = inspectDb(directory, "SELECT audit_json FROM attempts")[0]!;
   expect(JSON.parse(String(row.audit_json))).toMatchObject({metadataAttempts:1, metadataLookups:[{httpStatus:404,outcome:"http-status"}]});
   expect(http).toHaveBeenCalledTimes(2);
+});
+
+it.each([true, false])("uses a newly issued three-GET allowance without retrying inference; available=%s", async available => {
+  const directory = temporaryDirectory(), prior = await sourceSpanFixture(directory);
+  const grant = { ...prior, authorization: { ...prior.authorization, maxMetadataReadsPerDocument: 3, totalBudgetMicroUsd: 72_960 } };
+  vi.useFakeTimers();
+  const offsets: number[] = [], start = Date.now();
+  let firstLookup!: () => void;
+  const ready = new Promise<void>(resolve => { firstLookup = resolve; });
+  const http = transport(index => spanChat(index), id => {
+    if (id !== "gen-span-0") return generation(id);
+    firstLookup();
+    offsets.push(Date.now() - start);
+    return available && offsets.length === 3 ? generation(id) : new Response(null, { status: 404 });
+  });
+  const pending = collect(JSON.stringify(grant), directory, http);
+  const observed = pending.then(value => ({ value }), error => ({ error }));
+  // Issuance hashing uses real crypto I/O before the provider schedules its lookup timer.
+  await Promise.race([ready, observed]);
+  await vi.runAllTimersAsync();
+  const result = await observed;
+  expect(result).toMatchObject({ value: { requestsSent: 1, settledMicroUsd: 7, heldMicroUsd: 0,
+    reason: available ? "budget-exhausted" : "metadata-unavailable" } });
+  expect(offsets).toEqual([0, 10000, 20000]);
+  expect(http.mock.calls.filter(([, init]) => init?.method === "POST")).toHaveLength(1);
+  expect(JSON.parse(String(inspectDb(directory, "SELECT audit_json FROM attempts ORDER BY rowid LIMIT 1")[0]!.audit_json)))
+    .toMatchObject({ metadataAttempts: 3, status: available ? "verified" : "metadata-unavailable" });
+});
+
+it("exports actual captured output read-only and rejects altered source, document or receipt bindings", async () => {
+  const directory = temporaryDirectory(), grant = await sourceSpanFixture(directory), raw = JSON.stringify(grant);
+  const http = transport(index => spanChat(index, index === 0 ? "{invalid" : spanContent(index)));
+  await collect(raw, directory, http);
+  expect(typeof collector.exportSupplementRun).toBe("function");
+  const before = readFileSync(join(directory, "ledger.sqlite"));
+  const result = await collector.exportSupplementRun(raw, sha(raw), directory, "offline-test");
+  expect(readFileSync(join(directory, "ledger.sqlite"))).toEqual(before);
+  expect(result).toMatchObject({ schemaVersion: "materials-supplement-export-v1", candidateCommit: candidate,
+    issuanceSha256: sha(raw), mode: "offline-test", complete: true, outputs: [
+      expect.objectContaining({ documentId: "supplement-01", assistantContent: "{invalid", extraction: null,
+        receiptId: "gen-span-0", actualMicroUsd: 7, audit: expect.objectContaining({ status: "verified", extractionRead: "invalid-json" }) }),
+      ...Array.from({ length: 5 }, () => expect.any(Object)),
+    ] });
+  expect(http.mock.calls.filter(([, init]) => init?.method === "POST")).toHaveLength(6);
+  const changed = JSON.stringify({ ...grant, authorization: { ...grant.authorization, candidateCommit: "b".repeat(40) } });
+  await expect(collector.exportSupplementRun(changed, sha(changed), directory, "offline-test")).rejects.toThrow("supplement-run-binding-mismatch");
+  for (const [column, value] of [["document_version_id", "wrong-version"], ["receipt_id", "wrong-receipt"]]) {
+    const db = new DatabaseSync(join(directory, "ledger.sqlite"));
+    // Deliberately corrupt the archive beneath its foreign keys to exercise the read-only verifier.
+    db.exec("PRAGMA foreign_keys=OFF");
+    const original = db.prepare(`SELECT ${column} AS value FROM attempts WHERE document_id='supplement-01'`).get()!.value;
+    try {
+      db.prepare(`UPDATE attempts SET ${column}=? WHERE document_id='supplement-01'`).run(value!);
+      await expect(collector.exportSupplementRun(raw, sha(raw), directory, "offline-test")).rejects.toThrow("supplement-capture-mismatch");
+    } finally { db.prepare(`UPDATE attempts SET ${column}=? WHERE document_id='supplement-01'`).run(original!); db.close(); }
+  }
 });
 
 it("fails quality on malformed unedited content with a verified bill and never retries the inference", async () => {

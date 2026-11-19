@@ -1,0 +1,75 @@
+{
+  "task": "materials-live-quality-preparation-task-1",
+  "files": [
+    {
+      "path": "scripts/materials-qualification-capture.ts",
+      "sha256": "5c6e7a62cffbb60d2d51b0c60e50f58e01603678a18fd2137c0d24cca9bc6cac",
+      "bytes": 6615
+    },
+    {
+      "path": "scripts/materials-qualification-runner.ts",
+      "sha256": "a8a2c715d9d097795849d71c337a66b01f060add948ae346c35611e6ce0969bb",
+      "bytes": 22638
+    },
+    {
+      "path": "scripts/collect-materials-supplements.ts",
+      "sha256": "27118e3e594040dd5eb881ab68da0d7a5b8b842b88e694f92a4ac2fa60a400ce",
+      "bytes": 17776
+    },
+    {
+      "path": "scripts/materials-supplement-ledger.ts",
+      "sha256": "297661629ce0aa55a194fe65cbdaa13085e0ca4de6937cb05c39af33fa594f04",
+      "bytes": 21864
+    },
+    {
+      "path": "tests/server/document-qualification-capture.test.ts",
+      "sha256": "e29133e63d8f54b50b8bb3e97d95e4460f63de3f0902f7de616bf9587681594d",
+      "bytes": 3289
+    },
+    {
+      "path": "tests/server/document-model-qualification-guards.test.ts",
+      "sha256": "b5e5fb37a0332fc331724085f65e26b5aa08b56f8243c8ea3f7fcce647b64ef9",
+      "bytes": 25646
+    },
+    {
+      "path": "tests/server/materials-supplement-collection.test.ts",
+      "sha256": "14619f1938bf388efaca33a0d78f376d696b031b6721ea92eec6895887cdf867",
+      "bytes": 56532
+    }
+  ],
+  "frozen": true,
+  "notes": [
+    "New maxMetadataReadsPerDocument is explicitly pinned in issuance; absence preserves one GET.",
+    "24 output writer captures fixed 24 identities only; operator packet remains responsible for source attestation and authorization.",
+    "Six archive export validates externally pinned original issuance, registered ledger, frozen settings/documents, receipt/audit and decoded-evidence digest; it does not start/resume collection.",
+    "Capture-write failure leaves attributable amounts settled through the existing durable checkpoint before stop.",
+    "The only intermediate green failures were fixture scheduling before real crypto completion and deliberate FK corruption; original logs retained."
+  ],
+  "limits": {
+    "remoteMigrations": 0,
+    "staging": 0,
+    "paidCalls": 0,
+    "deployments": 0,
+    "commits": 0
+  },
+  "preserved": [
+    "app and worker source",
+    "historical corpora/gold/reference assets",
+    "native14 evidence and integrated course binding",
+    "legacy report and pilot API",
+    "old supplement one-GET grants"
+  ],
+  "tests": {
+    "focused": "kimi-capture-20261119-green-02",
+    "types": "kimi-capture-20261119-types-01",
+    "networkDenials": 0,
+    "lint": "kimi-capture-20261119-lint-01",
+    "red": "kimi-capture-20261119-red-01",
+    "intermediateFixtureFailure": "kimi-capture-20261119-green-01",
+    "writerRed": "kimi-capture-20261119-writer-red-01",
+    "affected": "kimi-capture-20261119-affected-01",
+    "affectedFiles": 6,
+    "affectedTests": 102
+  },
+  "baseline": "a5d2fda9d037ee8301b10a5637a6169a67293e99"
+}

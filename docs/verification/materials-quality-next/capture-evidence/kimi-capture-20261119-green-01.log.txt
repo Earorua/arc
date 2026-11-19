@@ -1,0 +1,114 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:45844) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/document-model-qualification-guards.test.ts [2m([22m[2m26 tests[22m[2m | [22m[33m23 skipped[39m[2m)[22m[32m 38[2mms[22m[39m
+ [31m❯[39m tests/server/materials-supplement-collection.test.ts [2m([22m[2m48 tests[22m[2m | [22m[31m3 failed[39m[2m | [22m[33m45 skipped[39m[2m)[22m[33m 20672[2mms[22m[39m
+   [2m[90m↓[39m[22m prints the six public identity commitments and worst-case price offline for an issuer
+   [2m[90m↓[39m[22m uses the CLI's actual source bytes despite Git overrides, assume-unchanged files and ignored shadow modules
+   [2m[90m↓[39m[22m rejects a junction or symlink that makes another checkout's registered ledger appear local
+   [2m[90m↓[39m[22m pins the grounded supplement policy and archives its product-decoded terms beside the untouched wire
+   [2m[90m↓[39m[22m runs the separately pinned source-span collector end to end and preserves the original replies beside the scored output
+   [2m[90m↓[39m[22m keeps verified billing separate from a source-span quality failure: legacy-shape
+   [2m[90m↓[39m[22m keeps verified billing separate from a source-span quality failure: invented-source
+   [2m[90m↓[39m[22m keeps verified billing separate from a source-span quality failure: output-limit
+   [2m[90m↓[39m[22m keeps verified billing separate from a source-span quality failure: generation-limit
+   [2m[90m↓[39m[22m keeps verified billing separate from a source-span quality failure: missing-fact
+   [2m[90m↓[39m[22m settles an observed charge and stops before the second POST when the decoded output cannot be recorded
+   [2m[90m↓[39m[22m requires the durable original to match the received unedited content before recording its decoded output
+   [2m[90m↓[39m[22m holds the source-span reservation and preserves the reply when neither side supplies a trusted price
+   [2m[90m↓[39m[22m refuses to replay a raw archive mismatch instead of rescoring an alternative
+   [2m[90m↓[39m[22m refuses to replay a canonical archive mismatch instead of rescoring an alternative
+   [2m[90m↓[39m[22m refuses to replay a missing archive mismatch instead of rescoring an alternative
+   [2m[90m↓[39m[22m refuses to replay a version archive mismatch instead of rescoring an alternative
+   [2m[90m↓[39m[22m does not persist an escaped credential in the original or decoded source-span evidence
+   [2m[90m↓[39m[22m does not enable the supplement collector while the separate diagnostic pilot is enabled
+   [2m[90m↓[39m[22m refuses cross-policy issuances and never expands the legacy one-GET allowance for a source-span run
+   [2m[90m↓[39m[22m cannot turn six truncated source-span replies into a passing legacy run by changing the stored issuance before scoring
+   [2m[90m↓[39m[22m fails closed on a stored issuance digest change with before-send accounting
+   [2m[90m↓[39m[22m fails closed on a stored issuance digest change with unknown-cost accounting
+   [2m[90m↓[39m[22m cannot label an injected clock, candidate predicate, directory and transport as live evidence
+   [2m[90m↓[39m[22m accepts only the fixed placeholder in injectable fixtures, and refuses a public run ID containing the key or its fingerprint
+   [2m[90m↓[39m[22m requires a separate pinned issuance before opening the ledger or reading the dedicated credential
+   [2m[90m↓[39m[22m durably reserves before each handoff, freezes the exact content before each GET, and scores the six settled captures
+   [2m[90m↓[39m[22m stops on cost-conflict, preserving known charges and holding only unresolved costs
+   [2m[90m↓[39m[22m stops on route-mismatch, preserving known charges and holding only unresolved costs
+   [2m[90m↓[39m[22m stops on metadata-unavailable, preserving known charges and holding only unresolved costs
+   [2m[90m↓[39m[22m stops before the next reservation when a smaller issued budget cannot cover it
+   [2m[90m↓[39m[22m honors the separate one-GET scope even when a 404 would otherwise be retried
+[31m   [31m×[31m uses a newly issued three-GET allowance without retrying inference; available=true[39m[33m 10016[2mms[22m[39m
+[31m   [31m×[31m uses a newly issued three-GET allowance without retrying inference; available=false[39m[33m 10014[2mms[22m[39m
+[31m   [31m×[31m exports actual captured output read-only and rejects altered source, document or receipt bindings[39m[33m 641[2mms[22m[39m
+   [2m[90m↓[39m[22m fails quality on malformed unedited content with a verified bill and never retries the inference
+   [2m[90m↓[39m[22m holds an expired fixture response without accepting its extraction, sending another request or permitting a replay
+   [2m[90m↓[39m[22m rechecks the window at transport handoff and blocks metadata after expiry or a clock rollback
+   [2m[90m↓[39m[22m releases a durably reserved but unsent case if the window closes between reservation and POST
+   [2m[90m↓[39m[22m retains an attributable charge when capture persistence fails and stops before another request
+   [2m[90m↓[39m[22m refuses coordinated substitutions of endpoint, model, route, receipt identity or reviewed rates in public settings
+   [2m[90m↓[39m[22m holds the full reservation when neither side supplies an attributable charge, without GET or POST retries
+   [2m[90m↓[39m[22m checkpoints metadata-only billing evidence before a failed final state transition
+   [2m[90m↓[39m[22m checkpoints same-micro-conflict billing evidence before a failed final state transition
+   [2m[90m↓[39m[22m holds a success-looking 202 POST without freezing provisional output or looking up its generation
+   [2m[90m↓[39m[22m binds the issuance to the registered durable ledger and path, rejecting a missing, copied or replacement database
+   [2m[90m↓[39m[22m persists only validated public issuance fields even when a shadowed JSON value contains the fixture credential
+   [2m[90m↓[39m[22m refuses a second simultaneous start and a failed durable reservation never reaches transport
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 3 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/server/materials-supplement-collection.test.ts[2m > [22muses a newly issued three-GET allowance without retrying inference; available=true
+[41m[1m FAIL [22m[49m tests/server/materials-supplement-collection.test.ts[2m > [22muses a newly issued three-GET allowance without retrying inference; available=false
+[31m[1mError[22m: Test timed out in 10000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m tests/server/materials-supplement-collection.test.ts:[2m500:23[22m[39m
+    [90m498|[39m })[33m;[39m
+    [90m499|[39m
+    [90m500|[39m it.each([true, false])("uses a newly issued three-GET allowance withou…
+    [90m   |[39m                       [31m^[39m
+    [90m501|[39m   const directory = temporaryDirectory(), prior = await sourceSpanFixt…
+    [90m502|[39m   const grant = { ...prior, authorization: { ...prior.authorization, m…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/materials-supplement-collection.test.ts[2m > [22muses a newly issued three-GET allowance without retrying inference; available=true
+[31m[1mError[22m: EPERM, Permission denied: \\?\C:\Users\XF\AppData\Local\Temp\arc-grounded-check-NQy9n1\arc-supplement-collection-ZRBmO0 '\\?\C:\Users\XF\AppData\Local\Temp\arc-grounded-check-NQy9n1\arc-supplement-collection-ZRBmO0'[39m
+[36m [2m❯[22m tests/server/materials-supplement-collection.test.ts:[2m41:5[22m[39m
+    [90m 39|[39m     [35mconst[39m target [33m=[39m [34mrealpathSync[39m(directory)[33m;[39m
+    [90m 40|[39m     if (dirname(target) !== realpathSync(tmpdir()) || !basename(target…
+    [90m 41|[39m     [34mrmSync[39m(target[33m,[39m { recursive[33m:[39m [35mtrue[39m[33m,[39m force[33m:[39m [35mtrue[39m })[33m;[39m
+    [90m   |[39m     [31m^[39m
+    [90m 42|[39m   }
+    [90m 43|[39m })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/materials-supplement-collection.test.ts[2m > [22muses a newly issued three-GET allowance without retrying inference; available=false
+[31m[1mError[22m: EPERM, Permission denied: \\?\C:\Users\XF\AppData\Local\Temp\arc-grounded-check-NQy9n1\arc-supplement-collection-f1kTo7 '\\?\C:\Users\XF\AppData\Local\Temp\arc-grounded-check-NQy9n1\arc-supplement-collection-f1kTo7'[39m
+[36m [2m❯[22m tests/server/materials-supplement-collection.test.ts:[2m41:5[22m[39m
+    [90m 39|[39m     [35mconst[39m target [33m=[39m [34mrealpathSync[39m(directory)[33m;[39m
+    [90m 40|[39m     if (dirname(target) !== realpathSync(tmpdir()) || !basename(target…
+    [90m 41|[39m     [34mrmSync[39m(target[33m,[39m { recursive[33m:[39m [35mtrue[39m[33m,[39m force[33m:[39m [35mtrue[39m })[33m;[39m
+    [90m   |[39m     [31m^[39m
+    [90m 42|[39m   }
+    [90m 43|[39m })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/materials-supplement-collection.test.ts[2m > [22mexports actual captured output read-only and rejects altered source, document or receipt bindings
+[31m[1mError[22m: FOREIGN KEY constraint failed[39m
+[36m [2m❯[22m tests/server/materials-supplement-collection.test.ts:[2m542:87[22m[39m
+    [90m540|[39m     const original = db.prepare(`SELECT ${column} AS value FROM attemp…
+    [90m541|[39m     [35mtry[39m {
+    [90m542|[39m       db.prepare(`UPDATE attempts SET ${column}=? WHERE document_id='s…
+    [90m   |[39m                                                                                       [31m^[39m
+    [90m543|[39m       await expect(collector.exportSupplementRun(raw, sha(raw), direct…
+    [90m544|[39m     } finally { db.prepare(`UPDATE attempts SET ${column}=? WHERE docu…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[31m3 failed[39m[22m[2m | [22m[1m[32m3 passed[39m[22m[2m | [22m[33m68 skipped[39m[90m (74)[39m
+[2m   Start at [22m 15:27:08
+[2m   Duration [22m 21.52s[2m (transform 556ms, setup 431ms, import 963ms, tests 20.71s, environment 0ms)[22m
+

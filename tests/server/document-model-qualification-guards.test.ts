@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import normalConfig from "../../vitest.config";
 import qualificationConfig from "../../vitest.materials-qualification.config";
 import corpus from "../fixtures/documents/quality-corpus.json";
@@ -8,6 +9,7 @@ import { readQualificationConfiguration, runDocumentQualification, qualification
 
 import type { DocumentFetch } from "../../worker/document-executor/provider-http";
 import type { QualificationCheckpoint } from "../../scripts/materials-qualification-runner";
+import type { QualificationOutputCapture } from "../../scripts/materials-qualification-capture";
 
 const receiptRoute = { providerName: "Approved Provider", endpointId: "approved-endpoint" };
 const endpoint = "https://provider.example.test/v1/chat/completions";
@@ -29,6 +31,46 @@ const reply = (id: string) => Response.json({ id, model: "approved-model", usage
 const now = () => new Date("2026-11-04T08:00:00.000Z");
 afterEach(() => vi.unstubAllGlobals());
 describe("model qualification offline guards", () => {
+  it("captures exact transport content and decoded candidates without changing the legacy report", async () => {
+    let index = 0;
+    const contents = [' \n{"schemaVersion":"2026.11.1","items":[],"reviewPoints":[]}\n ', "{invalid", '{"unexpected":"keep this actual field"}'];
+    const captures: QualificationOutputCapture[] = [];
+    const transport = fixtureHttp(() => Response.json({ id: `capture-${index}`, model: "approved-model",
+      usage: { prompt_tokens: 100, completion_tokens: 100, cost: 0.0001 },
+      choices: [{ finish_reason: index === 1 ? "length" : "stop", message: { content: contents[index++] ?? contents[0] } }] }));
+    const result = await runDocumentQualification(environment(), { fetch: transport, checkpoint: async () => {}, mode: "offline-test", now,
+      capture: async value => { captures.push(value); } });
+    expect(captures).toHaveLength(24);
+    const first = corpus.documents[0]!;
+    expect(captures[0]).toMatchObject({ runId: "offline-run", authorizationId: "offline-authorization", mode: "offline-test",
+      documentId: first.id, documentVersionId: first.documentVersionId, textVersionId: first.textVersionId,
+      sourceTextSha256: createHash("sha256").update(first.text).digest("hex"),
+      requestBodySha256: createHash("sha256").update(String(transport.mock.calls[0]![1]!.body)).digest("hex"),
+      chat: { status: "captured", assistantContent: contents[0], finishReason: "stop", nativeFinishReason: null },
+      outcome: { kind: "received", candidate: JSON.parse(contents[0]!), receiptId: "capture-0", actualMicroUsd: 100, audit: { status: "verified" } },
+      accounting: { state: "settled", actualMicroUsd: 100 } });
+    expect(captures[1]).toMatchObject({ chat: { assistantContent: contents[1], finishReason: "length" }, outcome: { candidate: null } });
+    expect(captures[2]).toMatchObject({ outcome: { candidate: { unexpected: "keep this actual field" } } });
+    expect(result.documents[2]?.quality?.failures).toContain("production-extraction-invalid");
+    expect(JSON.stringify(result)).not.toContain("assistantContent");
+    expect(JSON.stringify(result)).not.toContain("keep this actual field");
+  });
+  it.each([true, false])("stops after capture failure while durably preserving attributable=%s accounting", async attributable => {
+    const checkpoints: QualificationCheckpoint[] = [];
+    const transport = fixtureHttp(() => Response.json({ id: "capture-failed", model: "approved-model",
+      ...(attributable ? { usage: { prompt_tokens: 100, completion_tokens: 100, cost: 0.0001 } } : {}),
+      choices: [{ message: { content: "{invalid" } }] }), id => attributable ? generation(id) : new Response(null, { status: 403 }));
+    const capture = vi.fn(async () => { throw new Error("disk unavailable"); });
+    const result = await runDocumentQualification(environment(), { fetch: transport, checkpoint: async value => { checkpoints.push(value); },
+      mode: "offline-test", now, capture });
+    expect(capture).toHaveBeenCalledTimes(1);
+    expect(result).toMatchObject({ requestsSent: 1, settledMicroUsd: attributable ? 100 : 0, heldMicroUsd: attributable ? 0 : 18048 });
+    if (attributable) expect(result.stoppedReason).toBe("capture-failed");
+    expect(checkpoints.filter(value => value.type === "settlement")).toEqual([expect.objectContaining({
+      state: attributable ? "settled" : "held-unknown", actualMicroUsd: attributable ? 100 : null,
+    })]);
+    expect(transport.mock.calls.filter(([, init]) => init?.method === "POST")).toHaveLength(1);
+  });
   it("withholds component diagnostics from rejected production envelopes while preserving a valid empty extraction", async () => {
     let i = 0;
     const transport = fixtureHttp(() => Response.json({ id: "envelope-fixture-" + ++i, model: "approved-model",

@@ -3,7 +3,7 @@ import { closeSync, existsSync, lstatSync, mkdirSync, openSync, realpathSync } f
 import { dirname, join, relative, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import type { DocumentReceiptClaim } from "../app/server/documents/provider";
-import type { DocumentReceiptAudit } from "../app/server/documents/provider-receipt";
+import { documentReceiptAuditSchema, type DocumentReceiptAudit } from "../app/server/documents/provider-receipt";
 import { sourceSpanPolicy } from "../worker/document-executor/source-span-extraction";
 
 import { z } from "zod";
@@ -23,6 +23,8 @@ const authorizationSchema = z.strictObject({
   approvedAt: materialTimestampSchema, expiresAt: materialTimestampSchema, maxRequests: z.literal(supplementLimits.maxRequests),
   perRequestMicroUsd: z.number().int().positive().max(supplementLimits.perRequestMicroUsd),
   totalBudgetMicroUsd: z.number().int().positive().max(supplementLimits.totalBudgetMicroUsd),
+  // Absence is the historical one-GET grant. Only newly pinned issuances can expand it.
+  maxMetadataReadsPerDocument: z.union([z.literal(1), z.literal(3)]).optional(),
 });
 const issuanceSchema = supplementSettingsSchema.extend({ authorization: authorizationSchema });
 
@@ -214,4 +216,65 @@ export function openSupplementLedger(directory: string, runId: string, expectedI
         .run(result.status, JSON.stringify(result), runId, Number(requireBinding), binding.authorizationId, binding.issuanceSha256, binding.publicIssuance, binding.mode).changes);
     },
   };
+}
+
+/** Reopen only for reading. Original externally pinned issuance remains the source/configuration authority. */
+export function readSupplementCaptureArchive(directory: string, binding: SupplementIssuanceBinding) {
+  if (!checkedBindings.has(binding)) throw new Error("supplement-run-binding-mismatch");
+  const issued = issuanceSchema.parse(JSON.parse(binding.publicIssuance));
+  const { authorization, qualification, config } = issued;
+  const path = join(directory, "ledger.sqlite");
+  checkLedgerPath(path);
+  if (!existsSync(path)) throw new Error("supplement-ledger-unregistered");
+  const db = new DatabaseSync(path, { readOnly: true });
+  const mismatch = () => { throw new Error("supplement-capture-mismatch"); };
+  try {
+    if (ledgerIdentity(db, path) !== authorization.ledgerSha256) throw new Error("supplement-ledger-mismatch");
+    const run = db.prepare(`SELECT status,result_json FROM collection_runs WHERE run_id=? AND authorization_id=?
+      AND issuance_sha256=? AND issuance_json=? AND mode=?`).get(binding.runId, binding.authorizationId, binding.issuanceSha256, binding.publicIssuance, binding.mode);
+    if (!run) throw new Error("supplement-run-binding-mismatch");
+    if (!sourceSpanPolicy(config.providerPolicyId)) throw new Error("supplement-export-policy-unsupported");
+    const oversized = db.prepare(`SELECT 1 FROM attempts a LEFT JOIN source_span_outputs o ON o.run_id=a.run_id AND o.document_id=a.document_id
+      WHERE a.run_id=? AND (length(a.raw_content_json)>1048576 OR length(a.chat_json)>16384 OR length(a.audit_json)>32768
+        OR length(o.extraction_json)>1048576) LIMIT 1`).get(binding.runId);
+    if (oversized) mismatch();
+    const rows = db.prepare(`SELECT a.*,o.receipt_id AS output_receipt,o.evidence_sha256,o.extraction_json FROM attempts a
+      LEFT JOIN source_span_outputs o ON o.run_id=a.run_id AND o.document_id=a.document_id WHERE a.run_id=? ORDER BY a.rowid`).all(binding.runId);
+    if (rows.length > authorization.maxRequests) mismatch();
+    const seenReceipts = new Set<string>();
+    const outputs = rows.map((row, index) => {
+      const identity = authorization.documents[index]!;
+      if (row.document_id !== identity.documentId || row.document_version_id !== identity.documentVersionId || row.text_version_id !== identity.textVersionId
+        || !["reserved", "released", "held", "settled"].includes(String(row.state))) mismatch();
+      const receiptId = typeof row.receipt_id === "string" ? row.receipt_id : null;
+      if (receiptId && seenReceipts.has(receiptId)) mismatch();
+      if (receiptId) seenReceipts.add(receiptId);
+      const audit = row.audit_json === null ? null : documentReceiptAuditSchema.parse(JSON.parse(String(row.audit_json)));
+      const claim = row.chat_json === null ? null : JSON.parse(String(row.chat_json));
+      if (claim && claim.receiptId !== receiptId) mismatch();
+      if (row.state === "settled" && (!receiptId || !Number.isSafeInteger(row.actual_micro_usd) || Number(row.actual_micro_usd) < 0
+        || row.actual_micro_usd !== (claim?.actualMicroUsd ?? audit?.metadataMicroUsd))) mismatch();
+      if (audit?.status === "verified" && (!claim || audit.actualModel !== (qualification.receiptRoute.generationModel ?? config.model)
+        || audit.actualProvider !== qualification.receiptRoute.providerName || audit.actualEndpointId !== qualification.receiptRoute.endpointId
+        || audit.metadataAttempts > (authorization.maxMetadataReadsPerDocument ?? 1)
+        || (claim.actualMicroUsd !== null && audit.metadataMicroUsd !== null && claim.actualMicroUsd !== audit.metadataMicroUsd))) mismatch();
+      const content = row.raw_content_json === null ? null : String(row.raw_content_json);
+      const extractionJson = row.extraction_json === null ? null : String(row.extraction_json);
+      if (extractionJson !== null) {
+        if (!receiptId || content === null || row.output_receipt !== receiptId || row.state !== "settled" || audit?.status !== "verified"
+          || evidenceDigest(binding.runId, identity, receiptId, captureDigest(content), extractionJson) !== row.evidence_sha256) mismatch();
+      } else if (row.state === "settled" && audit?.status === "verified" && row.reason !== "capture-failed") mismatch();
+      return { ...identity, state: String(row.state), receiptId, reservedMicroUsd: Number(row.reserved_micro_usd),
+        actualMicroUsd: row.actual_micro_usd === null ? null : Number(row.actual_micro_usd), audit, reason: row.reason,
+        rawCaptured: content !== null, assistantContent: content === null ? null : JSON.parse(content) as unknown,
+        rawContentSha256: content === null ? null : captureDigest(content), extractionRecorded: extractionJson !== null,
+        extraction: extractionJson === null ? null : JSON.parse(extractionJson) as unknown, evidenceSha256: row.evidence_sha256 };
+    });
+    const complete = outputs.length === authorization.maxRequests && ["complete", "quality-failed"].includes(String(run.status))
+      && outputs.every(output => output.state === "settled" && output.audit?.status === "verified" && output.extractionRecorded);
+    return { schemaVersion: "materials-supplement-export-v1" as const, runId: binding.runId, authorizationId: binding.authorizationId,
+      issuanceSha256: binding.issuanceSha256, ledgerSha256: authorization.ledgerSha256, candidateCommit: authorization.candidateCommit,
+      configurationSha256: authorization.configurationSha256, corpusSha256: authorization.corpusSha256,
+      mode: binding.mode, status: String(run.status), complete, outputs };
+  } finally { db.close(); }
 }

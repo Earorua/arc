@@ -1,0 +1,66 @@
+{
+  "originalHandoff": "work/grounded-verification/kimi-capture-20261119-handoff.json",
+  "verification": {
+    "runnerFailureChecks": "Unchanged source; reuse two prior callback-failure settlement cases. No rerun.",
+    "red": "kimi-capture-20261119-fidelity-red-01",
+    "lint": "kimi-capture-20261119-fidelity-lint-01",
+    "types": "kimi-capture-20261119-fidelity-types-01",
+    "networkDenials": 0,
+    "reusedAffected": "kimi-capture-20261119-affected-01",
+    "writerTests": 2,
+    "green": "kimi-capture-20261119-fidelity-green-01",
+    "reusedAffectedTests": 102
+  },
+  "files": [
+    {
+      "sha256": "f55c6df1f9580b170f29e0cb0b254d81fc4f3bc5b905c7f7d9a6f67bbde91c32",
+      "path": "scripts/materials-qualification-capture.ts",
+      "changedFromPrior": true,
+      "bytes": 6899
+    },
+    {
+      "sha256": "a8a2c715d9d097795849d71c337a66b01f060add948ae346c35611e6ce0969bb",
+      "path": "scripts/materials-qualification-runner.ts",
+      "changedFromPrior": false,
+      "bytes": 22638
+    },
+    {
+      "sha256": "27118e3e594040dd5eb881ab68da0d7a5b8b842b88e694f92a4ac2fa60a400ce",
+      "path": "scripts/collect-materials-supplements.ts",
+      "changedFromPrior": false,
+      "bytes": 17776
+    },
+    {
+      "sha256": "297661629ce0aa55a194fe65cbdaa13085e0ca4de6937cb05c39af33fa594f04",
+      "path": "scripts/materials-supplement-ledger.ts",
+      "changedFromPrior": false,
+      "bytes": 21864
+    },
+    {
+      "sha256": "99a5d025930945871279e25b428890fd9f0e3427286d0a9f214ec64ac864402b",
+      "path": "tests/server/document-qualification-capture.test.ts",
+      "changedFromPrior": true,
+      "bytes": 5807
+    },
+    {
+      "sha256": "b5e5fb37a0332fc331724085f65e26b5aa08b56f8243c8ea3f7fcce647b64ef9",
+      "path": "tests/server/document-model-qualification-guards.test.ts",
+      "changedFromPrior": false,
+      "bytes": 25646
+    },
+    {
+      "sha256": "14619f1938bf388efaca33a0d78f376d696b031b6721ea92eec6895887cdf867",
+      "path": "tests/server/materials-supplement-collection.test.ts",
+      "changedFromPrior": false,
+      "bytes": 56532
+    }
+  ],
+  "task": "Task1 P2 numeric capture fidelity",
+  "limitations": [
+    "Independent narrow rereviews pending",
+    "No real model/API/deploy/migration/staging/commit"
+  ],
+  "originalSnapshot": "work/grounded-verification/kimi-capture-20261119-fidelity-originals",
+  "frozen": true,
+  "sourceDelta": "Only writer serialization now rejects nonfinite numbers before any capture file opens. No replacements or raw-string edits."
+}
