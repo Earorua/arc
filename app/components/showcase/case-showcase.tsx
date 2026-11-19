@@ -1,21 +1,22 @@
 "use client";
 
 import { HomeLearningAction } from "../brand/home-learning-action";
+import { ArcWordmark } from "../brand/arc-home-link";
 import { useRef, type KeyboardEvent } from "react";
 import { flagshipRole } from "../../data/flagship-role";
 import { updatePageQuery, usePageQuery } from "../../lib/use-page-query";
 
 const views = [
-  { id: "path", label: "路线", english: "Path" },
-  { id: "today", label: "今日任务", english: "Today" },
-  { id: "proof", label: "作品", english: "Proof" },
+  { id: "path", label: "Path" },
+  { id: "today", label: "Today" },
+  { id: "proof", label: "Proof" },
 ] as const;
 
 const phaseOutcomes: Record<string, { title: string; outcome: string }> = {
-  foundations: { title: "打好产品基础", outcome: "做出可访问的 React 产品界面，让交互与类型契约一起成形。" },
-  systems: { title: "接通完整系统", outcome: "把界面接到有类型校验的 API，用关系型数据保存真实业务。" },
-  intelligence: { title: "加入有依据的 AI", outcome: "让模型输出符合结构约束，每个重要结论都能回到来源。" },
-  production: { title: "交付可验证的作品", outcome: "部署、观察、完善产品，再用作品讲清自己的能力。" },
+  foundations: { title: "Build the product foundations", outcome: "Create an accessible React interface, shaping interactions and type contracts together." },
+  systems: { title: "Connect the whole system", outcome: "Connect the interface to a validated API and store real application data in a relational database." },
+  intelligence: { title: "Ground your AI in evidence", outcome: "Give model outputs a reliable structure and trace important conclusions to their sources." },
+  production: { title: "Ship work others can inspect", outcome: "Deploy, observe, and refine the product, then use your work to explain your skills." },
 };
 
 export function CaseShowcase() {
@@ -46,30 +47,30 @@ export function CaseShowcase() {
     <main id="main-content" tabIndex={-1} className="showcase-page">
       <section className="showcase-intro" aria-labelledby="showcase-title">
         <div>
-          <p className="eyebrow">产品样例 <span lang="en">· Product in action</span></p>
-          <h1 id="showcase-title">看看一条学习路线如何推进</h1>
+          <p className="eyebrow">Product in action</p>
+          <h1 id="showcase-title">A learning path,<br /> in motion.</h1>
         </div>
-        <div className="showcase-intro-actions"><p className="showcase-lede">以{flagshipRole.name}为例，依次查看路线、今日任务与作品。</p>
-          <p className="showcase-sample-label">公开样例，不是你的计划。</p>
+        <div className="showcase-intro-actions"><p className="showcase-lede">Explore the path, a daily task, and the resulting work for an {flagshipRole.name}.</p>
+          <p className="showcase-sample-label">A public example. Your own plan comes next.</p>
         </div>
       </section>
 
       <section className="showcase-case" aria-labelledby="showcase-role">
         <aside className="showcase-context">
-          <p className="section-index">样例背景</p>
+          <p className="section-index">The example</p>
           <h2 id="showcase-role">{flagshipRole.name}</h2>
-          <p>用一条完整示例，串起从产品界面到 AI 应用交付的学习过程。</p>
+          <p>Follow one complete path from a product interface to a deployed AI application.</p>
           <dl className="showcase-facts">
-            <div><dt>路线跨度</dt><dd>{totalWeeks}<span> 周</span></dd></div>
-            <div><dt>示例任务</dt><dd>{flagshipRole.today.minutes}<span> 分钟</span></dd></div>
-            <div><dt>技能地图</dt><dd>{flagshipRole.skills.length}<span> 项技能</span></dd></div>
+            <div><dt>Duration</dt><dd>{totalWeeks}<span> weeks</span></dd></div>
+            <div><dt>Daily task</dt><dd>{flagshipRole.today.minutes}<span> min</span></dd></div>
+            <div><dt>Skill map</dt><dd>{flagshipRole.skills.length}<span> skills</span></dd></div>
           </dl>
-          <p className="showcase-sample-note">你的路线会依据自己的目标、基础与可用时间安排。</p>
+          <p className="showcase-sample-note">Your path will reflect your goals, experience, and available time.</p>
         </aside>
 
         <div className="showcase-preview">
-          <p className="showcase-story-label">演示步骤 · 路线 → 今日任务 → 作品</p>
-          <div className="showcase-tabs" role="tablist" aria-label="案例效果展示">
+          <p className="showcase-story-label">Follow the journey · Path → Today → Proof</p>
+          <div className="showcase-tabs" role="tablist" aria-label="Product example views">
             {views.map((view, index) => (
               <button
                 aria-controls={`showcase-panel-${view.id}`}
@@ -83,7 +84,7 @@ export function CaseShowcase() {
                 tabIndex={active === index ? 0 : -1}
                 type="button"
               >
-                <strong>{view.label}</strong><span lang="en">{view.english}</span>
+                <strong>{view.label}</strong>
               </button>
             ))}
           </div>
@@ -91,8 +92,8 @@ export function CaseShowcase() {
           <div aria-labelledby="showcase-tab-path" className="showcase-panel" hidden={active !== 0} id="showcase-panel-path" role="tabpanel" tabIndex={0}>
             <div className="showcase-panel-heading">
               <p className="section-index" lang="en">A direction, made concrete</p>
-              <h3>每一阶段，都有一个落点。</h3>
-              <p>先掌握依赖，再完成作品。知道为什么学，也知道学完能做什么。</p>
+              <h3>Every stage leads somewhere.</h3>
+              <p>Build the foundations, then put them to work. Know why you are learning and what you will be able to do.</p>
             </div>
             <ol className="showcase-roadmap">
               {flagshipRole.phases.map((phase, index) => {
@@ -100,7 +101,7 @@ export function CaseShowcase() {
                 return <li key={phase.id}>
                   <span className="showcase-phase-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
                   <div>
-                    <p className="showcase-week">第 {firstWeek}–{firstWeek + phase.weeks - 1} 周 <span lang="en">/ {phase.name}</span></p>
+                    <p className="showcase-week">Weeks {firstWeek}–{firstWeek + phase.weeks - 1} <span lang="en">/ {phase.name}</span></p>
                     <h4>{phaseOutcomes[phase.id].title}</h4>
                     <p>{phaseOutcomes[phase.id].outcome}</p>
                   </div>
@@ -112,8 +113,8 @@ export function CaseShowcase() {
           <div aria-labelledby="showcase-tab-today" className="showcase-panel" hidden={active !== 1} id="showcase-panel-today" role="tabpanel" tabIndex={0}>
             <div className="showcase-panel-heading">
               <p className="section-index" lang="en">One focused session</p>
-              <h3>今天，只推进这一步。</h3>
-              <p>把大目标缩小成一次能完成、能回看的练习。</p>
+              <h3>One clear step for today.</h3>
+              <p>Turn a larger goal into one practice you can finish and revisit.</p>
             </div>
             <div className="showcase-task">
               <span className="showcase-duration"><strong>{flagshipRole.today.minutes}</strong><span lang="en">MIN</span></span>
@@ -122,35 +123,35 @@ export function CaseShowcase() {
             <ol className="showcase-steps">
               {flagshipRole.today.steps.map((step, index) => <li key={step.id}><span aria-hidden="true">0{index + 1}</span>{step.label}</li>)}
             </ol>
-            <div className="showcase-deliverable"><span>完成后留下</span><strong>一次 Git 提交，或一份实现说明</strong></div>
-            <p className="showcase-skills">练习涉及：{flagshipRole.today.skillIds.map(id => flagshipRole.skills.find(skill => skill.id === id)?.name).join(" · ")}</p>
+            <div className="showcase-deliverable"><span>What you will save</span><strong>A Git commit or implementation notes</strong></div>
+            <p className="showcase-skills">Skills in practice: {flagshipRole.today.skillIds.map(id => flagshipRole.skills.find(skill => skill.id === id)?.name).join(" · ")}</p>
           </div>
 
           <div aria-labelledby="showcase-tab-proof" className="showcase-panel" hidden={active !== 2} id="showcase-panel-proof" role="tabpanel" tabIndex={0}>
             <div className="showcase-panel-heading">
               <p className="section-index" lang="en">Make the work inspectable</p>
-              <h3>学过什么，让作品来说明。</h3>
-              <p>把练习的结果、过程和能力关联放在一起，方便自己回顾，也方便他人理解。</p>
+              <h3>Let your work show what you learned.</h3>
+              <p>Keep the result, the process, and the skills together so you can review your progress and others can understand it.</p>
             </div>
-            <article className="showcase-proof" aria-label="作品证据示例">
-              <div className="showcase-proof-label"><span lang="en">PROOF / 001</span><span>示例 · 未验证</span></div>
-              <h4>带类型校验的表单提交</h4>
-              <p>从输入校验、服务端处理到结果反馈，完成一条可检查的提交路径。</p>
+            <article className="showcase-proof" aria-label="Example work evidence">
+              <div className="showcase-proof-label"><span lang="en">PROOF / 001</span><span>Example · Unverified</span></div>
+              <h4>A form submission with type validation</h4>
+              <p>Build an inspectable submission flow, from input validation and server processing to feedback.</p>
               <dl>
-                <div><dt>代码变更</dt><dd><code>feat: validate form submissions</code></dd></div>
-                <div><dt>实现说明</dt><dd>说明客户端与服务端边界，以及校验失败时的处理方式。</dd></div>
-                <div><dt>复现步骤</dt><dd>分别提交有效输入与空值，记录成功结果和错误反馈。</dd></div>
-                <div><dt>关联能力</dt><dd>React · TypeScript · HTTP & API Design</dd></div>
+                <div><dt>Code</dt><dd><code>feat: validate form submissions</code></dd></div>
+                <div><dt>Notes</dt><dd>Explain the client and server boundary and how validation failures are handled.</dd></div>
+                <div><dt>Steps</dt><dd>Submit valid and empty inputs, recording successful results and error feedback.</dd></div>
+                <div><dt>Skills</dt><dd>React · TypeScript · HTTP & API Design</dd></div>
               </dl>
             </article>
-            <p className="showcase-proof-note">此处展示作品记录的形式，不代表真实用户成果或已通过能力认证。</p>
+            <p className="showcase-proof-note">This example shows how work is recorded. It is not a real learner submission or a verified qualification.</p>
           </div>
-          <div className="showcase-preview-footer"><span className="wordmark" lang="en">Arc.</span><span>从方向，到行动，到证据。</span></div>
+          <div className="showcase-preview-footer"><span className="wordmark" role="img" aria-label="Arc." lang="en"><ArcWordmark /></span><span>From direction to action to evidence.</span></div>
         </div>
       </section>
 
       <section className="showcase-next" aria-labelledby="showcase-next-title">
-        <div><p className="section-index">开始自己的学习</p><h2 id="showcase-next-title">从你的目标开始。</h2></div>
+        <div><p className="section-index">Make it your own</p><h2 id="showcase-next-title">Start with your goal.</h2></div>
         <HomeLearningAction />
       </section>
     </main>

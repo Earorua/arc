@@ -20,15 +20,15 @@ export class LearningAgentService {
     const config = this.deps.config;
     const result: AgentWorkspace = { enabled: config.enabled, authenticated: Boolean(owner),
       availability: config.enabled ? "ready" : "disabled",
-      reason: config.enabled ? null : "学习助手尚未启用，配置模型服务后即可使用。",
-      goalId: null, baseVersionId: null, revision: null, roleName: "你的学习旅程", currentTask: null,
+      reason: config.enabled ? null : "The learning assistant is not yet enabled. Configure the model service to use it.",
+      goalId: null, baseVersionId: null, revision: null, roleName: "Your learning journey", currentTask: null,
       history: [], plannerModel: config.plannerModel, tutorModel: config.tutorModel };
-    if (!owner) return { ...result, reason: "登录 Arc 后，学习伙伴会读取你的任务并保存对话。" };
+    if (!owner) return { ...result, reason: "Sign in to Arc so your companion can read your tasks and save your conversations." };
     let context: LearningContext;
     try { context = await this.context(owner); }
     catch (error) {
       if (error instanceof AgentSetupRequiredError || (error as { code?: string })?.code === "NOT_FOUND")
-        return { ...result, availability: "needs_setup", reason: "请先完成学习设置，再开始规划或答疑。" };
+        return { ...result, availability: "needs_setup", reason: "Complete your learning setup before planning or asking questions." };
       throw error;
     }
     let history: StoredAgentRun[] = [];
@@ -57,7 +57,7 @@ export class LearningAgentService {
       await this.deps.repository.update(run, { status: "running", providerId: response.id });
       return await this.finalizePlanner(run, response, context);
     } catch {
-      const error = signal.aborted ? "已停止规划，请保持页面打开后重新生成。" : "规划未完成，原有计划保持可用。请稍后重试。";
+      const error = signal.aborted ? "Planning stopped. Keep this page open and try again." : "Planning did not finish. Your current plan is still available. Try again later.";
       await this.deps.repository.update(prepared.run, { status: signal.aborted ? "cancelled" : "failed", error });
       throw new AgentServiceError(502, error);
     }
@@ -67,7 +67,7 @@ export class LearningAgentService {
     const context = await this.context(owner);
     await this.recoverHistory(owner, context.workspace.goalId);
     const run = await this.deps.repository.find(owner, context.workspace.goalId, id);
-    if (!run || run.kind !== "planner") throw new AgentServiceError(404, "找不到这次规划。");
+    if (!run || run.kind !== "planner") throw new AgentServiceError(404, "This planning request could not be found.");
     // OpenRouter Responses is stateless. Poll only our saved result; never resend or fetch an upstream job.
     return publicRun(run);
   }
@@ -75,12 +75,12 @@ export class LearningAgentService {
     const context = await this.context(owner);
     const run = await this.deps.repository.find(owner, context.workspace.goalId, id);
     if (!run || run.kind !== "planner" || run.status !== "complete" || !run.advice)
-      throw new AgentServiceError(404, "找不到可使用的规划方案。");
+      throw new AgentServiceError(404, "No usable proposal was found.");
     const mutationId = `agent-proposal-${run.id}`;
     // Replay of an already staged proposal must return the original mutation result.
     const applied = context.workspace.events.some(event => event.mutationId === mutationId);
     if (!applied) assertCurrent(context, { goalId: run.goalId, baseVersionId: run.baseVersionId, revision: run.revision });
-    if (run.workspaceId !== context.workspace.id) throw new AgentServiceError(409, "学习目标已变化，请重新规划。");
+    if (run.workspaceId !== context.workspace.id) throw new AgentServiceError(409, "Your learning goal has changed. Create a new proposal.");
     return this.deps.planning.appendAgentEventResponse(owner, {
       mutationId, baseVersionId: run.baseVersionId,
       event: { kind: "agent_replanned", baseRevision: run.revision, unitOrder: run.advice.unitOrder,
@@ -92,7 +92,7 @@ export class LearningAgentService {
     const run = prepared.run;
     if (!prepared.fresh) {
       if (run.status === "complete") { onDelta(run.answer); return publicRun(run); }
-      throw new AgentServiceError(409, "这条消息已提交。请等待回复或发送一条新消息。");
+      throw new AgentServiceError(409, "This message was already submitted. Wait for the reply or send a new message.");
     }
     await this.deps.repository.update(run, { status: "running" });
     try {
@@ -103,8 +103,8 @@ export class LearningAgentService {
       return publicRun({ ...run, status: "complete", answer: result.text });
     } catch {
       await this.deps.repository.update(run, { status: signal.aborted ? "cancelled" : "failed",
-        error: signal.aborted ? "已停止回复。" : "本次回复未完成，请稍后重试。" });
-      throw new AgentServiceError(502, "本次回复未完成，请稍后重试。");
+        error: signal.aborted ? "Response stopped." : "The response did not finish. Try again later." });
+      throw new AgentServiceError(502, "The response did not finish. Try again later.");
     }
   }
   private async prepare(owner: string, input: unknown, kind: "planner" | "tutor") {
@@ -116,12 +116,12 @@ export class LearningAgentService {
     const requestFingerprint = fingerprint({ request, kind });
     if (previous) {
       if (previous.fingerprint !== requestFingerprint || previous.goalId !== context.workspace.goalId)
-        throw new AgentServiceError(409, "该请求已用于另一条消息。");
+        throw new AgentServiceError(409, "This request was already used for another message.");
       return { fresh: false, run: previous, context, request };
     }
     assertCurrent(context, request);
     if (kind === "planner" && (context.workspace.pendingPlanVersionId || !context.units.length))
-      throw new AgentServiceError(409, context.units.length ? "请先处理待确认的计划调整。" : "当前路线已完成，请设置新的学习目标。");
+      throw new AgentServiceError(409, context.units.length ? "Review your pending plan changes first." : "This path is complete. Set a new learning goal.");
     const config = this.deps.config;
     const reservedMicros = kind === "planner" ? config.plannerReserveMicros : config.tutorReserveMicros;
     const recent = history.filter(item => item.kind === "tutor" && item.status === "complete").slice(-5)
@@ -135,7 +135,7 @@ export class LearningAgentService {
       recent.shift(); serialized = JSON.stringify({ ...base, recentConversation: recent });
     }
     const maximum = upperCost();
-    if (maximum > reservedMicros) throw new AgentServiceError(413, "本次内容超过单次预算，请缩短问题或调整助手预算。");
+    if (maximum > reservedMicros) throw new AgentServiceError(413, "This request exceeds the per-request budget. Shorten your question or adjust the assistant budget.");
     const reservation = { id: request.requestId, ownerId: owner, goalId: request.goalId, kind,
       message: request.message, context: serialized, workspaceId: context.workspace.id,
       baseVersionId: request.baseVersionId, revision: request.revision, fingerprint: requestFingerprint,
@@ -144,10 +144,10 @@ export class LearningAgentService {
     if (!await this.deps.repository.reserve(reservation, config)) {
       const duplicate = await this.deps.repository.find(owner, request.goalId, request.requestId);
       if (duplicate?.fingerprint === requestFingerprint) return { fresh: false, run: duplicate, context, request };
-      throw new AgentServiceError(429, "已有请求正在进行，或今日助手额度已用完。");
+      throw new AgentServiceError(429, "A request is already running, or your daily assistant allowance has been used.");
     }
     const run = await this.deps.repository.find(owner, request.goalId, request.requestId);
-    if (!run) throw new AgentServiceError(503, "无法保存这次请求，请稍后重试。");
+    if (!run) throw new AgentServiceError(503, "Could not save this request. Try again later.");
     return { fresh: true, run, context, request };
   }
   private async finalizePlanner(run: StoredAgentRun, response: ProviderResponse, context: LearningContext) {
@@ -156,20 +156,20 @@ export class LearningAgentService {
         assertCurrent(context, { goalId: run.goalId, baseVersionId: run.baseVersionId, revision: run.revision });
         proposalEvent(context, response.advice, `agent-validation-${run.id}`);
       } catch {
-        await this.deps.repository.update(run, { status: "failed", error: "方案未通过校验，或学习进度已变化。请重新规划。" });
-        return publicRun({ ...run, status: "failed", error: "方案未通过校验，或学习进度已变化。请重新规划。" });
+        await this.deps.repository.update(run, { status: "failed", error: "The proposal did not pass validation, or your progress has changed. Create a new proposal." });
+        return publicRun({ ...run, status: "failed", error: "The proposal did not pass validation, or your progress has changed. Create a new proposal." });
       }
       await this.deps.repository.update(run, { status: "complete", advice: response.advice,
         answer: response.advice.summary, usage: response.usage });
       const saved = await this.deps.repository.find(run.ownerId, run.goalId, run.id);
-      if (!saved) throw new AgentServiceError(503, "无法读取已保存的规划。");
+      if (!saved) throw new AgentServiceError(503, "Could not load the saved proposal.");
       return publicRun(saved);
     }
-    await this.deps.repository.update(run, { status: "failed", error: "模型没有生成完整方案，请重试。" });
-    return publicRun({ ...run, status: "failed", error: "模型没有生成完整方案，请重试。" });
+    await this.deps.repository.update(run, { status: "failed", error: "The model did not produce a complete proposal. Try again." });
+    return publicRun({ ...run, status: "failed", error: "The model did not produce a complete proposal. Try again." });
   }
   private assertEnabled() {
-    if (!this.deps.config.enabled) throw new AgentServiceError(503, "学习助手尚未启用，配置模型服务后即可使用。");
+    if (!this.deps.config.enabled) throw new AgentServiceError(503, "The learning assistant is not yet enabled. Configure the model service to use it.");
   }
   private async recoverHistory(owner: string, goalId: string) {
     const history = await this.deps.repository.history(owner, goalId);
@@ -178,7 +178,7 @@ export class LearningAgentService {
       const expired = run.status === "starting" && age > 120000
         || run.status === "running" && age > (run.kind === "planner" ? PLANNER_TIMEOUT_MS : TUTOR_TIMEOUT_MS) + 30000;
       if (expired) {
-        const error = "连接中断或任务超时，本次请求没有完整结果。";
+        const error = "The connection was interrupted or the request timed out before a complete result was received.";
         await this.deps.repository.update(run, { status: "failed", error });
         run.status = "failed"; run.error = error;
       }

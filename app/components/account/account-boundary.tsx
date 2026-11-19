@@ -9,8 +9,8 @@ import { useAccountLocation } from "./use-account-location";
 
 export function AccountBoundary({
   destination,
-  title = "登录后继续你的学习",
-  description = "在账号中保存学习路线、进度与作品证据。",
+  title = "Sign in to continue learning",
+  description = "Save your path, progress, and work in your account.",
   children,
 }: {
   destination: string;
@@ -22,7 +22,7 @@ export function AccountBoundary({
   const hydrated = useHydrated();
   const location = useAccountLocation();
   if (!hydrated || session.isPending) {
-    return <section className="account-boundary account-boundary-pending" aria-label="账号状态"><p role="status">正在确认账号…</p></section>;
+    return <section className="account-boundary account-boundary-pending" aria-label="Account status"><p role="status">Checking your account…</p></section>;
   }
   if (session.data?.user) return <div key={session.data.user.id} className="account-boundary-content">{children}</div>;
 
@@ -30,14 +30,14 @@ export function AccountBoundary({
     ? safeReturnTo(location, destination)
     : safeReturnTo(destination);
 
-  return <section className="account-boundary paper-surface" aria-label="登录后继续">
-    <p className="section-index">你的学习工作区</p>
+  return <section className="account-boundary paper-surface" aria-label="Sign in to continue">
+    <p className="section-index">Your learning workspace</p>
     <h1>{title}</h1>
     <p className="account-boundary-description">{description}</p>
     <div className="account-boundary-actions">
-      <Link className="primary-action" href={signInHref(next)}>登录并继续</Link>
-      <Link className="text-action" href="/showcase">先看公开样例</Link>
+      <Link className="primary-action" href={signInHref(next)}>Sign in and continue</Link>
+      <Link className="text-action" href="/showcase">Explore the showcase</Link>
     </div>
-    <p className="account-device-note">本设备已有的学习记录会保留。登录后如有可迁移记录，你可以选择是否导入账号。</p>
+    <p className="account-device-note">Your learning records stay on this device. After signing in, you can choose whether to import eligible records into your account.</p>
   </section>;
 }

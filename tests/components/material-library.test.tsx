@@ -25,7 +25,7 @@ function libraryWithConfirmedJd() {
   const mount = () => render(<MaterialLibrary ownerId="owner-b" capabilities={capabilities} client={client} onSelect={onSelect} />);
   const open = async () => {
     mount();
-    fireEvent.click(await screen.findByRole("button", { name: "查看并核对 合成公司 B" }));
+    fireEvent.click(await screen.findByRole("button", { name: "View and review 合成公司 B" }));
     await screen.findByDisplayValue("Prepare SQL reports");
   };
   return { ref, request, onSelect, client, mount, open, revoke: () => { active = false; }, advanceDocumentRevision: () => { confirmation.revision++; } };
@@ -38,14 +38,14 @@ describe("private material library", () => {
     const page = (onSelect: typeof initial | undefined, key = "goal") => <MaterialLibrary ownerId="owner-b" capabilities={capabilities}
       client={client} currentUse={{ key, entries: [], disabled: !onSelect, detach: async () => {} }} onSelect={onSelect && ((kind, ref) => onSelect(kind, ref))} />;
     const view = render(page(initial));
-    fireEvent.click(await screen.findByRole("button", { name: "查看并核对 合成公司 B" }));
-    const use = await screen.findByRole("button", { name: "采用这个已确认版本" });
+    fireEvent.click(await screen.findByRole("button", { name: "View and review 合成公司 B" }));
+    const use = await screen.findByRole("button", { name: "Use this confirmed version" });
     const gate = Promise.withResolvers<void>(), read = request.getMockImplementation()!;
     request.mockImplementationOnce(async (method, input) => { const result = await read(method, input); await gate.promise; return result; });
     fireEvent.click(use);
     if (transition.startsWith("lock")) {
       view.rerender(page(undefined));
-      expect(screen.queryByRole("button", { name: "采用这个已确认版本" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Use this confirmed version" })).not.toBeInTheDocument();
     }
     if (transition !== "lock") view.rerender(page(current, transition === "scope" ? "another-goal" : "goal"));
     await act(async () => { gate.resolve(); await gate.promise; });
@@ -56,17 +56,17 @@ describe("private material library", () => {
     const { client, onSelect, request } = libraryWithConfirmedJd();
     const page = (locked: boolean) => <MaterialLibrary ownerId="owner-b" capabilities={capabilities} client={client} onSelect={locked ? undefined : onSelect} />;
     const view = render(page(true));
-    fireEvent.click(await screen.findByRole("button", { name: "查看并核对 合成公司 B" }));
+    fireEvent.click(await screen.findByRole("button", { name: "View and review 合成公司 B" }));
     await screen.findByDisplayValue("Prepare SQL reports");
-    expect(screen.queryByText("已确认，可用于本次规划。")).not.toBeInTheDocument();
+    expect(screen.queryByText("Confirmed and available for this plan.")).not.toBeInTheDocument();
     view.rerender(page(false));
-    await screen.findByRole("button", { name: "采用这个已确认版本" });
+    await screen.findByRole("button", { name: "Use this confirmed version" });
     view.rerender(page(true));
-    expect(screen.queryByText("已确认，可用于本次规划。")).not.toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText("岗位 JD正文"), { target: { value: "Unsaved changes" } });
+    expect(screen.queryByText("Confirmed and available for this plan.")).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Job description text"), { target: { value: "Unsaved changes" } });
     view.rerender(page(false));
-    expect(screen.getByLabelText("岗位 JD正文")).toHaveValue("Unsaved changes");
-    expect(screen.queryByRole("button", { name: "采用这个已确认版本" })).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Job description text")).toHaveValue("Unsaved changes");
+    expect(screen.queryByRole("button", { name: "Use this confirmed version" })).not.toBeInTheDocument();
     expect(request.mock.calls.some(([method]) => method === "createDocumentConfirmation")).toBe(false);
   });
   it.each(["invalid-request", "forbidden", "gone"] as const)("falls back to the legacy draft only on incompatible read requests: %s", async code => {
@@ -76,15 +76,15 @@ describe("private material library", () => {
       return read(method, input);
     });
     render(<MaterialLibrary ownerId="owner-b" capabilities={capabilities} client={client} onSelect={onSelect} />);
-    fireEvent.click(await screen.findByRole("button", { name: "查看并核对 合成公司 B" }));
+    fireEvent.click(await screen.findByRole("button", { name: "View and review 合成公司 B" }));
     if (code === "invalid-request") await screen.findByDisplayValue("Prepare SQL reports");
     else await screen.findByRole("alert");
     expect(request.mock.calls.some(([name, input]) => name === "readDocumentReviewDraft" && !input.includeConfirmation)).toBe(code === "invalid-request");
-    expect(screen.queryByRole("button", { name: "采用这个已确认版本" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Use this confirmed version" })).not.toBeInTheDocument();
   });
   it("offers the saved confirmation in a fresh session and reuses it only on explicit adoption", async () => {
     const { ref, request, onSelect, open } = libraryWithConfirmedJd(); await open();
-    const use = await screen.findByRole("button", { name: "采用这个已确认版本" });
+    const use = await screen.findByRole("button", { name: "Use this confirmed version" });
     expect(onSelect).not.toHaveBeenCalled();
     fireEvent.click(use);
     await waitFor(() => expect(onSelect).toHaveBeenCalledWith("jd", { ...ref, confirmationId: "confirmed-b" }));
@@ -92,32 +92,32 @@ describe("private material library", () => {
   });
   it("invalidates a recovered confirmation as soon as an editable fact changes", async () => {
     const { open, onSelect } = libraryWithConfirmedJd(); await open();
-    await screen.findByRole("button", { name: "采用这个已确认版本" });
-    fireEvent.change(screen.getByLabelText("事实 1"), { target: { value: "Prepare reports for a different team" } });
-    expect(screen.queryByRole("button", { name: "采用这个已确认版本" })).not.toBeInTheDocument();
+    await screen.findByRole("button", { name: "Use this confirmed version" });
+    fireEvent.change(screen.getByLabelText("Fact 1"), { target: { value: "Prepare reports for a different team" } });
+    expect(screen.queryByRole("button", { name: "Use this confirmed version" })).not.toBeInTheDocument();
     expect(onSelect).not.toHaveBeenCalled();
   });
   it("declines to adopt a version whose confirmation became stale while its editor was open", async () => {
     const { open, revoke, onSelect } = libraryWithConfirmedJd(); await open();
-    const use = await screen.findByRole("button", { name: "采用这个已确认版本" });
+    const use = await screen.findByRole("button", { name: "Use this confirmed version" });
     revoke(); fireEvent.click(use);
-    await waitFor(() => expect(screen.queryByRole("button", { name: "采用这个已确认版本" })).not.toBeInTheDocument());
+    await waitFor(() => expect(screen.queryByRole("button", { name: "Use this confirmed version" })).not.toBeInTheDocument());
     expect(onSelect).not.toHaveBeenCalled();
   });
   it("passes the newest document revision when rechecking the same immutable confirmation", async () => {
     const { open, advanceDocumentRevision, ref, onSelect } = libraryWithConfirmedJd(); await open();
-    const use = await screen.findByRole("button", { name: "采用这个已确认版本" });
+    const use = await screen.findByRole("button", { name: "Use this confirmed version" });
     advanceDocumentRevision(); fireEvent.click(use);
     await waitFor(() => expect(onSelect).toHaveBeenCalledWith("jd", { ...ref, confirmationId: "confirmed-b", revision: 2 }));
   });
   it("does not trust the last session's cached confirmation ID when restoring the editor", async () => {
     const { open, mount, revoke, onSelect } = libraryWithConfirmedJd(); await open();
-    await screen.findByRole("button", { name: "采用这个已确认版本" });
+    await screen.findByRole("button", { name: "Use this confirmed version" });
     expect(JSON.stringify(localStorage)).toContain("confirmed-b");
     cleanup(); revoke(); mount();
-    expect(screen.queryByRole("button", { name: "采用这个已确认版本" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Use this confirmed version" })).not.toBeInTheDocument();
     await screen.findByDisplayValue("Prepare SQL reports");
-    expect(screen.queryByRole("button", { name: "采用这个已确认版本" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Use this confirmed version" })).not.toBeInTheDocument();
     expect(onSelect).not.toHaveBeenCalled();
   });
   it("ignores a late reuse check if the reader edits the displayed fact in the meantime", async () => {
@@ -126,10 +126,10 @@ describe("private material library", () => {
     const paused = new Promise<void>(resolve => { release = resolve; });
     const read = request.getMockImplementation()!;
     request.mockImplementationOnce(async (method, input) => { const result = await read(method, input); await paused; return result; });
-    fireEvent.click(await screen.findByRole("button", { name: "采用这个已确认版本" }));
-    fireEvent.change(screen.getByLabelText("事实 1"), { target: { value: "Changed during validation" } });
+    fireEvent.click(await screen.findByRole("button", { name: "Use this confirmed version" }));
+    fireEvent.change(screen.getByLabelText("Fact 1"), { target: { value: "Changed during validation" } });
     await act(async () => { release(); await paused; });
-    expect(screen.queryByRole("button", { name: "采用这个已确认版本" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Use this confirmed version" })).not.toBeInTheDocument();
     expect(onSelect).not.toHaveBeenCalled();
   });
   it("renders private names as text, has no upload, and distinguishes revocation from completed cleanup", async () => {
@@ -143,10 +143,10 @@ describe("private material library", () => {
     const { container } = render(<MaterialLibrary ownerId="owner-a" capabilities={capabilities} client={{ request } as unknown as DocumentsClient} />);
     await screen.findByText("<img src=x onerror=alert(1)>");
     expect(container.querySelector("img")).toBeNull(); expect(container.querySelector('input[type="file"]')).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "删除 <img src=x onerror=alert(1)>" }));
+    fireEvent.click(screen.getByRole("button", { name: "Delete <img src=x onerror=alert(1)>" }));
     expect(request.mock.calls.filter(([name]) => name === "deleteDocument")).toHaveLength(0);
-    fireEvent.click(screen.getByText("确认删除这份资料")); await screen.findByText("资料已撤销引用，正在清理保留的副本。");
-    fireEvent.click(screen.getByText("查询删除清理状态")); await screen.findByText("资料及已登记的派生副本已清理完成。");
+    fireEvent.click(screen.getByText("Confirm material deletion")); await screen.findByText("Material references were revoked. Retained copies are being cleaned up.");
+    fireEvent.click(screen.getByText("Check deletion cleanup status")); await screen.findByText("The material and its registered derived copies have been cleaned up.");
     await waitFor(() => expect(screen.queryByText("<img src=x onerror=alert(1)>")).not.toBeInTheDocument());
   });
 });

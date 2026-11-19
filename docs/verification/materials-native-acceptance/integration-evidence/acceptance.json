@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "materials-mainline-offline-acceptance-v1",
+  "status": "OFFLINE_ACCEPTED",
+  "sourceDigest": "e77bff98f4d22827585d3d59454f0c7a646537ddf3e9fd9360d1c82c6b3612a6",
+  "sourceFiles": 1023,
+  "sourceHead": "ef1b26bf886860298b7d292b788f2d221440edc9",
+  "mergedMainline": "60e7cb6d35a7df74f0f737fbd0c8446d1bf1cf1d",
+  "vitest": {
+    "files": 386,
+    "tests": 10031,
+    "failed": 0,
+    "basis": "All product/runtime/config bytes stayed frozen; only the five failed test files changed. Reuse 381 untouched passing files and replace the five failed-suite outcomes with their one targeted run. Not a new all-pass full run."
+  },
+  "node": {
+    "tests": 291,
+    "pass": 291,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "rendered": {
+    "tests": 5,
+    "pass": 5,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "types": "PASS",
+  "lint": {
+    "errors": 0,
+    "warnings": 4,
+    "scope": "All repository source except ignored local work scratch; no tracked files under work."
+  },
+  "build": "PASS",
+  "runs": [
+    {
+      "name": "mainline-final-20261119-types-01",
+      "exit": 0,
+      "elapsedMs": 15801,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-1x015D",
+      "commandName": "types-01"
+    },
+    {
+      "name": "mainline-final-20261119-lint-02",
+      "exit": 0,
+      "elapsedMs": 17974,
+      "logSha256": "a4bf8d50d4eae7f2705385d33f19b251c1decd7f61ad81cb6eb8da94ce269bc7",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-QjMln0",
+      "commandName": "lint-02"
+    },
+    {
+      "name": "mainline-final-20261119-build-01",
+      "exit": 0,
+      "elapsedMs": 12138,
+      "logSha256": "58632c9583cabe786e7ed24f0709e8cb3024e22d40f58caeb0f64fc67fd12b44",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-VTxRfR",
+      "commandName": "build-01"
+    },
+    {
+      "name": "mainline-final-20261119-rendered-01",
+      "exit": 0,
+      "elapsedMs": 2271,
+      "logSha256": "fa1d6a8c3036e5c227ee3ac733248948c39d9dd0dda3330cc740e0e40e576102",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-7qYvw0",
+      "commandName": "rendered-01"
+    },
+    {
+      "name": "mainline-final-20261119-node-01",
+      "exit": 0,
+      "elapsedMs": 199175,
+      "logSha256": "a90b640b09e8cf75e19505571e87def274dc62af6c28509d6e34dadad93d0324",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-eF8Upx",
+      "commandName": "node-01"
+    }
+  ],
+  "reviews": {
+    "mainline-integration-spec-review.md": "dd4814e3c1ecc8dc2b8f2090cef15bb95f0eb3f6b182080257214a5508e7e072",
+    "mainline-integration-quality-review.md": "8ecc79ecdbd72f20e14d98237fb00d7d01b8c5d422dc1b78570c909aa6e5ffa8",
+    "mainline-final-repair-spec-review.md": "f3b01387f9d5ae071508e83cc3b50bb12caa809bd8934e86223eea8cf509c36a",
+    "mainline-final-repair-quality-review.md": "074281586211cbc3ffefcc16e40a43b5ed27c73bf69174a1baf79c21c080a527",
+    "planning-integration-reuse-review.md": "6b3ce1d948b666ca3dd4371e59815da3a8485c5c94f23b493eaee3436151e048"
+  },
+  "integrity": {
+    "frozenAssets": 26,
+    "frozenInputs": 5,
+    "courseDependencies": 85,
+    "nativeClosure": 146,
+    "nativeUnchanged": 143,
+    "reviewedNativeDisplayDeltas": {
+      "app/data/flagship-role.ts": "7070068cd2edb6bb176b61f01e9e2e2f1800b24179c908e3619e11be5560572e",
+      "app/lib/materials/course-task-evidence.ts": "9918053c28c8577cfee0f4d416290908c189cd4202964d91a35508924d39b49e",
+      "app/lib/materials/explanations.ts": "4890a600779022b9a956682076d3a3cfddc5759a154e314fed41a6c18fb5d0b8"
+    }
+  },
+  "exclusions": {
+    "nativeRerun": false,
+    "newModelRequests": 0,
+    "newModelCostUsd": 0,
+    "remoteMigration": false,
+    "deployed": false,
+    "gate1BAccepted": false,
+    "productionReleased": false
+  },
+  "retainedFailures": [
+    "Full Vitest run: 5 failed files / 9 failed tests; diagnosed and five suites repaired only.",
+    "First lint command included ignored historical work scratch; all 139 errors were confined there. Scope corrected without changing rules or source.",
+    "Author ID probe initial strict-input mismatch retained; corrected diagnostic proved both fixed IDs."
+  ]
+}

@@ -58,10 +58,10 @@ describe("ProofWorkspace", () => {
     sessionStorage.setItem(draftKey, JSON.stringify({ title: "Retained draft", summary: "Saved before refresh", kind: "reflection", artifactUrl: "", assetId: null, skillId: "react", dailyUnitId: "", visibility: "private", validatorKey: "" }));
     const props = { ...callbacks(), ownerKey: "owner-a", canUpload: true, dailyUnits: [], projections: [], recovery: "none" as const, skills: flagshipRole.skills };
     const view = render(<ProofWorkspace {...props} source="restoring" workspace={null} />);
-    expect(screen.getByLabelText("作品标题")).toBeDisabled();
+    expect(screen.getByLabelText("Proof title")).toBeDisabled();
     view.rerender(<ProofWorkspace {...props} source="cloud" workspace={workspace([], [])} />);
-    expect(screen.getByLabelText("作品标题")).toHaveValue("Retained draft");
-    expect(screen.getByLabelText("作品说明")).toHaveValue("Saved before refresh");
+    expect(screen.getByLabelText("Proof title")).toHaveValue("Retained draft");
+    expect(screen.getByLabelText("Description")).toHaveValue("Saved before refresh");
     expect(props.createProof).not.toHaveBeenCalled();
   });
 
@@ -69,47 +69,47 @@ describe("ProofWorkspace", () => {
     window.history.replaceState(null, "", "/proof?compose=1");
     const props = { ...callbacks(), ownerKey: "owner-a", canUpload: true, dailyUnits: [], projections: [], recovery: "none" as const, skills: flagshipRole.skills, source: "cloud" as const };
     const view = render(<ProofWorkspace {...props} workspace={workspace([], [])} />);
-    fireEvent.change(screen.getByLabelText("作品标题"), { target: { value: "First goal draft" } });
+    fireEvent.change(screen.getByLabelText("Proof title"), { target: { value: "First goal draft" } });
     view.rerender(<ProofWorkspace {...props} workspace={{ ...workspace([], []), goalId: "goal-2" }} />);
-    expect(screen.getByLabelText("作品标题")).toHaveValue("");
+    expect(screen.getByLabelText("Proof title")).toHaveValue("");
     expect(sessionStorage.getItem("arc:proof-editor:v1:owner-a:goal-2:compose:general")).toBeNull();
     view.rerender(<ProofWorkspace {...props} workspace={workspace([], [])} />);
-    expect(screen.getByLabelText("作品标题")).toHaveValue("First goal draft");
+    expect(screen.getByLabelText("Proof title")).toHaveValue("First goal draft");
   });
 
   it("leads with inspectable work and folds the immutable version history", () => {
     renderWorkspace({ workspace: workspace() });
     const proof = screen.getByRole("article", { name: "Accessible request trace" });
-    expect(within(proof).getByRole("link", { name: "查看作品 ↗" })).toHaveAttribute("href", "https://example.com/proof");
-    const history = within(proof).getByText("版本记录 · 1").closest("details")!;
+    expect(within(proof).getByRole("link", { name: "View work ↗" })).toHaveAttribute("href", "https://example.com/proof");
+    const history = within(proof).getByText("Version history · 1").closest("details")!;
     expect(history.open).toBe(false);
-    fireEvent.click(within(proof).getByText("版本记录 · 1"));
+    fireEvent.click(within(proof).getByText("Version history · 1"));
     expect(history.open).toBe(true);
-    expect(screen.queryByLabelText("作品标题")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Proof title")).not.toBeInTheDocument();
   });
   it("renders an honest empty state and an inaccessible signed-out upload", () => {
     renderWorkspace();
-    expect(screen.getByRole("heading", { name: "添加作品" })).toBeInTheDocument();
-    expect(screen.getByText(/登录并保存草稿后/i)).toBeInTheDocument();
-    expect(screen.queryByLabelText(/上传作品文件/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Add proof" })).toBeInTheDocument();
+    expect(screen.getByText(/Sign in and save a draft/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/Upload a proof file/i)).not.toBeInTheDocument();
   });
 
   it("focuses a validation summary and does not submit invalid evidence", async () => {
     const actions = renderWorkspace();
-    fireEvent.click(screen.getByRole("button", { name: "提交审核" }));
+    fireEvent.click(screen.getByRole("button", { name: "Submit for review" }));
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveFocus();
-    expect(alert).toHaveTextContent(/作品标题/i);
+    expect(alert).toHaveTextContent(/Enter a title for your work/i);
     expect(actions.createProof).not.toHaveBeenCalled();
   });
 
   it("submits a public HTTPS artifact for structural review", async () => {
     const actions = renderWorkspace();
-    fireEvent.change(screen.getByLabelText("作品标题"), { target: { value: "Typed API" } });
-    fireEvent.change(screen.getByLabelText("作品说明"), { target: { value: "An inspectable request contract." } });
-    fireEvent.change(screen.getByLabelText("公开 HTTPS 链接"), { target: { value: "https://example.com/api" } });
-    fireEvent.change(screen.getByLabelText("关联技能"), { target: { value: "http-apis" } });
-    fireEvent.click(screen.getByRole("button", { name: "提交审核" }));
+    fireEvent.change(screen.getByLabelText("Proof title"), { target: { value: "Typed API" } });
+    fireEvent.change(screen.getByLabelText("Description"), { target: { value: "An inspectable request contract." } });
+    fireEvent.change(screen.getByLabelText("Public HTTPS link"), { target: { value: "https://example.com/api" } });
+    fireEvent.change(screen.getByLabelText("Related skill"), { target: { value: "http-apis" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit for review" }));
     await waitFor(() => expect(actions.createProof).toHaveBeenCalledWith(expect.objectContaining({
       intent: "submit", title: "Typed API", artifactUrl: "https://example.com/api",
       skillIds: ["http-apis"], visibility: "private",
@@ -123,18 +123,18 @@ describe("ProofWorkspace", () => {
       review({ id: "review-2", versionId: "version-2", sequence: 2, kind: "validator_passed", stateAfter: "verified", validatorKey: "proof.test-report.v1" }),
     ];
     renderWorkspace({ workspace: workspace([version(), verifiedVersion], reviews) });
-    expect(screen.getAllByText("已通过验证")).toHaveLength(2);
-    expect(screen.getByText("已被新版本替代")).toBeInTheDocument();
-    expect(screen.getAllByText(/已通过自动检查/i)).toHaveLength(2);
+    expect(screen.getAllByText("Verified")).toHaveLength(2);
+    expect(screen.getByText("Superseded")).toBeInTheDocument();
+    expect(screen.getAllByText(/Passed automatic checks/i)).toHaveLength(2);
     expect(screen.queryByText("validatorKey")).not.toBeInTheDocument();
   });
 
   it("creates immutable revisions rather than editing an earlier version", async () => {
     const actions = renderWorkspace({ workspace: workspace() });
-    fireEvent.click(screen.getByRole("button", { name: "添加修订" }));
-    expect(screen.getByRole("heading", { name: "添加作品修订" })).toHaveFocus();
-    fireEvent.change(screen.getByLabelText("作品说明"), { target: { value: "A stronger trace with failure handling." } });
-    fireEvent.click(screen.getByRole("button", { name: "保存草稿" }));
+    fireEvent.click(screen.getByRole("button", { name: "Add revision" }));
+    expect(screen.getByRole("heading", { name: "Add a proof revision" })).toHaveFocus();
+    fireEvent.change(screen.getByLabelText("Description"), { target: { value: "A stronger trace with failure handling." } });
+    fireEvent.click(screen.getByRole("button", { name: "Save draft" }));
     await waitFor(() => expect(actions.reviseProof).toHaveBeenCalledWith("proof-1", expect.objectContaining({
       intent: "save_draft", summary: "A stronger trace with failure handling.",
     })));
@@ -142,20 +142,20 @@ describe("ProofWorkspace", () => {
 
   it("returns focus to the selected work when cancelling a revision", () => {
     renderWorkspace({ workspace: workspace() });
-    const revise = screen.getByRole("button", { name: "添加修订" });
+    const revise = screen.getByRole("button", { name: "Add revision" });
     fireEvent.click(revise);
-    fireEvent.click(screen.getByRole("button", { name: "取消修订" }));
-    expect(screen.getByRole("button", { name: "添加修订" })).toHaveFocus();
+    fireEvent.click(screen.getByRole("button", { name: "Cancel revision" }));
+    expect(screen.getByRole("button", { name: "Add revision" })).toHaveFocus();
   });
 
   it("withdraws evidence and toggles current visibility", async () => {
     const actions = renderWorkspace({ workspace: workspace() });
     const item = screen.getByRole("article", { name: "Accessible request trace" });
-    fireEvent.click(within(item).getByRole("button", { name: "设为公开" }));
+    fireEvent.click(within(item).getByRole("button", { name: "Make public" }));
     await waitFor(() => expect(actions.setVisibility).toHaveBeenCalledWith("proof-1", "public"));
-    fireEvent.click(within(item).getByText("更多操作"));
-    fireEvent.click(within(item).getByRole("button", { name: "撤回作品" }));
-    fireEvent.click(within(item).getByRole("button", { name: "确认撤回" }));
+    fireEvent.click(within(item).getByText("More actions"));
+    fireEvent.click(within(item).getByRole("button", { name: "Withdraw proof" }));
+    fireEvent.click(within(item).getByRole("button", { name: "Confirm withdrawal" }));
     await waitFor(() => expect(actions.withdrawProof).toHaveBeenCalledWith("proof-1"));
   });
 
@@ -163,30 +163,30 @@ describe("ProofWorkspace", () => {
     let release!: (value: boolean) => void;
     const pending = new Promise<boolean>((resolve) => { release = resolve; });
     renderWorkspace({ workspace: workspace(), withdrawProof: vi.fn(() => pending) });
-    fireEvent.click(screen.getByText("更多操作"));
-    fireEvent.click(screen.getByRole("button", { name: "撤回作品" }));
-    fireEvent.click(screen.getByRole("button", { name: "确认撤回" }));
-    expect(screen.getByRole("button", { name: "正在撤回…" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "添加修订" })).toBeDisabled();
+    fireEvent.click(screen.getByText("More actions"));
+    fireEvent.click(screen.getByRole("button", { name: "Withdraw proof" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirm withdrawal" }));
+    expect(screen.getByRole("button", { name: "Withdrawing…" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Add revision" })).toBeDisabled();
     release(true);
-    await waitFor(() => expect(screen.getByRole("button", { name: "撤回作品" })).toBeEnabled());
+    await waitFor(() => expect(screen.getByRole("button", { name: "Withdraw proof" })).toBeEnabled());
   });
 
   it("offers conflict recovery and prevents stale mutations", () => {
     const actions = renderWorkspace({ canUpload: true, recovery: "conflict", source: "cloud", workspace: workspace() });
-    expect(screen.getByRole("alert")).toHaveTextContent(/已在另一处发生变化/i);
-    fireEvent.click(screen.getByRole("button", { name: "重新加载作品记录" }));
+    expect(screen.getByRole("alert")).toHaveTextContent(/changed elsewhere/i);
+    fireEvent.click(screen.getByRole("button", { name: "Reload proof" }));
     expect(actions.retry).toHaveBeenCalled();
-    expect(screen.getByRole("button", { name: "添加修订" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Add revision" })).toBeDisabled();
   });
 
   it("allows a signed-in cloud workspace to upload only after a proof root exists", async () => {
     const actions = renderWorkspace({ canUpload: true, source: "cloud", workspace: workspace() });
-    fireEvent.click(screen.getByRole("button", { name: "添加修订" }));
-    const upload = screen.getByLabelText("上传作品文件");
+    fireEvent.click(screen.getByRole("button", { name: "Add revision" }));
+    const upload = screen.getByLabelText("Upload a proof file");
     const file = new File(["evidence"], "proof.txt", { type: "text/plain" });
     fireEvent.change(upload, { target: { files: [file] } });
-    fireEvent.click(screen.getByRole("button", { name: "上传所选文件" }));
+    fireEvent.click(screen.getByRole("button", { name: "Upload selected file" }));
     await waitFor(() => expect(actions.uploadAsset).toHaveBeenCalledWith("proof-1", file));
   });
 });

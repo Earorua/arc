@@ -1,0 +1,526 @@
+{
+  "date": "2026-11-09",
+  "repository": "https://github.com/Earorua/arc",
+  "scope": "Branch cleanup before publishing its documentation; the temporary documentation branch is removed after merge.",
+  "applicationBaseline": "bcd979150eb5269019688450dd6a8e2ea1ce199f",
+  "retainedBranches": [
+    {
+      "name": "master",
+      "purpose": "Current application source",
+      "headAtCleanup": "bcd979150eb5269019688450dd6a8e2ea1ce199f"
+    },
+    {
+      "name": "codex/materials-replan-recovery-20261106",
+      "purpose": "Paused, unverified materials development; not merged into master",
+      "headAtCleanup": "714ea9e54d87b91a1fee4883176d4f1dd06ecf63"
+    }
+  ],
+  "counts": {
+    "remoteBefore": 26,
+    "remoteDeleted": 24,
+    "remoteAfter": 2,
+    "localBefore": 43,
+    "localDeleted": 40,
+    "localMasterRefsCreated": 1,
+    "localAfter": 4,
+    "historicalWorktreesDetached": 12,
+    "dirtyWorktreesPreserved": 4,
+    "dirtyFilesPreserved": 1101
+  },
+  "archiveTags": [
+    {
+      "name": "archive/2026-11-09/pre-rebase-foundation",
+      "sha": "457ecb5e444c8c17870bf20332a84e148f268284",
+      "reason": "Preserve the original pre-rebase foundation history, including feature/arc-experience-foundation, before obsolete branch cleanup. Historical reference only; current application is master."
+    },
+    {
+      "name": "archive/2026-11-09/dual-learning-agents",
+      "sha": "3470ec7ff5ffbf59dc013e35a67c15389550c9a4",
+      "reason": "Preserve the original October 14 learning-agent release history before obsolete branch cleanup. Later source snapshots and application improvements are on master."
+    },
+    {
+      "name": "archive/2026-11-09/sites-v72-source",
+      "sha": "7ca5b530dfc58f3cbc700b44a7a881a9bd661209",
+      "reason": "Preserve the original Sites linking and v7/v7.1/v7.2 source history before obsolete branch cleanup. Historical reference only; current application is master."
+    }
+  ],
+  "remoteBranchesRemoved": [
+    {
+      "name": "codex/arc-ink-teal-20261108",
+      "sha": "0527bbb093072815a41f7f520980db0d16aec105",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "name": "codex/arc-v8-source-snapshot-20261018",
+      "sha": "307de59b52d786214c93ec9a97380775c4a06edd",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "name": "codex/arc-v8-source-snapshot-20261026",
+      "sha": "7f845ef0445daffa7026ae40aa17911c7dd45578",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "name": "codex/arc-v8-source-snapshot-20261027",
+      "sha": "a0fe017d39dd25b0d23393b5e7663b07c2c610b0",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "name": "codex/concise-bilingual-readme",
+      "sha": "cae9f9df43b9b5e24d88d015938f7cde031fd3dc",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "name": "codex/english-interface-20261108",
+      "sha": "43179bcd3d5d62441d3bf1f439541fcb8ab46a5f",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "name": "codex/experience-redesign-20261028",
+      "sha": "40c8dc10285cd8c6cadecd299a8a946f432b4f33",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "name": "codex/latest-source-bilingual-readme-20261029",
+      "sha": "5794fe1ab6448234f72f4ec416d4881f89b35780",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "name": "codex/learning-companion-v8-20261028",
+      "sha": "a220cbdb092940ffd6fc50676d235006ffe8b610",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "name": "codex/materials-pause-20261104",
+      "sha": "24e918d3b9a0cf8963437a7ae6b2a01db42165d1",
+      "preservedBy": "refs/remotes/origin/codex/materials-replan-recovery-20261106"
+    },
+    {
+      "name": "codex/merge-cloudflare-migration-20261018",
+      "sha": "58b638fa3c259eb9611fefc649b97a16cd7f3d01",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "name": "codex/refine-home-copy-hierarchy-20261030",
+      "sha": "63d7b2ee5533fe8e8a6e3077f30198f8cfd3d753",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "name": "codex/simplify-home-learning-action-20261029",
+      "sha": "3710ccc9dc0e3698cf74b62e82fa4ca6301423bb",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "name": "codex/simplify-home-method-entry-20261029",
+      "sha": "b0847ccd4a7ff500f67303ca00b37f07a469d996",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "name": "codex/simplify-home-showcase-entry-20261029",
+      "sha": "04346aa880865f859cd9031f7ddad1c6778ca4ef",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "name": "codex/simplify-learning-entry-20261029",
+      "sha": "de44f5346b83af12b9b1eb902202270b605ec9d8",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "name": "codex/simplify-workspace-controls-20261029",
+      "sha": "c807036eb18cbaaee33c63935e6875a3de5bc9b9",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "name": "codex/smooth-workspace-loading-20261108",
+      "sha": "3ebfd0ad03bcbf87ba262f05bf4029d800609a83",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "name": "codex/source-consolidation-20261108",
+      "sha": "247f008181d0c7efdf1b93104408159acf300f6b",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "name": "codex/v8-cloudflare-migration",
+      "sha": "ddfa1b45fcca44827c86dc418ff6f734eeb19bb4",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "name": "codex/v8-openrouter-research-beta",
+      "sha": "2058a62cf99ad246a7040e1ae00fe903357f775a",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "name": "codex/v8-resume-checkpoint",
+      "sha": "e654d036c36c537a613cb2cee48c5fae57a8367f",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "name": "feature/arc-beta-foundation",
+      "sha": "96cbe4f59ed92e56a8e4b500d9a87bfc171f7979",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "name": "feature/arc-experience-foundation",
+      "sha": "7b5c8964e9b6265739ed93e614b28bd8303c0405",
+      "preservedBy": "refs/tags/archive/2026-11-09/pre-rebase-foundation"
+    }
+  ],
+  "localBranchReferencesRemoved": [
+    {
+      "repo": "canonical",
+      "name": "codex/arc-ink-teal-20261108",
+      "sha": "0527bbb093072815a41f7f520980db0d16aec105",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "canonical",
+      "name": "codex/arc-v8-source-snapshot-20261018",
+      "sha": "307de59b52d786214c93ec9a97380775c4a06edd",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "canonical",
+      "name": "codex/arc-v8-source-snapshot-20261026",
+      "sha": "7f845ef0445daffa7026ae40aa17911c7dd45578",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "canonical",
+      "name": "codex/arc-v8-source-snapshot-20261027",
+      "sha": "a0fe017d39dd25b0d23393b5e7663b07c2c610b0",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "canonical",
+      "name": "codex/concise-bilingual-readme",
+      "sha": "cae9f9df43b9b5e24d88d015938f7cde031fd3dc",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "canonical",
+      "name": "codex/english-interface-20261108",
+      "sha": "43179bcd3d5d62441d3bf1f439541fcb8ab46a5f",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "canonical",
+      "name": "codex/experience-redesign-20261028",
+      "sha": "40c8dc10285cd8c6cadecd299a8a946f432b4f33",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "canonical",
+      "name": "codex/fix-smoke-nonce-persistence-20261029",
+      "sha": "3400a9e68be310c3e30bfe33b9a73d948b61739c",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "canonical",
+      "name": "codex/latest-source-bilingual-readme-20261029",
+      "sha": "5794fe1ab6448234f72f4ec416d4881f89b35780",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "canonical",
+      "name": "codex/materials-offline-recovery-20261105",
+      "sha": "33c954feac063e1a05516b3ebac36ed7b193639a",
+      "preservedBy": "refs/remotes/origin/codex/materials-replan-recovery-20261106"
+    },
+    {
+      "repo": "canonical",
+      "name": "codex/materials-pause-20261104",
+      "sha": "24e918d3b9a0cf8963437a7ae6b2a01db42165d1",
+      "preservedBy": "refs/remotes/origin/codex/materials-replan-recovery-20261106"
+    },
+    {
+      "repo": "canonical",
+      "name": "codex/materials-phase-0-20261104",
+      "sha": "2caa51d56a41f60b837425ffa56dea4fbbecbd47",
+      "preservedBy": "refs/remotes/origin/codex/materials-replan-recovery-20261106"
+    },
+    {
+      "repo": "canonical",
+      "name": "codex/materials-phase-1-offline-20261104",
+      "sha": "2caa51d56a41f60b837425ffa56dea4fbbecbd47",
+      "preservedBy": "refs/remotes/origin/codex/materials-replan-recovery-20261106"
+    },
+    {
+      "repo": "canonical",
+      "name": "codex/materials-receipt-accounting-wip-20261104",
+      "sha": "3e283ee7832c7283a39b6c324910608d52f80cd8",
+      "preservedBy": "refs/remotes/origin/codex/materials-replan-recovery-20261106"
+    },
+    {
+      "repo": "canonical",
+      "name": "codex/refine-home-copy-hierarchy-20261030",
+      "sha": "63d7b2ee5533fe8e8a6e3077f30198f8cfd3d753",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "canonical",
+      "name": "codex/research-response-recovery-20261029",
+      "sha": "0b4a9942e7318de6ff4655ccb4bf138b5bed49fc",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "canonical",
+      "name": "codex/simplify-home-learning-action-20261029",
+      "sha": "3710ccc9dc0e3698cf74b62e82fa4ca6301423bb",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "canonical",
+      "name": "codex/simplify-home-method-entry-20261029",
+      "sha": "b0847ccd4a7ff500f67303ca00b37f07a469d996",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "canonical",
+      "name": "codex/simplify-home-showcase-entry-20261029",
+      "sha": "04346aa880865f859cd9031f7ddad1c6778ca4ef",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "canonical",
+      "name": "codex/simplify-learning-entry-20261029",
+      "sha": "de44f5346b83af12b9b1eb902202270b605ec9d8",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "canonical",
+      "name": "codex/simplify-workspace-controls-20261029",
+      "sha": "c807036eb18cbaaee33c63935e6875a3de5bc9b9",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "canonical",
+      "name": "codex/smooth-workspace-loading-20261108",
+      "sha": "3ebfd0ad03bcbf87ba262f05bf4029d800609a83",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "canonical",
+      "name": "codex/source-consolidation-20261108",
+      "sha": "247f008181d0c7efdf1b93104408159acf300f6b",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "canonical",
+      "name": "codex/ui-discovery-20261028",
+      "sha": "3bd2c4949fe479a7f6e6f1854310b465592887bf",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "canonical",
+      "name": "codex/ui-warm-precision-20261028",
+      "sha": "58588911e5f958ec59cf35f131e74ad14c473615",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "canonical",
+      "name": "codex/v8-openrouter-research-beta",
+      "sha": "2058a62cf99ad246a7040e1ae00fe903357f775a",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "legacy",
+      "name": "backup/arc-beta-foundation-pre-rebase",
+      "sha": "457ecb5e444c8c17870bf20332a84e148f268284",
+      "preservedBy": "refs/tags/archive/2026-11-09/pre-rebase-foundation"
+    },
+    {
+      "repo": "legacy",
+      "name": "codex/arc-v8-replay-ack-order",
+      "sha": "7090153b4acad7b12df6a7ee4d675b46c41871dc",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "legacy",
+      "name": "codex/dual-learning-agents",
+      "sha": "3470ec7ff5ffbf59dc013e35a67c15389550c9a4",
+      "preservedBy": "refs/tags/archive/2026-11-09/dual-learning-agents"
+    },
+    {
+      "repo": "legacy",
+      "name": "codex/sites-release-linking",
+      "sha": "9d14a05a87b7f9c48e67f1082fbf9f86a10fe3c0",
+      "preservedBy": "refs/tags/archive/2026-11-09/sites-v72-source"
+    },
+    {
+      "repo": "legacy",
+      "name": "codex/sites-v7-source",
+      "sha": "22c5096eb840ce610e0b39df99475b27ccbd9c67",
+      "preservedBy": "refs/tags/archive/2026-11-09/sites-v72-source"
+    },
+    {
+      "repo": "legacy",
+      "name": "codex/sites-v71-source",
+      "sha": "242a7fdb14364ffadd66de59c656c9200ee08aa1",
+      "preservedBy": "refs/tags/archive/2026-11-09/sites-v72-source"
+    },
+    {
+      "repo": "legacy",
+      "name": "codex/sites-v72-source",
+      "sha": "7ca5b530dfc58f3cbc700b44a7a881a9bd661209",
+      "preservedBy": "refs/tags/archive/2026-11-09/sites-v72-source"
+    },
+    {
+      "repo": "legacy",
+      "name": "codex/v8-adaptive-planning-spec",
+      "sha": "c8473eb04c93be39e604e68865806ea51c11a73b",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "legacy",
+      "name": "codex/v8-cloudflare-migration",
+      "sha": "ddfa1b45fcca44827c86dc418ff6f734eeb19bb4",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "legacy",
+      "name": "codex/v8-openrouter-research-beta",
+      "sha": "2058a62cf99ad246a7040e1ae00fe903357f775a",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "legacy",
+      "name": "codex/v8-resume-checkpoint",
+      "sha": "2825ff42118752d91e2dd0d8fd03a2f3bbba1f65",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "legacy",
+      "name": "feature/arc-experience-foundation",
+      "sha": "7b5c8964e9b6265739ed93e614b28bd8303c0405",
+      "preservedBy": "refs/tags/archive/2026-11-09/pre-rebase-foundation"
+    },
+    {
+      "repo": "merge-snapshot",
+      "name": "codex/arc-v8-source-snapshot-20261018",
+      "sha": "307de59b52d786214c93ec9a97380775c4a06edd",
+      "preservedBy": "refs/remotes/origin/master"
+    },
+    {
+      "repo": "merge-snapshot",
+      "name": "codex/merge-cloudflare-migration-20261018",
+      "sha": "58b638fa3c259eb9611fefc649b97a16cd7f3d01",
+      "preservedBy": "refs/remotes/origin/master"
+    }
+  ],
+  "localRepositories": [
+    {
+      "id": "canonical",
+      "path": "D:\\CodexScratch\\arc-source-readme-20261029",
+      "retainedBranches": [
+        "codex/materials-replan-recovery-20261106",
+        "master"
+      ],
+      "masterAtCleanup": "bcd979150eb5269019688450dd6a8e2ea1ce199f"
+    },
+    {
+      "id": "legacy",
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2",
+      "retainedBranches": [
+        "master"
+      ],
+      "masterAtCleanup": "bcd979150eb5269019688450dd6a8e2ea1ce199f"
+    },
+    {
+      "id": "merge-snapshot",
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\work\\github-merge-20261018",
+      "retainedBranches": [
+        "master"
+      ],
+      "masterAtCleanup": "bcd979150eb5269019688450dd6a8e2ea1ce199f"
+    }
+  ],
+  "historicalWorktrees": [
+    {
+      "path": "C:/Users/XF/Documents/Codex/2026-07-26/sites-plugin-sites-openai-bundled-2/.worktrees/v8-openrouter-research-beta/work/github-source-r126",
+      "head": "a0fe017d39dd25b0d23393b5e7663b07c2c610b0",
+      "formerBranch": "refs/heads/codex/arc-v8-source-snapshot-20261027",
+      "preservedFiles": 0
+    },
+    {
+      "path": "C:/Users/XF/.codex/worktrees/arc-ink-teal/ui-warm-precision",
+      "head": "43179bcd3d5d62441d3bf1f439541fcb8ab46a5f",
+      "formerBranch": "refs/heads/codex/english-interface-20261108",
+      "preservedFiles": 0
+    },
+    {
+      "path": "C:/Users/XF/.codex/worktrees/materials-receipt-accounting/ui-warm-precision",
+      "head": "33c954feac063e1a05516b3ebac36ed7b193639a",
+      "formerBranch": "refs/heads/codex/materials-offline-recovery-20261105",
+      "preservedFiles": 0
+    },
+    {
+      "path": "C:/Users/XF/Documents/Codex/2026-07-26/sites-plugin-sites-openai-bundled-2/.worktrees/v8-openrouter-research-beta/.worktrees/ui-warm-precision",
+      "head": "2caa51d56a41f60b837425ffa56dea4fbbecbd47",
+      "formerBranch": "refs/heads/codex/materials-phase-1-offline-20261104",
+      "preservedFiles": 291
+    },
+    {
+      "path": "C:/Users/XF/.codex/worktrees/arc-v8-replay-ack-order/v8-openrouter-research-beta",
+      "head": "7090153b4acad7b12df6a7ee4d675b46c41871dc",
+      "formerBranch": "refs/heads/codex/arc-v8-replay-ack-order",
+      "preservedFiles": 358
+    },
+    {
+      "path": "C:/Users/XF/.codex/worktrees/dual-learning-agents/v8-openrouter-research-beta",
+      "head": "3470ec7ff5ffbf59dc013e35a67c15389550c9a4",
+      "formerBranch": "refs/heads/codex/dual-learning-agents",
+      "preservedFiles": 0
+    },
+    {
+      "path": "C:/Users/XF/Documents/Codex/2026-07-26/sites-plugin-sites-openai-bundled-2/.worktrees/arc-experience-foundation",
+      "head": "7b5c8964e9b6265739ed93e614b28bd8303c0405",
+      "formerBranch": "refs/heads/feature/arc-experience-foundation",
+      "preservedFiles": 0
+    },
+    {
+      "path": "C:/Users/XF/Documents/Codex/2026-07-26/sites-plugin-sites-openai-bundled-2/.worktrees/sites-v7-source",
+      "head": "22c5096eb840ce610e0b39df99475b27ccbd9c67",
+      "formerBranch": "refs/heads/codex/sites-v7-source",
+      "preservedFiles": 0
+    },
+    {
+      "path": "C:/Users/XF/Documents/Codex/2026-07-26/sites-plugin-sites-openai-bundled-2/.worktrees/sites-v71-source",
+      "head": "242a7fdb14364ffadd66de59c656c9200ee08aa1",
+      "formerBranch": "refs/heads/codex/sites-v71-source",
+      "preservedFiles": 0
+    },
+    {
+      "path": "C:/Users/XF/Documents/Codex/2026-07-26/sites-plugin-sites-openai-bundled-2/.worktrees/v8-cloudflare-migration",
+      "head": "ddfa1b45fcca44827c86dc418ff6f734eeb19bb4",
+      "formerBranch": "refs/heads/codex/v8-cloudflare-migration",
+      "preservedFiles": 0
+    },
+    {
+      "path": "C:/Users/XF/Documents/Codex/2026-07-26/sites-plugin-sites-openai-bundled-2/.worktrees/v8-openrouter-research-beta",
+      "head": "2058a62cf99ad246a7040e1ae00fe903357f775a",
+      "formerBranch": "refs/heads/codex/v8-openrouter-research-beta",
+      "preservedFiles": 63
+    },
+    {
+      "path": "C:/Users/XF/Documents/Codex/2026-07-26/sites-plugin-sites-openai-bundled-2/.worktrees/v8-openrouter-research-beta/work/github-merge-20261018",
+      "head": "58b638fa3c259eb9611fefc649b97a16cd7f3d01",
+      "formerBranch": "refs/heads/codex/merge-cloudflare-migration-20261018",
+      "preservedFiles": 0
+    }
+  ],
+  "verification": {
+    "allRemovedTipsReachableFromRetainedBranchOrArchiveTag": true,
+    "remoteDeletionsAtomicAndExpectedShaGuarded": true,
+    "localBranchTipsRecheckedBeforeDeletion": true,
+    "dirtyFileSha256AndStatusUnchanged": true,
+    "localGitBundlesVerified": [
+      "canonical-before.bundle",
+      "legacy-before.bundle",
+      "merge-snapshot-before.bundle"
+    ],
+    "backupDirectory": "D:/CodexTemp/arc-branch-cleanup-20261109",
+    "applicationRuntimeUnchanged": true
+  },
+  "completedBranchCleanupAt": "2026-11-08T17:12:37.807Z"
+}

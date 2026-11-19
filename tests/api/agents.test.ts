@@ -16,7 +16,7 @@ describe("learning agent HTTP boundary", () => {
       ...(method === "POST" ? { body: "{}" } : {}) });
     const result = await handlers[operation](request, "run-1");
     expect(result.status).toBe(401);
-    expect(await result.json()).toEqual({ error: "请先登录 Arc。" });
+    expect(await result.json()).toEqual({ error: "Sign in to Arc first." });
     expect(createService).not.toHaveBeenCalled(); expect(rateLimit).not.toHaveBeenCalled();
   });
   it("rejects unauthenticated writes", async () => {

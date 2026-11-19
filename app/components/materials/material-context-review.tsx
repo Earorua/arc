@@ -68,7 +68,7 @@ export function MaterialContextReview({ input, availableSkills = [], previousGoa
       if (!controller.signal.aborted && epochKey === currentKey.current) {
         setSavedPreview({ key, value: result.preview }); previewCallback.current({ reference: recoveryRef, preview: result.preview });
       }
-    }).catch(() => { if (!controller.signal.aborted && epochKey === currentKey.current) setMessage("原预览已不可恢复，请返回路线确认保存结果。"); });
+    }).catch(() => { if (!controller.signal.aborted && epochKey === currentKey.current) setMessage("The original preview cannot be recovered. Return to your path to check whether it was saved."); });
     return () => controller.abort();
   }, [client, recovering, recoveryRef, key, requestKey]);
   if (!state?.capabilities?.documentsEnabled || !selectedCount) return null;
@@ -104,7 +104,7 @@ export function MaterialContextReview({ input, availableSkills = [], previousGoa
         setChoiceDraft({ key, value: savedChoices }); state.setPreview(result.reference);
         setSavedPreview({ key, value: result.preview }); previewCallback.current(result);
       }
-    } catch { if (epochKey === currentKey.current && attempt.current === mutation) setMessage("暂时无法核对资料影响。请检查已确认资料或重新生成预览。"); }
+    } catch { if (epochKey === currentKey.current && attempt.current === mutation) setMessage("Material impact could not be reviewed. Check the confirmed materials or create a new preview."); }
     finally { setBusy(false); }
   }
   function changeChoices(next: Choices) {
@@ -112,7 +112,7 @@ export function MaterialContextReview({ input, availableSkills = [], previousGoa
     // Invalidate before React renders or flushes effects, so an outstanding response cannot revive the old reference.
     currentKey.current = choicesKey(key, next); currentChoices.current = { key, value: next }; attempt.current = null;
     setChoiceDraft({ key, value: next }); state.setPreview(null); previewCallback.current(null);
-    setMessage("资料采用方式已修改，请重新核对资料对路线的影响后采用。");
+    setMessage("Material choices changed. Review their impact on your path again before using them.");
   }
   function chooseSkill(confirmationId: string, itemId: string, skillId: string, skillLabel?: string) {
     if (!state || disabled || busy || recovering || (skillId && !(skillLabel !== undefined && skillId === OMIT_TERM) && !availableSkills.some(skill => skill.id === skillId))) return;
@@ -145,68 +145,68 @@ export function MaterialContextReview({ input, availableSkills = [], previousGoa
   const issueCount = issues.reduce((total, issue) => total + Math.max(1, issue.itemIds.length), 0);
   const mappedSkillCount = preview?.mappingDetails === undefined ? null
     : new Set(preview.mappingDetails.filter(row => row.status === "mapped").flatMap(row => row.skillIds)).size;
-  const skillNames = (ids: readonly string[]) => ids.map(id => availableSkills.find(skill => skill.id === id)?.name ?? id).join("、");
-  const basisLabels = { literal: "名称或已登记别名", contextual: "上下文对应", manual: "手动选择" };
+  const skillNames = (ids: readonly string[]) => ids.map(id => availableSkills.find(skill => skill.id === id)?.name ?? id).join(", ");
+  const basisLabels = { literal: "Name or registered alias", contextual: "Contextual match", manual: "Manual choice" };
   function mappingResult(itemId: string, termIndex: number) {
     const detail = preview?.mappingDetails?.find(row => row.itemId === itemId && row.termIndexes.includes(termIndex));
-    if (!detail) return <p>历史预览未记录逐词对应结果。</p>;
-    const status = detail.status === "mapped" ? `已对应：${skillNames(detail.skillIds)}`
-      : detail.status === "ambiguous" ? `对应待核对：${skillNames(detail.skillIds)}`
-      : detail.status === "uncovered" ? "当前蓝图未覆盖"
-      : detail.status === "omitted" ? "已明确不用于本轮映射" : "未用于本轮学习排序";
+    if (!detail) return <p>This historical preview did not record individual term matches.</p>;
+    const status = detail.status === "mapped" ? `Matched: ${skillNames(detail.skillIds)}`
+      : detail.status === "ambiguous" ? `Match needs review: ${skillNames(detail.skillIds)}`
+      : detail.status === "uncovered" ? "Outside the current blueprint"
+      : detail.status === "omitted" ? "Explicitly excluded from this mapping" : "Not used to prioritize this plan";
     const coverage = detail.taskCoverage;
-    return <><p>{mappingDirty && "上次预览："}{status}{detail.basis && ` · 依据：${basisLabels[detail.basis]}`}</p>
-      {coverage ? <p>{mappingDirty && "上次预览："}任务覆盖：{{ full: "完整（仅限已识别的窄任务）", partial: "部分", none: "未证实", "not-applicable": "不适用" }[coverage.status]}
-        {coverage.support.length > 0 && ` · 支持：${coverage.support.map(id => COURSE_TASK_EVIDENCE[id].label).join("、")}`}
-        {coverage.remaining && ` · ${COURSE_TASK_REMAINING_LABELS[coverage.remaining]}`}。</p>
-        : <p>历史预览未核验任务覆盖；课程主题对应不代表完整教学覆盖。</p>}</>;
+    return <><p>{mappingDirty && "Previous preview: "}{status}{detail.basis && ` · Basis: ${basisLabels[detail.basis]}`}</p>
+      {coverage ? <p>{mappingDirty && "Previous preview: "}Task coverage: {{ full: "Full (recognized narrow task only)", partial: "Partial", none: "Unverified", "not-applicable": "Not applicable" }[coverage.status]}
+        {coverage.support.length > 0 && ` · Supported: ${coverage.support.map(id => COURSE_TASK_EVIDENCE[id].label).join(", ")}`}
+        {coverage.remaining && ` · ${COURSE_TASK_REMAINING_LABELS[coverage.remaining]}`}.</p>
+        : <p>Task coverage was not checked in this historical preview. A course-topic match does not establish full teaching coverage.</p>}</>;
   }
   function mappingSelect(confirmationId: string, itemId: string, label: string, blocked: boolean, skillLabel?: string) {
     const termChoice = skillLabel === undefined ? undefined : displayedChoices.termMappings.find(choice => sameItem(choice, confirmationId, itemId) && choice.skillLabel === skillLabel);
     const ids = skillLabel === undefined ? displayedChoices.skillMappings.filter(choice => sameItem(choice, confirmationId, itemId)).map(choice => choice.skillId) : termChoice?.skillIds;
     const saved = Boolean(ids && (ids.length > 1 || ids.length === 1 && !availableSkills.some(skill => skill.id === ids[0])));
     const value = saved ? SAVED_CHOICE : ids?.length ? ids[0] : termChoice ? OMIT_TERM : "";
-    return <label>对应的已有技能<select aria-label={label} disabled={disabled || busy || recovering || blocked} value={value}
+    return <label>Matching existing skill<select aria-label={label} disabled={disabled || busy || recovering || blocked} value={value}
       onChange={event => chooseSkill(confirmationId, itemId, event.target.value, skillLabel)}>
-      <option value="">自动对应；未匹配时保留未覆盖</option>
-      {skillLabel !== undefined && <option value={OMIT_TERM}>不用于本轮映射</option>}
-      {saved && <option value={SAVED_CHOICE}>已保存：{skillNames(ids!)}</option>}
+      <option value="">Match automatically; retain unmatched scope</option>
+      {skillLabel !== undefined && <option value={OMIT_TERM}>Exclude from this mapping</option>}
+      {saved && <option value={SAVED_CHOICE}>Saved: {skillNames(ids!)}</option>}
       {availableSkills.map(skill => <option key={skill.id} value={skill.id}>{skill.name}</option>)}
     </select></label>;
   }
   return <section className="material-context-review"><MaterialSelectionSummary disabled={disabled || busy || recovering} />
-    {!state.capabilities.planningEnabled ? <p>资料辅助规划暂未开放。可移除本次选择，继续普通规划。</p> : <>
-    {entries.length !== selectedCount && <p role="alert">请先核对并确认每份资料的事实，或移除未采用的资料。</p>}
-    <button type="button" disabled={busy || disabled || recovering || entries.length !== selectedCount} onClick={() => void review()}>{busy ? "正在核对资料影响…" : "核对资料对路线的影响"}</button>
-    {preview && <div className="material-preview"><p role="status">{mappingDirty ? "资料采用方式待重新预览，当前结果暂不可采用。" : "资料预览已就绪。创建路线时将再次校验所选版本。"}</p>
-      <h3>确认的事实与要求</h3><ul>{preview.confirmedItems.map((item, index) => {
+    {!state.capabilities.planningEnabled ? <p>Material-assisted planning is not available yet. Remove this selection to continue without materials.</p> : <>
+    {entries.length !== selectedCount && <p role="alert">Review and confirm the facts in each material, or remove materials you do not want to use.</p>}
+    <button type="button" disabled={busy || disabled || recovering || entries.length !== selectedCount} onClick={() => void review()}>{busy ? "Reviewing material impact…" : "Review material impact on the path"}</button>
+    {preview && <div className="material-preview"><p role="status">{mappingDirty ? "Material choices need a new preview. The current result cannot be used yet." : "The material preview is ready. Selected versions will be checked again when the path is created."}</p>
+      <h3>Confirmed facts and requirements</h3><ul>{preview.confirmedItems.map((item, index) => {
         const reference = preview.itemReferences?.find(reference => reference.id === item.id);
         const eligible = reference?.learningIntentEligible === true;
         const adopted = Boolean(reference && displayedChoices.learningIntents.some(choice => sameItem(choice, reference.confirmationId, reference.itemId)));
         const mappingBlocked = item.kind === "constraint" && !adopted;
         const historicalSkillIds = item.skillLabels !== undefined && reference
           ? displayedChoices.skillMappings.filter(choice => sameItem(choice, reference.confirmationId, reference.itemId)).map(choice => choice.skillId) : [];
-        return <li key={item.id}><span>{item.text}</span>{Boolean(item.skillLabels?.length) && <small> · {item.kind === "constraint" ? "约束主题" : "已确认技能词"} {item.skillLabels!.join("、")}</small>}
-          {eligible && reference && <><label><input type="checkbox" aria-label={`事实 ${index + 1} 作为本轮学习重点`} checked={adopted} disabled={disabled || busy || recovering}
-            onChange={event => chooseLearningIntent(reference.confirmationId, reference.itemId, event.target.checked, item.kind === "constraint")} />作为本轮学习重点</label>
-            <p>{adopted ? "已选择作为本轮学习重点；确认预览后用于学习排序。" : "未采用为学习重点，不用于本轮学习排序。"}事实分类、能力自评和可用时间保持不变。</p></>}
-          {historicalSkillIds.length > 0 ? <p>历史整条事实对应：{skillNames(historicalSkillIds)}。此快照未保存逐词对应关系。</p>
+        return <li key={item.id}><span>{item.text}</span>{Boolean(item.skillLabels?.length) && <small> · {item.kind === "constraint" ? "Constraint topic" : "Confirmed skill term"} {item.skillLabels!.join(", ")}</small>}
+          {eligible && reference && <><label><input type="checkbox" aria-label={`Fact ${index + 1} as a focus for this plan`} checked={adopted} disabled={disabled || busy || recovering}
+            onChange={event => chooseLearningIntent(reference.confirmationId, reference.itemId, event.target.checked, item.kind === "constraint")} />Use as a focus for this plan</label>
+            <p>{adopted ? "Selected as a focus for this plan; used for prioritization after the preview is confirmed." : "Not selected as a focus; it does not affect this plan's priorities."}{" "}Fact classification, self-assessment and available time stay unchanged.</p></>}
+          {historicalSkillIds.length > 0 ? <p>Historical whole-fact match: {skillNames(historicalSkillIds)}. This snapshot did not save individual term matches.</p>
             : item.skillLabels?.length ? <ul>{item.skillLabels.map((skillLabel, termIndex) => <li key={skillLabel}><span>{skillLabel}</span>
             {mappingResult(item.id, termIndex)}
-            {reference && availableSkills.length > 0 && mappingSelect(reference.confirmationId, reference.itemId, `事实 ${index + 1} 技能词 ${skillLabel} 对应的已有技能`, mappingBlocked, skillLabel)}
+            {reference && availableSkills.length > 0 && mappingSelect(reference.confirmationId, reference.itemId, `Fact ${index + 1} skill term ${skillLabel} matching existing skill`, mappingBlocked, skillLabel)}
           </li>)}</ul> : item.skillLabels === undefined ? <>
             {preview.mappingDetails && mappingResult(item.id, -1)}
-            {reference && availableSkills.length > 0 && (item.kind !== "constraint" || eligible) && mappingSelect(reference.confirmationId, reference.itemId, `事实 ${index + 1} 对应的已有技能`, mappingBlocked)}
-          </> : <p>未保留可映射的技能词。</p>}
+            {reference && availableSkills.length > 0 && (item.kind !== "constraint" || eligible) && mappingSelect(reference.confirmationId, reference.itemId, `Fact ${index + 1} matching existing skill`, mappingBlocked)}
+          </> : <p>No skill terms were retained for mapping.</p>}
         </li>;
       })}</ul>
-      {availableSkills.length > 0 && <p>如有未覆盖或对应不准确的词，可明确选择当前蓝图已有技能；不会新增课程或改变能力自评。</p>}
-      <p>{mappedSkillCount !== null && <>已对应课程 {mappedSkillCount} 项技能；</>}参与当前排序 {preview.priorities.length} 项技能。</p>
-      <p>否定、他人经历或未来计划中的主题也可对应课程，但不代表已有实践或能力等级；能力仍以你的自我评估为准。</p>
-      <p>任务覆盖只说明现有课程正文支持的范围，不代表能力、实践经历或已采用的学习优先级。</p>
-      {issueCount > 0 && <p>有 {issueCount} 项需注意：歧义映射、未覆盖内容或自评冲突会保留为提醒，不会擅自增加技能。</p>}
-      {preview.uncoveredLabels.length > 0 && <p>当前蓝图未覆盖：{preview.uncoveredLabels.join("、")}</p>}
-      {preview.planning && <p>全量预计完成：{preview.planning.fullScope.estimatedCompletionDate}；目标日期方案：{preview.planning.targetDate?.estimatedCompletionDate ?? "不可行"}。{preview.planning.infeasibleReason}</p>}
+      {availableSkills.length > 0 && <p>For an unmatched or inaccurate term, you can choose an existing blueprint skill. This does not add courses or change your self-assessment.</p>}
+      <p>{mappedSkillCount !== null && <>Skills matched to courses: {mappedSkillCount}; </>}Skills prioritized: {preview.priorities.length}.</p>
+      <p>Topics in negative statements, other people&apos;s experience or future plans may match courses, but do not establish personal practice or ability. Your self-assessment remains the source of ability levels.</p>
+      <p>Task coverage describes the scope supported by existing course content. It does not establish ability, experience or an adopted priority.</p>
+      {issueCount > 0 && <p>There are {issueCount} items to review. Ambiguous matches, uncovered scope and self-assessment conflicts remain visible; no skills are added automatically.</p>}
+      {preview.uncoveredLabels.length > 0 && <p>Outside the current blueprint: {preview.uncoveredLabels.join(", ")}</p>}
+      {preview.planning && <p>Full-scope estimated finish: {preview.planning.fullScope.estimatedCompletionDate}; target-date plan: {preview.planning.targetDate?.estimatedCompletionDate ?? "Not feasible"}. {preview.planning.infeasibleReason}</p>}
     </div>}</>}
     {message && <p role="alert">{message}</p>}
   </section>;

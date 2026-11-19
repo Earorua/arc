@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "materials-integrated-course-binding-v1",
+  "id": "materials-integrated-course-binding-20261119",
+  "reviewStatus": "pending-independent-review",
+  "previous": {
+    "binding": {
+      "path": "docs/verification/materials-native-acceptance/course-binding.json",
+      "sha256": "2c04bc8a15443703454b704102c6a9c3299d92c1fd198ceeebad6b750853ca67",
+      "byteLength": 7164
+    },
+    "capture": {
+      "path": "docs/verification/materials-native-acceptance/course-reference.current.snapshot.json",
+      "sha256": "9a02b60878d5d581353efb66545a56d81c9da254fd59efc3db34456015a8bed8",
+      "byteLength": 244136
+    },
+    "review": {
+      "path": "docs/verification/materials-native-acceptance/course-binding-review-receipt.json",
+      "sha256": "366aa2e12f4a331f3e926a51961068feaa69adae0192793b829f80f9305d1a1a",
+      "byteLength": 1185
+    }
+  },
+  "currentCapture": {
+    "path": "docs/verification/materials-native-acceptance/course-reference.integrated.snapshot.json",
+    "sha256": "bf5a670ac1be78c4e8000a895384b2eb5366b1534b19c5571b051115f37c132b",
+    "byteLength": 244187,
+    "bundleSha256": "88728e11bb90102876fbe10ca90d7158e1f3d4a6acb7df53a128286bc062527a"
+  },
+  "sourceDelta": {
+    "path": "app/data/flagship-role.ts",
+    "sourceCommit": "19a81a500b5f87085f3aaddb27fc0e9b050fc48c",
+    "replacements": [
+      {
+        "before": "AI 原生全栈工程师",
+        "after": "AI-Native Full-Stack Engineer",
+        "objectPath": [
+          "name"
+        ]
+      },
+      {
+        "before": "把一次表单提交变成可验证的服务端动作",
+        "after": "Turn a form submission into a verifiable server action",
+        "objectPath": [
+          "today",
+          "title"
+        ]
+      },
+      {
+        "before": "理解客户端与服务端动作的边界",
+        "after": "Understand the boundary between client and server actions",
+        "objectPath": [
+          "today",
+          "steps",
+          0,
+          "label"
+        ]
+      },
+      {
+        "before": "实现带类型校验的提交路径",
+        "after": "Build a submission flow with type validation",
+        "objectPath": [
+          "today",
+          "steps",
+          1,
+          "label"
+        ]
+      },
+      {
+        "before": "提交一次可回看的代码变更",
+        "after": "Submit a code change for review",
+        "objectPath": [
+          "today",
+          "steps",
+          2,
+          "label"
+        ]
+      }
+    ],
+    "before": {
+      "path": "app/data/flagship-role.ts",
+      "sha256": "e57cb6a20bb27ca2622fa43677f91be9c8c964cbd48847759007824ae9b37eef",
+      "byteLength": 5171,
+      "kind": "bundled"
+    },
+    "after": {
+      "path": "app/data/flagship-role.ts",
+      "sha256": "7070068cd2edb6bb176b61f01e9e2e2f1800b24179c908e3619e11be5560572e",
+      "byteLength": 5194,
+      "kind": "bundled"
+    }
+  },
+  "dependencyCount": 85,
+  "frozenHistoricalAssetsChanged": false,
+  "teachingContentChanged": false,
+  "historicalSemanticReviewReused": true,
+  "actualModelQualityApproved": false,
+  "gateApproved": false
+}

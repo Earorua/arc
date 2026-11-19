@@ -1,0 +1,45 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFile, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { captureCourseReference } from "../../docs/verification/materials-quality-v2/capture-course-reference.mjs";
+const root = process.cwd(), directory = "docs/verification/materials-native-acceptance";
+const hash = value => createHash("sha256").update(value).digest("hex");
+const json = value => `${JSON.stringify(value, null, 2)}\n`;
+const describe = async relative => { const bytes = await readFile(path.join(root, relative)); return { path: relative, sha256: hash(bytes), byteLength: bytes.length }; };
+const prior = JSON.parse(await readFile(path.join(root, directory, "course-reference.current.snapshot.json"), "utf8"));
+const sourcePath = "app/data/flagship-role.ts";
+const beforeSource = prior.sourceFiles.find(file => file.path === sourcePath);
+const replacements = [
+  { before: "AI 原生全栈工程师", after: "AI-Native Full-Stack Engineer", objectPath: ["name"] },
+  { before: "把一次表单提交变成可验证的服务端动作", after: "Turn a form submission into a verifiable server action", objectPath: ["today", "title"] },
+  { before: "理解客户端与服务端动作的边界", after: "Understand the boundary between client and server actions", objectPath: ["today", "steps", 0, "label"] },
+  { before: "实现带类型校验的提交路径", after: "Build a submission flow with type validation", objectPath: ["today", "steps", 1, "label"] },
+  { before: "提交一次可回看的代码变更", after: "Submit a code change for review", objectPath: ["today", "steps", 2, "label"] },
+];
+let translated = beforeSource.content;
+for (const replacement of replacements) {
+  assert.equal(translated.split(JSON.stringify(replacement.before)).length, 2);
+  translated = translated.replace(JSON.stringify(replacement.before), JSON.stringify(replacement.after));
+}
+assert.equal(translated, await readFile(path.join(root, sourcePath), "utf8"), "Only the declared five literal translations may differ");
+const current = await captureCourseReference({ root });
+const captureBytes = Buffer.from(json(current)), capturePath = `${directory}/course-reference.integrated.snapshot.json`;
+const binding = {
+  schemaVersion: "materials-integrated-course-binding-v1", id: "materials-integrated-course-binding-20261119", reviewStatus: "pending-independent-review",
+  previous: {
+    binding: await describe(`${directory}/course-binding.json`),
+    capture: await describe(`${directory}/course-reference.current.snapshot.json`),
+    review: await describe(`${directory}/course-binding-review-receipt.json`),
+  },
+  currentCapture: { path: capturePath, sha256: hash(captureBytes), byteLength: captureBytes.length, bundleSha256: current.capture.bundleSha256 },
+  sourceDelta: { path: sourcePath, sourceCommit: "19a81a500b5f87085f3aaddb27fc0e9b050fc48c", replacements,
+    before: prior.dependencies.find(file => file.path === sourcePath), after: current.dependencies.find(file => file.path === sourcePath) },
+  dependencyCount: current.dependencies.length, frozenHistoricalAssetsChanged: false, teachingContentChanged: false,
+  historicalSemanticReviewReused: true, actualModelQualityApproved: false, gateApproved: false,
+};
+await writeFile(path.join(root, capturePath), captureBytes, { flag: "wx" });
+const bindingPath = `${directory}/course-binding.integrated.json`, bindingBytes = Buffer.from(json(binding));
+await writeFile(path.join(root, bindingPath), bindingBytes, { flag: "wx" });
+console.log(JSON.stringify({ binding: { path: bindingPath, sha256: hash(bindingBytes) }, capture: binding.currentCapture,
+  dependencyChange: binding.sourceDelta.after, replacements: replacements.length }));

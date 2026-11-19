@@ -5,7 +5,7 @@ import { useEffect } from "react";
 export function useGenerationLeaveGuard(active: boolean) {
   useEffect(() => {
     if (!active) return;
-    const warning = "规划仍在生成，离开会中断本次生成。输入草稿会保留。确定离开吗？";
+    const warning = "Your plan is still being generated. Leaving will interrupt it, but your draft will be saved. Leave this page?";
     const navigation = (window as Window & { navigation?: EventTarget }).navigation;
     const traverse = (event: Event) => {
       const destination = event as Event & { navigationType?: string; destination?: { sameDocument?: boolean; url?: string } };

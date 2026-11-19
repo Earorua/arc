@@ -37,43 +37,43 @@ describe("Stack current-task action", () => {
     const storageKey = `arc:stack-return:v1:${stackProps.ownerKey}`;
     sessionStorage.setItem(storageKey, JSON.stringify({ href, focus: "action", page: 180, index: 30, list: { page: 120, index: 30 } }));
     render(<StackBrowser {...stackProps} planningWorkspace={planningWorkspace()} now={() => new Date("2026-08-14T08:00:00.000Z")} />);
-    expect(screen.getByRole("link", { name: "返回今日学习" })).toHaveAttribute("href", "/today");
-    expect(screen.queryByRole("link", { name: "继续今日学习" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Back to Today" })).toHaveAttribute("href", "/today");
+    expect(screen.queryByRole("link", { name: "Continue today’s task" })).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Web Platform" })).toHaveFocus();
-    expect(screen.getByRole("button", { name: "返回技能列表" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Back to skills" })).toBeInTheDocument();
     expect(sessionStorage.getItem(storageKey)).toBeNull();
   });
 
   it.each(["/today?unit=another", "/today#task", "/path?skill=web-platform", "/proof?proof=proof-1"])("keeps a distinct current-task action alongside %s", returnTo => {
     window.history.replaceState(null, "", `/stack?skill=web-platform&returnTo=${encodeURIComponent(returnTo)}`);
     render(<StackBrowser {...stackProps} planningWorkspace={planningWorkspace()} now={() => new Date("2026-08-14T08:00:00.000Z")} />);
-    expect(screen.getByRole("link", { name: "继续今日学习" })).toHaveAttribute("href", "/today");
-    expect(screen.getByRole("link", { name: returnTo.startsWith("/today") ? "返回今日学习" : "返回来源页面" })).toHaveAttribute("href", returnTo);
+    expect(screen.getByRole("link", { name: "Continue today’s task" })).toHaveAttribute("href", "/today");
+    expect(screen.getByRole("link", { name: returnTo.startsWith("/today") ? "Back to Today" : "Back to previous page" })).toHaveAttribute("href", returnTo);
   });
 
   it.each(["/path", "/path?skill=other", "/path?skill=react#detail"])("keeps skill-specific route navigation distinct from %s", returnTo => {
     window.history.replaceState(null, "", `/stack?scope=all&skill=react&returnTo=${encodeURIComponent(returnTo)}`);
     render(<StackBrowser {...stackProps} planningWorkspace={planningWorkspace()} />);
-    expect(screen.getByRole("link", { name: "查看技能路线" })).toHaveAttribute("href", "/path?skill=react");
+    expect(screen.getByRole("link", { name: "View skill path" })).toHaveAttribute("href", "/path?skill=react");
   });
   it.each(["exploring", "practicing", "demonstrated", "verified"] as const)("continues the actual due task regardless of its %s evidence status", (status) => {
     window.history.replaceState(null, "", "/stack?skill=web-platform");
     const projection = { ...ledger.projections[0], skillId: "web-platform", status };
     render(<StackBrowser {...stackProps} projections={[projection]} planningWorkspace={planningWorkspace()} now={() => new Date("2026-08-14T08:00:00.000Z")} />);
-    expect(screen.getByRole("link", { name: "继续今日学习" })).toHaveAttribute("href", "/today");
-    expect(screen.queryByRole("link", { name: "查看技能路线" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "补充作品证明" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "维护作品证明" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Continue today’s task" })).toHaveAttribute("href", "/today");
+    expect(screen.queryByRole("link", { name: "View skill path" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Add to your proof" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Maintain your proof" })).not.toBeInTheDocument();
   });
 
   it("keeps route and proof actions for skills outside the actual current task", () => {
     window.history.replaceState(null, "", "/stack?scope=all&skill=react");
     render(<StackBrowser {...stackProps} planningWorkspace={planningWorkspace()} now={() => new Date("2026-08-14T08:00:00.000Z")} />);
-    expect(screen.getByRole("link", { name: "查看技能路线" })).toHaveAttribute("href", "/path?skill=react");
-    expect(screen.queryByRole("link", { name: "继续今日学习" })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "查看 Automated Testing" }));
-    expect(screen.getByRole("link", { name: "补充作品证明" })).toHaveAttribute("href", "/proof?proof=proof-1&returnTo=%2Fstack%3Fscope%3Dall%26skill%3Dtesting");
-    expect(screen.queryByRole("link", { name: "继续今日学习" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "View skill path" })).toHaveAttribute("href", "/path?skill=react");
+    expect(screen.queryByRole("link", { name: "Continue today’s task" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "View Automated Testing" }));
+    expect(screen.getByRole("link", { name: "Add to your proof" })).toHaveAttribute("href", "/proof?proof=proof-1&returnTo=%2Fstack%3Fscope%3Dall%26skill%3Dtesting");
+    expect(screen.queryByRole("link", { name: "Continue today’s task" })).not.toBeInTheDocument();
   });
 
   it("keeps a future task on its route until the learner's planning date reaches it", () => {
@@ -82,17 +82,17 @@ describe("Stack current-task action", () => {
     const availability = { ...initial.availability, timeZone: "Asia/Shanghai" };
     const workspace = planningWorkspaceSchema.parse({ ...initial, availability, availabilityVersions: [availability] });
     const view = render(<StackBrowser {...stackProps} planningWorkspace={workspace} now={() => new Date("2026-08-13T15:59:00.000Z")} />);
-    expect(screen.getByRole("link", { name: "查看技能路线" })).toHaveAttribute("href", "/path?skill=web-platform");
-    expect(screen.queryByRole("link", { name: "继续今日学习" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "View skill path" })).toHaveAttribute("href", "/path?skill=web-platform");
+    expect(screen.queryByRole("link", { name: "Continue today’s task" })).not.toBeInTheDocument();
     view.rerender(<StackBrowser {...stackProps} planningWorkspace={workspace} now={() => new Date("2026-08-13T16:01:00.000Z")} />);
-    expect(screen.getByRole("link", { name: "继续今日学习" })).toHaveAttribute("href", "/today");
+    expect(screen.getByRole("link", { name: "Continue today’s task" })).toHaveAttribute("href", "/today");
   });
 
   it("does not claim a current task without a planning workspace", () => {
     window.history.replaceState(null, "", "/stack?skill=web-platform");
     render(<StackBrowser {...stackProps} now={() => new Date("2026-08-14T08:00:00.000Z")} />);
-    expect(screen.getByRole("link", { name: "查看技能路线" })).toHaveAttribute("href", "/path?skill=web-platform");
-    expect(screen.queryByRole("link", { name: "继续今日学习" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "View skill path" })).toHaveAttribute("href", "/path?skill=web-platform");
+    expect(screen.queryByRole("link", { name: "Continue today’s task" })).not.toBeInTheDocument();
   });
 });
 
@@ -100,39 +100,39 @@ describe("Stack stage scope", () => {
   it("derives the current stage from the active route and advances only after a real completion", () => {
     const workspace = planningWorkspace();
     const view = render(<StackBrowser {...stackProps} planningWorkspace={workspace} />);
-    expect(within(screen.getByRole("group", { name: "技能范围" })).getByRole("button", { name: "当前阶段" })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getAllByRole("button", { name: /^查看 / })).toHaveLength(1);
-    expect(screen.getByRole("button", { name: "查看 Web Platform" })).toBeInTheDocument();
+    expect(within(screen.getByRole("group", { name: "Skill scope" })).getByRole("button", { name: "Current phase" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getAllByRole("button", { name: /^View / })).toHaveLength(1);
+    expect(screen.getByRole("button", { name: "View Web Platform" })).toBeInTheDocument();
     const event = { kind: "completed" as const, eventId: "event-complete", mutationId: "mutation-complete", sequence: 1, targetPlanVersionId: workspace.activePlanVersionId, unitId: workspace.pathVersions[0].units[0].id, actualMinutes: 30, planningDate: "2026-08-14", occurredAt: "2026-08-14T12:00:00.000Z" };
     view.rerender(<StackBrowser {...stackProps} planningWorkspace={{ ...workspace, events: [event], lastSequence: 1 }} />);
     expect(screen.getByText(/继续后续技能/)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "查看 React 19" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "View React 19" })).toBeInTheDocument();
   });
 
   it("restores stage, category, search and selection from the URL through Back and Forward", async () => {
     window.history.replaceState(null, "", "/stack?scope=all&category=frontend&q=react&skill=react");
     render(<StackBrowser {...stackProps} planningWorkspace={planningWorkspace()} />);
-    const scopes = screen.getByRole("group", { name: "技能范围" });
-    expect(within(scopes).getByRole("button", { name: "全部" })).toHaveAttribute("aria-pressed", "true");
+    const scopes = screen.getByRole("group", { name: "Skill scope" });
+    expect(within(scopes).getByRole("button", { name: "All" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("heading", { name: "React 19" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "返回技能列表" }));
+    fireEvent.click(screen.getByRole("button", { name: "Back to skills" }));
     expect(window.location.search).toBe("?scope=all&category=frontend&q=react");
-    fireEvent.click(within(scopes).getByRole("button", { name: "当前阶段" }));
-    expect(screen.getByRole("status")).toHaveTextContent("没有匹配的技能");
+    fireEvent.click(within(scopes).getByRole("button", { name: "Current phase" }));
+    expect(screen.getByRole("status")).toHaveTextContent("No matching skills");
     act(() => window.history.back());
-    await waitFor(() => expect(within(scopes).getByRole("button", { name: "全部" })).toHaveAttribute("aria-pressed", "true"));
+    await waitFor(() => expect(within(scopes).getByRole("button", { name: "All" })).toHaveAttribute("aria-pressed", "true"));
     expect(screen.getByRole("searchbox")).toHaveValue("react");
     act(() => window.history.forward());
-    await waitFor(() => expect(within(scopes).getByRole("button", { name: "当前阶段" })).toHaveAttribute("aria-pressed", "true"));
+    await waitFor(() => expect(within(scopes).getByRole("button", { name: "Current phase" })).toHaveAttribute("aria-pressed", "true"));
   });
 
   it("shows all skills honestly when no route is available", () => {
     window.history.replaceState(null, "", "/stack?scope=current");
     render(<StackBrowser {...stackProps} />);
-    const scopes = screen.getByRole("group", { name: "技能范围" });
-    expect(within(scopes).getByRole("button", { name: "当前阶段" })).toBeDisabled();
-    expect(within(scopes).getByRole("button", { name: "全部" })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByText("暂无可用路线，当前显示全部技能。" )).toBeInTheDocument();
+    const scopes = screen.getByRole("group", { name: "Skill scope" });
+    expect(within(scopes).getByRole("button", { name: "Current phase" })).toBeDisabled();
+    expect(within(scopes).getByRole("button", { name: "All" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByText("No path is available yet. Showing all skills." )).toBeInTheDocument();
   });
 
   it("does not invent a current stage after the route is complete", () => {
@@ -141,11 +141,11 @@ describe("Stack stage scope", () => {
     const built = buildPlanVersion({ path, registry: flagshipUnitRegistry, availability: workspace.availability, planningDate: "2026-08-14", generation: "initial", baseVersionId: null, replanReason: null, completedUnitIds: new Set() });
     const completed = planningWorkspaceSchema.parse({ ...workspace, pathVersions: [path], planVersions: [built.plan], dailyUnits: built.dailyUnits, activePlanVersionId: built.plan.id, lastSequence: 1, events: [{ kind: "completed", eventId: "event-complete", mutationId: "mutation-complete", sequence: 1, targetPlanVersionId: built.plan.id, unitId: path.units[0].id, actualMinutes: 30, planningDate: "2026-08-14", occurredAt: "2026-08-14T12:00:00.000Z" }] });
     render(<StackBrowser {...stackProps} planningWorkspace={completed} />);
-    expect(screen.getByRole("button", { name: "当前阶段" })).toBeDisabled();
-    expect(screen.getByText("当前路线已全部完成，当前显示全部技能。")).toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: /^查看 / })).toHaveLength(flagshipBlueprint.skills.length);
-    expect(screen.queryByRole("link", { name: "继续今日学习" })).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "查看技能路线" })).toHaveAttribute("href", "/path?skill=web-platform");
+    expect(screen.getByRole("button", { name: "Current phase" })).toBeDisabled();
+    expect(screen.getByText("Your current path is complete. Showing all skills.")).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /^View / })).toHaveLength(flagshipBlueprint.skills.length);
+    expect(screen.queryByRole("link", { name: "Continue today’s task" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "View skill path" })).toHaveAttribute("href", "/path?skill=web-platform");
   });
 });
 
@@ -153,27 +153,27 @@ describe("Stack to Proof return", () => {
   it("preserves the Today origin through skill navigation and the Proof return address", () => {
     window.history.replaceState(null, "", "/stack?scope=all&skill=testing&returnTo=%2Ftoday");
     render(<StackBrowser {...stackProps} planningWorkspace={planningWorkspace()} />);
-    expect(screen.getByRole("link", { name: "返回今日学习" })).toHaveAttribute("href", "/today");
-    fireEvent.click(screen.getByRole("button", { name: "返回技能列表" }));
+    expect(screen.getByRole("link", { name: "Back to Today" })).toHaveAttribute("href", "/today");
+    fireEvent.click(screen.getByRole("button", { name: "Back to skills" }));
     expect(new URLSearchParams(window.location.search).get("returnTo")).toBe("/today");
-    fireEvent.click(screen.getByRole("button", { name: "质量" }));
+    fireEvent.click(screen.getByRole("button", { name: "Quality" }));
     fireEvent.change(screen.getByRole("searchbox"), { target: { value: "testing" } });
-    fireEvent.click(screen.getByRole("button", { name: "查看 Automated Testing" }));
-    const destination = new URL(screen.getByRole("link", { name: "补充作品证明" }).getAttribute("href")!, "https://arc.invalid");
+    fireEvent.click(screen.getByRole("button", { name: "View Automated Testing" }));
+    const destination = new URL(screen.getByRole("link", { name: "Add to your proof" }).getAttribute("href")!, "https://arc.invalid");
     const origin = new URL(destination.searchParams.get("returnTo")!, "https://arc.invalid");
     expect(origin.searchParams.get("returnTo")).toBe("/today");
     expect(origin.searchParams.get("skill")).toBe("testing");
   });
 
-  it.each(["补充作品证明", "Architecture map"])("restores the originating skill, filters, list position and focus from %s", (linkName) => {
+  it.each(["Add to your proof", "Architecture map"])("restores the originating skill, filters, list position and focus from %s", (linkName) => {
     const scroll = vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
     vi.spyOn(window, "scrollY", "get").mockReturnValue(320);
     window.history.replaceState(null, "", "/stack?scope=all&category=quality&q=testing");
     const first = render(<StackBrowser {...stackProps} planningWorkspace={planningWorkspace()} />);
-    const list = screen.getByRole("list", { name: "技能索引" });
+    const list = screen.getByRole("list", { name: "Skill index" });
     list.scrollTop = 72;
-    fireEvent.click(screen.getByRole("button", { name: "查看 Automated Testing" }));
-    fireEvent.click(screen.getByText("技能要求与学习记录"));
+    fireEvent.click(screen.getByRole("button", { name: "View Automated Testing" }));
+    fireEvent.click(screen.getByText("Skill requirements and progress"));
     const origin = screen.getByRole("link", { name: linkName });
     const href = origin.getAttribute("href")!;
     const proofUrl = new URL(href, "https://arc.invalid");
@@ -184,51 +184,51 @@ describe("Stack to Proof return", () => {
     first.unmount();
     window.history.replaceState(null, "", href);
     const proof = render(<ProofWorkspace {...proofProps} />);
-    expect(screen.getByRole("link", { name: "返回原技能" })).toHaveAttribute("href", returnTo);
-    fireEvent.click(screen.getByRole("button", { name: "添加修订" }));
+    expect(screen.getByRole("link", { name: "Back to skill" })).toHaveAttribute("href", returnTo);
+    fireEvent.click(screen.getByRole("button", { name: "Add revision" }));
     expect(new URLSearchParams(window.location.search).get("returnTo")).toBe(returnTo);
-    fireEvent.click(screen.getByRole("button", { name: "取消修订" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cancel revision" }));
     proof.unmount();
     window.history.replaceState(null, "", returnTo!);
     render(<StackBrowser {...stackProps} planningWorkspace={planningWorkspace()} />);
     expect(screen.getByRole("searchbox")).toHaveValue("testing");
     expect(screen.getByRole("link", { name: linkName })).toHaveFocus();
-    expect(screen.getByRole("list", { name: "技能索引" }).scrollTop).toBe(72);
+    expect(screen.getByRole("list", { name: "Skill index" }).scrollTop).toBe(72);
     expect(scroll).toHaveBeenCalledWith({ top: 320 });
-    fireEvent.click(screen.getByRole("button", { name: "返回技能列表" }));
-    expect(screen.getByRole("button", { name: "查看 Automated Testing" })).toHaveFocus();
-    expect(screen.getByRole("list", { name: "技能索引" }).scrollTop).toBe(72);
+    fireEvent.click(screen.getByRole("button", { name: "Back to skills" }));
+    expect(screen.getByRole("button", { name: "View Automated Testing" })).toHaveFocus();
+    expect(screen.getByRole("list", { name: "Skill index" }).scrollTop).toBe(72);
   });
 
   it("keeps a safe origin available for a missing proof", () => {
     const origin = "/stack?scope=current&category=quality&q=testing&skill=testing";
     window.history.replaceState(null, "", `/proof?proof=missing&returnTo=${encodeURIComponent(origin)}`);
     render(<ProofWorkspace {...proofProps} />);
-    expect(screen.getByRole("heading", { name: "无法读取这项作品" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "返回原技能" })).toHaveAttribute("href", origin);
+    expect(screen.getByRole("heading", { name: "This proof is unavailable" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Back to skill" })).toHaveAttribute("href", origin);
   });
 
   it("retains the list position when leaving the desktop default detail directly", () => {
     vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
     window.history.replaceState(null, "", "/stack?scope=all&category=quality&q=testing");
     const first = render(<StackBrowser {...stackProps} />);
-    screen.getByRole("list", { name: "技能索引" }).scrollTop = 84;
-    const link = screen.getByRole("link", { name: "补充作品证明" });
+    screen.getByRole("list", { name: "Skill index" }).scrollTop = 84;
+    const link = screen.getByRole("link", { name: "Add to your proof" });
     const href = new URL(link.getAttribute("href")!, "https://arc.invalid").searchParams.get("returnTo")!;
     link.addEventListener("click", (event) => event.preventDefault(), { once: true });
     fireEvent.click(link);
     first.unmount();
     window.history.replaceState(null, "", href);
     render(<StackBrowser {...stackProps} />);
-    fireEvent.click(screen.getByRole("button", { name: "返回技能列表" }));
-    expect(screen.getByRole("list", { name: "技能索引" }).scrollTop).toBe(84);
+    fireEvent.click(screen.getByRole("button", { name: "Back to skills" }));
+    expect(screen.getByRole("list", { name: "Skill index" }).scrollTop).toBe(84);
   });
 
   it("focuses the original skill when its previous evidence link is no longer available", () => {
     vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
     window.history.replaceState(null, "", "/stack?skill=testing");
     const first = render(<StackBrowser {...stackProps} />);
-    fireEvent.click(screen.getByText("技能要求与学习记录"));
+    fireEvent.click(screen.getByText("Skill requirements and progress"));
     const link = screen.getByRole("link", { name: "Architecture map" });
     link.addEventListener("click", (event) => event.preventDefault(), { once: true });
     fireEvent.click(link);
@@ -241,26 +241,26 @@ describe("Stack to Proof return", () => {
     const scroll = vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
     window.history.replaceState(null, "", "/stack?skill=testing");
     const first = render(<StackBrowser {...stackProps} />);
-    const link = screen.getByRole("link", { name: "补充作品证明" });
+    const link = screen.getByRole("link", { name: "Add to your proof" });
     link.addEventListener("click", (event) => event.preventDefault(), { once: true });
     fireEvent.click(link);
     first.unmount();
     render(<StackBrowser {...stackProps} ownerKey="user:two:goal-stack" />);
     expect(scroll).not.toHaveBeenCalled();
-    expect(screen.getByRole("link", { name: "补充作品证明" })).not.toHaveFocus();
+    expect(screen.getByRole("link", { name: "Add to your proof" })).not.toHaveFocus();
   });
 
   it.each(["/today?unit=unit-a", "/path?skill=testing#unit-a", "/history?page=2", "/stack?skill=testing&returnTo=%2Ftoday"])("returns to the safe internal origin %s", (origin) => {
     window.history.replaceState(null, "", `/proof?proof=missing&returnTo=${encodeURIComponent(origin)}`);
     render(<ProofWorkspace {...proofProps} />);
-    expect(screen.getByRole("link", { name: /返回/ })).toHaveAttribute("href", origin);
+    expect(screen.getByRole("link", { name: /Back to/ })).toHaveAttribute("href", origin);
   });
 
   it.each(["https://outside.example", "//outside.example", "/proof?proof=other", "/stack?returnTo=%2Fproof", "/today?next=%2Fproof"])("rejects unsafe or recursive origins %s", (origin) => {
     window.history.replaceState(null, "", `/proof?proof=missing&returnTo=${encodeURIComponent(origin)}`);
     render(<ProofWorkspace {...proofProps} />);
-    expect(screen.queryByRole("link", { name: /返回/ })).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "返回作品列表" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Back to/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Back to proof collection" })).toBeInTheDocument();
   });
 });
 

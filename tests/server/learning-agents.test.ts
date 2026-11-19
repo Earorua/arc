@@ -42,7 +42,7 @@ describe("learning agent service", () => {
     expect(workspace).toMatchObject({ enabled: false, authenticated: true, availability: "disabled",
       goalId: f.f.workspace.goalId, roleName: "Data Product Manager",
       learningContext: { source: "research", completedUnits: 0, totalUnits: f.f.path.units.length } });
-    expect(workspace.reason).toContain("尚未启用");
+    expect(workspace.reason).toContain("not yet enabled");
     expect(f.provider.tutor).not.toHaveBeenCalled();
     expect(f.provider.startPlanner).not.toHaveBeenCalled();
   });
@@ -86,7 +86,7 @@ describe("learning agent service", () => {
   });
   it("does not start a paid call after cancellation and marks the reservation cancelled", async () => {
     const f = fixture(); const abort = new AbortController(); abort.abort();
-    await expect(f.service.startPlanner("alice", f.input, abort.signal)).rejects.toThrow("已停止规划");
+    await expect(f.service.startPlanner("alice", f.input, abort.signal)).rejects.toThrow("Planning stopped");
     expect(f.provider.startPlanner).not.toHaveBeenCalled();
     expect(f.rows.get(f.input.requestId)?.status).toBe("cancelled");
   });
@@ -107,17 +107,17 @@ describe("learning agent service", () => {
   });
   it("rejects stale revisions before a paid request", async () => {
     const f = fixture();
-    await expect(f.service.startPlanner("alice", { ...f.input, revision: 3 })).rejects.toThrow("学习计划已经变化");
+    await expect(f.service.startPlanner("alice", { ...f.input, revision: 3 })).rejects.toThrow("Your plan has changed");
     expect(f.provider.startPlanner).not.toHaveBeenCalled();
   });
   it("does not make requests when disabled", async () => {
     const f = fixture(); f.config.enabled = false;
-    await expect(f.service.startPlanner("alice", f.input)).rejects.toThrow("尚未启用");
+    await expect(f.service.startPlanner("alice", f.input)).rejects.toThrow("not yet enabled");
     expect(f.provider.startPlanner).not.toHaveBeenCalled();
   });
   it("refuses another owner's run", async () => {
     const f = fixture(); await f.service.startPlanner("alice", f.input);
-    await expect(f.service.poll("bob", f.input.requestId)).rejects.toThrow("找不到");
+    await expect(f.service.poll("bob", f.input.requestId)).rejects.toThrow("could not be found");
   });
   it("recovers orphaned starts on polling and before admitting a new request", async () => {
     const f = fixture(); await f.service.startPlanner("alice", f.input);

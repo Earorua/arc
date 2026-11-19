@@ -58,10 +58,10 @@ function fixture(initial: MaterialPreview = basePreview, options: { recovering?:
 async function openPreview(recovering = false) {
   await waitFor(() => expect(screen.getByRole("button", { name: "选择资料" })).toBeEnabled());
   fireEvent.click(screen.getByRole("button", { name: "选择资料" }));
-  if (!recovering) fireEvent.click(await screen.findByRole("button", { name: "核对资料对路线的影响" }));
-  await screen.findByText(/资料预览已就绪/);
+  if (!recovering) fireEvent.click(await screen.findByRole("button", { name: "Review material impact on the path" }));
+  await screen.findByText(/The material preview is ready/);
 }
-const termControl = (label: string) => screen.getByRole("combobox", { name: `事实 1 技能词 ${label} 对应的已有技能` });
+const termControl = (label: string) => screen.getByRole("combobox", { name: `Fact 1 skill term ${label} matching existing skill` });
 
 describe("material term choices and explicit learning intent", () => {
   beforeEach(() => localStorage.clear()); afterEach(cleanup);
@@ -81,14 +81,14 @@ describe("material term choices and explicit learning intent", () => {
     ], priorities: [], mapped: 0, ranked: 0 },
   ])("distinguishes course mapping from current priorities for $name", async ({ details, priorities, mapped, ranked }) => {
     fixture({ ...basePreview, mappingDetails: details, priorities }); await openPreview();
-    expect(screen.getByText(`已对应课程 ${mapped} 项技能；参与当前排序 ${ranked} 项技能。`)).toBeInTheDocument();
-    expect(screen.getByText(/否定、他人经历或未来计划/)).toHaveTextContent(/不代表已有实践或能力等级/);
+    expect(screen.getByText(`Skills matched to courses: ${mapped}; Skills prioritized: ${ranked}.`)).toBeInTheDocument();
+    expect(screen.getByText(/Topics in negative statements, other people's experience or future plans/)).toHaveTextContent(/do not establish personal practice or ability/);
   });
 
   it("reports only the provable priority count for a historical preview without mapping details", async () => {
     fixture({ ...basePreview, mappingDetails: undefined }, { recovering: true }); await openPreview(true);
-    expect(screen.getByText("参与当前排序 1 项技能。")).toBeInTheDocument();
-    expect(screen.queryByText(/已对应课程 \d+ 项技能/)).not.toBeInTheDocument();
+    expect(screen.getByText("Skills prioritized: 1.")).toBeInTheDocument();
+    expect(screen.queryByText(/Skills matched to courses: \d+/)).not.toBeInTheDocument();
     expect(screen.queryByText(/已映射 \d+ 项技能/)).not.toBeInTheDocument();
   });
 
@@ -97,7 +97,7 @@ describe("material term choices and explicit learning intent", () => {
     for (const label of ["Figma", "UI tokens"]) {
       const row = within(termControl(label).closest("li")!);
       expect(row.getByText(label)).toBeInTheDocument();
-      expect(row.getByText(/已对应：设计系统/)).toHaveTextContent("依据：上下文对应");
+      expect(row.getByText(/Matched: 设计系统/)).toHaveTextContent("Basis: Contextual match");
     }
   });
 
@@ -106,11 +106,11 @@ describe("material term choices and explicit learning intent", () => {
       taskCoverage: { status: "partial", support: ["component-audit"], remaining: "unassessed-scope" },
     }, { ...basePreview.mappingDetails![0]!, termIndexes: [1] }] }); await openPreview();
     const covered = within(termControl("Figma").closest("li")!);
-    expect(covered.getByText(/已对应：设计系统/)).toBeInTheDocument();
-    expect(covered.getByText(/任务覆盖：部分/)).toHaveTextContent("组件语义、焦点与对比度审计");
-    expect(covered.getByText(/其余要求尚未核验/)).toBeInTheDocument();
+    expect(covered.getByText(/Matched: 设计系统/)).toBeInTheDocument();
+    expect(covered.getByText(/Task coverage: Partial/)).toHaveTextContent("Component semantics, focus and contrast audits");
+    expect(covered.getByText(/Remaining requirements are unverified/)).toBeInTheDocument();
     const historical = within(termControl("UI tokens").closest("li")!);
-    expect(historical.getByText(/历史预览未核验任务覆盖/)).toBeInTheDocument();
+    expect(historical.getByText(/Task coverage was not checked in this historical preview/)).toBeInTheDocument();
   });
 
   it("changes one term without changing other automatic mappings and supports explicit omit and return to automatic", async () => {
@@ -118,16 +118,16 @@ describe("material term choices and explicit learning intent", () => {
     fireEvent.change(termControl("Figma"), { target: { value: "react" } });
     expect(onPreview.mock.lastCall?.[0]).toBeNull(); expect(screen.getByLabelText("可采用预览")).toHaveTextContent("none");
     expect(termControl("UI tokens")).toHaveValue("");
-    fireEvent.click(screen.getByRole("button", { name: "核对资料对路线的影响" })); await screen.findByText(/资料预览已就绪/);
+    fireEvent.click(screen.getByRole("button", { name: "Review material impact on the path" })); await screen.findByText(/The material preview is ready/);
     let body = request.mock.calls.filter(([method]) => method === "createMaterialContext").at(-1)![1];
     expect(body.termMappings).toEqual([{ confirmationId: ref.confirmationId, itemId: "private-fact", skillLabel: "Figma", skillIds: ["react"] }]);
     expect(body).not.toHaveProperty("skillMappings");
     fireEvent.change(termControl("Figma"), { target: { value: "__omit__" } });
-    fireEvent.click(screen.getByRole("button", { name: "核对资料对路线的影响" })); await screen.findByText(/资料预览已就绪/);
+    fireEvent.click(screen.getByRole("button", { name: "Review material impact on the path" })); await screen.findByText(/The material preview is ready/);
     body = request.mock.calls.filter(([method]) => method === "createMaterialContext").at(-1)![1];
     expect(body.termMappings).toEqual([{ confirmationId: ref.confirmationId, itemId: "private-fact", skillLabel: "Figma", skillIds: [] }]);
     fireEvent.change(termControl("Figma"), { target: { value: "" } });
-    fireEvent.click(screen.getByRole("button", { name: "核对资料对路线的影响" })); await screen.findByText(/资料预览已就绪/);
+    fireEvent.click(screen.getByRole("button", { name: "Review material impact on the path" })); await screen.findByText(/The material preview is ready/);
     expect(request.mock.calls.filter(([method]) => method === "createMaterialContext").at(-1)![1]).not.toHaveProperty("termMappings");
     expect(JSON.stringify(localStorage)).not.toMatch(/PRIVATE-FIGMA-FACT|private-fact|UI tokens|termMappings/);
   });
@@ -135,9 +135,9 @@ describe("material term choices and explicit learning intent", () => {
   it("preserves a stored multi-course choice on another term when editing one term", async () => {
     const stored = { confirmationId: ref.confirmationId, itemId: "private-fact", skillLabel: "UI tokens", skillIds: ["react", "sql"] };
     const { request } = fixture({ ...basePreview, termMappings: [stored] }); await openPreview();
-    expect(termControl("UI tokens")).toHaveDisplayValue(/React 19、SQL/);
+    expect(termControl("UI tokens")).toHaveDisplayValue(/React 19, SQL/);
     fireEvent.change(termControl("Figma"), { target: { value: "design-systems" } });
-    fireEvent.click(screen.getByRole("button", { name: "核对资料对路线的影响" })); await screen.findByText(/资料预览已就绪/);
+    fireEvent.click(screen.getByRole("button", { name: "Review material impact on the path" })); await screen.findByText(/The material preview is ready/);
     expect(request.mock.calls.filter(([method]) => method === "createMaterialContext").at(-1)![1].termMappings).toEqual(expect.arrayContaining([
       stored, { confirmationId: ref.confirmationId, itemId: "private-fact", skillLabel: "Figma", skillIds: ["design-systems"] },
     ]));
@@ -145,20 +145,20 @@ describe("material term choices and explicit learning intent", () => {
 
   it("adopts a constraint separately and removes its explicit mappings when adoption is withdrawn", async () => {
     const { request, onPreview } = fixture(advicePreview); await openPreview();
-    const checkbox = screen.getByRole("checkbox", { name: "事实 1 作为本轮学习重点" });
-    expect(checkbox).not.toBeChecked(); expect(screen.getByText(/未采用为学习重点，不用于本轮学习排序/)).toBeInTheDocument();
+    const checkbox = screen.getByRole("checkbox", { name: "Fact 1 as a focus for this plan" });
+    expect(checkbox).not.toBeChecked(); expect(screen.getByText(/Not selected as a focus; it does not affect this plan's priorities/)).toBeInTheDocument();
     expect(termControl("UI tokens")).toBeDisabled();
     fireEvent.click(checkbox);
     expect(onPreview.mock.lastCall?.[0]).toBeNull(); expect(screen.getByLabelText("可采用预览")).toHaveTextContent("none");
     expect(termControl("UI tokens")).toBeEnabled();
     fireEvent.change(termControl("UI tokens"), { target: { value: "design-systems" } });
-    fireEvent.click(screen.getByRole("button", { name: "核对资料对路线的影响" })); await screen.findByText(/资料预览已就绪/);
+    fireEvent.click(screen.getByRole("button", { name: "Review material impact on the path" })); await screen.findByText(/The material preview is ready/);
     const adopted = request.mock.calls.filter(([method]) => method === "createMaterialContext").at(-1)![1];
     expect(adopted.learningIntents).toEqual([{ confirmationId: ref.confirmationId, itemId: "private-fact" }]);
     expect(adopted.termMappings).toHaveLength(1); expect(adopted.audit).toEqual(input.audit); expect(adopted.availability).toEqual(input.availability);
     expect(advicePreview.confirmedItems[0]).toMatchObject({ kind: "constraint", requirementLevel: null });
     fireEvent.click(checkbox); expect(termControl("UI tokens")).toBeDisabled();
-    fireEvent.click(screen.getByRole("button", { name: "核对资料对路线的影响" })); await screen.findByText(/资料预览已就绪/);
+    fireEvent.click(screen.getByRole("button", { name: "Review material impact on the path" })); await screen.findByText(/The material preview is ready/);
     const withdrawn = request.mock.calls.filter(([method]) => method === "createMaterialContext").at(-1)![1];
     expect(withdrawn).not.toHaveProperty("learningIntents"); expect(withdrawn).not.toHaveProperty("termMappings");
   });
@@ -166,10 +166,10 @@ describe("material term choices and explicit learning intent", () => {
   it.each(["修改自评", "修改课程来源"])("immediately invalidates the adoption reference and resets choices after %s", async action => {
     const { request, onPreview } = fixture(); await openPreview();
     fireEvent.change(termControl("Figma"), { target: { value: "react" } });
-    fireEvent.click(screen.getByRole("button", { name: "核对资料对路线的影响" })); await screen.findByText(/资料预览已就绪/);
+    fireEvent.click(screen.getByRole("button", { name: "Review material impact on the path" })); await screen.findByText(/The material preview is ready/);
     fireEvent.click(screen.getByRole("button", { name: action }));
     expect(screen.getByLabelText("可采用预览")).toHaveTextContent("none"); expect(onPreview.mock.lastCall?.[0]).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "核对资料对路线的影响" })); await screen.findByText(/资料预览已就绪/);
+    fireEvent.click(screen.getByRole("button", { name: "Review material impact on the path" })); await screen.findByText(/The material preview is ready/);
     expect(request.mock.calls.filter(([method]) => method === "createMaterialContext").at(-1)![1]).not.toHaveProperty("termMappings");
   });
 
@@ -178,7 +178,7 @@ describe("material term choices and explicit learning intent", () => {
     const pending = Promise.withResolvers<unknown>();
     request.mockImplementation(async (endpoint, body) => endpoint === "createMaterialContext" ? pending.promise : original(endpoint, body));
     await waitFor(() => expect(screen.getByRole("button", { name: "选择资料" })).toBeEnabled()); fireEvent.click(screen.getByRole("button", { name: "选择资料" }));
-    fireEvent.click(screen.getByRole("button", { name: "核对资料对路线的影响" }));
+    fireEvent.click(screen.getByRole("button", { name: "Review material impact on the path" }));
     await waitFor(() => expect(request.mock.calls.some(([method]) => method === "createMaterialContext")).toBe(true));
     fireEvent.click(screen.getByRole("button", { name: "清除资料" }));
     await act(async () => { pending.resolve({ ...reference, preview: basePreview }); await pending.promise; });
@@ -192,26 +192,26 @@ describe("material term choices and explicit learning intent", () => {
       termMappings: [{ confirmationId: ref.confirmationId, itemId: "private-fact", skillLabel: "UI tokens", skillIds: ["react", "sql"] }],
       mappingDetails: [{ itemId: "preview-fact", termIndexes: [0], skillIds: ["react", "sql"], status: "mapped", basis: "manual" }],
     }, { recovering: true }); await openPreview(true);
-    expect(screen.getByRole("checkbox", { name: "事实 1 作为本轮学习重点" })).toBeChecked();
-    expect(screen.getByRole("checkbox", { name: "事实 1 作为本轮学习重点" })).toBeDisabled();
-    expect(termControl("UI tokens")).toHaveDisplayValue(/React 19、SQL/); expect(termControl("UI tokens")).toBeDisabled();
-    expect(screen.getByRole("button", { name: "核对资料对路线的影响" })).toBeDisabled();
+    expect(screen.getByRole("checkbox", { name: "Fact 1 as a focus for this plan" })).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: "Fact 1 as a focus for this plan" })).toBeDisabled();
+    expect(termControl("UI tokens")).toHaveDisplayValue(/React 19, SQL/); expect(termControl("UI tokens")).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Review material impact on the path" })).toBeDisabled();
     expect(request.mock.calls.some(([method]) => method === "createMaterialContext")).toBe(false);
     expect(JSON.stringify(localStorage)).not.toMatch(/UI tokens|private-fact|learningIntents|termMappings/);
   });
 
   it.each([
     [["sql"], "SQL"],
-    [["sql", "retired-course"], "SQL、retired-course"],
+    [["sql", "retired-course"], "SQL, retired-course"],
   ] as const)("shows an old labelled fact's saved whole-fact mapping %j without implying per-term automatic matches", async (skillIds, names) => {
     const historical: MaterialPreview = { ...basePreview, mappingDetails: undefined,
       skillMappings: skillIds.map(skillId => ({ confirmationId: ref.confirmationId, itemId: "private-fact", skillId })),
     };
     const { request, onPreview } = fixture(historical, { recovering: true }); await openPreview(true);
-    expect(screen.getByText(/历史整条事实对应/)).toHaveTextContent(`历史整条事实对应：${names}`);
-    expect(screen.getByText(/已确认技能词 Figma、UI tokens/)).toBeInTheDocument();
-    expect(screen.queryByRole("combobox", { name: /事实 1 技能词/ })).not.toBeInTheDocument();
-    expect(screen.queryByText(/自动对应/)).not.toBeInTheDocument();
+    expect(screen.getByText(/Historical whole-fact match/)).toHaveTextContent(`Historical whole-fact match: ${names}`);
+    expect(screen.getByText(/Confirmed skill term Figma, UI tokens/)).toBeInTheDocument();
+    expect(screen.queryByRole("combobox", { name: /Fact 1 skill term/ })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Match automatically/)).not.toBeInTheDocument();
     expect(onPreview.mock.lastCall?.[0]?.preview).toEqual(historical);
     expect(request.mock.calls.some(([method]) => method === "createMaterialContext")).toBe(false);
     expect(JSON.stringify(localStorage)).not.toMatch(/Figma|UI tokens|private-fact|skillMappings|retired-course/);
@@ -220,7 +220,7 @@ describe("material term choices and explicit learning intent", () => {
   it("locks both explicit choice controls when disabled", async () => {
     fixture({ ...advicePreview, confirmedItems: [{ ...advicePreview.confirmedItems[0]!, kind: "requirement", requirementLevel: "unspecified" }] }); await openPreview();
     fireEvent.click(screen.getByRole("button", { name: "锁定" }));
-    expect(screen.getByRole("checkbox", { name: "事实 1 作为本轮学习重点" })).toBeDisabled(); expect(termControl("UI tokens")).toBeDisabled();
+    expect(screen.getByRole("checkbox", { name: "Fact 1 as a focus for this plan" })).toBeDisabled(); expect(termControl("UI tokens")).toBeDisabled();
   });
 
   it("does not offer a whole-fact override when the user retained an empty term list", async () => {
@@ -230,11 +230,11 @@ describe("material term choices and explicit learning intent", () => {
 
   it("requires another preview even when an intent is toggled back to its original value", async () => {
     const { request } = fixture(advicePreview); await openPreview();
-    const checkbox = screen.getByRole("checkbox", { name: "事实 1 作为本轮学习重点" });
+    const checkbox = screen.getByRole("checkbox", { name: "Fact 1 as a focus for this plan" });
     fireEvent.click(checkbox); fireEvent.click(checkbox);
-    expect(screen.getByText("资料采用方式待重新预览，当前结果暂不可采用。")).toBeInTheDocument();
+    expect(screen.getByText("Material choices need a new preview. The current result cannot be used yet.")).toBeInTheDocument();
     expect(screen.getByLabelText("可采用预览")).toHaveTextContent("none");
-    fireEvent.click(screen.getByRole("button", { name: "核对资料对路线的影响" })); await screen.findByText(/资料预览已就绪/);
+    fireEvent.click(screen.getByRole("button", { name: "Review material impact on the path" })); await screen.findByText(/The material preview is ready/);
     const requests = request.mock.calls.filter(([method]) => method === "createMaterialContext");
     expect(requests[1]![1].mutationId).not.toBe(requests[0]![1].mutationId);
   });
@@ -242,11 +242,11 @@ describe("material term choices and explicit learning intent", () => {
   it("does not revive private choices or an old preview when a prior source is selected again", async () => {
     const { request } = fixture(); await openPreview();
     fireEvent.change(termControl("Figma"), { target: { value: "react" } });
-    fireEvent.click(screen.getByRole("button", { name: "核对资料对路线的影响" })); await screen.findByText(/资料预览已就绪/);
+    fireEvent.click(screen.getByRole("button", { name: "Review material impact on the path" })); await screen.findByText(/The material preview is ready/);
     fireEvent.click(screen.getByRole("button", { name: "修改课程来源" }));
     fireEvent.click(screen.getByRole("button", { name: "修改课程来源" }));
     expect(screen.queryByText("PRIVATE-FIGMA-FACT")).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "核对资料对路线的影响" })); await screen.findByText(/资料预览已就绪/);
+    fireEvent.click(screen.getByRole("button", { name: "Review material impact on the path" })); await screen.findByText(/The material preview is ready/);
     expect(request.mock.calls.filter(([method]) => method === "createMaterialContext").at(-1)![1]).not.toHaveProperty("termMappings");
   });
 
@@ -268,7 +268,7 @@ describe("material term choices and explicit learning intent", () => {
     fireEvent.click(screen.getByRole("button", { name: "切换保存预览" }));
     expect(onPreview.mock.lastCall?.[0]).toBeNull();
     await act(async () => { pending.reject(Error("Unavailable")); await Promise.resolve(); });
-    expect(await screen.findByText("原预览已不可恢复，请返回路线确认保存结果。")).toBeInTheDocument();
+    expect(await screen.findByText("The original preview cannot be recovered. Return to your path to check whether it was saved.")).toBeInTheDocument();
     expect(onPreview.mock.lastCall?.[0]).toBeNull();
   });
 
@@ -276,7 +276,7 @@ describe("material term choices and explicit learning intent", () => {
     const { request, onPreview } = fixture(); await openPreview();
     const pending = Promise.withResolvers<unknown>(); const original = request.getMockImplementation()!;
     request.mockImplementation(async (endpoint, body) => endpoint === "createMaterialContext" ? pending.promise : original(endpoint, body));
-    fireEvent.click(screen.getByRole("button", { name: "核对资料对路线的影响" }));
+    fireEvent.click(screen.getByRole("button", { name: "Review material impact on the path" }));
     await waitFor(() => expect(request.mock.calls.filter(([method]) => method === "createMaterialContext")).toHaveLength(2));
     fireEvent.click(screen.getByRole("button", { name: "修改课程来源" })); fireEvent.click(screen.getByRole("button", { name: "修改课程来源" }));
     await act(async () => { pending.resolve({ ...reference, preview: basePreview }); await pending.promise; });
@@ -289,7 +289,7 @@ describe("material term choices and explicit learning intent", () => {
     const pending = Promise.withResolvers<unknown>();
     request.mockImplementation(async (endpoint, body) => endpoint === "createMaterialContext" ? pending.promise : original(endpoint, body));
     await waitFor(() => expect(screen.getByRole("button", { name: "选择资料" })).toBeEnabled()); fireEvent.click(screen.getByRole("button", { name: "选择资料" }));
-    fireEvent.click(screen.getByRole("button", { name: "核对资料对路线的影响" }));
+    fireEvent.click(screen.getByRole("button", { name: "Review material impact on the path" }));
     await waitFor(() => expect(request.mock.calls.some(([method]) => method === "createMaterialContext")).toBe(true));
     fireEvent.click(screen.getByRole("button", { name: "关闭核对界面" }));
     await act(async () => { pending.resolve({ ...reference, preview: basePreview }); await pending.promise; });
@@ -300,7 +300,7 @@ describe("material term choices and explicit learning intent", () => {
     const { request, onPreview } = fixture(); await openPreview();
     const previousRequests = request.mock.calls.filter(([method]) => method === "createMaterialContext").length;
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "核对资料对路线的影响" }));
+      fireEvent.click(screen.getByRole("button", { name: "Review material impact on the path" }));
       fireEvent.change(termControl("Figma"), { target: { value: "react" } });
       await Promise.resolve(); await Promise.resolve();
     });
@@ -309,10 +309,10 @@ describe("material term choices and explicit learning intent", () => {
   });
 
   it.each([
-    ["ambiguous", ["react", "sql"], null, "对应待核对：React 19、SQL"],
-    ["uncovered", [], null, "当前蓝图未覆盖"],
-    ["omitted", [], "manual", "已明确不用于本轮映射 · 依据：手动选择"],
-    ["mapped", ["sql"], "literal", "已对应：SQL · 依据：名称或已登记别名"],
+    ["ambiguous", ["react", "sql"], null, "Match needs review: React 19, SQL"],
+    ["uncovered", [], null, "Outside the current blueprint"],
+    ["omitted", [], "manual", "Explicitly excluded from this mapping · Basis: Manual choice"],
+    ["mapped", ["sql"], "literal", "Matched: SQL · Basis: Name or registered alias"],
   ] as const)("shows the saved %s result without treating it as an automatic match", async (status, skillIds, basis, text) => {
     fixture({ ...basePreview, mappingDetails: [{ itemId: "preview-fact", termIndexes: [0], status, skillIds: [...skillIds], basis }] }); await openPreview();
     expect(within(termControl("Figma").closest("li")!).getByText(text)).toBeInTheDocument();

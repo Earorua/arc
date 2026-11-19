@@ -15,12 +15,12 @@ afterEach(() => { cleanup(); window.history.replaceState(null, "", "/"); localSt
 
 it("explains account access while preserving the source and device history", () => {
   localStorage.setItem("arc-device-history", "kept");
-  render(<AccountBoundary destination="/proof" title="登录后保存作品证据"><p>private records</p></AccountBoundary>);
-  const login = screen.getByRole("link", { name: "登录并继续" });
+  render(<AccountBoundary destination="/proof" title="Sign in to save your work"><p>private records</p></AccountBoundary>);
+  const login = screen.getByRole("link", { name: "Sign in and continue" });
   expect(new URL(login.getAttribute("href")!, "https://arc.example").searchParams.get("next"))
     .toBe("/proof?compose=1&returnTo=%2Ftoday#draft");
-  expect(screen.getByRole("link", { name: "先看公开样例" })).toHaveAttribute("href", "/showcase");
-  expect(screen.getByText(/本设备已有的学习记录会保留/)).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "Explore the showcase" })).toHaveAttribute("href", "/showcase");
+  expect(screen.getByText(/Your learning records stay on this device/)).toBeInTheDocument();
   expect(screen.queryByText("private records")).not.toBeInTheDocument();
   expect(localStorage.getItem("arc-device-history")).toBe("kept");
 });
@@ -28,9 +28,9 @@ it("explains account access while preserving the source and device history", () 
 it("does not mount protected content while the session is pending", () => {
   mocks.useSession.mockReturnValue({ data: null, isPending: true });
   render(<AccountBoundary destination="/today"><p>private records</p></AccountBoundary>);
-  expect(screen.getByRole("status")).toHaveTextContent("正在确认账号");
+  expect(screen.getByRole("status")).toHaveTextContent("Checking your account");
   expect(screen.queryByText("private records")).not.toBeInTheDocument();
-  expect(screen.queryByRole("link", { name: "登录并继续" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("link", { name: "Sign in and continue" })).not.toBeInTheDocument();
 });
 
 it("mounts the current account content and removes it when that session ends", () => {

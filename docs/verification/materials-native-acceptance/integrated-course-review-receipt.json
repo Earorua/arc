@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "materials-integrated-course-review-v1",
+  "recordedAt": "2026-11-19T06:35:42.4450930Z",
+  "result": "reviewed-integrated-display-only-binding",
+  "bindingId": "materials-integrated-course-binding-20261119",
+  "files": [
+    {
+      "path": "course-binding.integrated.json",
+      "sha256": "0abfafdde4125cabf7a2b56aea7497b2e1dbd75b9c8406896fa42566af858d6a"
+    },
+    {
+      "path": "course-reference.integrated.snapshot.json",
+      "sha256": "bf5a670ac1be78c4e8000a895384b2eb5366b1534b19c5571b051115f37c132b"
+    },
+    {
+      "path": "verify-integrated-course-binding.mjs",
+      "sha256": "4949812876d6f2b26e13aa7c1e199fe5105f6ea78fb9ec5a57d56a117d6fb19b"
+    },
+    {
+      "path": "verify-integrated-course-binding.test.mjs",
+      "sha256": "07eac320b9a77ede81cc4a002a6a609b49ce7f3cd4683dfdcdc6c14a2b50ec9d"
+    },
+    {
+      "path": "integrated-course-spec-review.md",
+      "sha256": "72b69079dd35953f17b1f66c50eab60d89e9ed64a93aeeeff0d56be28234d168"
+    },
+    {
+      "path": "integrated-course-quality-review.md",
+      "sha256": "d5ad55405d29dcc085ed9d589744202e38a3bfde4990e8aeac1b1d14e69ebd43"
+    },
+    {
+      "path": "integrated-binding-evidence/manifest.json",
+      "sha256": "c0ad22d54ec22891cefbf3f46cbbfa839028573f8f3f82a7a3bbe7d5182339e6"
+    }
+  ],
+  "sourceDelta": {
+    "sourceCommit": "19a81a500b5f87085f3aaddb27fc0e9b050fc48c",
+    "path": "app/data/flagship-role.ts",
+    "sha256": "7070068cd2edb6bb176b61f01e9e2e2f1800b24179c908e3619e11be5560572e",
+    "literalTranslations": 5,
+    "teachingUnitsUnchanged": 48,
+    "dependenciesChecked": 85
+  },
+  "checks": {
+    "targetedTestsPassed": 4,
+    "targetedLint": "PASS",
+    "specificationReview": "PASS",
+    "codeQualityReview": "PASS",
+    "reviewTestReruns": 0,
+    "frozenAssetsChecked": 26,
+    "frozenInputsChecked": 5
+  },
+  "limits": {
+    "oldBindingBytesChanged": false,
+    "newBindingArtifactRewrittenForApproval": false,
+    "nativeMatrixRerun": false,
+    "integratedApplicationApproved": false,
+    "modelQualityApproved": false,
+    "gateApproved": false,
+    "deploymentPerformed": false
+  }
+}

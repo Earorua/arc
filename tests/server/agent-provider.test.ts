@@ -20,6 +20,7 @@ describe("OpenRouter learning agents", () => {
     expect(url).toBe("https://openrouter.ai/api/v1/responses");
     expect(init?.headers).toMatchObject({ Authorization: "Bearer test-key" });
     const body = JSON.parse(String(init?.body));
+    expect(body.instructions).toContain("Respond in English.");
     expect(body).toMatchObject({ model: "openai/gpt-6-astra", service_tier: "default", stream: true, store: false,
       reasoning: { effort: "max" }, text: { format: { type: "json_schema", strict: true } },
       provider: { require_parameters: true, allow_fallbacks: false, max_price: { prompt: 13, completion: 50, request: 0 } } });
@@ -61,7 +62,7 @@ describe("OpenRouter learning agents", () => {
   it("does not expose upstream errors or retry paid requests", async () => {
     const fetcher = vi.fn(async () => new Response("private upstream detail", { status: 429 }));
     const provider = new OpenRouterAgentProvider(config, fetcher);
-    await expect(provider.startPlanner("context", signal())).rejects.toThrow("模型请求暂时未完成");
+    await expect(provider.startPlanner("context", signal())).rejects.toThrow("The model request did not finish");
     expect(fetcher).toHaveBeenCalledTimes(1);
   });
 });

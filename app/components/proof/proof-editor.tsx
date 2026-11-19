@@ -28,17 +28,17 @@ type Props = {
 };
 
 const artifactKinds: readonly { value: ProofArtifactKind; label: string }[] = [
-  { value: "repository", label: "代码仓库" },
-  { value: "commit", label: "提交记录" },
-  { value: "pull_request", label: "合并请求" },
-  { value: "deployment", label: "部署" },
+  { value: "repository", label: "Repository" },
+  { value: "commit", label: "Commit" },
+  { value: "pull_request", label: "Pull request" },
+  { value: "deployment", label: "Deployment" },
   { value: "api", label: "API" },
-  { value: "document", label: "文档" },
-  { value: "screenshot", label: "截图" },
-  { value: "test_report", label: "测试报告" },
-  { value: "code", label: "代码" },
-  { value: "upload", label: "上传文件" },
-  { value: "reflection", label: "学习反思" },
+  { value: "document", label: "Document" },
+  { value: "screenshot", label: "Screenshot" },
+  { value: "test_report", label: "Test report" },
+  { value: "code", label: "Code" },
+  { value: "upload", label: "Uploaded file" },
+  { value: "reflection", label: "Learning reflection" },
 ];
 
 export function ProofEditor({ canUpload, dailyUnits, disabled, draftKey, contextualUnit, initial, onCancel, onSave, onUpload, skills }: Props) {
@@ -70,17 +70,17 @@ export function ProofEditor({ canUpload, dailyUnits, disabled, draftKey, context
   const submit = async (intent: ProofMutationIntent) => {
     if (disabled || uploading) return;
     const nextErrors: string[] = [];
-    if (!title.trim()) nextErrors.push("请填写作品标题。");
-    if (!summary.trim()) nextErrors.push("请填写作品说明。");
-    if (!skillId || !skills.some(({ id }) => id === skillId)) nextErrors.push("请选择当前路线中的关联技能。");
-    if (dailyUnitId && !dailyUnits.some((unit) => unit.id === dailyUnitId && unit.skillId === skillId)) nextErrors.push("请选择当前技能可关联的学习单元。");
+    if (!title.trim()) nextErrors.push("Enter a title for your work.");
+    if (!summary.trim()) nextErrors.push("Add a description of your work.");
+    if (!skillId || !skills.some(({ id }) => id === skillId)) nextErrors.push("Choose a related skill from your current path.");
+    if (dailyUnitId && !dailyUnits.some((unit) => unit.id === dailyUnitId && unit.skillId === skillId)) nextErrors.push("Choose a learning unit associated with this skill.");
     const url = artifactUrl.trim();
-    if (url && !isPublicHttpsUrl(url)) nextErrors.push("请使用公开的 HTTPS 链接。");
-    if (kind === "reflection" && (url || assetId)) nextErrors.push("学习反思不能包含作品链接或上传文件。");
+    if (url && !isPublicHttpsUrl(url)) nextErrors.push("Use a public HTTPS link.");
+    if (kind === "reflection" && (url || assetId)) nextErrors.push("Learning reflections cannot include a work link or an uploaded file.");
     if (intent === "submit" && kind !== "reflection" && !url && !assetId) {
-      nextErrors.push("提交审核前，请添加公开的 HTTPS 链接或上传文件。");
+      nextErrors.push("Add a public HTTPS link or upload a file before submitting for review.");
     }
-    if (validatorKey && kind !== "test_report") nextErrors.push("确定性验证仅适用于 JSON 测试报告。");
+    if (validatorKey && kind !== "test_report") nextErrors.push("Automated verification is available only for JSON test reports.");
     if (nextErrors.length > 0) { setErrors(nextErrors); return; }
     setErrors([]);
     const saved = await onSave({
@@ -96,22 +96,22 @@ export function ProofEditor({ canUpload, dailyUnits, disabled, draftKey, context
       completionCriteria: [],
       visibility,
     });
-    if (!saved) setErrors(["暂时无法保存这个版本，请查看恢复提示后重试。"]);
+    if (!saved) setErrors(["This version could not be saved. Check the recovery message and try again."]);
     else { clearEditorDraft(draftKey); setDirty(false); }
   };
 
   const upload = async () => {
-    if (!selectedFile) { setErrors(["请选择要上传的文件。"]); return; }
+    if (!selectedFile) { setErrors(["Choose a file to upload."]); return; }
     setUploading(true);
     setUploadMessage(null);
     try {
       const id = await onUpload(selectedFile);
-      if (!id) { setErrors(["文件上传失败，请重试。"]); return; }
+      if (!id) { setErrors(["The file could not be uploaded. Please try again."]); return; }
       setAssetId(id);
       setDirty(true);
       setArtifactUrl("");
       setErrors([]);
-      setUploadMessage(`${selectedFile.name} 已附加到下一个作品版本。`);
+      setUploadMessage(`${selectedFile.name} is attached to the next version of your work.`);
     } finally { setUploading(false); }
   };
 
@@ -119,57 +119,57 @@ export function ProofEditor({ canUpload, dailyUnits, disabled, draftKey, context
     <section className="proof-editor" aria-labelledby="proof-editor-title" onChange={() => { if (!disabled) setDirty(true); }}>
       <div className="proof-section-heading">
         <div>
-          <p className="eyebrow">{initial ? `修订版本 ${initial.versionNumber + 1}` : "新增作品"}</p>
-          <h2 id="proof-editor-title" ref={headingRef} tabIndex={-1}>{initial ? "添加作品修订" : "添加作品"}</h2>
+          <p className="eyebrow">{initial ? `Revision ${initial.versionNumber + 1}` : "New proof"}</p>
+          <h2 id="proof-editor-title" ref={headingRef} tabIndex={-1}>{initial ? "Add a proof revision" : "Add proof"}</h2>
         </div>
-        {onCancel && <button className="text-action" disabled={disabled} onClick={onCancel} type="button">取消修订</button>}
+        {onCancel && <button className="text-action" disabled={disabled} onClick={onCancel} type="button">Cancel revision</button>}
       </div>
-      <p className="proof-editor-intro">{initial ? "保存后会新增一个版本，之前的作品与审核记录会保留。" : "添加作品链接或学习反思，记录你已经能做什么。新作品默认仅自己可见。"}</p>
-      {restored && <p className="proof-draft-notice">已恢复尚未提交的编辑内容。</p>}
+      <p className="proof-editor-intro">{initial ? "Saving creates a new version. Previous work and review history are preserved." : "Add a link to your work or a learning reflection to record what you can do. New proof is private by default."}</p>
+      {restored && <p className="proof-draft-notice">Your unsaved edits have been restored.</p>}
 
       {errors.length > 0 && (
         <div className="proof-error-summary" ref={errorRef} role="alert" tabIndex={-1}>
-          <strong>请检查作品信息</strong>
+          <strong>Check your proof details</strong>
           <ul>{errors.map((error) => <li key={error}>{error}</li>)}</ul>
         </div>
       )}
 
       <div className="proof-form-grid">
-        <label className="proof-field-wide">作品标题<input disabled={disabled} maxLength={180} onChange={(event) => setTitle(event.target.value)} value={title} /></label>
-        <label className="proof-field-wide">作品说明<textarea disabled={disabled} maxLength={2000} onChange={(event) => setSummary(event.target.value)} rows={4} value={summary} /></label>
-        <label>作品类型<select disabled={disabled} onChange={(event) => {
+        <label className="proof-field-wide">Proof title<input disabled={disabled} maxLength={180} onChange={(event) => setTitle(event.target.value)} value={title} /></label>
+        <label className="proof-field-wide">Description<textarea disabled={disabled} maxLength={2000} onChange={(event) => setSummary(event.target.value)} rows={4} value={summary} /></label>
+        <label>Proof type<select disabled={disabled} onChange={(event) => {
           const next = event.target.value as ProofArtifactKind;
           setKind(next);
           if (next !== "test_report") setValidatorKey("");
           if (next === "reflection") { setArtifactUrl(""); setAssetId(null); setSelectedFile(null); }
         }} value={kind}>{artifactKinds.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label>
-        {kind !== "reflection" && <label>公开 HTTPS 链接<input disabled={disabled || assetId !== null} inputMode="url" maxLength={2048} onChange={(event) => setArtifactUrl(event.target.value)} placeholder="https://" type="url" value={artifactUrl} /></label>}
-        <label>关联技能<select disabled={disabled} onChange={(event) => { setSkillId(event.target.value); setDailyUnitId(""); }} value={skillId}><option value="">选择技能</option>{skills.map((skill) => <option key={skill.id} value={skill.id}>{skill.name}</option>)}</select></label>
-        <label>关联学习单元<select disabled={disabled} onChange={(event) => setDailyUnitId(event.target.value)} value={dailyUnitId}><option value="">不关联学习单元</option>{dailyUnits.filter((unit) => !skillId || unit.skillId === skillId).map((unit) => <option key={unit.id} value={unit.id}>{formatDailyUnitLabel(unit)}</option>)}</select></label>
-        <label>可见范围<select disabled={disabled} onChange={(event) => setVisibility(event.target.value as ProofVisibility)} value={visibility}><option value="private">私密</option><option value="public">公开</option></select></label>
-        {kind === "test_report" && <label>自动检查<select disabled={disabled} onChange={(event) => setValidatorKey(event.target.value === "proof.test-report.v1" ? "proof.test-report.v1" : "")} value={validatorKey}><option value="">暂不自动检查</option><option value="proof.test-report.v1">Arc JSON 测试报告</option></select></label>}
+        {kind !== "reflection" && <label>Public HTTPS link<input disabled={disabled || assetId !== null} inputMode="url" maxLength={2048} onChange={(event) => setArtifactUrl(event.target.value)} placeholder="https://" type="url" value={artifactUrl} /></label>}
+        <label>Related skill<select disabled={disabled} onChange={(event) => { setSkillId(event.target.value); setDailyUnitId(""); }} value={skillId}><option value="">Choose a skill</option>{skills.map((skill) => <option key={skill.id} value={skill.id}>{skill.name}</option>)}</select></label>
+        <label>Related learning unit<select disabled={disabled} onChange={(event) => setDailyUnitId(event.target.value)} value={dailyUnitId}><option value="">No linked learning unit</option>{dailyUnits.filter((unit) => !skillId || unit.skillId === skillId).map((unit) => <option key={unit.id} value={unit.id}>{formatDailyUnitLabel(unit)}</option>)}</select></label>
+        <label>Visibility<select disabled={disabled} onChange={(event) => setVisibility(event.target.value as ProofVisibility)} value={visibility}><option value="private">Private</option><option value="public">Public</option></select></label>
+        {kind === "test_report" && <label>Automatic check<select disabled={disabled} onChange={(event) => setValidatorKey(event.target.value === "proof.test-report.v1" ? "proof.test-report.v1" : "")} value={validatorKey}><option value="">Skip automatic checks for now</option><option value="proof.test-report.v1">Arc JSON test report</option></select></label>}
       </div>
-      <p className="proof-visibility-note">{visibility === "private" ? "私密作品仅自己可见；你可以在保存后更改。" : "这项作品将公开，可用于公开技能证明。"}</p>
+      <p className="proof-visibility-note">{visibility === "private" ? "Private proof is visible only to you. You can change this after saving." : "This work will be public and can support your public skill evidence."}</p>
 
       {kind !== "reflection" && <div className="proof-upload-zone">
         {canUpload && initial ? <>
-          <label>上传作品文件<input aria-label="上传作品文件" disabled={disabled || uploading} onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)} type="file" /></label>
-          <button className="secondary-action" disabled={disabled || uploading || !selectedFile} onClick={() => void upload()} type="button">{uploading ? "正在上传…" : "上传所选文件"}</button>
+          <label>Upload a proof file<input aria-label="Upload a proof file" disabled={disabled || uploading} onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)} type="file" /></label>
+          <button className="secondary-action" disabled={disabled || uploading || !selectedFile} onClick={() => void upload()} type="button">{uploading ? "Uploading…" : "Upload selected file"}</button>
           {uploadMessage && <p role="status">{uploadMessage}</p>}
-        </> : <p>{canUpload ? "需要上传文件？先保存草稿，接下来即可附加文件并提交；原草稿会保留。" : "登录并保存草稿后，即可上传作品文件。"}</p>}
-        {assetId && <p>已附加作品文件。<button className="text-action" disabled={disabled} onClick={() => { setAssetId(null); setDirty(true); }} type="button">移除附件</button></p>}
+        </> : <p>{canUpload ? "To upload a file, save a draft first. You can then attach a file and submit it; the original draft is preserved." : "Sign in and save a draft to upload a proof file."}</p>}
+        {assetId && <p>Proof file attached. <button className="text-action" disabled={disabled} onClick={() => { setAssetId(null); setDirty(true); }} type="button">Remove attachment</button></p>}
       </div>}
 
       <div className="proof-editor-actions">
-        <button className="secondary-action" disabled={disabled} onClick={() => void submit("save_draft")} type="button">保存草稿</button>
-        <button className="primary-action" disabled={disabled} onClick={() => void submit("submit")} type="button">提交审核</button>
+        <button className="secondary-action" disabled={disabled} onClick={() => void submit("save_draft")} type="button">Save draft</button>
+        <button className="primary-action" disabled={disabled} onClick={() => void submit("submit")} type="button">Submit for review</button>
       </div>
     </section>
   );
 }
 
 function formatDailyUnitLabel(unit: DailyUnit): string {
-  return `${unit.scheduledDate} · ${unit.slot === "primary" ? "主要任务" : "拓展任务"} · ${unit.objective}`;
+  return `${unit.scheduledDate} · ${unit.slot === "primary" ? "Main task" : "Stretch task"} · ${unit.objective}`;
 }
 
 function isPublicHttpsUrl(value: string): boolean {

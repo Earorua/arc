@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "materials-integrated-course-evidence-v1",
+  "files": [
+    {
+      "source": "work/grounded-verification/integrated-course-binding-20261119-capture.json",
+      "file": "integrated-course-binding-20261119-capture.json",
+      "sha256": "9ff7e096f075968a03831803843aa4bdff6d49f6412b0ba824464eeb28b32a47",
+      "bytes": 281
+    },
+    {
+      "source": "work/grounded-verification/integrated-course-binding-20261119-capture.log",
+      "file": "integrated-course-binding-20261119-capture.log.txt",
+      "sha256": "def247c9bc61a02f6556cf00de65dc965efc897617e03fa160d5969450bf5474",
+      "bytes": 647
+    },
+    {
+      "source": "work/grounded-verification/integrated-course-binding-20261119-green.json",
+      "file": "integrated-course-binding-20261119-green.json",
+      "sha256": "55f4aeed239e24223e50190b6ae251b9fdb31044da2d4a31b951c0b50ca07044",
+      "bytes": 279
+    },
+    {
+      "source": "work/grounded-verification/integrated-course-binding-20261119-green.log",
+      "file": "integrated-course-binding-20261119-green.log.txt",
+      "sha256": "2f07750bc764a37691096f2aefa9da8ddd229184f948daef080fad9ed24f6f3b",
+      "bytes": 496
+    },
+    {
+      "source": "work/grounded-verification/integrated-course-binding-20261119-lint-final.json",
+      "file": "integrated-course-binding-20261119-lint-final.json",
+      "sha256": "d45341e0ad528336e4c87bd308f2c8c80e80f8d2a965f721705b54c408ae4aad",
+      "bytes": 285
+    },
+    {
+      "source": "work/grounded-verification/integrated-course-binding-20261119-lint-final.log",
+      "file": "integrated-course-binding-20261119-lint-final.log.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source": "work/grounded-verification/integrated-course-binding-20261119-lint.json",
+      "file": "integrated-course-binding-20261119-lint.json",
+      "sha256": "a8bb5f5a1852cd013f6112e450425196d9a56d42e60434b901b2bfea653b88ad",
+      "bytes": 279
+    },
+    {
+      "source": "work/grounded-verification/integrated-course-binding-20261119-lint.log",
+      "file": "integrated-course-binding-20261119-lint.log.txt",
+      "sha256": "0e0e45a3018dfe0ece4a32b1e2a2f9a757949a297b30fb5b5f0a6643b767b922",
+      "bytes": 357
+    },
+    {
+      "source": "work/grounded-verification/integrated-course-binding-20261119-prepare.mjs",
+      "file": "integrated-course-binding-20261119-prepare.mjs.source.txt",
+      "sha256": "17b6eee86551b7a7a489166bc70a05490ea7331695445a518ae6fdfcb75e517a",
+      "bytes": 3774
+    },
+    {
+      "source": "work/grounded-verification/integrated-course-binding-20261119-red.json",
+      "file": "integrated-course-binding-20261119-red.json",
+      "sha256": "a92258e2d48c81da8705d149e5f9240fa2eee2db639e9d0fe447e30e5bf2dadb",
+      "bytes": 277
+    },
+    {
+      "source": "work/grounded-verification/integrated-course-binding-20261119-red.log",
+      "file": "integrated-course-binding-20261119-red.log.txt",
+      "sha256": "31a373f6477ae522251ad16251f32985960f7ff3adcf8a94b818098dd59c9f3a",
+      "bytes": 5318
+    }
+  ],
+  "note": "Includes original RED and initial lint finding. Final four test assertions passed; only a local variable was renamed afterwards for lint. No historical reference bytes were rewritten."
+}

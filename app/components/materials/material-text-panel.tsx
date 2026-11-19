@@ -54,7 +54,7 @@ async function readEditorReview(client: DocumentsClient, ref: MaterialDocumentDr
     return { draft, confirmation: undefined };
 }
 export function MaterialTextPanel({ kind, capabilities, client = documentsClient, value, onChange, onUseConfirmedVersion, reuseScopeKey, skills, onAdoptLevels, pollIntervalMs = 1500, disabled = false, recoveryScope }: Props) {
-    const label = kind === "resume" ? "简历" : kind === "jd" ? "岗位 JD" : "补充资料";
+    const label = kind === "resume" ? "Resume" : kind === "jd" ? "Job description" : "Supplementary material";
     const [text, setText] = useState("");
     const [name, setName] = useState(label);
     const [savedBody, setSavedBody] = useState("");
@@ -144,7 +144,7 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
                 if (controller.signal.aborted || epoch !== lifecycle.current)
                     return;
                 if (!result.receipt) {
-                    setMessage("上次保存尚未确认。请重新粘贴文本后明确保存，或从私人资料库恢复。");
+                    setMessage("The previous save is unconfirmed. Paste the text again and explicitly save it, or recover it from your private library.");
                     return;
                 }
                 const current = valueRef.current;
@@ -154,11 +154,11 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
                 valueRef.current = next;
                 changeRef.current(next);
                 setPendingAnalysis(pending.phase === "analysis");
-                setMessage("已恢复上次保存的资料；如需分析，请再次确认允许范围。");
+                setMessage("Your previously saved material is restored. Confirm the processing scope again to analyze it.");
             }
             catch (error) {
                 if (!controller.signal.aborted && epoch === lifecycle.current)
-                    setMessage(error instanceof Error ? error.message : "暂时无法恢复保存回执。");
+                    setMessage(error instanceof Error ? error.message : "The save receipt is temporarily unavailable.");
             }
         })();
         return () => controller.abort();
@@ -201,7 +201,7 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
             }
             catch (error) {
                 if (!controller.signal.aborted && epoch === lifecycle.current)
-                    setMessage(error instanceof Error ? error.message : "暂时无法读取已保存资料。");
+                    setMessage(error instanceof Error ? error.message : "The saved material is temporarily unavailable.");
             }
         })();
         return () => controller.abort();
@@ -229,13 +229,13 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
                         keepDraft(review.draft);
                     if (review.draft && review.draft.extractionId !== next.extractionId) {
                         setLateExtractionId(next.extractionId);
-                        setMessage("新 AI 候选已到达，你的核对修改保持不变。请比较后明确采用。");
+                        setMessage("A new AI candidate is available. Your review edits are unchanged; compare the candidate before choosing to use it.");
                     }
                 }
             }
             catch (error) {
                 if (!controller.signal.aborted && epoch === lifecycle.current)
-                    setMessage(error instanceof Error ? error.message : "暂时无法读取分析状态。");
+                    setMessage(error instanceof Error ? error.message : "Analysis status is temporarily unavailable.");
             }
         };
         void refresh();
@@ -311,7 +311,7 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
                 return;
             }
             if (!capabilities.providerPolicyId || !capabilities.policyVersion)
-                throw new Error("AI 分析暂不可用，请手动整理。");
+                throw new Error("AI analysis is temporarily unavailable. You can organize the material manually.");
             const analysisRecovery: SaveRecovery = {
                 ...pending,
                 phase: "analysis",
@@ -356,7 +356,7 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
         }
         catch (error) {
             if (epoch === lifecycle.current)
-                setMessage(error instanceof Error ? error.message : "未能完成操作，可保留资料并手动整理。");
+                setMessage(error instanceof Error ? error.message : "The operation could not be completed. You can keep the material and organize it manually.");
         }
         finally {
             if (epoch === lifecycle.current)
@@ -400,7 +400,7 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
         });
         const queued = saveQueue.current;
         void queued.catch(error => { if (epoch === lifecycle.current)
-            setMessage(error instanceof Error ? error.message : "修改尚未保存，请重试。"); }).finally(() => { if (epoch === lifecycle.current && saveQueue.current === queued)
+            setMessage(error instanceof Error ? error.message : "Your edits have not been saved. Try again."); }).finally(() => { if (epoch === lifecycle.current && saveQueue.current === queued)
             setSaving(false); });
     }
     async function confirm() {
@@ -436,7 +436,7 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
         }
         catch (error) {
             if (epoch === lifecycle.current)
-                setMessage(error instanceof Error ? error.message : "确认失败，请重新核对。");
+                setMessage(error instanceof Error ? error.message : "Confirmation failed. Review the material again.");
         }
         finally {
             confirming.current = false;
@@ -457,14 +457,14 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
             if (controller.signal.aborted || activeAccess.current !== access || epoch !== lifecycle.current || beforeRead !== edits.current || valueRef.current !== ref) return;
             if (latest.confirmation?.confirmationId !== ref.confirmationId || latest.draft?.revision !== displayed.revision) {
                 clearConfirmation();
-                setMessage("已保存的资料或核对内容已变化，请重新打开当前版本。");
+                setMessage("The saved material or review has changed. Reopen the current version.");
                 return;
             }
             adoptionCallback.current?.({ ...ref, revision: latest.confirmation.revision });
         } catch {
             if (!controller.signal.aborted && activeAccess.current === access && epoch === lifecycle.current && beforeRead === edits.current) {
                 clearConfirmation();
-                setMessage("未能核实当前确认版本，请重新打开资料后再采用。");
+                setMessage("The current confirmation could not be verified. Reopen the material before using it.");
             }
         } finally {
             adoptionRequest.current = null;
@@ -484,7 +484,7 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
         }
         catch (error) {
             if (epoch === lifecycle.current)
-                setMessage(error instanceof Error ? error.message : "取消状态尚未确认。");
+                setMessage(error instanceof Error ? error.message : "Cancellation is not yet confirmed.");
         }
     }
     async function compareCandidates() {
@@ -502,7 +502,7 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
         }
         catch (error) {
             if (epoch === lifecycle.current)
-                setMessage(error instanceof Error ? error.message : "暂时无法读取新候选。");
+                setMessage(error instanceof Error ? error.message : "The new candidate is temporarily unavailable.");
         }
         finally {
             if (epoch === lifecycle.current)
@@ -534,38 +534,38 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
         }
         catch (error) {
             if (epoch === lifecycle.current)
-                setMessage(error instanceof Error ? error.message : "草稿已变化，请重新比较后采用。");
+                setMessage(error instanceof Error ? error.message : "The draft has changed. Compare it again before using the candidate.");
         }
         finally {
             if (epoch === lifecycle.current)
                 setBusy(false);
         }
     }
-    return <section className="material-text-panel" aria-label={`${label}资料`}>
-    <h2>{label}辅助规划</h2><p>粘贴资料后由 AI 整理，你核对事实与能力建议；也可以跳过。</p>
-    <fieldset disabled={disabled || busy}><legend className="sr-only">{label}文本导入</legend>
-      <label>资料名称<input value={name} onChange={event => setName(event.target.value)} maxLength={200}/></label>
-      <label>{label}正文<textarea aria-label={`${label}正文`} value={text} maxLength={100000} onChange={event => { setText(event.target.value); setConsentedScope(null); clearConfirmation(); }} placeholder="粘贴文本。文件和链接导入将在后续提供。"/></label>
+    return <section className="material-text-panel" aria-label={`${label} material`}>
+    <h2>{label}: assisted planning</h2><p>Paste material for AI to organize, then review its facts and ability suggestions. You can also skip this step.</p>
+    <fieldset disabled={disabled || busy}><legend className="sr-only">{label}: import text</legend>
+      <label>Material name<input value={name} onChange={event => setName(event.target.value)} maxLength={200}/></label>
+      <label>{label} text<textarea aria-label={`${label} text`} value={text} maxLength={100000} onChange={event => { setText(event.target.value); setConsentedScope(null); clearConfirmation(); }} placeholder="Paste text. File and link imports will be available later."/></label>
       {capabilities.analysisEnabled ? <>
         <div id={consentDescriptionId}>
-          <p>处理方：{capabilities.providerLabel}。用途：提取本份资料供你核对。实际发送内容就是上方当前文本；不会自动打开其中的链接。</p>
+          <p>Processor: {capabilities.providerLabel}. Purpose: extract facts from this material for your review. Only the current text above is sent; links in it are not opened automatically.</p>
           {capabilities.privacyNotice === "kimi-k31-pro-zdr" && <>
-            <p>本次通过 OpenRouter 全球入口向 Moonshot AI 的 Kimi K3.1 Pro 发送文本，请求使用零数据保留（ZDR）路由。上游可能临时缓存输入。OpenRouter 可能抽取少量输入，交给采用 ZDR 的模型分类。按其公布的安全筛查计划，疑似儿童性虐待材料可能被保留以供复核，并依法报告或保存。</p>
-            <p><a href="https://openrouter.ai/docs/guides/features/zdr" target="_blank" rel="noreferrer">OpenRouter 零数据保留说明</a>{" · "}
-              <a href="https://openrouter.ai/docs/guides/privacy/data-collection" target="_blank" rel="noreferrer">OpenRouter 数据收集说明</a>{" · "}
-              <a href="https://platform.kimi.ai/docs/agreement/userprivacy" target="_blank" rel="noreferrer">Kimi 开放平台隐私政策</a></p>
+            <p>This request sends text through OpenRouter&apos;s global endpoint to Moonshot AI&apos;s Kimi K3.1 Pro using a Zero Data Retention (ZDR) route. The upstream provider may temporarily cache inputs. OpenRouter may sample a small amount of input for classification by ZDR models. Under its published safety-screening program, suspected child sexual abuse material may be retained for review and reported or preserved as required by law.</p>
+            <p><a href="https://openrouter.ai/docs/guides/features/zdr" target="_blank" rel="noreferrer">OpenRouter Zero Data Retention policy</a>{" · "}
+              <a href="https://openrouter.ai/docs/guides/privacy/data-collection" target="_blank" rel="noreferrer">OpenRouter data collection policy</a>{" · "}
+              <a href="https://platform.kimi.ai/docs/agreement/userprivacy" target="_blank" rel="noreferrer">Kimi Open Platform privacy policy</a></p>
           </>}
         </div>
-        <label className="material-consent"><input type="checkbox" aria-describedby={consentDescriptionId} checked={allowed} onChange={event => setConsentedScope(event.target.checked ? consentScope : null)}/>允许将当前文本交给上述处理方进行本次分析</label>
-      </> : <p role="status">AI 分析暂不可用。你可以保存资料并手动整理，已保存内容不会丢失。</p>}
-      <div className="material-actions">{capabilities.analysisEnabled && <button type="button" disabled={!allowed || !text.trim() || analysisBlocked} onClick={() => void save(true, canReanalyze)}>{pendingAnalysis && !textChanged ? "继续上次分析请求" : canReanalyze ? "重新 AI 分析" : "保存并 AI 分析"}</button>}<button type="button" className="text-action" disabled={!text.trim()} onClick={() => void save(false)}>保存并手动整理</button></div>
+        <label className="material-consent"><input type="checkbox" aria-describedby={consentDescriptionId} checked={allowed} onChange={event => setConsentedScope(event.target.checked ? consentScope : null)}/>Allow the processors above to analyze the current text for this request</label>
+      </> : <p role="status">AI analysis is temporarily unavailable. You can save the material and organize it manually; saved content is retained.</p>}
+      <div className="material-actions">{capabilities.analysisEnabled && <button type="button" disabled={!allowed || !text.trim() || analysisBlocked} onClick={() => void save(true, canReanalyze)}>{pendingAnalysis && !textChanged ? "Continue the previous analysis request" : canReanalyze ? "Run AI analysis again" : "Save and analyze with AI"}</button>}<button type="button" className="text-action" disabled={!text.trim()} onClick={() => void save(false)}>Save and organize manually</button></div>
     </fieldset>
     {job && <MaterialJobStatus job={job} onCancel={() => void cancel()}/>}
     {message && <p role="alert">{message}</p>}
-    {lateExtractionId && !textChanged && <button type="button" className="text-action" disabled={busy || saving} onClick={() => void compareCandidates()}>比较新 AI 候选</button>}
-    {comparison && !textChanged && <section aria-label="新 AI 候选比较"><h3>新 AI 候选</h3><p>下方候选尚未采用。替换后仍需核对并确认事实，能力建议仍需单独采用。</p><ul>{comparison.draft.items.map(item => <li key={item.id}>{item.text}</li>)}</ul><button type="button" disabled={busy || saving} onClick={() => void adoptCandidates()}>采用这些新候选替换核对草稿</button><button type="button" className="text-action" onClick={() => setComparison(null)}>保留当前核对草稿</button></section>}
+    {lateExtractionId && !textChanged && <button type="button" className="text-action" disabled={busy || saving} onClick={() => void compareCandidates()}>Compare new AI candidate</button>}
+    {comparison && !textChanged && <section aria-label="New AI candidate comparison"><h3>New AI candidate</h3><p>The candidate below has not been adopted. Replacing your draft still requires fact review and confirmation; ability suggestions must be adopted separately.</p><ul>{comparison.draft.items.map(item => <li key={item.id}>{item.text}</li>)}</ul><button type="button" disabled={busy || saving} onClick={() => void adoptCandidates()}>Replace review draft with these candidates</button><button type="button" className="text-action" onClick={() => setComparison(null)}>Keep current review draft</button></section>}
     {draft && !textChanged && <MaterialConfirmation documentKind={kind} draft={draft} text={savedBody} saving={saving || busy} confirmed={Boolean(value?.confirmationId) && !saving && (!inLibrary || (access.canAdopt && verifiedAccess === access))} onItemsChange={saveItems} onReviewPointsChange={points => saveReview(draft.items, points)} onConfirm={() => void confirm()} skills={skills} onAdoptLevels={onAdoptLevels}/>}
-    {access.canAdopt && verifiedAccess === access && draft && !textChanged && draft.textVersionId === value?.textVersionId && value.confirmationId && <button type="button" disabled={busy || saving} onClick={() => void adoptConfirmedVersion()}>采用这个已确认版本</button>}
-    {draft && textChanged && <p role="status">正文已修改，请先保存新版本后再核对。原确认不会用于新正文。</p>}
+    {access.canAdopt && verifiedAccess === access && draft && !textChanged && draft.textVersionId === value?.textVersionId && value.confirmationId && <button type="button" disabled={busy || saving} onClick={() => void adoptConfirmedVersion()}>Use this confirmed version</button>}
+    {draft && textChanged && <p role="status">The text has changed. Save a new version before reviewing it; the previous confirmation will not apply to new text.</p>}
   </section>;
 }

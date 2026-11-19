@@ -22,7 +22,7 @@ function workspace() {
 const fixedNow = () => new Date("2026-08-14T10:00:00.000Z");
 
 async function openAdjustments(user: ReturnType<typeof userEvent.setup>) {
-  const summary = screen.getByText("调整这项任务");
+  const summary = screen.getByText("Adjust this task");
   if (!summary.closest("details")!.open) await user.click(summary);
 }
 
@@ -37,9 +37,9 @@ describe("AdaptiveTodaySession", () => {
     current.lastSequence = current.events.length;
     planningWorkspaceSchema.parse(current);
     render(<AdaptiveTodaySession workspace={current} now={() => new Date("2026-10-28T10:00:00.000Z")} record={vi.fn()} accept={vi.fn()} discard={vi.fn()} />);
-    expect(screen.getByRole("heading", { name: "这条路线已完成。" })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "完成任务" })).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "回顾学习路线" })).toHaveAttribute("href", "/path");
+    expect(screen.getByRole("heading", { name: "You have completed this path." })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Complete task" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Review your learning path" })).toHaveAttribute("href", "/path");
   });
   it("links the actual task skill and keeps mobile resources available on demand", () => {
     const previous = window.matchMedia;
@@ -49,10 +49,10 @@ describe("AdaptiveTodaySession", () => {
       const plan = current.planVersions.find(item => item.id === current.activePlanVersionId)!;
       const task = current.dailyUnits.find(item => item.id === plan.days[0]!.primaryUnitId)!;
       render(<AdaptiveTodaySession workspace={current} now={fixedNow} record={vi.fn()} accept={vi.fn()} discard={vi.fn()} />);
-      expect(screen.getByRole("link", { name: "查看当前技能与资料" })).toHaveAttribute("href", `/stack?skill=${encodeURIComponent(task.skillId)}&returnTo=%2Ftoday`);
-      const disclosure = screen.getByText("学习资料").closest("details")!;
+      expect(screen.getByRole("link", { name: "View this skill and its resources" })).toHaveAttribute("href", `/stack?skill=${encodeURIComponent(task.skillId)}&returnTo=%2Ftoday`);
+      const disclosure = screen.getByText("Learning resources").closest("details")!;
       expect(disclosure).not.toHaveAttribute("open");
-      fireEvent.click(screen.getByText("学习资料"));
+      fireEvent.click(screen.getByText("Learning resources"));
       expect(disclosure).toHaveAttribute("open");
       expect(screen.getByRole("link", { name: flagshipBlueprint.resources[0]!.title })).toBeVisible();
     } finally { cleanup(); window.matchMedia = previous; }
@@ -71,11 +71,11 @@ describe("AdaptiveTodaySession", () => {
     const record = vi.fn();
     const user = userEvent.setup();
     render(<AdaptiveTodaySession workspace={workspace()} now={fixedNow} record={record} accept={vi.fn()} discard={vi.fn()} />);
-    const disclosure = screen.getByText("调整这项任务").closest("details")!;
+    const disclosure = screen.getByText("Adjust this task").closest("details")!;
     expect(disclosure).not.toHaveAttribute("open");
-    await user.click(screen.getByText("调整这项任务"));
+    await user.click(screen.getByText("Adjust this task"));
     expect(disclosure).toHaveAttribute("open");
-    expect(screen.getByRole("button", { name: "延后" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Delay" })).toBeVisible();
     expect(record).not.toHaveBeenCalled();
   });
 
@@ -83,10 +83,10 @@ describe("AdaptiveTodaySession", () => {
     const record = vi.fn().mockResolvedValue(true);
     const user = userEvent.setup();
     render(<AdaptiveTodaySession workspace={workspace()} now={() => new Date("2026-08-15T10:00:00.000Z")} record={record} accept={vi.fn()} discard={vi.fn()} />);
-    expect(screen.getByText("待补任务 · 原定 2026-08-14")).toBeInTheDocument();
-    await user.click(screen.getByText("调整这项任务"));
+    expect(screen.getByText("Overdue task · Originally scheduled for 2026-08-14")).toBeInTheDocument();
+    await user.click(screen.getByText("Adjust this task"));
     await openAdjustments(user);
-    await user.click(screen.getByRole("button", { name: "延后" }));
+    await user.click(screen.getByRole("button", { name: "Delay" }));
     expect(record).toHaveBeenCalledWith(expect.objectContaining({ kind: "delayed", planningDate: "2026-08-15" }));
   });
 
@@ -96,43 +96,43 @@ describe("AdaptiveTodaySession", () => {
     const props = { workspace: workspace(), now: fixedNow, record, accept: vi.fn(), discard: vi.fn() };
     const view = render(<AdaptiveTodaySession {...props} />);
     for (const box of screen.getAllByRole("checkbox")) await user.click(box);
-    expect(screen.getByRole("button", { name: "完成任务" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Complete task" })).toBeEnabled();
     expect(record).not.toHaveBeenCalled();
-    expect(screen.getByText("勾选仅保留在本次页面中；点击「完成任务」才会记录进度。")).toBeInTheDocument();
+    expect(screen.getByText("Checked steps are kept on this page only. Select Complete task to save your progress.")).toBeInTheDocument();
     view.unmount();
     render(<AdaptiveTodaySession {...props} />);
-    expect(screen.getByRole("button", { name: "完成任务" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Complete task" })).toBeDisabled();
     expect(screen.getAllByRole("checkbox").every((box) => !(box as HTMLInputElement).checked)).toBe(true);
   });
 
   it("renders one complete primary brief, exact source attributes, and at most one optional stretch", () => {
     render(<AdaptiveTodaySession workspace={workspace()} now={fixedNow} record={vi.fn()} accept={vi.fn()} discard={vi.fn()} />);
-    expect(screen.getByText(/今日 · 2026-08-14 · 主要任务/)).toBeInTheDocument();
-    expect(screen.getByText("本次交付")).toBeInTheDocument(); expect(screen.getByText("完成标准")).toBeInTheDocument();
-    expect(screen.getByText("证据要求")).toBeInTheDocument(); expect(screen.getByText("评价细则")).toBeInTheDocument();
+    expect(screen.getByText(/Today · 2026-08-14 · Main task/)).toBeInTheDocument();
+    expect(screen.getByText("Your deliverable")).toBeInTheDocument(); expect(screen.getByText("Completion criteria")).toBeInTheDocument();
+    expect(screen.getByText("Proof requirements")).toBeInTheDocument(); expect(screen.getByText("Assessment rubric")).toBeInTheDocument();
     const source = screen.getByRole("link", { name: flagshipBlueprint.resources[0]!.title });
     expect(source).toHaveAttribute("target", "_blank"); expect(source).toHaveAttribute("rel", "noreferrer"); expect(source).toHaveAttribute("lang", "en");
-    expect(within(screen.getByRole("article")).queryAllByText(/可选拓展/).length).toBeLessThanOrEqual(1);
+    expect(within(screen.getByRole("article")).queryAllByText(/Optional stretch task/).length).toBeLessThanOrEqual(1);
     expect(screen.queryByText(/verified|demo/i)).not.toBeInTheDocument();
   });
 
   it("keeps step checks ephemeral, requires them for Complete, and emits contextual event kinds", async () => {
     const user = userEvent.setup(); const record = vi.fn().mockResolvedValue(true);
     render(<AdaptiveTodaySession workspace={workspace()} now={fixedNow} record={record} accept={vi.fn()} discard={vi.fn()} />);
-    const complete = screen.getByRole("button", { name: "完成任务" }); expect(complete).toBeDisabled();
+    const complete = screen.getByRole("button", { name: "Complete task" }); expect(complete).toBeDisabled();
     for (const box of screen.getAllByRole("checkbox")) await user.click(box);
     await user.click(complete); expect(record).toHaveBeenLastCalledWith(expect.objectContaining({ kind: "completed" }));
     expect(screen.getByRole("status")).toHaveTextContent(
-      "任务已完成，技能已进入练习状态。添加作品证据，展示你的能力。",
+      "Task complete. This skill is now Practicing. Add proof of your work to show what you can do.",
     );
-    const receipt = new URL(screen.getByRole("link", { name: "添加作品证据" }).getAttribute("href")!, "http://localhost");
+    const receipt = new URL(screen.getByRole("link", { name: "Add proof" }).getAttribute("href")!, "http://localhost");
     expect(receipt.pathname).toBe("/proof");
     expect(receipt.searchParams.get("compose")).toBe("1");
     expect(receipt.searchParams.get("unit")).toBe(record.mock.calls.at(-1)![0].unitId);
     expect(receipt.searchParams.get("returnTo")).toBe("/today");
     await openAdjustments(user);
-    for (const [label, kind] of [["延后", "delayed"], ["跳过", "skipped"], ["难度太高", "too_hard"], ["已经掌握", "already_known"]] as const) { await user.click(screen.getByRole("button", { name: label })); expect(record).toHaveBeenLastCalledWith(expect.objectContaining({ kind })); }
-    expect(screen.getByRole("status")).toHaveTextContent("当前计划尚未改变");
+    for (const [label, kind] of [["Delay", "delayed"], ["Skip", "skipped"], ["Too difficult", "too_hard"], ["Already know this", "already_known"]] as const) { await user.click(screen.getByRole("button", { name: label })); expect(record).toHaveBeenLastCalledWith(expect.objectContaining({ kind })); }
+    expect(screen.getByRole("status")).toHaveTextContent("Your current plan is unchanged");
   });
 
   it("shows no status promotion language after a failed completion mutation", async () => {
@@ -142,9 +142,9 @@ describe("AdaptiveTodaySession", () => {
       accept={vi.fn()} discard={vi.fn()}
     />);
     for (const box of screen.getAllByRole("checkbox")) await user.click(box);
-    await user.click(screen.getByRole("button", { name: "完成任务" }));
-    expect(screen.getByRole("alert")).toHaveTextContent("Arc 未能更新计划");
-    expect(screen.queryByText(/技能已进入练习状态|添加作品证据/iu)).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Complete task" }));
+    expect(screen.getByRole("alert")).toHaveTextContent("Arc could not update your plan");
+    expect(screen.queryByText(/This skill is now Practicing|Add proof/iu)).not.toBeInTheDocument();
   });
 
   it("reveals optional stretch only after the primary checklist is complete", async () => {
@@ -157,9 +157,9 @@ describe("AdaptiveTodaySession", () => {
     render(<AdaptiveTodaySession workspace={current} now={fixedNow} record={vi.fn()} accept={vi.fn()} discard={vi.fn()} />);
 
     const article = screen.getByRole("article");
-    expect(within(article).queryByText(/可选拓展/)).not.toBeInTheDocument();
+    expect(within(article).queryByText(/Optional stretch task/)).not.toBeInTheDocument();
     for (const box of screen.getAllByRole("checkbox")) await user.click(box);
-    expect(within(article).getByText(/可选拓展/)).toBeInTheDocument();
+    expect(within(article).getByText(/Optional stretch task/)).toBeInTheDocument();
   });
 
   it("uses the current availability-zone date for overdue work and event rollover", async () => {
@@ -173,9 +173,9 @@ describe("AdaptiveTodaySession", () => {
       discard={vi.fn()}
     />);
 
-    expect(screen.getByText(/今日 · 2026-08-15 · 主要任务/)).toBeInTheDocument();
+    expect(screen.getByText(/Today · 2026-08-15 · Main task/)).toBeInTheDocument();
     await openAdjustments(user);
-    await user.click(screen.getByRole("button", { name: "延后" }));
+    await user.click(screen.getByRole("button", { name: "Delay" }));
     expect(record).toHaveBeenCalledWith(expect.objectContaining({ planningDate: "2026-08-15" }));
   });
 
@@ -226,8 +226,8 @@ describe("AdaptiveTodaySession", () => {
       discard={vi.fn()}
     />);
 
-    expect(screen.getByText(`今日 · ${restDay.date}`)).toBeInTheDocument();
-    expect(screen.queryByText("今日 · 2026-08-14")).not.toBeInTheDocument();
+    expect(screen.getByText(`Today · ${restDay.date}`)).toBeInTheDocument();
+    expect(screen.queryByText("Today · 2026-08-14")).not.toBeInTheDocument();
   });
 
   it("contains a rejected action and restores the controls for retry", async () => {
@@ -237,11 +237,11 @@ describe("AdaptiveTodaySession", () => {
       .mockResolvedValueOnce(true);
     render(<AdaptiveTodaySession workspace={workspace()} now={fixedNow} record={record} accept={vi.fn()} discard={vi.fn()} />);
     await openAdjustments(user);
-    const delay = screen.getByRole("button", { name: "延后" });
+    const delay = screen.getByRole("button", { name: "Delay" });
 
     await user.click(delay);
 
-    expect(await screen.findByRole("alert")).toHaveTextContent("Arc 未能更新计划");
+    expect(await screen.findByRole("alert")).toHaveTextContent("Arc could not update your plan");
     expect(screen.getByRole("alert")).not.toHaveTextContent("private transport detail");
     expect(delay).toBeEnabled();
 
@@ -262,13 +262,13 @@ describe("AdaptiveTodaySession", () => {
     const view = render(<AdaptiveTodaySession workspace={mismatched} now={fixedNow} record={vi.fn()} accept={vi.fn()} discard={vi.fn()} />);
 
     expect(screen.queryByRole("article")).not.toBeInTheDocument();
-    expect(screen.getByRole("alert")).toHaveTextContent("暂时无法读取这个计划");
-    expect(screen.getByRole("alert")).toHaveTextContent("原有计划与学习记录已保留");
+    expect(screen.getByRole("alert")).toHaveTextContent("This plan is temporarily unavailable");
+    expect(screen.getByRole("alert")).toHaveTextContent("Your plan and learning history are preserved");
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
 
     view.rerender(<AdaptiveTodaySession workspace={current} now={fixedNow} registry={{ ...flagshipUnitRegistry, blueprintVersion: "2026.99" }} record={vi.fn()} accept={vi.fn()} discard={vi.fn()} />);
     expect(screen.queryByRole("article")).not.toBeInTheDocument();
-    expect(screen.getByRole("alert")).toHaveTextContent("当前暂不支持自动转换这个版本");
+    expect(screen.getByRole("alert")).toHaveTextContent("This version cannot be converted automatically yet");
   });
 
   it("keeps active Today visible but locks learning actions while a candidate diff is pending", async () => {
@@ -291,18 +291,18 @@ describe("AdaptiveTodaySession", () => {
     render(<AdaptiveTodaySession workspace={pending} now={fixedNow} record={record} accept={vi.fn()} discard={vi.fn()} />);
 
     expect(screen.getByText(activeObjective)).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "这次调整会改变什么" })).toBeInTheDocument();
-    expect(screen.getByText(/只有点击「接受新安排」后/)).toBeInTheDocument();
-    expect(screen.getByRole("status")).toHaveTextContent("调整方案已生成，请先审阅");
+    expect(screen.getByRole("heading", { name: "What will change" })).toBeInTheDocument();
+    expect(screen.getByText(/only after you select Accept new schedule/)).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("Your proposed changes are ready to review");
     await openAdjustments(user);
-    for (const name of ["完成任务", "延后", "跳过", "难度太高", "已经掌握"]) {
+    for (const name of ["Complete task", "Delay", "Skip", "Too difficult", "Already know this"]) {
       expect(screen.getByRole("button", { name })).toBeDisabled();
     }
-    expect(screen.getByRole("button", { name: "接受新安排" })).toBeEnabled();
-    expect(screen.getByRole("button", { name: "保留当前安排" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Accept new schedule" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Keep current schedule" })).toBeEnabled();
 
     await openAdjustments(user);
-    await user.click(screen.getByRole("button", { name: "延后" }));
+    await user.click(screen.getByRole("button", { name: "Delay" }));
     expect(record).not.toHaveBeenCalled();
   });
 
@@ -337,11 +337,11 @@ describe("AdaptiveTodaySession", () => {
     const user = userEvent.setup();
     render(<CandidateRaceHarness />);
     await openAdjustments(user);
-    await user.click(screen.getByRole("button", { name: "延后" }));
+    await user.click(screen.getByRole("button", { name: "Delay" }));
 
-    expect(await screen.findByRole("heading", { name: "这次调整会改变什么" })).toBeInTheDocument();
-    expect(screen.getByRole("status")).toHaveTextContent("调整方案已生成，请先审阅");
-    expect(screen.queryByText(/连接恢复/)).not.toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "What will change" })).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("Your proposed changes are ready to review");
+    expect(screen.queryByText(/connection is restored/)).not.toBeInTheDocument();
   });
 
   it("keeps the accepted-plan announcement visible when the candidate makes Today a Rest day", async () => {
@@ -395,10 +395,10 @@ describe("AdaptiveTodaySession", () => {
 
     const user = userEvent.setup();
     render(<TodayDecisionHarness />);
-    await user.click(screen.getByRole("button", { name: "接受新安排" }));
+    await user.click(screen.getByRole("button", { name: "Accept new schedule" }));
 
-    expect(await screen.findByRole("heading", { name: "今天留给休息。" })).toBeInTheDocument();
-    expect(await screen.findByRole("status")).toHaveTextContent("已接受新安排");
+    expect(await screen.findByRole("heading", { name: "Take a rest day." })).toBeInTheDocument();
+    expect(await screen.findByRole("status")).toHaveTextContent("New schedule accepted");
   });
 
   it("uses exact safe-link attributes for primary and alternative sources", () => {

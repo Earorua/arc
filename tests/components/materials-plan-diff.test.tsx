@@ -53,7 +53,7 @@ function history(planVersionId: string, message: string): MaterialHistoryRespons
   return { plans: [{ planVersionId, contextVersionId: "context-material-diff", kind: "proposal", sourceAvailability: "available", explanations: [{ ruleId: "must-gap-first", changeKind: "reordered", skillId: null, unitIds: [], reasonItemIds: [], message, sourceAvailability: "available" }] }] };
 }
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
-const contextOnlyExplanation = "任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。";
+const contextOnlyExplanation = "Tasks and dates stay the same. Accepting updates the materials and learning focus used by the current path.";
 
 it("explains a public context-only proposal without reading private history or saving it", () => {
   const { current, active, activePath, candidate, candidatePath, diff } = materialProposal();
@@ -66,8 +66,8 @@ it("explains a public context-only proposal without reading private history or s
   const onAccept = vi.fn(); const onDiscard = vi.fn();
   render(<PlanDiffReview workspace={current} onAccept={onAccept} onDiscard={onDiscard} />);
   expect(screen.getByText(contextOnlyExplanation)).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: "接受资料更新" })).toBeEnabled();
-  expect(screen.getByRole("button", { name: "保留当前资料与安排" })).toBeEnabled();
+  expect(screen.getByRole("button", { name: "Accept material update" })).toBeEnabled();
+  expect(screen.getByRole("button", { name: "Keep current materials and schedule" })).toBeEnabled();
   expect(request).not.toHaveBeenCalled();
   expect(onAccept).not.toHaveBeenCalled(); expect(onDiscard).not.toHaveBeenCalled();
   expect(JSON.stringify(current)).toBe(before);
@@ -79,8 +79,8 @@ it("does not use a private fingerprint as the public material proposal indicator
     ? { ...event, materialContextFingerprint: "a".repeat(64) } : event) };
   render(<PlanDiffReview workspace={privateOnly} onAccept={vi.fn()} onDiscard={vi.fn()} />);
   expect(screen.queryByText(contextOnlyExplanation)).not.toBeInTheDocument();
-  expect(screen.getByRole("button", { name: "接受新安排" })).toBeEnabled();
-  expect(screen.getByRole("button", { name: "保留当前安排" })).toBeEnabled();
+  expect(screen.getByRole("button", { name: "Accept new schedule" })).toBeEnabled();
+  expect(screen.getByRole("button", { name: "Keep current schedule" })).toBeEnabled();
 });
 
 it.each(["accept", "discard"] as const)("saves a context-only proposal only on explicit %s using the current candidate ID", async decision => {
@@ -88,10 +88,10 @@ it.each(["accept", "discard"] as const)("saves a context-only proposal only on e
   const onAccept = vi.fn().mockResolvedValue(true); const onDiscard = vi.fn().mockResolvedValue(true);
   render(<PlanDiffReview workspace={current} onAccept={onAccept} onDiscard={onDiscard} />);
   expect(onAccept).not.toHaveBeenCalled(); expect(onDiscard).not.toHaveBeenCalled();
-  await userEvent.click(screen.getByRole("button", { name: decision === "accept" ? "接受资料更新" : "保留当前资料与安排" }));
+  await userEvent.click(screen.getByRole("button", { name: decision === "accept" ? "Accept material update" : "Keep current materials and schedule" }));
   expect(decision === "accept" ? onAccept : onDiscard).toHaveBeenCalledExactlyOnceWith(candidate.id);
   expect(decision === "accept" ? onDiscard : onAccept).not.toHaveBeenCalled();
-  expect(await screen.findByRole("status")).toHaveTextContent(decision === "accept" ? "已更新当前路线采用的资料。" : "已保留当前资料与安排。");
+  expect(await screen.findByRole("status")).toHaveTextContent(decision === "accept" ? "Materials used by the current path updated." : "Current materials and schedule kept.");
 });
 
 it("honors an explicit accept label and reports the materials update to the parent", async () => {
@@ -99,11 +99,11 @@ it("honors an explicit accept label and reports the materials update to the pare
   const onAccept = vi.fn().mockResolvedValue(true); const onSuccess = vi.fn();
   render(<PlanDiffReview workspace={current} acceptLabel="保存调整" onAccept={onAccept} onDiscard={vi.fn()} onSuccess={onSuccess} />);
   expect(screen.getByText(contextOnlyExplanation)).toBeInTheDocument();
-  expect(screen.getByText(/只有点击「保存调整」后/)).toBeInTheDocument();
-  expect(screen.queryByRole("button", { name: "接受资料更新" })).not.toBeInTheDocument();
+  expect(screen.getByText(/They take effect only after you select 保存调整/)).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Accept material update" })).not.toBeInTheDocument();
   await userEvent.click(screen.getByRole("button", { name: "保存调整" }));
   expect(onAccept).toHaveBeenCalledExactlyOnceWith(candidate.id);
-  expect(onSuccess).toHaveBeenCalledExactlyOnceWith("已更新当前路线采用的资料。", "accept");
+  expect(onSuccess).toHaveBeenCalledExactlyOnceWith("Materials used by the current path updated.", "accept");
 });
 
 it.each(["accept", "discard"] as const)("disables both context-only actions while %s is pending and lets a failed decision be retried", async decision => {
@@ -113,20 +113,20 @@ it.each(["accept", "discard"] as const)("disables both context-only actions whil
   const onDecision = vi.fn().mockImplementationOnce(() => new Promise<boolean>((resolve, fail) => { finish = resolve; reject = fail; })).mockResolvedValueOnce(true);
   const otherDecision = vi.fn();
   render(<PlanDiffReview workspace={current} onAccept={decision === "accept" ? onDecision : otherDecision} onDiscard={decision === "discard" ? onDecision : otherDecision} />);
-  const accept = screen.getByRole("button", { name: "接受资料更新" });
-  const discard = screen.getByRole("button", { name: "保留当前资料与安排" });
+  const accept = screen.getByRole("button", { name: "Accept material update" });
+  const discard = screen.getByRole("button", { name: "Keep current materials and schedule" });
   const button = decision === "accept" ? accept : discard;
   await userEvent.click(button); await userEvent.click(button);
   expect(accept).toBeDisabled(); expect(discard).toBeDisabled();
   expect(onDecision).toHaveBeenCalledExactlyOnceWith(candidate.id);
   await act(async () => { if (decision === "accept") finish(false); else reject(new Error("private repository detail")); });
-  expect(await screen.findByRole("alert")).toHaveTextContent("暂时无法保存这个决定，请在连接恢复后重试。");
+  expect(await screen.findByRole("alert")).toHaveTextContent("Your choice could not be saved. Try again when your connection is restored.");
   expect(screen.getByRole("alert")).not.toHaveTextContent("private repository detail");
   expect(accept).toBeEnabled(); expect(discard).toBeEnabled();
   expect(onDecision).toHaveBeenCalledTimes(1); expect(otherDecision).not.toHaveBeenCalled();
   await userEvent.click(button);
   expect(onDecision).toHaveBeenCalledTimes(2); expect(onDecision).toHaveBeenLastCalledWith(candidate.id);
-  expect(await screen.findByRole("status")).toHaveTextContent(decision === "accept" ? "已更新当前路线采用的资料。" : "已保留当前资料与安排。");
+  expect(await screen.findByRole("status")).toHaveTextContent(decision === "accept" ? "Materials used by the current path updated." : "Current materials and schedule kept.");
 });
 
 it("keeps an ordinary no-change agent proposal generic even when material history arrives", async () => {
@@ -137,8 +137,8 @@ it("keeps an ordinary no-change agent proposal generic even when material histor
   render(<PlanDiffReview workspace={current} materialOwnerId="owner-a" onAccept={vi.fn()} onDiscard={vi.fn()} />);
   expect(await screen.findByText("历史资料依据")).toBeInTheDocument();
   expect(screen.queryByText(contextOnlyExplanation)).not.toBeInTheDocument();
-  expect(screen.getByRole("button", { name: "接受新安排" })).toBeEnabled();
-  expect(screen.getByRole("button", { name: "保留当前安排" })).toBeEnabled();
+  expect(screen.getByRole("button", { name: "Accept new schedule" })).toBeEnabled();
+  expect(screen.getByRole("button", { name: "Keep current schedule" })).toBeEnabled();
 });
 
 it.each(["outside-week", "next-day"] as const)("keeps a material proposal with %s task changes generic", change => {
@@ -152,8 +152,8 @@ it.each(["outside-week", "next-day"] as const)("keeps a material proposal with %
   } else expect(diff.items.some(item => item.change !== "unchanged")).toBe(true);
   render(<PlanDiffReview workspace={current} onAccept={vi.fn()} onDiscard={vi.fn()} />);
   expect(screen.queryByText(contextOnlyExplanation)).not.toBeInTheDocument();
-  expect(screen.getByRole("button", { name: "接受新安排" })).toBeEnabled();
-  expect(screen.getByRole("button", { name: "保留当前安排" })).toBeEnabled();
+  expect(screen.getByRole("button", { name: "Accept new schedule" })).toBeEnabled();
+  expect(screen.getByRole("button", { name: "Keep current schedule" })).toBeEnabled();
 });
 
 it("shows only the pending candidate's material explanation before a decision without mutating canonical workspace", async () => {
@@ -183,9 +183,9 @@ it("shows generation, discarded and accepted as three distinct history entries",
     { ...row, kind: "accepted", planVersionId: "second" },
   ] });
   const view = render(<MaterialHistory ownerId="owner-a" goalId="archived-goal" />);
-  expect(await screen.findByText("已放弃调整")).toBeInTheDocument();
-  expect(screen.getByText("已接受调整")).toBeInTheDocument();
-  expect(screen.queryByText("待确认调整")).not.toBeInTheDocument();
+  expect(await screen.findByText("Discarded changes")).toBeInTheDocument();
+  expect(screen.getByText("Accepted changes")).toBeInTheDocument();
+  expect(screen.queryByText("Changes awaiting confirmation")).not.toBeInTheDocument();
   expect(view.container.querySelectorAll("summary")).toHaveLength(3);
 });
 it("reads an older server without the option and does not mistake an undated proposal for a pending one", async () => {
@@ -193,8 +193,8 @@ it("reads an older server without the option and does not mistake an undated pro
   const request = vi.spyOn(documentsClient, "request").mockRejectedValueOnce(new DocumentClientError("invalid-request", 400))
     .mockResolvedValue({ plans: [row, { ...row, kind: "accepted" }, { ...row, planVersionId: "second" }] });
   const view = render(<MaterialHistory ownerId="owner-a" goalId="old-goal" />);
-  expect(await screen.findByText("已接受调整")).toBeInTheDocument();
-  expect(screen.getByText("历史提议（结果未记录）")).toBeInTheDocument();
+  expect(await screen.findByText("Accepted changes")).toBeInTheDocument();
+  expect(screen.getByText("Historical proposal (outcome not recorded)")).toBeInTheDocument();
   expect(view.container.querySelectorAll("summary")).toHaveLength(2);
   expect(request).toHaveBeenNthCalledWith(2, "readMaterialHistory", { goalId: "old-goal" }, expect.any(AbortSignal));
 });
@@ -217,9 +217,9 @@ it("keeps existing non-material comparisons unchanged and reads no private histo
   const request = vi.spyOn(documentsClient, "request").mockResolvedValue({ plans: [] });
   const current = workspace(); const props = { workspace: current, onAccept: vi.fn(), onDiscard: vi.fn() };
   const view = render(<PlanDiffReview {...props} />);
-  expect(screen.getByText("接受新安排")).toBeEnabled(); expect(request).not.toHaveBeenCalled();
+  expect(screen.getByText("Accept new schedule")).toBeEnabled(); expect(request).not.toHaveBeenCalled();
   view.rerender(<PlanDiffReview {...props} materialOwnerId="owner-a" />);
   await waitFor(() => expect(request).toHaveBeenCalledTimes(1));
-  expect(screen.queryByText("资料辅助规划依据")).not.toBeInTheDocument();
-  expect(screen.getByText("接受新安排")).toBeEnabled();
+  expect(screen.queryByText("Material planning evidence")).not.toBeInTheDocument();
+  expect(screen.getByText("Accept new schedule")).toBeEnabled();
 });

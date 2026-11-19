@@ -43,9 +43,9 @@ it("rehearses one private review page per frozen case, then compares plans and d
     for (const doc of corpus.documents) {
       const kind = doc.kind === "jd" ? "jd" : "resume";
       render(<Page kind={kind} capabilities={caps} client={client} record={ref => refs.set(doc.id, ref)} adopt={vi.fn()} />);
-      fireEvent.change(screen.getByLabelText(kind === "jd" ? "岗位 JD正文" : "简历正文"), { target: { value: doc.text } });
-      fireEvent.click(screen.getByRole("button", { name: "保存并手动整理" }));
-      await screen.findByRole("button", { name: "添加事实" });
+      fireEvent.change(screen.getByLabelText(kind === "jd" ? "Job description text" : "Resume text"), { target: { value: doc.text } });
+      fireEvent.click(screen.getByRole("button", { name: "Save and organize manually" }));
+      await screen.findByRole("button", { name: "Add fact" });
       expect(refs.get(doc.id)?.jobId).toBeUndefined();
       cleanup();
     }
@@ -56,19 +56,19 @@ it("rehearses one private review page per frozen case, then compares plans and d
       const kind = doc.kind === "jd" ? "jd" : "resume";
       const registered = refs.get(doc.id)!;
       render(<Page kind={kind} capabilities={caps} client={client} initial={registered} record={ref => refs.set(doc.id, ref)} adopt={adopt} />);
-      await waitFor(() => expect(screen.getByLabelText(kind === "jd" ? "岗位 JD正文" : "简历正文")).toHaveValue(doc.text));
-      const send = screen.getByRole("button", { name: "保存并 AI 分析" });
+      await waitFor(() => expect(screen.getByLabelText(kind === "jd" ? "Job description text" : "Resume text")).toHaveValue(doc.text));
+      const send = screen.getByRole("button", { name: "Save and analyze with AI" });
       expect(send).toBeDisabled();
       expect(app.stats().fakeAnalyses).toBe(before);
-      fireEvent.click(screen.getByLabelText(/允许将当前文本/));
+      fireEvent.click(screen.getByLabelText(/Allow the processors above/));
       fireEvent.click(send);
       await screen.findByDisplayValue(doc.goldFields[0]!.acceptedForms[0]!);
-      const items = screen.getAllByRole("textbox", { name: /^事实 \d+$/u });
+      const items = screen.getAllByRole("textbox", { name: /^Fact \d+$/u });
       expect(items, doc.id).toHaveLength(doc.goldFields.length);
       const saved = refs.get(doc.id)!;
       expect((await client.request("readDocumentReviewDraft", { documentId: saved.documentId, textVersionId: saved.textVersionId })).draft?.origin).toBe("ai");
       for (const [i, field] of doc.goldFields.entries()) expect(field.acceptedForms, doc.id).toContain((items[i] as HTMLTextAreaElement).value);
-      const confirm = screen.getByRole("button", { name: "确认这些事实" });
+      const confirm = screen.getByRole("button", { name: "Confirm these facts" });
       const resolutions = Array.from(document.querySelectorAll<HTMLElement>(".material-review-points select"));
       expect(resolutions.length).toBe(doc.expectedReviewPoints.length);
       if (doc.category === "edge") expect(confirm, doc.id).toBeDisabled();
@@ -77,10 +77,10 @@ it("rehearses one private review page per frozen case, then compares plans and d
         fireEvent.change(select, { target: { value: "confirmed" } });
         await waitFor(() => expect(select).toBeEnabled());
       }
-      const ambiguous = screen.queryAllByRole("combobox", { name: /事实 \d+ 要求类型/u }).filter(el => el.querySelector("option:checked")?.getAttribute("value") === "unspecified");
+      const ambiguous = screen.queryAllByRole("combobox", { name: /Fact \d+ requirement type/u }).filter(el => el.querySelector("option:checked")?.getAttribute("value") === "unspecified");
       for (const select of ambiguous) fireEvent.change(select, { target: { value: "preferred" } });
       await waitFor(() => expect(confirm).toBeEnabled()); fireEvent.click(confirm);
-      await screen.findByText("已确认，可用于本次规划。");
+      await screen.findByText("Confirmed and available for this plan.");
       expect(adopt).not.toHaveBeenCalled();
       const ref = refs.get(doc.id)!;
       expect(ref.confirmationId).toBeTruthy();

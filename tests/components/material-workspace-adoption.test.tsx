@@ -34,11 +34,11 @@ it("submits company B with the already-adopted resume and supplement from the no
     throw new Error("Stop at preview");
   });
   render(<MaterialWorkspaceEntry planning={planning()} />);
-  fireEvent.click(await screen.findByRole("button", { name: "私人资料与规划依据" }));
-  await screen.findByRole("button", { name: "移除简历选择" });
-  expect(screen.getByRole("button", { name: "移除补充资料 1 选择" })).toBeEnabled();
+  fireEvent.click(await screen.findByRole("button", { name: "Private materials and planning evidence" }));
+  await screen.findByRole("button", { name: "Remove resume selection" });
+  expect(screen.getByRole("button", { name: "Remove supplementary material 1 selection" })).toBeEnabled();
   fireEvent.click(screen.getByRole("button", { name: "采用公司 B 的 JD" }));
-  fireEvent.click(screen.getByRole("button", { name: "核对资料对路线的影响" }));
+  fireEvent.click(screen.getByRole("button", { name: "Review material impact on the path" }));
   const expected = [asEntry({ slot: "jd", ...ref("company-b") }), ...entries.slice(1).map(asEntry)];
   await waitFor(() => expect(request).toHaveBeenCalledWith("createMaterialSelection", expect.objectContaining({ entries: expect.arrayContaining(expected) }), expect.any(AbortSignal)));
   const body = request.mock.calls.find(([endpoint]) => endpoint === "createMaterialSelection")![1];
@@ -53,14 +53,14 @@ it("preserves private library access during failed hydration, allows a retry and
     return { entries };
   });
   render(<MaterialWorkspaceEntry planning={planning("pending-plan")} />);
-  fireEvent.click(await screen.findByRole("button", { name: "私人资料与规划依据" }));
-  const retry = await screen.findByRole("button", { name: "重试读取已采用资料" });
+  fireEvent.click(await screen.findByRole("button", { name: "Private materials and planning evidence" }));
+  const retry = await screen.findByRole("button", { name: "Retry loading adopted materials" });
   expect(screen.getByRole("button", { name: "采用公司 B 的 JD" })).toBeDisabled();
-  expect(screen.queryByRole("button", { name: "核对资料对路线的影响" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Review material impact on the path" })).not.toBeInTheDocument();
   failed = false;
   fireEvent.click(retry);
-  expect(await screen.findByRole("button", { name: "核对资料对路线的影响" })).toBeDisabled();
-  expect(screen.getByRole("button", { name: "移除补充资料 1 选择" })).toBeDisabled();
+  expect(await screen.findByRole("button", { name: "Review material impact on the path" })).toBeDisabled();
+  expect(screen.getByRole("button", { name: "Remove supplementary material 1 selection" })).toBeDisabled();
   expect(screen.getByRole("button", { name: "采用公司 B 的 JD" })).toBeDisabled();
 });
 it("shows the proposal guidance only while the workspace has a pending decision", async () => {
@@ -77,17 +77,17 @@ it("shows the proposal guidance only while the workspace has a pending decision"
   });
   const initial = planning();
   const view = render(<MaterialWorkspaceEntry planning={initial} />);
-  fireEvent.click(await screen.findByRole("button", { name: "私人资料与规划依据" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Private materials and planning evidence" }));
   const choose = screen.getByRole("button", { name: "采用公司 B 的 JD" });
   await waitFor(() => expect(choose).toBeEnabled());
   fireEvent.click(choose);
-  fireEvent.click(screen.getByRole("button", { name: "核对资料对路线的影响" }));
-  fireEvent.click(await screen.findByRole("button", { name: "生成当前路线调整建议" }));
+  fireEvent.click(screen.getByRole("button", { name: "Review material impact on the path" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Create a proposal for the current path" }));
   await waitFor(() => expect(initial!.retry).toHaveBeenCalled());
   view.rerender(<MaterialWorkspaceEntry planning={pending} />);
-  expect(screen.getByText(/调整建议已生成/)).toBeInTheDocument();
+  expect(screen.getByText(/The proposal is ready/)).toBeInTheDocument();
   view.rerender(<MaterialWorkspaceEntry planning={planning()} />);
-  expect(screen.queryByText(/调整建议已生成/)).not.toBeInTheDocument();
+  expect(screen.queryByText(/The proposal is ready/)).not.toBeInTheDocument();
 });
 it("asks the user before overriding an untraceable old JD and keeps the draft's independent new supplement", async () => {
   writeSetupDraft("user:owner-a", "materials:workspace:goal-a", materialSetupDraftSchema,
@@ -99,11 +99,11 @@ it("asks the user before overriding an untraceable old JD and keeps the draft's 
     throw new Error("Stop at preview");
   });
   render(<MaterialWorkspaceEntry planning={planning()} />);
-  fireEvent.click(await screen.findByRole("button", { name: "私人资料与规划依据" }));
-  expect(await screen.findByRole("button", { name: "采用旧草稿中的冲突版本" })).toBeEnabled();
-  expect(screen.queryByRole("button", { name: "核对资料对路线的影响" })).not.toBeInTheDocument();
-  fireEvent.click(screen.getByRole("button", { name: "采用当前路线中的冲突版本" }));
-  fireEvent.click(await screen.findByRole("button", { name: "核对资料对路线的影响" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Private materials and planning evidence" }));
+  expect(await screen.findByRole("button", { name: "Use conflicting versions from the saved draft" })).toBeEnabled();
+  expect(screen.queryByRole("button", { name: "Review material impact on the path" })).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "Use conflicting versions from the current path" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Review material impact on the path" }));
   await waitFor(() => expect(request).toHaveBeenCalledWith("createMaterialSelection", expect.objectContaining({
     entries: expect.arrayContaining([...entries.map(asEntry), asEntry({ slot: "supplement", ...ref("new-note") })]),
   }), expect.any(AbortSignal)));
@@ -119,11 +119,11 @@ it("rereads an open panel's pending history after a discard preserves the active
   });
   const pending = planning("candidate")!, discarded = planning()!;
   const view = render(<MaterialWorkspaceEntry planning={pending} />);
-  fireEvent.click(await screen.findByRole("button", { name: "私人资料与规划依据" }));
-  expect(await screen.findByText("待确认调整")).toBeInTheDocument();
+  fireEvent.click(await screen.findByRole("button", { name: "Private materials and planning evidence" }));
+  expect(await screen.findByText("Changes awaiting confirmation")).toBeInTheDocument();
   proposalState = "discarded";
   view.rerender(<MaterialWorkspaceEntry planning={{ ...discarded, workspace: { ...discarded.workspace!, revision: pending.workspace!.revision + 1 } }} />);
-  expect(await screen.findByText("已放弃调整")).toBeInTheDocument();
-  expect(screen.queryByText("待确认调整")).not.toBeInTheDocument();
+  expect(await screen.findByText("Discarded changes")).toBeInTheDocument();
+  expect(screen.queryByText("Changes awaiting confirmation")).not.toBeInTheDocument();
   expect(request.mock.calls.filter(([endpoint]) => endpoint === "readMaterialHistory")).toHaveLength(2);
 });

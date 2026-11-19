@@ -23,71 +23,71 @@ describe("public learning entry", () => {
   it("offers a guest one destination without writing device data or loading account data", async () => {
     const write = vi.spyOn(Storage.prototype, "setItem");
     render(tree());
-    for (const link of await screen.findAllByRole("link", { name: "创建学习路线" })) expect(link).toHaveAttribute("href", "/setup");
+    for (const link of await screen.findAllByRole("link", { name: "Create your path" })) expect(link).toHaveAttribute("href", "/setup");
     expect(mocks.load).not.toHaveBeenCalled(); expect(write).not.toHaveBeenCalled(); write.mockRestore();
   });
   it("resumes a validated guest draft", async () => {
     writeSetupDraft("guest", "flow", legacyDraftSchema, draft);
     render(tree());
-    for (const link of await screen.findAllByRole("link", { name: "继续设置" })) expect(link).toHaveAttribute("href", "/setup");
+    for (const link of await screen.findAllByRole("link", { name: "Continue setup" })) expect(link).toHaveAttribute("href", "/setup");
   });
   it("does not reuse another account's or guest's draft", async () => {
     signedIn(); writeSetupDraft("guest", "flow", legacyDraftSchema, draft); writeSetupDraft("user:other", "flow", legacyDraftSchema, draft);
     render(tree());
-    expect(await screen.findAllByRole("link", { name: "创建学习路线" })).toHaveLength(2);
+    expect(await screen.findAllByRole("link", { name: "Create your path" })).toHaveLength(2);
     expect(mocks.load).toHaveBeenCalledTimes(1);
   });
   it("resumes the current account's draft only after confirming there is no saved route", async () => {
     signedIn(); writeSetupDraft("user:learner", "flow", legacyDraftSchema, draft);
     render(tree());
-    expect(await screen.findAllByRole("link", { name: "继续设置" })).toHaveLength(2);
+    expect(await screen.findAllByRole("link", { name: "Continue setup" })).toHaveLength(2);
   });
   it("continues an existing route even if a new-goal draft was left behind", async () => {
     signedIn(); mocks.load.mockResolvedValue({ activeGoalId: "goal-current" });
     writeSetupDraft("user:learner", "flow", legacyDraftSchema, draft);
     render(tree());
-    for (const link of await screen.findAllByRole("link", { name: "继续学习" })) expect(link).toHaveAttribute("href", "/today");
-    expect(screen.queryByRole("link", { name: "创建学习路线" })).not.toBeInTheDocument();
+    for (const link of await screen.findAllByRole("link", { name: "Continue learning" })) expect(link).toHaveAttribute("href", "/today");
+    expect(screen.queryByRole("link", { name: "Create your path" })).not.toBeInTheDocument();
   });
   it.each([false, true])("checks whether a pending first route has actually finished (finished: %s)", async finished => {
     signedIn(); mocks.load.mockResolvedValue({ activeGoalId: "goal-current" }); mocks.planning.mockResolvedValue({ workspace: finished ? { goalId: "goal-current" } : null });
     writeSetupDraft("user:learner", "flow", legacyDraftSchema, draft);
     writeSetupDraft("user:learner", "first-creation", firstCreationAttemptSchema, { mutationId: "mutation-test", activationId: "activation-test", source: draft.source, setup: draft.answers, goalId: "goal-current", phase: "generate" });
     render(tree());
-    for (const link of await screen.findAllByRole("link", { name: finished ? "继续学习" : "继续设置" })) expect(link).toHaveAttribute("href", finished ? "/today" : "/setup?mode=create");
+    for (const link of await screen.findAllByRole("link", { name: finished ? "Continue learning" : "Continue setup" })) expect(link).toHaveAttribute("href", finished ? "/today" : "/setup?mode=create");
   });
   it.each([null, { activeGoalId: "goal-current" }])("recovers an uncertain activation without treating its snapshot as a finished route (%s)", async snapshot => {
     signedIn(); mocks.load.mockResolvedValue(snapshot);
     writeSetupDraft("user:learner", "flow", legacyDraftSchema, draft);
     writeSetupDraft("user:learner", "first-creation", firstCreationAttemptSchema, { mutationId: "mutation-test", activationId: "activation-test", source: draft.source, setup: draft.answers, phase: "activation" });
     render(tree());
-    for (const link of await screen.findAllByRole("link", { name: "继续设置" })) expect(link).toHaveAttribute("href", "/setup?mode=create");
+    for (const link of await screen.findAllByRole("link", { name: "Continue setup" })) expect(link).toHaveAttribute("href", "/setup?mode=create");
     expect(mocks.planning).not.toHaveBeenCalled();
   });
   it.each(["other-account", "session-pending"])("does not restore an old creation decision after an account roundtrip through %s", async transition => {
     signedIn("a"); const view = render(tree());
-    await screen.findAllByRole("link", { name: "创建学习路线" });
+    await screen.findAllByRole("link", { name: "Create your path" });
     mocks.load.mockImplementation(() => new Promise(() => {}));
     if (transition === "other-account") signedIn("b");
     else mocks.session.mockReturnValue({ data: { user: { id: "a" } }, isPending: true });
     view.rerender(tree());
     signedIn("a"); view.rerender(tree());
-    expect(screen.queryByRole("link", { name: "创建学习路线" })).not.toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: "正在读取学习状态…" })).toHaveLength(2);
+    expect(screen.queryByRole("link", { name: "Create your path" })).not.toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: "Loading your progress…" })).toHaveLength(2);
   });
   it("shows retry, never create, after an account read fails", async () => {
     signedIn(); mocks.load.mockRejectedValueOnce(Error("offline"));
     render(tree());
-    const retry = (await screen.findAllByRole("button", { name: "重新读取学习状态" }))[0];
-    expect(screen.queryByRole("link", { name: "创建学习路线" })).not.toBeInTheDocument();
+    const retry = (await screen.findAllByRole("button", { name: "Retry loading progress" }))[0];
+    expect(screen.queryByRole("link", { name: "Create your path" })).not.toBeInTheDocument();
     await userEvent.click(retry);
-    expect(await screen.findAllByRole("link", { name: "创建学习路线" })).toHaveLength(2);
+    expect(await screen.findAllByRole("link", { name: "Create your path" })).toHaveLength(2);
   });
   it("offers sign-in rather than creation when the session expires", async () => {
     signedIn(); mocks.load.mockRejectedValue(new ArcApiError(401, "unauthorized", "expired", "request-test"));
     render(tree());
-    for (const link of await screen.findAllByRole("link", { name: "重新登录" })) expect(link).toHaveAttribute("href", "/sign-in?next=%2Ftoday&reauth=1");
-    expect(screen.queryByRole("link", { name: "创建学习路线" })).not.toBeInTheDocument();
+    for (const link of await screen.findAllByRole("link", { name: "Sign in again" })) expect(link).toHaveAttribute("href", "/sign-in?next=%2Ftoday&reauth=1");
+    expect(screen.queryByRole("link", { name: "Create your path" })).not.toBeInTheDocument();
   });
   it("bounds a stalled read and lets the learner retry", async () => {
     vi.useFakeTimers();
@@ -95,7 +95,7 @@ describe("public learning entry", () => {
       signedIn(); mocks.load.mockImplementation(() => new Promise(() => {}));
       render(tree());
       await act(async () => { await vi.advanceTimersByTimeAsync(8001); });
-      expect(screen.getAllByRole("button", { name: "重新读取学习状态" })).toHaveLength(2);
+      expect(screen.getAllByRole("button", { name: "Retry loading progress" })).toHaveLength(2);
       expect((mocks.load.mock.calls[0][0] as AbortSignal).aborted).toBe(true);
     } finally { vi.useRealTimers(); }
   });
@@ -106,9 +106,9 @@ describe("public learning entry", () => {
     await waitFor(() => expect(mocks.load).toHaveBeenCalledTimes(1));
     const signal = mocks.load.mock.calls[0][0] as AbortSignal;
     signedIn("b"); view.rerender(tree());
-    expect(await screen.findAllByRole("link", { name: "创建学习路线" })).toHaveLength(2);
+    expect(await screen.findAllByRole("link", { name: "Create your path" })).toHaveLength(2);
     await act(async () => resolveA({ activeGoalId: "a-private-goal" }));
-    expect(signal.aborted).toBe(true); expect(screen.queryByRole("link", { name: "继续学习" })).not.toBeInTheDocument();
+    expect(signal.aborted).toBe(true); expect(screen.queryByRole("link", { name: "Continue learning" })).not.toBeInTheDocument();
   });
   it.each(["resolved", "error"])("keeps hydration consistent when the browser session is %s before hydration", async state => {
     mocks.session.mockReturnValue({ data: null, isPending: true });
@@ -117,7 +117,7 @@ describe("public learning entry", () => {
     if (state === "error") mocks.session.mockReturnValue({ data: null, isPending: false, error: Error("offline"), refetch: mocks.refetch });
     let root: ReturnType<typeof hydrateRoot>;
     await act(async () => { root = hydrateRoot(container, tree(), { onRecoverableError }); });
-    expect(await screen.findAllByRole(state === "resolved" ? "link" : "button", { name: state === "resolved" ? "继续学习" : "重新读取学习状态" })).toHaveLength(2);
+    expect(await screen.findAllByRole(state === "resolved" ? "link" : "button", { name: state === "resolved" ? "Continue learning" : "Retry loading progress" })).toHaveLength(2);
     expect(onRecoverableError).not.toHaveBeenCalled();
     await act(async () => root.unmount()); container.remove();
   });

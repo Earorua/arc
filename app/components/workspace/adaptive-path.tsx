@@ -24,11 +24,11 @@ type AdaptivePathProps = {
   now?: () => Date;
 };
 
-const kindLabel = { learn: "学习", calibrate: "能力校准", reinforce: "巩固" } as const;
-const levelLabel = { unseen: "尚未开始", uncertain: "不确定", conceptual: "了解概念", guided: "需要指导", independent: "可独立完成" } as const;
+const kindLabel = { learn: "Learn", calibrate: "Calibration", reinforce: "Reinforcement" } as const;
+const levelLabel = { unseen: "Not started", uncertain: "Unsure", conceptual: "Understand the concepts", guided: "Need guidance", independent: "Can work independently" } as const;
 const systemNow = () => new Date();
 
-export function AdaptivePath({ workspace: value, blueprint = flagshipBlueprint, registry = flagshipUnitRegistry, headingLevel = 1, title = "学习路线", readOnly = false, now = systemNow }: AdaptivePathProps) {
+export function AdaptivePath({ workspace: value, blueprint = flagshipBlueprint, registry = flagshipUnitRegistry, headingLevel = 1, title = "Learning path", readOnly = false, now = systemNow }: AdaptivePathProps) {
   const resolved = resolvePath(value, blueprint, registry, now);
   if (!resolved) return <PlanningVersionBoundary />;
   const { workspace, path } = resolved;
@@ -78,17 +78,17 @@ function ResolvedAdaptivePath({ workspace, path, current, currentUnitId, bluepri
 
   return <section ref={section} className="adaptive-path" aria-labelledby="adaptive-path-title">
     <header className="adaptive-path-heading">
-      <p className="eyebrow">{path.scopeMode === "full-scope" ? "完整学习范围" : "目标日期范围"} · 路线预计 {path.estimatedStartDate}—{activePlan?.estimatedCompletionDate ?? path.estimatedCompletionDate}</p>
+      <p className="eyebrow">{path.scopeMode === "full-scope" ? "Full learning scope" : "Scope for your target date"} · Estimated path dates {path.estimatedStartDate}—{activePlan?.estimatedCompletionDate ?? path.estimatedCompletionDate}</p>
       <Heading id="adaptive-path-title">{title}</Heading>
       <p>{blueprint.summary}</p>
-      {!readOnly && <div className="path-primary-actions">{currentUnitId && <Link className="primary-link" href="/today">继续今日学习 ↗</Link>}<Link href="/coach?returnTo=%2Fpath">调整学习计划</Link></div>}
+      {!readOnly && <div className="path-primary-actions">{currentUnitId && <Link className="primary-link" href="/today">Continue today’s task ↗</Link>}<Link href="/coach?returnTo=%2Fpath">Adjust your plan</Link></div>}
     </header>
     {!readOnly && <SetupCompletionNotice />}
-    {(selectedSkill || selectedUnit) && !locatedPhase && <p className="workspace-notice" role="status">这项内容不在当前路线中。你仍可查看完整路线。</p>}
-    <div className="path-disclosure-controls"><p>{current < 0 ? "全部学习单元已完成。" : "当前阶段展开；其他阶段保留目标概览。"}</p><button className="text-action" type="button" onClick={() => setExpanded(new Set(allExpanded ? current < 0 ? [] : [path.phases[current].phaseId] : path.phases.map(({ phaseId }) => phaseId)))}>{allExpanded ? current < 0 ? "收起全部阶段" : "仅展开当前阶段" : "展开全部阶段"}</button></div>
-    <ol className="adaptive-path-rail" aria-label="学习阶段">
+    {(selectedSkill || selectedUnit) && !locatedPhase && <p className="workspace-notice" role="status">This item is not in your current path. You can still explore the full path.</p>}
+    <div className="path-disclosure-controls"><p>{current < 0 ? "All learning units are complete." : "Your current phase is expanded. Other phases show an overview of their goals."}</p><button className="text-action" type="button" onClick={() => setExpanded(new Set(allExpanded ? current < 0 ? [] : [path.phases[current].phaseId] : path.phases.map(({ phaseId }) => phaseId)))}>{allExpanded ? current < 0 ? "Collapse all phases" : "Show current phase only" : "Expand all phases"}</button></div>
+    <ol className="adaptive-path-rail" aria-label="Learning phases">
       {path.phases.map((phase, phaseIndex) => <li className={phaseIndex === current ? "is-current" : ""} key={phase.phaseId} aria-current={phaseIndex === current ? "step" : undefined}>
-        <div className="adaptive-phase-index"><span>{String(phaseIndex + 1).padStart(2, "0")}</span><small>{phase.unitIds.every(id => progress.completedUnitIds.has(id)) ? "已完成阶段" : phaseIndex === current ? "当前阶段" : "后续阶段"}</small></div>
+        <div className="adaptive-phase-index"><span>{String(phaseIndex + 1).padStart(2, "0")}</span><small>{phase.unitIds.every(id => progress.completedUnitIds.has(id)) ? "Completed phase" : phaseIndex === current ? "Current phase" : "Upcoming phase"}</small></div>
         <details className="adaptive-phase-copy" open={expanded.has(phase.phaseId) || locatedPhase?.phaseId === phase.phaseId} onToggle={(event) => {
           const open = event.currentTarget.open;
           if (!open && locatedPhase?.phaseId === phase.phaseId) updatePageQuery({ unit: null, skill: null }, true);
@@ -99,8 +99,8 @@ function ResolvedAdaptivePath({ workspace, path, current, currentUnitId, bluepri
             return next;
           });
         }}>
-          <summary><PhaseHeading>{phase.name}</PhaseHeading><p>{phase.outcome}</p><p className="path-phase-range">{phaseDates.get(phase.phaseId)}</p><span>已完成 {phase.unitIds.filter(id => progress.completedUnitIds.has(id)).length} / {phase.unitIds.length} 个学习单元 · {expanded.has(phase.phaseId) ? "收起详情" : "展开详情"}</span></summary>
-          <ol aria-label={`${phase.name} 学习单元`}>
+          <summary><PhaseHeading>{phase.name}</PhaseHeading><p>{phase.outcome}</p><p className="path-phase-range">{phaseDates.get(phase.phaseId)}</p><span>{phase.unitIds.filter(id => progress.completedUnitIds.has(id)).length} / {phase.unitIds.length} learning units complete · {expanded.has(phase.phaseId) ? "Hide details" : "Show details"}</span></summary>
+          <ol aria-label={`${phase.name} learning units`}>
             {phase.unitIds.map((unitId) => {
               const unit = units.get(unitId);
               const template = unit ? templates.get(unit.templateId) : undefined;
@@ -110,14 +110,14 @@ function ResolvedAdaptivePath({ workspace, path, current, currentUnitId, bluepri
               const prerequisites = unit.prerequisiteUnitIds.map((id) => skills.get(units.get(id)?.skillId ?? "")?.name).filter((name): name is string => Boolean(name));
               return <li key={unit.id} className={unit.id === selectedUnit || unit.skillId === selectedSkill ? "is-selected" : undefined}>
                 <details className="path-unit-detail" open={unit.id === selectedUnit || unit.skillId === selectedSkill}>
-                <summary onClick={readOnly ? undefined : event => { event.preventDefault(); updatePageQuery({ unit: selectedUnit === unit.id ? null : unit.id, skill: null }); }}><span className="unit-kind">{kindLabel[unit.kind]}</span><strong>{template.title}{checkpoint && <small className="path-checkpoint">{checkpoint.label}</small>}</strong><span className="path-unit-duration">{unit.estimatedMinutes} 分钟</span><span className="path-unit-status">{progress.completedUnitIds.has(unit.id) ? "已完成" : unit.id === currentUnitId ? "当前任务" : progress.prerequisitesSatisfiedUnitIds.has(unit.id) ? "前置已满足" : "待学习"}</span></summary>
+                <summary onClick={readOnly ? undefined : event => { event.preventDefault(); updatePageQuery({ unit: selectedUnit === unit.id ? null : unit.id, skill: null }); }}><span className="unit-kind">{kindLabel[unit.kind]}</span><strong>{template.title}{checkpoint && <small className="path-checkpoint">{checkpoint.label}</small>}</strong><span className="path-unit-duration">{unit.estimatedMinutes} min</span><span className="path-unit-status">{progress.completedUnitIds.has(unit.id) ? "Completed" : unit.id === currentUnitId ? "Current task" : progress.prerequisitesSatisfiedUnitIds.has(unit.id) ? "Prerequisites met" : "To learn"}</span></summary>
                 <p>{template.objective}</p>
-                {prerequisites.length > 0 && <small>依赖于 {prerequisites.join(", ")}。 <span>{skill.why}</span></small>}
+                {prerequisites.length > 0 && <small>Requires {prerequisites.join(", ")}. <span>{skill.why}</span></small>}
                 <p className="audit-position">
-                  你的自评：{levelLabel[answers.get(skill.id)?.level ?? "unseen"]}。
+                  Your self-assessment: {levelLabel[answers.get(skill.id)?.level ?? "unseen"]}.
                 </p>
-                {!readOnly && unit.id === currentUnitId && <p><Link href="/today">去做当前任务</Link></p>}
-                {!readOnly && <Link href={`/stack?skill=${encodeURIComponent(skill.id)}`}>查看技能与资料 ↗</Link>}
+                {!readOnly && unit.id === currentUnitId && <p><Link href="/today">Start your current task</Link></p>}
+                {!readOnly && <Link href={`/stack?skill=${encodeURIComponent(skill.id)}`}>View skills and resources ↗</Link>}
                 </details>
               </li>;
             })}
@@ -126,9 +126,9 @@ function ResolvedAdaptivePath({ workspace, path, current, currentUnitId, bluepri
       </li>)}
     </ol>
     {later.length > 0 && <section className="adaptive-later" aria-labelledby="adaptive-later-title">
-      <p className="section-index">后续学习</p>
-      <h2 id="adaptive-later-title">暂缓的技能</h2>
-      <ul>{later.map(({ skillId, reason }) => <li key={skillId}><strong>{skills.get(skillId)?.name ?? skillId}</strong><span>{reason === "target-date-advantage" ? "为守住目标日期，暂缓这项加分技能。" : "为守住目标日期，暂缓这项重要的支撑技能。"}</span></li>)}</ul>
+      <p className="section-index">Learn later</p>
+      <h2 id="adaptive-later-title">Deferred skills</h2>
+      <ul>{later.map(({ skillId, reason }) => <li key={skillId}><strong>{skills.get(skillId)?.name ?? skillId}</strong><span>{reason === "target-date-advantage" ? "This additional skill is deferred to keep your target date." : "This supporting skill is deferred to keep your target date."}</span></li>)}</ul>
     </section>}
   </section>;
 }

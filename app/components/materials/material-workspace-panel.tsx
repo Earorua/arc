@@ -41,8 +41,8 @@ function MaterialWorkspacePanel({ ownerId, planning }: { ownerId: string; planni
     try {
       const result = await state.runScoped(signal => state.client.request("detachAdoptedMaterial", { scope, entry, mutationId: detachMutation.current!.id }, signal));
       if (!result) return;
-      setMessage("已从当前目标取消使用。");
-    } catch { setMessage("未能确认取消结果，请核对刷新后的资料及路线。"); }
+      setMessage("This material is no longer used for the current goal.");
+    } catch { setMessage("Removal is unconfirmed. Check the refreshed materials and path."); }
     finally { setBusy(false); }
     state.retryRestore();
     await planning.retry();
@@ -56,29 +56,29 @@ function MaterialWorkspacePanel({ ownerId, planning }: { ownerId: string; planni
       if (!result) return;
       if (result.outcome === "no-change") setMessage(result.message);
       await planning.retry();
-    } catch { setMessage("资料或计划已变化，请重新读取并核对预览。"); }
+    } catch { setMessage("Materials or the plan have changed. Reload and review the preview."); }
     finally { setBusy(false); }
   }
-  return <aside className="material-workspace-entry"><button className="text-action" type="button" aria-expanded={open} onClick={() => setOpen(value => !value)}>私人资料与规划依据</button>
+  return <aside className="material-workspace-entry"><button className="text-action" type="button" aria-expanded={open} onClick={() => setOpen(value => !value)}>Private materials and planning evidence</button>
     {open && <div><MaterialLibrary ownerId={ownerId} capabilities={state.capabilities} client={state.client}
       currentUse={scope && state.ready && state.refs.adopted ? { entries: state.refs.adopted.entries, disabled: selectionLocked, key: JSON.stringify(scope), detach } : undefined}
       onSelect={!state.ready || !canPlan || selectionLocked ? undefined : (kind, ref) => {
       if (kind === "supplement") {
         const others = state.refs.supplements.filter(item => item.documentId !== ref.documentId);
-        if (others.length >= 3) { setMessage("最多采用三份补充资料，请先移除一份。"); return; }
+        if (others.length >= 3) { setMessage("You can use up to three supplementary materials. Remove one before adding another."); return; }
         state.setSupplements([...others, ref]);
       } else state.setSlot(kind, ref);
-      setPreview(null); setMessage("已选择该确认版本，请核对对当前路线的影响。");
+      setPreview(null); setMessage("The confirmed version is selected. Review its impact on the current path.");
     }} />
     {workspace && (canPlan || state.capabilities.hasDocuments) && !state.ready && (state.restoreFailed
-      ? <div role="alert">{state.restoreConflict === "version" ? <><p>旧草稿与当前路线选用了不同版本。请选择冲突资料采用哪一边，其他选择会保留。</p>
-        <button type="button" onClick={() => state.retryRestore("current")}>采用当前路线中的冲突版本</button>
-        <button type="button" onClick={() => state.retryRestore("draft")}>采用旧草稿中的冲突版本</button></>
-        : state.restoreConflict === "capacity" ? <><p>原计划和旧草稿合计超过三份补充资料。请选择是否从当前路线重新开始。</p>
-          <button type="button" onClick={() => state.retryRestore("reset")}>放弃本地选择，按当前路线恢复</button></>
-        : <p>暂时无法核对当前路线采用的资料，请重试或刷新路线。</p>}
-        <button type="button" onClick={() => state.retryRestore()}>重试读取已采用资料</button></div>
-      : <p role="status">正在读取当前路线采用的资料…</p>)}
+      ? <div role="alert">{state.restoreConflict === "version" ? <><p>The saved draft and current path use different versions. Choose which conflicting versions to use; other selections are retained.</p>
+        <button type="button" onClick={() => state.retryRestore("current")}>Use conflicting versions from the current path</button>
+        <button type="button" onClick={() => state.retryRestore("draft")}>Use conflicting versions from the saved draft</button></>
+        : state.restoreConflict === "capacity" ? <><p>The current plan and saved draft contain more than three supplementary materials. Choose whether to restart from the current path.</p>
+          <button type="button" onClick={() => state.retryRestore("reset")}>Discard local selections and restore the current path</button></>
+        : <p>Materials used by the current path could not be checked. Retry or refresh the path.</p>}
+        <button type="button" onClick={() => state.retryRestore()}>Retry loading adopted materials</button></div>
+      : <p role="status">Loading materials used by the current path…</p>)}
     {canPlan && (!workspace || !sourceContext) && <MaterialSelectionSummary disabled={selectionLocked} />}
     {workspace && scope && sourceContext && <>{canPlan && <MaterialContextReview scope={scope} availableSkills={sourceContext.blueprint.skills} disabled={selectionLocked} input={{
       source: sourceContext.reference.source === "research" ? { source: "research", researchRunId: sourceContext.reference.researchRunId } : { source: "flagship", roleId: "ai-native-full-stack-engineer" },
@@ -86,8 +86,8 @@ function MaterialWorkspacePanel({ ownerId, planning }: { ownerId: string; planni
       planningDate: planningDateForInstant(new Date().toISOString(), workspace.availability.timeZone),
       selectedScope: workspace.pathVersions.find(path => path.id === workspace.activePathVersionId)?.scopeMode ?? null,
     }} onPreview={value => setPreview(value ? { ...value, key: scopeKey } : null)} />}
-    {canPlan && preview && <button type="button" disabled={selectionLocked || preview.key !== scopeKey} onClick={() => void propose()}>生成当前路线调整建议</button>}
+    {canPlan && preview && <button type="button" disabled={selectionLocked || preview.key !== scopeKey} onClick={() => void propose()}>Create a proposal for the current path</button>}
     <MaterialHistory key={workspace.revision} ownerId={ownerId} goalId={workspace.goalId} /></>}
-    {workspace?.pendingPlanVersionId ? <p role="status">调整建议已生成。请在路线中比较后选择接受或保留当前安排。</p> : message && <p role="status">{message}</p>}</div>}
+    {workspace?.pendingPlanVersionId ? <p role="status">The proposal is ready. Compare it on your path, then accept it or keep the current schedule.</p> : message && <p role="status">{message}</p>}</div>}
   </aside>;
 }

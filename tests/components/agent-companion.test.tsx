@@ -25,14 +25,14 @@ const workspace = (): AgentWorkspace => ({
   learningContext: researchContext(),
 });
 function openContext() {
-  fireEvent.click(screen.getByText("路线与资料"));
+  fireEvent.click(screen.getByText("Path and resources"));
 }
 
 describe("learning companion", () => {
   it("shows the pet for a confirmed account", () => {
     mocks.agents.mockReturnValue({ authenticated: true, authPending: false, workspace: null, view: "pet" });
     render(<AgentCompanion />);
-    expect(screen.getByRole("button", { name: "打开学习伙伴" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Open learning companion" })).toBeInTheDocument();
   });
   it.each([false, true])("hides the pet and chat without confirmed login (pending=%s)", authPending => {
     mocks.agents.mockReturnValue({ authenticated: false, authPending, workspace: null, view: "chat" });
@@ -47,7 +47,7 @@ describe("learning companion", () => {
   });
   it("opens chat from the pet", () => {
     const p = props(); render(<CompanionPanel {...p} />);
-    fireEvent.click(screen.getByRole("button", { name: "打开学习伙伴" }));
+    fireEvent.click(screen.getByRole("button", { name: "Open learning companion" }));
     expect(p.onView).toHaveBeenCalledWith("chat");
   });
   it("contains keyboard focus on narrow screens and returns it on close", async () => {
@@ -60,33 +60,33 @@ describe("learning companion", () => {
     }
     try {
       render(<Harness />);
-      fireEvent.click(screen.getByRole("button", { name: "打开学习伙伴" }));
+      fireEvent.click(screen.getByRole("button", { name: "Open learning companion" }));
       expect(screen.getByRole("dialog")).toHaveAttribute("aria-modal", "true");
-      const close = screen.getByRole("button", { name: "最小化学习伙伴" });
+      const close = screen.getByRole("button", { name: "Minimize learning companion" });
       close.focus(); fireEvent.keyDown(close, { key: "Tab", shiftKey: true });
-      expect(screen.getByRole("button", { name: "调整学习计划" })).toHaveFocus();
+      expect(screen.getByRole("button", { name: "Adjust learning plan" })).toHaveFocus();
       fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
-      await waitFor(() => expect(screen.getByRole("button", { name: "打开学习伙伴" })).toHaveFocus());
+      await waitFor(() => expect(screen.getByRole("button", { name: "Open learning companion" })).toHaveFocus());
       expect(document.body.style.overflow).not.toBe("hidden");
     } finally { cleanup(); window.matchMedia = previous; scroll.mockRestore(); }
   });
   it("minimizes, shows task context and keeps the message controlled", () => {
     const p = props(); render(<CompanionPanel {...p} view="chat" draft="闭包是什么？" />);
     expect(screen.getByText("React 状态管理")).toBeInTheDocument();
-    expect(screen.getByRole("textbox", { name: "向学习伙伴提问" })).toHaveValue("闭包是什么？");
-    fireEvent.click(screen.getByRole("button", { name: "最小化学习伙伴" }));
+    expect(screen.getByRole("textbox", { name: "Ask your learning companion" })).toHaveValue("闭包是什么？");
+    fireEvent.click(screen.getByRole("button", { name: "Minimize learning companion" }));
     expect(p.onView).toHaveBeenCalledWith("pet");
   });
   it("allows a hidden pet to be reopened and never fakes a disabled reply", () => {
     const p = props(); const { rerender } = render(<CompanionPanel {...p} view="hidden" />);
-    fireEvent.click(screen.getByRole("button", { name: "重新显示学习伙伴" }));
+    fireEvent.click(screen.getByRole("button", { name: "Show learning companion" }));
     expect(p.onView).toHaveBeenCalledWith("pet");
-    rerender(<CompanionPanel {...p} view="chat" enabled={false} reason="学习助手尚未启用" />);
-    expect(screen.getByText("AI 答疑尚未启用，学习路线和资料仍可查看")).toBeInTheDocument();
+    rerender(<CompanionPanel {...p} view="chat" enabled={false} reason="学习助手not yet enabled" />);
+    expect(screen.getByText("AI tutoring is not enabled yet. Your path and resources are still available.")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "登录" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: /学习设置/ })).not.toBeInTheDocument();
-    expect(screen.getByRole("textbox", { name: "向学习伙伴提问" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "发送消息" })).toBeDisabled();
+    expect(screen.queryByRole("link", { name: /Learning setup/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "Ask your learning companion" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Send message" })).toBeDisabled();
   });
   it("uses the actual account context and expands approved resource titles and providers", () => {
     const p = props();
@@ -100,8 +100,8 @@ describe("learning companion", () => {
     expect(screen.getByText("设计产品指标体系")).toBeInTheDocument();
     expect(screen.queryByText("旧的课程名称")).not.toBeInTheDocument();
     openContext();
-    expect(screen.getByText("Research 路线")).toBeInTheDocument();
-    expect(screen.getByText("已完成 2 / 6 项")).toBeInTheDocument();
+    expect(screen.getByText("Researched path")).toBeInTheDocument();
+    expect(screen.getByText("2 of 6 tasks complete")).toBeInTheDocument();
     expect(screen.getByText("产品学院")).toBeInTheDocument();
     expect(screen.getByText("案例库")).toBeInTheDocument();
     const link = screen.getByRole("link", { name: /产品指标入门/ });
@@ -114,40 +114,40 @@ describe("learning companion", () => {
   it("labels built-in context without inventing a Research source", () => {
     render(<CompanionPanel {...props()} view="chat" roleName="全栈开发" learningContext={{ ...researchContext(), source: "flagship" }} />);
     openContext();
-    expect(screen.getByText("内置路线")).toBeInTheDocument();
-    expect(screen.queryByText("Research 路线")).not.toBeInTheDocument();
+    expect(screen.getByText("Built-in path")).toBeInTheDocument();
+    expect(screen.queryByText("Researched path")).not.toBeInTheDocument();
   });
   it("keeps general questions available when no task is due and ignores a stale legacy task", () => {
     const p = props();
     render(<CompanionPanel {...p} view="chat" draft="如何复习指标设计？" roleName="产品经理"
       task="下周的访谈练习" learningContext={{ ...researchContext(), task: null, resources: [] }} />);
-    expect(screen.getByText("今日暂无待学任务")).toBeInTheDocument();
+    expect(screen.getByText("No tasks scheduled for today")).toBeInTheDocument();
     expect(screen.queryByText("下周的访谈练习")).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "解释当前任务" })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "帮我梳理学习思路" }));
-    expect(p.onDraft).toHaveBeenCalledWith("帮我梳理学习思路");
+    expect(screen.queryByRole("button", { name: "Explain this task" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Help me plan my approach" }));
+    expect(p.onDraft).toHaveBeenCalledWith("Help me plan my approach");
     expect(p.onSend).not.toHaveBeenCalled();
-    expect(screen.getByRole("button", { name: "发送消息" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Send message" })).toBeEnabled();
   });
   it("recognizes a completed route without calling it a current task", () => {
     render(<CompanionPanel {...props()} view="chat" learningContext={{ ...researchContext(), completedUnits: 6, task: null, resources: [] }} />);
-    expect(screen.getByText("这条路线的任务已完成")).toBeInTheDocument();
+    expect(screen.getByText("All tasks in this path are complete")).toBeInTheDocument();
     expect(screen.queryByText("当前任务")).not.toBeInTheDocument();
   });
   it("offers broad task help as an editable draft without sending", () => {
     const p = props(); render(<CompanionPanel {...p} view="chat" learningContext={researchContext()} />);
-    fireEvent.click(screen.getByRole("button", { name: "帮我拆解任务" }));
-    expect(p.onDraft).toHaveBeenCalledWith("帮我拆解任务");
+    fireEvent.click(screen.getByRole("button", { name: "Break this task down" }));
+    expect(p.onDraft).toHaveBeenCalledWith("Break this task down");
     expect(screen.queryByRole("button", { name: "帮我看报错" })).not.toBeInTheDocument();
     expect(p.onSend).not.toHaveBeenCalled();
   });
   it("offers two focused suggestions and hands the current draft to learning planning", () => {
     const p = props();
     render(<CompanionPanel {...p} view="chat" draft="我的学习时间不够" learningContext={researchContext()} />);
-    expect(screen.queryByRole("checkbox", { name: "减少动效" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("checkbox", { name: "Reduce motion" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "给我一个例子" })).not.toBeInTheDocument();
-    expect(screen.getByText("正在帮助：")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "调整学习计划" }));
+    expect(screen.getByText("Helping with:")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Adjust learning plan" }));
     expect(p.onHandoff).toHaveBeenCalledWith("我的学习时间不够");
     expect(p.onSend).not.toHaveBeenCalled();
   });
@@ -159,33 +159,33 @@ describe("learning companion", () => {
   });
   it("keeps resources visible when AI is disabled without directing account setup", () => {
     render(<CompanionPanel {...props()} view="chat" enabled={false} availability="disabled" roleName="产品经理"
-      reason="学习助手尚未启用，配置模型服务后即可使用。" learningContext={researchContext()} />);
-    expect(screen.getByText("AI 答疑尚未启用，学习路线和资料仍可查看")).toBeInTheDocument();
-    expect(screen.getByText("AI 答疑未启用")).toBeInTheDocument();
+      reason="The learning assistant is not yet enabled. Configure the model service to use it." learningContext={researchContext()} />);
+    expect(screen.getByText("AI tutoring is not enabled yet. Your path and resources are still available.")).toBeInTheDocument();
+    expect(screen.getByText("AI tutoring is not enabled")).toBeInTheDocument();
     expect(screen.queryByText(/配置模型/)).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: /学习设置|登录/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Learning setup|登录/ })).not.toBeInTheDocument();
     openContext();
     expect(screen.getByRole("link", { name: /产品指标入门/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "发送消息" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Send message" })).toBeDisabled();
   });
   it("offers setup only for a confirmed missing learning route", () => {
     render(<CompanionPanel {...props()} view="chat" enabled={false} availability="needs_setup" task={null} />);
-    expect(screen.getByRole("link", { name: /学习设置/ })).toHaveAttribute("href", "/setup");
+    expect(screen.getByRole("link", { name: /Learning setup/ })).toHaveAttribute("href", "/setup");
     expect(screen.queryByRole("link", { name: "登录" })).not.toBeInTheDocument();
-    expect(screen.getByText("尚未建立学习路线")).toBeInTheDocument();
+    expect(screen.getByText("Set up a learning path to begin")).toBeInTheDocument();
     expect(screen.queryByText("学习目标与当前进度")).not.toBeInTheDocument();
   });
   it("shows loading without stale context, placeholder routes or account links", () => {
     const p = props();
     render(<CompanionPanel {...p} view="chat" loading roleName="产品经理" learningContext={researchContext()}
       availability="ready" draft="继续学习" />);
-    expect(screen.getByText("正在读取学习进度…")).toBeInTheDocument();
+    expect(screen.getByText("Loading your progress…")).toBeInTheDocument();
     expect(screen.queryByText("产品经理")).not.toBeInTheDocument();
-    expect(screen.queryByText("Research 路线")).not.toBeInTheDocument();
+    expect(screen.queryByText("Researched path")).not.toBeInTheDocument();
     expect(screen.queryByText("React 状态管理")).not.toBeInTheDocument();
     expect(screen.queryByText("学习目标与当前进度")).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: /学习设置|登录/ })).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "发送消息" })).toBeDisabled();
+    expect(screen.queryByRole("link", { name: /Learning setup|登录/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Send message" })).toBeDisabled();
     fireEvent.submit(screen.getByRole("textbox").closest("form")!);
     expect(p.onSend).not.toHaveBeenCalled();
   });
@@ -193,19 +193,19 @@ describe("learning companion", () => {
     const onRefresh = vi.fn();
     render(<CompanionPanel {...props()} view="chat" enabled={false} task={null} error="学习进度读取失败" onRefresh={onRefresh} />);
     expect(screen.getByRole("alert")).toHaveTextContent("学习进度读取失败");
-    expect(screen.getByText("暂时无法读取进度")).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: /学习设置|登录/ })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "重新读取" }));
+    expect(screen.getByText("Progress is temporarily unavailable")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Learning setup|登录/ })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Reload" }));
     expect(onRefresh).toHaveBeenCalledOnce();
   });
   it("allows explicit retry after a reply error when the workspace is still valid", () => {
     const p = props();
     render(<CompanionPanel {...p} view="chat" availability="ready" learningContext={researchContext()}
-      error="回复失败，请重试。" draft="请再解释一下" />);
-    expect(screen.getByRole("alert")).toHaveTextContent("回复失败，请重试。");
-    expect(screen.getByText("回复未完成，可重试")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "发送消息" })).toBeEnabled();
-    fireEvent.click(screen.getByRole("button", { name: "发送消息" }));
+      error="The response failed. Try again." draft="请再解释一下" />);
+    expect(screen.getByRole("alert")).toHaveTextContent("The response failed. Try again.");
+    expect(screen.getByText("Response interrupted. Try again.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Send message" })).toBeEnabled();
+    fireEvent.click(screen.getByRole("button", { name: "Send message" }));
     expect(p.onSend).toHaveBeenCalledOnce();
   });
   it.each(["javascript:alert(1)", "data:text/html,test", "//example.com/relative", "https://user:password@example.com/course", "https://user@example.com/course", "not-a-url"])("does not make an unsafe catalog URL clickable: %s", url => {
@@ -223,7 +223,7 @@ describe("learning companion", () => {
     fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
     expect(p.onView).toHaveBeenCalledWith("pet");
     rerender(<CompanionPanel {...p} view="pet" draft="分析用户留存" learningContext={researchContext()} />);
-    fireEvent.click(screen.getByRole("button", { name: "打开学习伙伴" }));
+    fireEvent.click(screen.getByRole("button", { name: "Open learning companion" }));
     rerender(<CompanionPanel {...p} view="chat" draft="分析用户留存" learningContext={researchContext()} />);
     expect(screen.getByRole("textbox")).toHaveValue("分析用户留存");
     expect(p.onDraft).not.toHaveBeenCalled();
@@ -234,12 +234,12 @@ describe("learning companion", () => {
     const message: PublicAgentRun = { id: "run", kind: "tutor", status: "complete", message: "指标如何拆解？", answer: "先确定目标。",
       advice: null, createdAt: 1, baseVersionId: "v1", revision: 1, model: "tutor", effort: "high", error: null };
     render(<CompanionPanel {...p} view="chat" busy messages={[message]} pendingQuestion="举一个例子" partial="比如留存率" />);
-    fireEvent.click(screen.getByRole("checkbox", { name: "深入讲解" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Explain in depth" }));
     expect(p.onDeep).toHaveBeenCalledWith(true);
-    fireEvent.click(screen.getByRole("button", { name: /带到学习规划/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Take to learning coach/ }));
     expect(p.onHandoff).toHaveBeenCalledWith(expect.stringContaining("指标如何拆解？"));
     expect(screen.getByText("比如留存率")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "停止回复" }));
+    fireEvent.click(screen.getByRole("button", { name: "Stop response" }));
     expect(p.onStop).toHaveBeenCalledOnce();
     expect(p.onSend).not.toHaveBeenCalled();
   });

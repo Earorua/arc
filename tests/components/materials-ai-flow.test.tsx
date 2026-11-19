@@ -49,19 +49,19 @@ describe("AI-first material review", () => {
       return { confirmationId: "new-python", revision: 2 };
     });
     render(<Harness />);
-    fireEvent.change(screen.getByLabelText("简历正文"), { target: { value: "SQL 原文" } });
-    fireEvent.click(screen.getByLabelText(/允许将当前文本/)); fireEvent.click(screen.getByRole("button", { name: "保存并 AI 分析" }));
+    fireEvent.change(screen.getByLabelText("Resume text"), { target: { value: "SQL 原文" } });
+    fireEvent.click(screen.getByLabelText(/Allow the processors above/)); fireEvent.click(screen.getByRole("button", { name: "Save and analyze with AI" }));
     await screen.findByDisplayValue("参与 SQL 查询练习");
-    const confirm = screen.getByRole("button", { name: "确认这些事实" });
+    const confirm = screen.getByRole("button", { name: "Confirm these facts" });
     act(() => { confirm.click(); confirm.click(); });
     await waitFor(() => expect(confirmations).toBe(1));
-    fireEvent.change(screen.getByLabelText("事实 1"), { target: { value: "Reviewed a Python report" } });
+    fireEvent.change(screen.getByLabelText("Fact 1"), { target: { value: "Reviewed a Python report" } });
     await waitFor(() => expect(invoke.mock.calls.some(([name]) => name === "saveDocumentReviewDraft")).toBe(true));
     await act(async () => { gate.resolve(); await gate.promise; });
-    expect(screen.queryByText("已确认，可用于本次规划。")).not.toBeInTheDocument();
+    expect(screen.queryByText("Confirmed and available for this plan.")).not.toBeInTheDocument();
     await waitFor(() => expect(confirm).toBeEnabled());
     fireEvent.click(confirm);
-    await screen.findByText("已确认，可用于本次规划。");
+    await screen.findByText("Confirmed and available for this plan.");
     const requests = invoke.mock.calls.filter(([name]) => name === "createDocumentConfirmation");
     expect(requests).toHaveLength(2);
     expect(requests[1]![1]).toMatchObject({ expectedRevision: 1, reviewRevision: 1, items: [expect.objectContaining({ text: "Reviewed a Python report" })] });
@@ -74,8 +74,8 @@ describe("AI-first material review", () => {
     const confirmed = vi.fn();
     render(<MaterialConfirmation draft={review} text={text} saving={false} confirmed={false} onItemsChange={() => undefined}
       onConfirm={() => confirmed(mapMaterialItems(review.items, flagshipBlueprint, flagshipUnitRegistry).flatMap(mapping => mapping.skillIds))} />);
-    expect(screen.queryByRole("button", { name: /移除技能词/ })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "确认这些事实" }));
+    expect(screen.queryByRole("button", { name: /Remove skill term/ })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Confirm these facts" }));
     expect(confirmed).toHaveBeenCalledWith([]);
   });
   it("shows the proposed skill words beside their fact and submits only the terms the user kept", () => {
@@ -89,14 +89,14 @@ describe("AI-first material review", () => {
         onItemsChange={items => setValue({ ...value, items })} onConfirm={() => confirmed(value.items)} />;
     }
     render(<Harness />);
-    fireEvent.click(screen.getByRole("button", { name: "移除技能词 Jest" }));
-    fireEvent.change(screen.getByLabelText("事实 1 要求类型"), { target: { value: "must" } });
-    expect(screen.getByRole("button", { name: "移除技能词 PostgreSQL" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "确认这些事实" }));
+    fireEvent.click(screen.getByRole("button", { name: "Remove skill term Jest" }));
+    fireEvent.change(screen.getByLabelText("Fact 1 requirement type"), { target: { value: "must" } });
+    expect(screen.getByRole("button", { name: "Remove skill term PostgreSQL" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Confirm these facts" }));
     expect(confirmed).toHaveBeenLastCalledWith([expect.objectContaining({ skillLabels: ["PostgreSQL"], requirementLevel: "must" })]);
-    fireEvent.change(screen.getByLabelText("事实 1"), { target: { value: "Coordinate the Jest training calendar" } });
-    expect(screen.queryByRole("button", { name: "移除技能词 PostgreSQL" })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "确认这些事实" }));
+    fireEvent.change(screen.getByLabelText("Fact 1"), { target: { value: "Coordinate the Jest training calendar" } });
+    expect(screen.queryByRole("button", { name: "Remove skill term PostgreSQL" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Confirm these facts" }));
     expect(confirmed.mock.lastCall?.[0][0].skillLabels).toEqual([]);
   });
   it("shows the exact source term before its normalized name and keeps only words supported by the edited fact", () => {
@@ -114,20 +114,20 @@ describe("AI-first material review", () => {
         onItemsChange={items => setReview({ ...review, items })} onConfirm={() => confirmed(review.items)} />;
     }
     render(<Harness />);
-    const word = within(screen.getByRole("group", { name: "事实 1" })).getByRole("listitem");
-    expect(word).toHaveTextContent(/^清洗数据.*规范名称 data cleaning/u);
-    expect(within(word).getByRole("button", { name: "移除技能词 清洗数据" })).toBeInTheDocument();
-    expect(screen.getByText("约束中提到的主题")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "移除约束主题 TypeScript" })).toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText("事实 1"), { target: { value: "We cleaned data together." } });
-    fireEvent.click(screen.getByRole("button", { name: "确认这些事实" }));
+    const word = within(screen.getByRole("group", { name: "Fact 1" })).getByRole("listitem");
+    expect(word).toHaveTextContent(/^清洗数据.*canonical name data cleaning/u);
+    expect(within(word).getByRole("button", { name: "Remove skill term 清洗数据" })).toBeInTheDocument();
+    expect(screen.getByText("Topics mentioned in the constraint")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Remove constraint topic TypeScript" })).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Fact 1"), { target: { value: "We cleaned data together." } });
+    fireEvent.click(screen.getByRole("button", { name: "Confirm these facts" }));
     expect(confirmed.mock.lastCall?.[0][0].skillLabels).toEqual(["data cleaning"]);
-    fireEvent.change(screen.getByLabelText("事实 1"), { target: { value: "We organized the calendar." } });
-    expect(screen.queryByRole("button", { name: "移除技能词 清洗数据" })).not.toBeInTheDocument();
-    expect(screen.queryByText("单独核对能力建议")).not.toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText("事实 1"), { target: { value: practice } });
-    fireEvent.change(screen.getByLabelText("事实 2 信息类型"), { target: { value: "skill-claim" } });
-    fireEvent.click(screen.getByRole("button", { name: "确认这些事实" }));
+    fireEvent.change(screen.getByLabelText("Fact 1"), { target: { value: "We organized the calendar." } });
+    expect(screen.queryByRole("button", { name: "Remove skill term 清洗数据" })).not.toBeInTheDocument();
+    expect(screen.queryByText("Review ability suggestions separately")).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Fact 1"), { target: { value: practice } });
+    fireEvent.change(screen.getByLabelText("Fact 2 information type"), { target: { value: "skill-claim" } });
+    fireEvent.click(screen.getByRole("button", { name: "Confirm these facts" }));
     expect(confirmed.mock.lastCall?.[0].map((item: { skillLabels: string[] }) => item.skillLabels)).toEqual([[], []]);
   });
   it.each([
@@ -139,12 +139,12 @@ describe("AI-first material review", () => {
       items: [{ id: "practice", kind: "experience", text, origin: "extracted", sourceRef, requirementLevel: null, skillLabels: ["data cleaning"] }], selfAssessmentHints: [], updatedAt: draft.updatedAt };
     const save = vi.fn();
     render(<MaterialConfirmation draft={review} text={text} saving={false} confirmed={false} onItemsChange={save} onConfirm={vi.fn()} />);
-    fireEvent.change(screen.getByLabelText("事实 1"), { target: { value: "I cleaned data during the workshop." } });
+    fireEvent.change(screen.getByLabelText("Fact 1"), { target: { value: "I cleaned data during the workshop." } });
     expect(save.mock.lastCall?.[0][0].skillLabels).toEqual(expected);
   });
   it.each([
-    ["grounded-skill-labels-v2", "原文提到课程覆盖缺口，请核对"],
-    [undefined, "可能超出当前技能蓝图"],
+    ["grounded-skill-labels-v2", "The source mentions a course coverage gap; review it"],
+    [undefined, "This may fall outside the current skill blueprint"],
   ] as const)("names a coverage reminder according to the review's evidence and version", (reviewProjection, label) => {
     const text = "现有课程尚未涵盖键盘导航。";
     const sourceRef = { documentId: receipt.documentId, documentVersionId: receipt.documentVersionId, textVersionId: receipt.textVersionId, start: 0, end: text.length };
@@ -156,27 +156,27 @@ describe("AI-first material review", () => {
   });
   it("requires explicit permission, then pre-fills review without granting self levels", async () => {
     const { Harness, invoke, adopted } = fixture(); render(<Harness />);
-    fireEvent.change(screen.getByLabelText("简历正文"), { target: { value: "SQL 原文" } });
-    expect(screen.getByRole("button", { name: "保存并 AI 分析" })).toBeDisabled(); expect(invoke).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByLabelText(/允许将当前文本/));
-    fireEvent.click(screen.getByRole("button", { name: "保存并 AI 分析" }));
+    fireEvent.change(screen.getByLabelText("Resume text"), { target: { value: "SQL 原文" } });
+    expect(screen.getByRole("button", { name: "Save and analyze with AI" })).toBeDisabled(); expect(invoke).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByLabelText(/Allow the processors above/));
+    fireEvent.click(screen.getByRole("button", { name: "Save and analyze with AI" }));
     await screen.findByDisplayValue("参与 SQL 查询练习");
-    fireEvent.change(screen.getByLabelText("事实 1"), { target: { value: "按指导完成 SQL 查询练习" } });
+    fireEvent.change(screen.getByLabelText("Fact 1"), { target: { value: "按指导完成 SQL 查询练习" } });
     await waitFor(() => expect(invoke.mock.calls.some(([method]) => method === "saveDocumentReviewDraft")).toBe(true));
-    fireEvent.click(screen.getByRole("button", { name: "确认这些事实" }));
-    await screen.findByText("已确认，可用于本次规划。"); expect(adopted).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: "采用 SQL 的需指导完成建议" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirm these facts" }));
+    await screen.findByText("Confirmed and available for this plan."); expect(adopted).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Use SQL: Need guidance" }));
     expect(adopted).toHaveBeenCalledWith({ sql: "guided" });
   });
   it("removes the associated self-assessment suggestion when the user drops its fact", async () => {
     const { Harness, invoke, adopted } = fixture(); render(<Harness />);
-    fireEvent.change(screen.getByLabelText("简历正文"), { target: { value: "SQL 原文" } });
-    fireEvent.click(screen.getByLabelText(/允许将当前文本/));
-    fireEvent.click(screen.getByRole("button", { name: "保存并 AI 分析" }));
-    await screen.findByRole("button", { name: "采用 SQL 的需指导完成建议" });
-    fireEvent.click(screen.getByRole("button", { name: "移除事实 1" }));
+    fireEvent.change(screen.getByLabelText("Resume text"), { target: { value: "SQL 原文" } });
+    fireEvent.click(screen.getByLabelText(/Allow the processors above/));
+    fireEvent.click(screen.getByRole("button", { name: "Save and analyze with AI" }));
+    await screen.findByRole("button", { name: "Use SQL: Need guidance" });
+    fireEvent.click(screen.getByRole("button", { name: "Remove fact 1" }));
     await waitFor(() => expect(invoke).toHaveBeenCalledWith("saveDocumentReviewDraft", expect.objectContaining({ items: [], selfAssessmentHints: [] }), expect.anything()));
-    expect(screen.queryByRole("button", { name: "采用 SQL 的需指导完成建议" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Use SQL: Need guidance" })).not.toBeInTheDocument();
     expect(adopted).not.toHaveBeenCalled();
   });
   it("shows the applicable Kimi privacy terms before agreeing and requires fresh consent when the policy changes", () => {
@@ -184,39 +184,39 @@ describe("AI-first material review", () => {
     const props = { kind: "jd", value: null, onChange: vi.fn(), client: { request: invoke } as unknown as DocumentsClient } as const;
     const kimi = { ...caps, providerLabel: "OpenRouter / Moonshot AI", privacyNotice: "kimi-k31-pro-zdr" } as const;
     const view = render(<MaterialTextPanel {...props} capabilities={kimi} />);
-    fireEvent.change(screen.getByLabelText("岗位 JD正文"), { target: { value: "合成岗位资料" } });
-    const consent = screen.getByRole("checkbox", { name: /允许将当前文本/ });
+    fireEvent.change(screen.getByLabelText("Job description text"), { target: { value: "合成岗位资料" } });
+    const consent = screen.getByRole("checkbox", { name: /Allow the processors above/ });
     expect(consent).toHaveAccessibleDescription(/Kimi K3\.1 Pro/);
-    expect(consent).toHaveAccessibleDescription(/缓存/);
-    expect(consent).toHaveAccessibleDescription(/分类/);
-    expect(consent).toHaveAccessibleDescription(/依法/);
-    expect(screen.getByRole("link", { name: "OpenRouter 零数据保留说明" })).toHaveAttribute("href", "https://openrouter.ai/docs/guides/features/zdr");
-    const terms = screen.getByRole("link", { name: "Kimi 开放平台隐私政策" });
+    expect(consent).toHaveAccessibleDescription(/cache/);
+    expect(consent).toHaveAccessibleDescription(/classification/);
+    expect(consent).toHaveAccessibleDescription(/required by law/);
+    expect(screen.getByRole("link", { name: "OpenRouter Zero Data Retention policy" })).toHaveAttribute("href", "https://openrouter.ai/docs/guides/features/zdr");
+    const terms = screen.getByRole("link", { name: "Kimi Open Platform privacy policy" });
     expect(terms).toHaveAttribute("href", "https://platform.kimi.ai/docs/agreement/userprivacy");
     expect(terms).toHaveAttribute("rel", expect.stringContaining("noreferrer"));
     fireEvent.click(consent);
-    expect(screen.getByRole("button", { name: "保存并 AI 分析" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Save and analyze with AI" })).toBeEnabled();
 
     view.rerender(<MaterialTextPanel {...props} capabilities={{ ...kimi, policyVersion: "2026.12.1" }} />);
-    expect(screen.getByRole("button", { name: "保存并 AI 分析" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Save and analyze with AI" })).toBeDisabled();
     view.rerender(<MaterialTextPanel {...props} capabilities={kimi} />);
     expect(consent).not.toBeChecked();
     view.rerender(<MaterialTextPanel {...props} capabilities={{ ...caps, providerLabel: kimi.providerLabel }} />);
-    expect(screen.queryByRole("link", { name: "Kimi 开放平台隐私政策" })).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "保存并手动整理" })).toBeEnabled();
+    expect(screen.queryByRole("link", { name: "Kimi Open Platform privacy policy" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Save and organize manually" })).toBeEnabled();
     expect(invoke).not.toHaveBeenCalled();
   });
   it("manual fallback never creates a consent or analysis job", async () => {
     const { Harness, invoke } = fixture(); render(<Harness />);
-    fireEvent.change(screen.getByLabelText("简历正文"), { target: { value: "SQL 原文" } });
-    fireEvent.click(screen.getByRole("button", { name: "保存并手动整理" }));
-    await screen.findByRole("button", { name: "添加事实" });
+    fireEvent.change(screen.getByLabelText("Resume text"), { target: { value: "SQL 原文" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save and organize manually" }));
+    await screen.findByRole("button", { name: "Add fact" });
     expect(invoke.mock.calls.some(([method]) => method === "createDocumentConsent" || method === "createDocumentJob")).toBe(false);
   });
   it("displays provider unavailability honestly and leaves manual editing available", () => {
     const { invoke } = fixture();
     render(<MaterialTextPanel kind="jd" capabilities={{ ...caps, analysisEnabled: false, reason: "qualification-required" }} client={{ request: invoke } as unknown as DocumentsClient} value={null} onChange={() => undefined} />);
-    expect(screen.getByText(/AI 分析暂不可用/)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "保存并手动整理" })).toBeInTheDocument();
+    expect(screen.getByText(/AI analysis is temporarily unavailable/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Save and organize manually" })).toBeInTheDocument();
   });
 });

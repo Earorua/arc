@@ -31,8 +31,8 @@ describe("Arc admin health view", () => {
   it.each([401, 403])("distinguishes login from missing permission (%s)", async status => {
     vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status })));
     render(<AdminPage />);
-    expect(await screen.findByRole("alert")).toHaveTextContent(status === 401 ? "请登录后查看管理页面" : "当前账号没有管理权限");
-    expect(screen.getByRole("link", { name: status === 401 ? "登录并返回" : "返回首页" })).toHaveAttribute("href", status === 401 ? "/sign-in?next=%2Fadmin&reauth=1" : "/");
+    expect(await screen.findByRole("alert")).toHaveTextContent(status === 401 ? "Sign in to view site administration" : "This account does not have administrator access");
+    expect(screen.getByRole("link", { name: status === 401 ? "Sign in and return" : "Back to home" })).toHaveAttribute("href", status === 401 ? "/sign-in?next=%2Fadmin&reauth=1" : "/");
   });
   it("shows five restrained read-only operational cards", () => {
     render(<AdminHealthView snapshot={snapshot} />);

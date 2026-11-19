@@ -5,8 +5,8 @@ import { LearningEntry } from "../components/account/learning-entry";
 import "../components/showcase/showcase.css";
 
 export const metadata: Metadata = {
-  title: "产品样例",
-  description: "查看 Arc 如何把 AI 原生全栈工程师的岗位目标，拆成学习路径、每日任务与可展示的作品证据。",
+  title: "Product in action",
+  description: "See how Arc turns an AI-native full-stack engineering goal into a learning path, daily tasks, and work you can show.",
   alternates: { canonical: "/showcase" },
 };
 

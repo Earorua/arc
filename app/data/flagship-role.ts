@@ -31,7 +31,7 @@ function skill(
 
 export const flagshipRole: RoleProfile = {
   id: "ai-native-full-stack-engineer",
-  name: "AI 原生全栈工程师",
+  name: "AI-Native Full-Stack Engineer",
   summary: "Design, build, validate, and ship AI-enabled products across the full stack.",
   version: "2026.07",
   updatedAt: observedAt,
@@ -61,13 +61,13 @@ export const flagshipRole: RoleProfile = {
   ],
   today: {
     id: "server-actions-boundary",
-    title: "把一次表单提交变成可验证的服务端动作",
+    title: "Turn a form submission into a verifiable server action",
     minutes: 45,
     skillIds: ["react", "http-apis", "typescript"],
     steps: [
-      { id: "understand", label: "理解客户端与服务端动作的边界" },
-      { id: "build", label: "实现带类型校验的提交路径" },
-      { id: "prove", label: "提交一次可回看的代码变更" },
+      { id: "understand", label: "Understand the boundary between client and server actions" },
+      { id: "build", label: "Build a submission flow with type validation" },
+      { id: "prove", label: "Submit a code change for review" },
     ],
     deliverable: "Git commit or implementation note",
   },

@@ -22,9 +22,9 @@ describe("source-aware material requirement confirmation", () => {
     };
     render(<MaterialConfirmation draft={value} text={text} saving={false} confirmed={false} onItemsChange={vi.fn()}
       onReviewPointsChange={changed} onConfirm={confirmed} onAdoptLevels={adopted} />);
-    expect(screen.getByRole("combobox", { name: "信息缺失或待确认" })).toHaveValue("unresolved");
+    expect(screen.getByRole("combobox", { name: "Information is missing or needs confirmation" })).toHaveValue("unresolved");
     expect(screen.getByText(text, { selector: "blockquote" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "确认这些事实" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirm these facts" }));
     expect(confirmed).toHaveBeenCalledOnce();
     expect(adopted).not.toHaveBeenCalled();
     expect(changed).not.toHaveBeenCalled();
@@ -34,10 +34,10 @@ describe("source-aware material requirement confirmation", () => {
     const confirmed = vi.fn(), changed = vi.fn(), adopted = vi.fn();
     render(<MaterialConfirmation draft={draft} text="建议练习 SQL" documentKind={documentKind} saving={false} confirmed={false}
       onItemsChange={changed} onConfirm={confirmed} onAdoptLevels={adopted} />);
-    expect(screen.getByRole("option", { name: "建议或学习要求" })).toBeInTheDocument();
-    expect(screen.queryByLabelText("事实 1 要求类型")).not.toBeInTheDocument();
-    expect(screen.queryByText(/尚未区分必备或加分/)).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "确认这些事实" }));
+    expect(screen.getByRole("option", { name: "Advice or learning requirement" })).toBeInTheDocument();
+    expect(screen.queryByLabelText("Fact 1 requirement type")).not.toBeInTheDocument();
+    expect(screen.queryByText(/without a must-have or preferred classification/)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Confirm these facts" }));
     expect(confirmed).toHaveBeenCalledOnce(); expect(changed).not.toHaveBeenCalled(); expect(adopted).not.toHaveBeenCalled();
   });
 
@@ -50,25 +50,25 @@ describe("source-aware material requirement confirmation", () => {
         onItemsChange={vi.fn()} onReviewPointsChange={reviewPoints => setValue({ ...value, reviewPoints })} onConfirm={confirmed} />;
     }
     render(<Harness />);
-    const confirm = screen.getByRole("button", { name: "确认这些事实" });
+    const confirm = screen.getByRole("button", { name: "Confirm these facts" });
     expect(confirm).toBeDisabled();
-    fireEvent.change(screen.getByRole("combobox", { name: "建议或学习要求分类存在冲突" }), { target: { value: "confirmed" } });
+    fireEvent.change(screen.getByRole("combobox", { name: "Advice or learning requirement classifications conflict" }), { target: { value: "confirmed" } });
     expect(confirm).toBeEnabled(); fireEvent.click(confirm); expect(confirmed).toHaveBeenCalledOnce();
   });
 
   it("continues blocking an unclassified main JD requirement", () => {
     render(<MaterialConfirmation draft={draft} text="建议练习 SQL" documentKind="jd" saving={false} confirmed={false}
       onItemsChange={vi.fn()} onConfirm={vi.fn()} />);
-    expect(screen.getByRole("option", { name: "岗位要求" })).toBeInTheDocument();
-    expect(screen.getByLabelText("事实 1 要求类型")).toHaveValue("unspecified");
-    expect(screen.getByRole("button", { name: "确认这些事实" })).toBeDisabled();
+    expect(screen.getByRole("option", { name: "Job requirement" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Fact 1 requirement type")).toHaveValue("unspecified");
+    expect(screen.getByRole("button", { name: "Confirm these facts" })).toBeDisabled();
   });
 });
 
 describe("edited material self-assessment suggestions", () => {
   afterEach(cleanup);
   const guided = "I tested SQL under supervision.";
-  const buttonName = "采用 SQL 的需指导完成建议";
+  const buttonName = "Use SQL: Need guidance";
   const skills = [{ id: "sql", name: "SQL" }, { id: "react", name: "React" }];
   function assessmentDraft(projection: DocumentReviewDraft["reviewProjection"]): DocumentReviewDraft {
     return { ...draft, reviewProjection: projection,
@@ -101,12 +101,12 @@ describe("edited material self-assessment suggestions", () => {
       render(<Editor />);
       expect(screen.getByRole("button", { name: buttonName })).toBeInTheDocument();
       expect(adopted).not.toHaveBeenCalled();
-      fireEvent.change(screen.getByRole("textbox", { name: "事实 1" }), { target: { value: text } });
+      fireEvent.change(screen.getByRole("textbox", { name: "Fact 1" }), { target: { value: text } });
       expect(changed).toHaveBeenCalledWith([expect.objectContaining({ text, origin: "user", skillLabels: ["SQL"] })]);
-      expect(screen.getByText("正在保存核对修改…")).toBeInTheDocument();
+      expect(screen.getByText("Saving review edits…")).toBeInTheDocument();
       expect(screen.queryByRole("button", { name: buttonName })).not.toBeInTheDocument();
-      expect(screen.queryByText("单独核对能力建议")).not.toBeInTheDocument();
-      expect(screen.queryByText(/SQL · 不确定/)).not.toBeInTheDocument();
+      expect(screen.queryByText("Review ability suggestions separately")).not.toBeInTheDocument();
+      expect(screen.queryByText(/SQL · Uncertain/)).not.toBeInTheDocument();
       expect(screen.getAllByText(guided, { selector: "blockquote" }).length).toBeGreaterThan(0);
       expect(adopted).not.toHaveBeenCalled();
     });
@@ -133,9 +133,9 @@ describe("edited material self-assessment suggestions", () => {
           onItemsChange={items => setCurrent({ ...current, items })} onConfirm={vi.fn()} onAdoptLevels={adopted} />;
       }
       render(<Editor />);
-      const buttonName = "采用 React.js 的需指导完成建议";
+      const buttonName = "Use React.js: Need guidance";
       expect(screen.getByRole("button", { name: buttonName })).toBeInTheDocument();
-      fireEvent.change(screen.getByRole("textbox", { name: "事实 1" }), { target: { value: qualifier + action } });
+      fireEvent.change(screen.getByRole("textbox", { name: "Fact 1" }), { target: { value: qualifier + action } });
       expect(screen.queryByRole("button", { name: buttonName }) !== null).toBe(supported);
       expect(screen.getAllByText(source, { selector: "blockquote" }).length).toBeGreaterThan(0);
       expect(adopted).not.toHaveBeenCalled();
@@ -159,7 +159,7 @@ describe("edited material self-assessment suggestions", () => {
         onItemsChange={items => setValue({ ...value, items })} onConfirm={vi.fn()} onAdoptLevels={adopted} />;
     }
     render(<Editor />);
-    fireEvent.change(screen.getByRole("textbox", { name: "事实 1" }), { target: { value: text } });
+    fireEvent.change(screen.getByRole("textbox", { name: "Fact 1" }), { target: { value: text } });
     expect(adopted).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: buttonName }));
     expect(adopted).toHaveBeenCalledExactlyOnceWith({ sql: "guided" });
@@ -172,7 +172,7 @@ describe("edited material self-assessment suggestions", () => {
     render(<MaterialConfirmation draft={value} text={guided} saving={false} confirmed={false} skills={skills}
       onItemsChange={vi.fn()} onConfirm={vi.fn()} onAdoptLevels={adopted} />);
     expect(screen.getByRole("button", { name: buttonName })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "采用 React 的需指导完成建议" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Use React: Need guidance" })).not.toBeInTheDocument();
     expect(adopted).not.toHaveBeenCalled();
   });
 
@@ -207,16 +207,16 @@ describe("versioned source-mention review controls", () => {
         onConfirm={vi.fn()} onAdoptLevels={adopted} />;
     }
     render(<Editor />);
-    fireEvent.click(screen.getByText("从原文补充技能词"));
-    const input = screen.getByRole("textbox", { name: "事实 1 原文词" });
+    fireEvent.click(screen.getByText("Add source skill term"));
+    const input = screen.getByRole("textbox", { name: "Fact 1 source term" });
     fireEvent.change(input, { target: { value: "data cleansing" } });
-    expect(screen.getByRole("button", { name: "补充技能词" })).toBeEnabled();
-    fireEvent.click(screen.getByRole("button", { name: "补充技能词" }));
+    expect(screen.getByRole("button", { name: "Add skill term" })).toBeEnabled();
+    fireEvent.click(screen.getByRole("button", { name: "Add skill term" }));
     expect(changed).toHaveBeenCalledExactlyOnceWith([expect.objectContaining({ text, origin: "user", skillLabels: ["data cleaning"] })],
       { itemId: "mention", sourceTerm: "data cleansing" });
-    expect(screen.getByRole("button", { name: "移除技能词 data cleansing" })).toBeInTheDocument();
-    expect(screen.getByText("（规范名称 data cleaning）")).toBeInTheDocument();
-    expect(screen.queryByText("单独核对能力建议")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Remove skill term data cleansing" })).toBeInTheDocument();
+    expect(screen.getByText("(canonical name data cleaning)")).toBeInTheDocument();
+    expect(screen.queryByText("Review ability suggestions separately")).not.toBeInTheDocument();
     expect(adopted).not.toHaveBeenCalled();
   });
 
@@ -224,16 +224,16 @@ describe("versioned source-mention review controls", () => {
     const text = "I have no experience with data cleansing.";
     render(<MaterialConfirmation draft={sourceDraft(text, ["data cleaning"])} text={text} saving={false} confirmed={false}
       onItemsChange={vi.fn()} onConfirm={vi.fn()} />);
-    expect(screen.getByRole("button", { name: "移除技能词 data cleansing" })).toBeInTheDocument();
-    expect(screen.getByText("（规范名称 data cleaning）")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Remove skill term data cleansing" })).toBeInTheDocument();
+    expect(screen.getByText("(canonical name data cleaning)")).toBeInTheDocument();
   });
 
   it("keeps the v2 negative-source correction rule when the same text is reopened", () => {
     const text = "I have never used SQL.", value = { ...sourceDraft(text), reviewProjection: GROUNDED_MATERIAL_REVIEW_PROJECTION };
     render(<MaterialConfirmation draft={value} text={text} saving={false} confirmed={false} onItemsChange={vi.fn()} onConfirm={vi.fn()} />);
-    fireEvent.click(screen.getByText("从原文补充技能词"));
-    fireEvent.change(screen.getByRole("textbox", { name: "事实 1 原文词" }), { target: { value: "SQL" } });
-    expect(screen.getByRole("button", { name: "补充技能词" })).toBeDisabled();
+    fireEvent.click(screen.getByText("Add source skill term"));
+    fireEvent.change(screen.getByRole("textbox", { name: "Fact 1 source term" }), { target: { value: "SQL" } });
+    expect(screen.getByRole("button", { name: "Add skill term" })).toBeDisabled();
   });
 
   it.each([GROUNDED_MATERIAL_REVIEW_PROJECTION, SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION])(
@@ -242,13 +242,13 @@ describe("versioned source-mention review controls", () => {
       const text = `I used ${words.join(", ")} and CSS.`, value = { ...sourceDraft(text, words), reviewProjection };
       const props = { text, saving: false, confirmed: false, onItemsChange: vi.fn(), onConfirm: vi.fn() };
       const page = render(<MaterialConfirmation {...props} draft={value} />);
-      fireEvent.click(screen.getByText("从原文补充技能词"));
-      fireEvent.change(screen.getByRole("textbox", { name: "事实 1 原文词" }), { target: { value: "CSS" } });
-      expect(screen.getByRole("button", { name: "补充技能词" })).toBeDisabled();
+      fireEvent.click(screen.getByText("Add source skill term"));
+      fireEvent.change(screen.getByRole("textbox", { name: "Fact 1 source term" }), { target: { value: "CSS" } });
+      expect(screen.getByRole("button", { name: "Add skill term" })).toBeDisabled();
       page.rerender(<MaterialConfirmation {...props} draft={{ ...value, reclassifiedItemIds: ["mention"],
         items: [{ ...value.items[0]!, kind: "constraint", origin: "user", skillLabels: [] }] }} />);
-      expect(screen.queryByText("从原文补充约束主题")).not.toBeInTheDocument();
-      expect(screen.queryByRole("textbox", { name: "事实 1 原文词" })).not.toBeInTheDocument();
+      expect(screen.queryByText("Add source constraint topic")).not.toBeInTheDocument();
+      expect(screen.queryByRole("textbox", { name: "Fact 1 source term" })).not.toBeInTheDocument();
     });
 
   it.each(["SQL is not required.", "If assigned to the database team, SQL will be required."])(
@@ -261,13 +261,13 @@ describe("versioned source-mention review controls", () => {
           onItemsChange={items => setValue({ ...value, items })} onConfirm={confirmed} onAdoptLevels={adopted} />;
       }
       render(<Editor />);
-      const confirm = screen.getByRole("button", { name: "确认这些事实" });
+      const confirm = screen.getByRole("button", { name: "Confirm these facts" });
       expect(confirm).toBeDisabled();
-      expect(screen.getByRole("combobox", { name: "事实 1 要求类型" })).toHaveValue("unspecified");
-      expect(screen.getByRole("button", { name: "移除技能词 SQL" })).toBeInTheDocument();
+      expect(screen.getByRole("combobox", { name: "Fact 1 requirement type" })).toHaveValue("unspecified");
+      expect(screen.getByRole("button", { name: "Remove skill term SQL" })).toBeInTheDocument();
       fireEvent.click(confirm);
       expect(confirmed).not.toHaveBeenCalled();
-      fireEvent.change(screen.getByRole("combobox", { name: "事实 1 要求类型" }), { target: { value: "preferred" } });
+      fireEvent.change(screen.getByRole("combobox", { name: "Fact 1 requirement type" }), { target: { value: "preferred" } });
       expect(confirm).toBeEnabled();
       fireEvent.click(confirm);
       expect(confirmed).toHaveBeenCalledOnce();

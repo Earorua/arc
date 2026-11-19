@@ -72,7 +72,7 @@ describe("POST /api/intelligence/preview", () => {
     expect(harness.research).not.toHaveBeenCalled();
   });
 
-  it("returns deterministic structured output without a paid provider call", async () => {
+  it("defaults deterministic preview requests to English without a paid provider call", async () => {
     const harness = setup();
     const POST = createIntelligencePreviewHandler(harness.deps);
 
@@ -87,7 +87,7 @@ describe("POST /api/intelligence/preview", () => {
     expect(harness.research).toHaveBeenCalledWith("user-owner", {
       requestId,
       role: "AI Product Engineer",
-      locale: "zh-CN",
+      locale: "en-US",
     });
     expect(harness.reserve.mock.invocationCallOrder[0]).toBeLessThan(
       harness.research.mock.invocationCallOrder[0],

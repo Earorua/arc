@@ -47,28 +47,28 @@ export function MaterialSetupSlot({ kind, skills, onAdoptLevels, disabled }: {
   return <div className="material-setup-slot"><MaterialTextPanel key={`${kind}:${state.editorEpochs[kind]}`} kind={kind} capabilities={state.capabilities} client={state.client}
     value={state.refs.slots[kind] ?? null} onChange={ref => state.setSlot(kind, ref)} skills={skills} onAdoptLevels={onAdoptLevels} disabled={disabled}
     recoveryScope={state.ownerId ? { ownerId: `user:${state.ownerId}`, scopeKey: `${state.scopeKey}:${kind}` } : undefined} />
-    {state.refs.slots[kind] && <button className="text-action" type="button" disabled={disabled} onClick={() => state.replaceSlot(kind, null)}>本次不使用这份{kind === "resume" ? "简历" : "JD"}</button>}</div>;
+    {state.refs.slots[kind] && <button className="text-action" type="button" disabled={disabled} onClick={() => state.replaceSlot(kind, null)}>Do not use this {kind === "resume" ? "resume" : "JD"}</button>}</div>;
 }
 export function MaterialSelectionSummary({ disabled = false }: { disabled?: boolean }) {
   const state = useMaterialSetup();
   if (!state?.capabilities?.documentsEnabled) return null;
   const { slots, supplements } = state.refs;
   if (!slots.resume && !slots.jd && !supplements.length) return null;
-  return <section className="material-selection-summary" aria-label="本次资料选择">
-    <h2>本次采用的资料</h2>
+  return <section className="material-selection-summary" aria-label="Materials selected for this plan">
+    <h2>Materials used for this plan</h2>
     <ul>
       {(["resume", "jd"] as const).map(kind => {
         const ref = slots[kind];
         if (!ref) return null;
-        return <li key={kind}>{kind === "resume" ? "简历" : "岗位 JD"} · {ref.confirmationId ? "事实已确认" : "待核对确认"}
-          <button className="text-action" type="button" disabled={disabled} onClick={() => state.replaceSlot(kind, null)}>移除{kind === "resume" ? "简历" : "JD"}选择</button>
+        return <li key={kind}>{kind === "resume" ? "Resume" : "Job description"} · {ref.confirmationId ? "Facts confirmed" : "Awaiting review and confirmation"}
+          <button className="text-action" type="button" disabled={disabled} onClick={() => state.replaceSlot(kind, null)}>Remove {kind === "resume" ? "resume" : "JD"} selection</button>
         </li>;
       })}
-      {supplements.map((ref, index) => <li key={ref.documentId}>补充资料 {index + 1} · {ref.confirmationId ? "事实已确认" : "待核对确认"}
-        <button className="text-action" type="button" disabled={disabled} onClick={() => state.setSupplements(supplements.filter(item => item.documentId !== ref.documentId))}>移除补充资料 {index + 1} 选择</button>
+      {supplements.map((ref, index) => <li key={ref.documentId}>Supplementary material {index + 1} · {ref.confirmationId ? "Facts confirmed" : "Awaiting review and confirmation"}
+        <button className="text-action" type="button" disabled={disabled} onClick={() => state.setSupplements(supplements.filter(item => item.documentId !== ref.documentId))}>Remove supplementary material {index + 1} selection</button>
       </li>)}
     </ul>
-    <p>路线将采用本次选择的资料版本。</p>
+    <p>The path will use these selected material versions.</p>
   </section>;
 }
 
@@ -76,15 +76,15 @@ export function MaterialSetupLibrary() {
   const state = useMaterialSetup(); const [open, setOpen] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   if (!state?.ownerId || !state.capabilities?.documentsEnabled) return null;
-  return <div className="material-setup-library"><button className="text-action" type="button" aria-expanded={open} onClick={() => setOpen(value => !value)}>从私人资料库选择</button>
+  return <div className="material-setup-library"><button className="text-action" type="button" aria-expanded={open} onClick={() => setOpen(value => !value)}>Choose from your private library</button>
     {open && <MaterialLibrary ownerId={state.ownerId} capabilities={state.capabilities} client={state.client} onSelect={(kind, ref) => {
       if (kind === "supplement") {
         const others = state.refs.supplements.filter(item => item.documentId !== ref.documentId);
-        if (others.length >= 3) { setMessage("最多采用三份补充资料，请先移除一份。"); return; }
+        if (others.length >= 3) { setMessage("You can use up to three supplementary materials. Remove one before adding another."); return; }
         state.setSupplements([...others, ref]);
       } else state.replaceSlot(kind, ref);
-      setMessage("已采用确认版本。"); setOpen(false);
+      setMessage("The confirmed version is selected."); setOpen(false);
     }} />}
-    {state.refs.supplements.map(ref => <p key={ref.documentId}>已采用补充资料<button type="button" className="text-action" onClick={() => state.setSupplements(state.refs.supplements.filter(item => item.documentId !== ref.documentId))}>移除这份补充资料</button></p>)}
+    {state.refs.supplements.map(ref => <p key={ref.documentId}>Supplementary material selected<button type="button" className="text-action" onClick={() => state.setSupplements(state.refs.supplements.filter(item => item.documentId !== ref.documentId))}>Remove this supplementary material</button></p>)}
     {message && <p role="status">{message}</p>}</div>;
 }

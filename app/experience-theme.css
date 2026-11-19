@@ -1,7 +1,18 @@
 /* Arc working surfaces: editorial rhythm, quiet controls, one clear next action. */
 :root { --workspace-width: 1160px; --reading-width: 760px; }
+.wordmark.arc-home-link { display: inline-flex; align-items: center; min-height: 44px; flex: none; justify-self: start; }
+.arc-wordmark { display: block; flex: none; }
+/* English headings wrap by phrase; controls keep room for their full labels. */
+:is(.discovery-home, .reading-page, .showcase-page, .setup-page, .workspace-main, .sign-in-page, .coach-overview) :is(h1, h2, h3) { text-wrap: balance; }
+.discovery-prose, .showcase-lede, .account-boundary-description { text-wrap: pretty; }
+.workspace-header :is(.workspace-meta, .workspace-primary-nav), .companion-heading > div { min-width: 0; }
+.companion-heading strong, .companion-heading small { overflow-wrap: anywhere; }
+.companion-compose-actions { flex-wrap: wrap; row-gap: 8px; }
 .workspace-main { width: min(var(--workspace-width), calc(100% - 64px)); padding-block: 44px 104px; }
 .workspace-main, .coach-work-page, .setup-page, .sign-in-paper { font-size: 16px; line-height: 1.75; }
+.workspace-loading { min-height: 104px; }
+.workspace-loading > p { margin: 8px 0; min-height: 24px; color: var(--stone); font: 400 14px/1.7 var(--sans); }
+.workspace-main .planning-version-recovery h2 { margin: 12px 0; font: 500 24px/1.5 var(--sans); letter-spacing: 0; }
 .workspace-intro { margin-bottom: 32px; max-width: var(--reading-width); }
 .workspace-intro-with-return { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 32px; max-width: none; }
 .workspace-intro-with-return > :not(.workspace-return) { grid-column: 1; }
@@ -30,7 +41,7 @@
 .workspace-main :is(button, a), .workspace-header a { transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease; }
 .workspace-main :is(button, a, summary):focus-visible, .workspace-header :is(a, summary):focus-visible { outline: 2px solid var(--action); outline-offset: 4px; }
 .primary-link { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 10px 22px; border-radius: 999px; background: var(--action); color: white; font: 400 15px/1.6 var(--sans); text-decoration: none; }
-.primary-link:hover { background: #603781; color: white; }
+.primary-link:hover { background: #115450; color: white; }
 .workspace-header { grid-template-columns: auto 1fr auto; min-height: 104px; height: auto; padding-inline: max(32px, calc((100vw - 1160px) / 2)); gap: 0 32px; }
 .workspace-header > .wordmark { grid-column: 1; grid-row: 1; }
 .workspace-header .workspace-primary-nav { grid-column: 2; grid-row: 1; justify-content: center; padding-block: 12px; gap: 30px; }
@@ -43,7 +54,7 @@ body:has(.workspace-header) .companion-launcher, body:has(.workspace-header) .co
 .workspace-goal { min-width: 0; max-width: min(76vw, 720px); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--stone); font: 400 13px/1.6 var(--sans); }
 .workspace-tools { position: relative; font-size: 14px; }
 .workspace-tools > summary { cursor: pointer; padding: 11px 2px 11px 8px; min-height: 44px; }
-.workspace-header .workspace-tools-menu { position: absolute; top: 100%; right: 0; z-index: 30; display: grid; width: 190px; padding: 8px; gap: 0; background: var(--chalk); border: 1px solid var(--hairline); border-radius: 8px; box-shadow: 0 10px 30px #1b1a160d; }
+.workspace-header .workspace-tools-menu { position: absolute; top: 100%; right: 0; z-index: 30; display: grid; width: 190px; padding: 8px; gap: 0; background: var(--chalk); border: 1px solid var(--hairline); border-radius: 8px; box-shadow: 0 10px 30px #182b300d; }
 .workspace-header .workspace-tools-menu a { padding: 10px 12px; font-size: 14px; }
 .workspace-header .workspace-tools-menu a:hover { background: var(--paper-deep); }
 .account-boundary-content { display: contents; }
@@ -146,7 +157,7 @@ body:has(.workspace-header) .companion-launcher, body:has(.workspace-header) .co
   .workspace-main, .coach-work-page { width: calc(100% - 40px); padding-block: 28px 140px; }
   .workspace-intro h1, .coach-work-page .workspace-intro h1, .adaptive-today-session header h1, .adaptive-path .adaptive-path-heading h1, .account-boundary h1, .admin-intro h1 { font-size: 30px; }
   .workspace-header, .has-companion .workspace-header { padding: 0 20px; min-height: 96px; grid-template-columns: auto 1fr auto; gap: 0 16px; backdrop-filter: none; }
-  .workspace-header .workspace-bottom-nav { position: fixed; inset: auto 0 0; z-index: 55; width: 100%; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; padding: 6px 12px calc(6px + env(safe-area-inset-bottom)); background: var(--ivory); border-top: 1px solid var(--hairline); box-shadow: 0 -4px 20px #1b1a1605; }
+  .workspace-header .workspace-bottom-nav { position: fixed; inset: auto 0 0; z-index: 55; width: 100%; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; padding: 6px 12px calc(6px + env(safe-area-inset-bottom)); background: var(--ivory); border-top: 1px solid var(--hairline); box-shadow: 0 -4px 20px #182b3005; }
   .workspace-header .workspace-primary-nav a { justify-content: center; min-height: 48px; font-size: 14px; padding: 8px 0; }
   .workspace-header .workspace-primary-nav a[aria-current="page"] { box-shadow: none; background: var(--paper-deep); border-radius: 6px; color: var(--action); }
   .workspace-header .workspace-context-row { min-height: 36px; }

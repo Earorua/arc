@@ -8,7 +8,7 @@ describe("private material explanations", () => {
   });
   it("replaces all private references and messages after source deletion", () => {
     const result = explainMaterialPreview({ confirmedItems: [], priorities: [{ skillId: "PRIVATE-MATERIAL-SENTINEL-7f91", tier: 0, itemIds: ["private-item"] }], issues: [], uncoveredLabels: ["private label"] }, false);
-    expect(result).toEqual([{ ruleId: "source-unavailable-v1", changeKind: "unavailable", skillId: null, unitIds: [], reasonItemIds: [], message: "依据已删除", sourceAvailability: "unavailable" }]);
+    expect(result).toEqual([{ ruleId: "source-unavailable-v1", changeKind: "unavailable", skillId: null, unitIds: [], reasonItemIds: [], message: "Source evidence deleted", sourceAvailability: "unavailable" }]);
     expect(JSON.stringify(result)).not.toContain("PRIVATE-MATERIAL");
   });
   it("keeps task limitations separate from priority and removes them after source deletion", () => {
@@ -18,8 +18,8 @@ describe("private material explanations", () => {
     }] };
     const result = explainMaterialPreview(preview, true);
     expect(result).toMatchObject([{ ruleId: "course-task-partial-v1", changeKind: "unapplied", reasonItemIds: ["private-fact"] }]);
-    expect(result[0]?.message).toMatch(/其余要求尚未核验/);
-    expect(result[0]?.message).toMatch(/不代表能力或采用优先级/);
+    expect(result[0]?.message).toMatch(/remaining requirements are unverified/);
+    expect(result[0]?.message).toMatch(/does not establish ability or an adopted priority/);
     expect(explainMaterialPreview(preview, false)).toEqual(explainMaterialPreview(null, false));
   });
 });

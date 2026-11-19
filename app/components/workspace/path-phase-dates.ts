@@ -34,12 +34,12 @@ export function phaseDateLabels(workspace: PlanningWorkspace, path: LearningPath
     const done = remainingIds.length === 0;
     const ids = done ? phase.unitIds : remainingIds;
     const source = done ? completionDates : dates;
-    if (ids.some(id => !source.has(id))) return [phase.phaseId, "阶段时间暂不可估算"];
+    if (ids.some(id => !source.has(id))) return [phase.phaseId, "Phase dates are not yet available"];
     const ordered = ids.map(id => source.get(id)!).sort();
     const range = ordered[0] === ordered.at(-1) ? ordered[0] : `${ordered[0]}—${ordered.at(-1)}`;
-    const partial = remainingIds.length > 0 && remainingIds.length < phase.unitIds.length ? "剩余" : "";
-    return [phase.phaseId, done ? `完成于 ${range}`
-      : ids.some(id => estimated.has(id)) ? `${partial}预计 ${range}（按保存的学习时间估算）`
-        : `${partial}已排期 ${range}`];
+    const partial = remainingIds.length > 0 && remainingIds.length < phase.unitIds.length ? "Remaining · " : "";
+    return [phase.phaseId, done ? `Completed on ${range}`
+      : ids.some(id => estimated.has(id)) ? `${partial}Estimated: ${range} (based on your saved availability)`
+        : `${partial}Scheduled: ${range}`];
   }));
 }

@@ -133,7 +133,7 @@ describe("material proposal transactions", () => {
     await expect(service.acceptReplan("owner-a", decision)).rejects.toMatchObject({ code: "CONFLICT" });
     expect((await service.discardReplan("owner-a", { ...decision, mutationId: "discard-revoked" })).outcome).toBe("discarded");
     const history = await materials.history("owner-a", "goal-a", "current");
-    expect(history.plans[0]?.explanations[0]?.message).toBe("依据已删除");
+    expect(history.plans[0]?.explanations[0]?.message).toBe("Source evidence deleted");
     expect(JSON.stringify(history)).not.toContain("PRIVATE-MATERIAL-SENTINEL");
     expect(db.database.prepare("SELECT id FROM career_goals WHERE active_slot=1").get()).toMatchObject({ id: "goal-a" });
     await expect(materials.history("owner-b", "goal-a")).rejects.toMatchObject({ code: "NOT_FOUND" });

@@ -6,7 +6,7 @@ import { SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION, GROUNDED_MATERIAL_REVIEW_PRO
 import { guidedCleaningHint } from "../helpers/material-guided-cleaning";
 
 afterEach(cleanup);
-const text = "１. 我在指导下清洗数据。", button = "采用 data cleaning 的需指导完成建议";
+const text = "１. 我在指导下清洗数据。", button = "Use data cleaning: Need guidance";
 function draft(): DocumentReviewDraft {
   const sourceRef = { documentId: "document", documentVersionId: "version", textVersionId: "text", start: 0, end: text.length };
   return { id: "review", schemaVersion: "2026.11.1", documentId: "document", documentVersionId: "version", textVersionId: "text",
@@ -20,14 +20,14 @@ it("displays the natural numbered fact, literal source and guided suggestion whi
   const adopted = vi.fn(), confirmed = vi.fn();
   render(<MaterialConfirmation draft={draft()} text={text} saving={false} confirmed={false} skills={skills}
     onItemsChange={vi.fn()} onConfirm={confirmed} onAdoptLevels={adopted} />);
-  expect(screen.getByRole("textbox", { name: "事实 1" })).toHaveValue(text);
-  expect(screen.getByRole("button", { name: "移除技能词 清洗数据" })).toBeInTheDocument();
-  expect(screen.getByText("（规范名称 data cleaning）")).toBeInTheDocument();
-  expect(screen.getByRole("combobox", { name: "请单独确认能力自评" })).toHaveValue("unresolved");
+  expect(screen.getByRole("textbox", { name: "Fact 1" })).toHaveValue(text);
+  expect(screen.getByRole("button", { name: "Remove skill term 清洗数据" })).toBeInTheDocument();
+  expect(screen.getByText("(canonical name data cleaning)")).toBeInTheDocument();
+  expect(screen.getByRole("combobox", { name: "Confirm your self-assessment separately" })).toHaveValue("unresolved");
   expect(screen.getAllByText(text, { selector: "blockquote" }).length).toBeGreaterThan(0);
   expect(screen.getByRole("button", { name: button })).toBeInTheDocument();
   expect(adopted).not.toHaveBeenCalled();
-  fireEvent.click(screen.getByRole("button", { name: "确认这些事实" }));
+  fireEvent.click(screen.getByRole("button", { name: "Confirm these facts" }));
   expect(confirmed).toHaveBeenCalledOnce();
   expect(adopted).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole("button", { name: button }));
@@ -47,7 +47,7 @@ it.each([
   }
   render(<Editor />);
   expect(screen.getByRole("button", { name: button })).toBeInTheDocument();
-  fireEvent.change(screen.getByRole("textbox", { name: "事实 1" }), { target: { value: edited } });
+  fireEvent.change(screen.getByRole("textbox", { name: "Fact 1" }), { target: { value: edited } });
   expect(screen.queryByRole("button", { name: button }) !== null).toBe(supported);
   expect(screen.getAllByText(text, { selector: "blockquote" }).length).toBeGreaterThan(0);
   expect(adopted).not.toHaveBeenCalled();
@@ -61,7 +61,7 @@ it.each(["label", "item"])("hides the hint immediately when its %s is removed", 
   }
   render(<Editor />);
   expect(screen.getByRole("button", { name: button })).toBeInTheDocument();
-  fireEvent.click(screen.getByRole("button", { name: removal === "label" ? "移除技能词 清洗数据" : "移除事实 1" }));
+  fireEvent.click(screen.getByRole("button", { name: removal === "label" ? "Remove skill term 清洗数据" : "Remove fact 1" }));
   expect(screen.queryByRole("button", { name: button })).not.toBeInTheDocument();
 });
 

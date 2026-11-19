@@ -22,6 +22,8 @@ describe("RootLayout", () => {
     if (!main || !skipLink) throw new Error("RootLayout contract elements are missing");
 
     expect(notes).toHaveLength(0);
+    expect(document.documentElement.lang).toBe("en");
+    expect(skipLink.textContent).toBe("Skip to main content");
     expect(skipLink.getAttribute("href")).toBe("#main-content");
     expect(skipLink.compareDocumentPosition(main) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

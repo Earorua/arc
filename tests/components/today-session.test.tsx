@@ -13,18 +13,18 @@ describe("TodaySession", () => {
 
     render(<TodaySession onComplete={onComplete} unit={flagshipRole.today} />);
 
-    expect(screen.getByRole("button", { name: "完成任务" })).toBeDisabled();
-    expect(screen.getByText("完成并勾选上面的学习步骤后，即可记录进度。")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Complete task" })).toBeDisabled();
+    expect(screen.getByText("Complete and check off the steps above to save your progress.")).toBeInTheDocument();
 
     for (const [index, step] of flagshipRole.today.steps.entries()) {
       await user.click(screen.getByRole("checkbox", { name: step.label }));
       if (index < flagshipRole.today.steps.length - 1) {
-        expect(screen.getByRole("button", { name: "完成任务" })).toBeDisabled();
+        expect(screen.getByRole("button", { name: "Complete task" })).toBeDisabled();
       }
     }
 
-    const button = screen.getByRole("button", { name: "完成任务" });
-    expect(button.closest(".today-session")).toHaveAttribute("lang", "zh-CN");
+    const button = screen.getByRole("button", { name: "Complete task" });
+    expect(button.closest(".today-session")).toHaveAttribute("lang", "en");
 
     await user.dblClick(button);
 
@@ -42,7 +42,7 @@ describe("TodaySession", () => {
     for (const step of flagshipRole.today.steps) {
       await user.click(screen.getByRole("checkbox", { name: step.label }));
     }
-    await user.click(screen.getByRole("button", { name: "完成任务" }));
+    await user.click(screen.getByRole("button", { name: "Complete task" }));
     expect(firstComplete).toHaveBeenCalledTimes(1);
 
     const nextUnit = {
@@ -56,12 +56,12 @@ describe("TodaySession", () => {
     for (const step of nextUnit.steps) {
       expect(screen.getByRole("checkbox", { name: step.label })).not.toBeChecked();
     }
-    expect(screen.getByRole("button", { name: "完成任务" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Complete task" })).toBeDisabled();
 
     for (const step of nextUnit.steps) {
       await user.click(screen.getByRole("checkbox", { name: step.label }));
     }
-    await user.dblClick(screen.getByRole("button", { name: "完成任务" }));
+    await user.dblClick(screen.getByRole("button", { name: "Complete task" }));
 
     expect(nextComplete).toHaveBeenCalledWith(nextUnit);
     expect(nextComplete).toHaveBeenCalledTimes(1);
@@ -79,7 +79,7 @@ describe("TodaySession", () => {
       await user.click(screen.getByRole("checkbox", { name: step.label }));
     }
 
-    const button = screen.getByRole("button", { name: "完成任务" });
+    const button = screen.getByRole("button", { name: "Complete task" });
     await user.click(button);
 
     expect(onComplete).toHaveBeenCalledTimes(1);

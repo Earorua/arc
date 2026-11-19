@@ -10,7 +10,7 @@ export function SetupCompletionNotice() {
   const requestedReturn = query.get("returnTo");
   const returnTo = requestedReturn && safeReturnTo(requestedReturn) === requestedReturn ? requestedReturn : null;
   const pathname = returnTo?.split(/[?#]/u, 1)[0];
-  const label = pathname === "/stack" ? "继续查看技能与资料" : pathname === "/proof" ? "继续整理作品" : pathname === "/coach" ? "继续学习规划" : "返回来源页面";
+  const label = pathname === "/stack" ? "Continue to skills and resources" : pathname === "/proof" ? "Continue to your proof" : pathname === "/coach" ? "Continue planning" : "Back to previous page";
 
-  return <p className="workspace-notice" role="status">路线已准备好。进入今日学习，从第一项任务开始。{returnTo && <> <Link href={returnTo}>{label}</Link></>}</p>;
+  return <p className="workspace-notice" role="status">Your path is ready. Open Today to begin your first task.{returnTo && <> <Link href={returnTo}>{label}</Link></>}</p>;
 }

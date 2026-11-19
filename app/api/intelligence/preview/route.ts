@@ -17,7 +17,7 @@ import {
 
 const previewInputSchema = z.object({
   role: z.string().trim().min(2).max(160),
-  locale: z.enum(["zh-CN", "en-US"]).default("zh-CN"),
+  locale: z.enum(["zh-CN", "en-US"]).default("en-US"),
 }).strict();
 
 type PreviewGateway = {

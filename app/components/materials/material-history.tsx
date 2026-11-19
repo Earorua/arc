@@ -4,7 +4,7 @@ import type { MaterialHistoryResponse } from "../../contracts/material-planning"
 import { DocumentClientError, documentsClient, type DocumentsClient } from "../../lib/documents-client";
 
 type HistoryPlan = MaterialHistoryResponse["plans"][number];
-const proposalLabels = { pending: "待确认调整", discarded: "已放弃调整", revoked: "已失效提议", unknown: "历史提议（结果未记录）" };
+const proposalLabels = { pending: "Changes awaiting confirmation", discarded: "Discarded changes", revoked: "Invalidated proposal", unknown: "Historical proposal (outcome not recorded)" };
 const pairKey = (plan: HistoryPlan) => `${plan.planVersionId}:${plan.contextVersionId}`;
 async function loadHistory(client: DocumentsClient, goalId: string, signal: AbortSignal) {
   try { return await client.request("readMaterialHistory", { goalId, includeProposalState: "current" }, signal); }
@@ -25,7 +25,7 @@ function OwnedMaterialHistory({ goalId, planVersionId, client = documentsClient 
     void loadHistory(client, goalId, controller.signal).then(value => { if (!controller.signal.aborted) setHistory(value); }).catch(() => { if (!controller.signal.aborted) setFailed(true); });
     return () => controller.abort();
   }, [client, goalId]);
-  if (failed) return <p>私人资料依据暂不可读，已保存的路线仍可查看。</p>;
+  if (failed) return <p>Private material evidence is temporarily unavailable. Your saved path remains accessible.</p>;
   const plans = new Map<string, HistoryPlan>();
   for (const plan of history?.plans ?? []) {
     if (planVersionId && plan.planVersionId !== planVersionId) continue;
@@ -34,8 +34,8 @@ function OwnedMaterialHistory({ goalId, planVersionId, client = documentsClient 
     if (!plans.has(key) || plan.kind === "accepted") plans.set(key, plan);
   }
   if (!plans.size) return null;
-  return <section className="material-history"><h3>资料辅助规划依据</h3>{[...plans].map(([key, plan]) => <details key={key}>
-    <summary>{plan.kind === "accepted" ? "已接受调整" : plan.kind === "generation" ? "保存时的依据" : proposalLabels[plan.proposalState ?? "unknown"]}{plan.sourceAvailability === "unavailable" ? " · 来源已不可用" : ""}</summary>
+  return <section className="material-history"><h3>Material planning evidence</h3>{[...plans].map(([key, plan]) => <details key={key}>
+    <summary>{plan.kind === "accepted" ? "Accepted changes" : plan.kind === "generation" ? "Evidence when saved" : proposalLabels[plan.proposalState ?? "unknown"]}{plan.sourceAvailability === "unavailable" ? " · Source no longer available" : ""}</summary>
     <ul>{plan.explanations.map((item, index) => <li key={`${item.ruleId}:${index}`}>{item.message}</li>)}</ul>
-  </details>)}<p>依据只供查阅；不会重新启用已撤销的资料或改变当前计划。</p></section>;
+  </details>)}<p>Evidence is read-only. Viewing it does not reactivate revoked materials or change your current plan.</p></section>;
 }

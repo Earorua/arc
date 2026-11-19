@@ -1,26 +1,42 @@
 import { describe, expect, it } from "vitest";
-import { planningEventInputSchema, planningEventSchema } from "../../../app/contracts/planning";
+import { planningEventInputSchema, planningEventSchema, planningWorkspaceSchema } from "../../../app/contracts/planning";
 import { planningEventRequestSchema } from "../../../app/contracts/planning-api";
 import { applyPlanningEvent, replayPlanningEvents } from "../../../app/lib/planning/event-reducer";
+import { buildLearningPaths } from "../../../app/lib/planning/path-builder";
+import { buildPlanVersion } from "../../../app/lib/planning/scheduler";
 import { agentFixture } from "../../helpers/agent-fixture";
 
 describe("agent planning proposals", () => {
-  const input = () => {
-    const fixture = agentFixture();
+  const input = (historicalName?: string) => {
+    let fixture = agentFixture();
+    if (historicalName) {
+      // The old persisted ID used this blueprint display name; every other input is unchanged.
+      const blueprint = { ...fixture.sourceContext.blueprint, name: historicalName };
+      const registry = fixture.sourceContext.registry;
+      const path = buildLearningPaths({ ...fixture.request, blueprint, registry }).fullScope;
+      const built = buildPlanVersion({ path, registry, availability: fixture.request.availability,
+        planningDate: fixture.request.planningDate, generation: "initial", baseVersionId: null, replanReason: null, completedUnitIds: new Set() });
+      fixture = { ...fixture, path, sourceContext: { ...fixture.sourceContext, blueprint },
+        workspace: planningWorkspaceSchema.parse({ ...fixture.workspace, pathVersions: [path], planVersions: [built.plan], dailyUnits: built.dailyUnits,
+          activePathVersionId: path.id, activePlanVersionId: built.plan.id }) };
+    }
     const event = { kind: "agent_replanned", baseRevision: 0, unitOrder: fixture.path.units.map(u => u.id),
       planningDate: "2026-10-14", eventId: "agent-event", mutationId: "agent-mutation", sequence: 1,
       targetPlanVersionId: fixture.workspace.activePlanVersionId, occurredAt: "2026-10-14T01:00:00.000Z" };
     return { ...fixture, event };
   };
-  it("creates a proposed plan without activating it and replays identically", () => {
-    const f = input();
+  it.each([
+    ["historical role display", "AI 原生全栈工程师", "plan-version-99727a989539f78219f6adb4a83e4fce"],
+    ["current role display", undefined, "plan-version-354a875eebd378e0774cd87aa9c7533c"],
+  ] as const)("creates and replays the %s proposal without activating it", (_label, historicalName, expectedPlanId) => {
+    const f = input(historicalName);
     expect(planningEventSchema.safeParse(f.event).success).toBe(true);
     const event = planningEventSchema.parse(f.event);
     const next = applyPlanningEvent({ workspace: f.workspace, event, blueprint: f.sourceContext.blueprint, registry: f.sourceContext.registry });
     expect(next.kind).toBe("proposed");
     expect(next.workspace.activePlanVersionId).toBe(f.workspace.activePlanVersionId);
-    // This fixture's persisted ID predates material proposal fingerprints.
-    expect(next.workspace.pendingPlanVersionId).toBe("plan-version-99727a989539f78219f6adb4a83e4fce");
+    // Keep the pre-material historical ID and bind the translated fixture separately.
+    expect(next.workspace.pendingPlanVersionId).toBe(expectedPlanId);
     expect(replayPlanningEvents({ initial: f.workspace, events: [event], blueprint: f.sourceContext.blueprint, registry: f.sourceContext.registry }))
       .toEqual(next.workspace);
   });

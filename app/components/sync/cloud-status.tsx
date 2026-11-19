@@ -14,24 +14,24 @@ export type CloudStatusKind =
 
 const content: Record<CloudStatusKind, { message: string; action: string }> = {
   "session-expired": {
-    message: "登录已过期，这次更改尚未保存到账号。",
-    action: "重新登录",
+    message: "Your session has expired. This change has not been saved to your account.",
+    action: "Sign in again",
   },
   "import-failed": {
-    message: "本设备的记录尚未导入，原有记录已保留。",
-    action: "重试导入",
+    message: "Your device records have not been imported. The originals are still saved.",
+    action: "Retry import",
   },
   offline: {
-    message: "暂时无法同步。已接收的更改保留在本设备，连接恢复后可以重试。",
-    action: "重新同步",
+    message: "Sync is unavailable. Accepted changes stay on this device; retry when your connection returns.",
+    action: "Retry sync",
   },
   quota: {
-    message: "本期智能服务额度已用完。你可以先查看公开样例。",
-    action: "查看公开样例",
+    message: "You have used this period's AI allowance. You can still explore the public example.",
+    action: "Explore the showcase",
   },
   "ai-disabled": {
-    message: "智能服务暂未开放，你仍可查看公开样例。",
-    action: "查看公开样例",
+    message: "AI services are not available yet. You can still explore the public example.",
+    action: "Explore the showcase",
   },
 };
 
@@ -66,7 +66,7 @@ export function CloudStatus({
         <Link href="/showcase">{details.action}</Link>
       ) : (
         <button disabled={pending} onClick={() => void act()} type="button">
-          {pending ? "正在重试…" : details.action}
+          {pending ? "Retrying…" : details.action}
         </button>
       )}
     </div>

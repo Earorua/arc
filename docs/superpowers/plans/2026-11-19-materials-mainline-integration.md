@@ -1,12 +1,12 @@
 # Materials integration with the current public application
 
-Status: prepared offline; execution follows acceptance of the course coverage patch and the fixed native 14-case matrix. This document does not authorize a model call, remote migration or deployment.
+Status: application integration and offline acceptance completed 2026-11-19; step 6 continues with new quality-evaluation preparation. Final coverage is 386 Vitest files / 10,031 tests, 291 additional Node checks, five rendered checks, types, lint and build. The single full Vitest run's five failed suites received only a narrow five-file repair and 59-test rerun; all original failures remain archived. See `docs/verification/2026-11-19-materials-course-native-integration.md`. This document does not authorize a model call, remote migration or deployment.
 
 ## Scope and necessity
 
 The materials branch contains the new private-material workflow, while `origin/master` contains later published English interface, ink/teal styling, quiet loading, brand/navigation and account-focus fixes. Local integration is necessary so publication does not revert those improvements. It does not require new courses, a broader language parser or another round of synthetic-model trials before the code is stable.
 
-Use the existing worktree and `codex/materials-replan-recovery-20261106`. Preserve all unfinished files and accepted evidence. Read the current source index and recovery entry before execution; the November 19 fetched mainline is `60e7cb6`. A read-only merge preview found eight conflict paths, listed below; this is a preparation result, not an applied merge.
+Use the existing worktree and `codex/materials-replan-recovery-20261106`. Preserve all unfinished files and accepted evidence. The November 19 fetched mainline is `60e7cb6`; its eight conflict paths below were resolved locally and independently reviewed. Do not repeat the historical merge preview or overwrite the accepted integrated source.
 
 ## Implementation sequence
 

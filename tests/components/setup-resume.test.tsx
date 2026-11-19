@@ -15,85 +15,85 @@ describe("setup continuity", () => {
   it("provides Back on every legacy step and retains all four answers", async () => {
     const user = userEvent.setup();
     render(<SetupFlow onComplete={vi.fn()} />);
-    fireEvent.change(screen.getByLabelText("自定义岗位"), { target: { value: "数据产品经理" } });
-    await user.click(screen.getByRole("button", { name: "继续" }));
-    await user.click(screen.getByRole("button", { name: "熟练" }));
-    await user.click(screen.getByRole("button", { name: "返回" }));
-    expect(screen.getByLabelText("自定义岗位")).toHaveValue("数据产品经理");
-    await user.click(screen.getByRole("button", { name: "继续" }));
-    expect(screen.getByRole("button", { name: "熟练" })).toHaveAttribute("aria-pressed", "true");
-    await user.click(screen.getByRole("button", { name: "继续" }));
-    fireEvent.change(screen.getByLabelText("每周分钟数"), { target: { value: "180" } });
-    await user.click(screen.getByRole("button", { name: "继续" }));
-    await user.click(screen.getByRole("button", { name: "返回" }));
-    expect(screen.getByLabelText("每周分钟数")).toHaveValue(180);
-    await user.click(screen.getByRole("button", { name: "返回" }));
-    expect(screen.getByRole("button", { name: "熟练" })).toHaveAttribute("aria-pressed", "true");
+    fireEvent.change(screen.getByLabelText("Custom role"), { target: { value: "数据产品经理" } });
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    await user.click(screen.getByRole("button", { name: "Advanced" }));
+    await user.click(screen.getByRole("button", { name: "Back" }));
+    expect(screen.getByLabelText("Custom role")).toHaveValue("数据产品经理");
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    expect(screen.getByRole("button", { name: "Advanced" })).toHaveAttribute("aria-pressed", "true");
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    fireEvent.change(screen.getByLabelText("Minutes per week"), { target: { value: "180" } });
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    await user.click(screen.getByRole("button", { name: "Back" }));
+    expect(screen.getByLabelText("Minutes per week")).toHaveValue(180);
+    await user.click(screen.getByRole("button", { name: "Back" }));
+    expect(screen.getByRole("button", { name: "Advanced" })).toHaveAttribute("aria-pressed", "true");
   });
 
   it("restores a legacy step after refresh without sharing it with another owner", async () => {
     const user = userEvent.setup();
     const view = render(<SetupFlow draftOwner="user:alice" onComplete={vi.fn()} />);
-    fireEvent.change(screen.getByLabelText("自定义岗位"), { target: { value: "生态研究员" } });
-    await user.click(screen.getByRole("button", { name: "继续" }));
-    await user.click(screen.getByRole("button", { name: "熟练" }));
-    await user.click(screen.getByRole("button", { name: "继续" }));
-    fireEvent.change(screen.getByLabelText("每周分钟数"), { target: { value: "210" } });
+    fireEvent.change(screen.getByLabelText("Custom role"), { target: { value: "生态研究员" } });
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    await user.click(screen.getByRole("button", { name: "Advanced" }));
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    fireEvent.change(screen.getByLabelText("Minutes per week"), { target: { value: "210" } });
     view.unmount();
     const restored = render(<SetupFlow draftOwner="user:alice" onComplete={vi.fn()} />);
-    expect(await screen.findByLabelText("每周分钟数")).toHaveValue(210);
-    expect(screen.getByText(/已恢复.*草稿/)).toBeInTheDocument();
+    expect(await screen.findByLabelText("Minutes per week")).toHaveValue(210);
+    expect(screen.getByText(/draft.*restored/)).toBeInTheDocument();
     restored.rerender(<SetupFlow draftOwner="user:bob" onComplete={vi.fn()} />);
-    expect(await screen.findByLabelText("自定义岗位")).toHaveValue("");
-    expect(screen.queryByLabelText("每周分钟数")).not.toBeInTheDocument();
+    expect(await screen.findByLabelText("Custom role")).toHaveValue("");
+    expect(screen.queryByLabelText("Minutes per week")).not.toBeInTheDocument();
   });
 
   it("restores adaptive answers and stage only for the same owner and source", async () => {
     const user = userEvent.setup();
     const source = { source: "research" as const, researchRunId: "research-one" };
     const view = render(<AdaptiveSetupFlow {...adaptive} draftOwner="user:alice" source={source} />);
-    await user.click(within(screen.getByRole("group", { name: "Web Platform 自我评估" })).getByRole("radio", { name: "可独立完成" }));
-    await user.click(screen.getByRole("button", { name: "继续" }));
-    fireEvent.change(screen.getByLabelText("周一分钟数"), { target: { value: "90" } });
+    await user.click(within(screen.getByRole("group", { name: "Web Platform self-assessment" })).getByRole("radio", { name: "Independent" }));
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    fireEvent.change(screen.getByLabelText("Monday minutes"), { target: { value: "90" } });
     view.unmount();
     const restored = render(<AdaptiveSetupFlow {...adaptive} draftOwner="user:alice" source={source} />);
-    expect(await screen.findByLabelText("周一分钟数")).toHaveValue(90);
-    await user.click(screen.getByRole("button", { name: "返回" }));
-    expect(within(screen.getByRole("group", { name: "Web Platform 自我评估" })).getByRole("radio", { name: "可独立完成" })).toBeChecked();
+    expect(await screen.findByLabelText("Monday minutes")).toHaveValue(90);
+    await user.click(screen.getByRole("button", { name: "Back" }));
+    expect(within(screen.getByRole("group", { name: "Web Platform self-assessment" })).getByRole("radio", { name: "Independent" })).toBeChecked();
     restored.rerender(<AdaptiveSetupFlow {...adaptive} draftOwner="user:alice" source={{ source: "research", researchRunId: "research-two" }} />);
-    expect(within(screen.getByRole("group", { name: "Web Platform 自我评估" })).getByRole("radio", { name: "尚未接触" })).toBeChecked();
+    expect(within(screen.getByRole("group", { name: "Web Platform self-assessment" })).getByRole("radio", { name: "Not started" })).toBeChecked();
     restored.rerender(<AdaptiveSetupFlow {...adaptive} draftOwner="user:bob" source={source} />);
-    expect(within(screen.getByRole("group", { name: "Web Platform 自我评估" })).getByRole("radio", { name: "尚未接触" })).toBeChecked();
+    expect(within(screen.getByRole("group", { name: "Web Platform self-assessment" })).getByRole("radio", { name: "Not started" })).toBeChecked();
   });
 
   it("requires an explicit one-time guest draft handoff", async () => {
     const user = userEvent.setup();
     const guest = render(<SetupFlow draftOwner="guest" onComplete={vi.fn()} />);
-    fireEvent.change(screen.getByLabelText("自定义岗位"), { target: { value: "访客目标" } });
-    await user.click(screen.getByRole("button", { name: "继续" }));
+    fireEvent.change(screen.getByLabelText("Custom role"), { target: { value: "访客目标" } });
+    await user.click(screen.getByRole("button", { name: "Continue" }));
     guest.unmount();
     const account = render(<SetupFlow draftOwner="user:alice" onComplete={vi.fn()} />);
-    expect(screen.getByLabelText("自定义岗位")).toHaveValue("");
-    await user.click(await screen.findByRole("button", { name: "继续访客草稿" }));
-    await user.click(screen.getByRole("button", { name: "返回" }));
-    expect(screen.getByLabelText("自定义岗位")).toHaveValue("访客目标");
+    expect(screen.getByLabelText("Custom role")).toHaveValue("");
+    await user.click(await screen.findByRole("button", { name: "Continue guest draft" }));
+    await user.click(screen.getByRole("button", { name: "Back" }));
+    expect(screen.getByLabelText("Custom role")).toHaveValue("访客目标");
     account.rerender(<SetupFlow draftOwner="user:bob" onComplete={vi.fn()} />);
-    expect(screen.queryByRole("button", { name: "继续访客草稿" })).not.toBeInTheDocument();
-    expect(screen.getByLabelText("自定义岗位")).toHaveValue("");
+    expect(screen.queryByRole("button", { name: "Continue guest draft" })).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Custom role")).toHaveValue("");
   });
 
   it("opens only a small first group and keeps bulk controls secondary", async () => {
     render(<SkillAuditStep blueprint={flagshipBlueprint} value={createSkillAuditDraft(flagshipBlueprint)} onChange={vi.fn()} />);
-    expect(screen.getAllByRole("group", { name: /自我评估$/ }).length).toBeLessThanOrEqual(5);
-    expect(screen.queryByRole("button", { name: /^将基础/ })).not.toBeInTheDocument();
-    await userEvent.click(screen.getByText("基础批量设置"));
-    expect(screen.getByRole("button", { name: "将基础设为需指导完成" })).toBeVisible();
+    expect(screen.getAllByRole("group", { name: /self-assessment$/ }).length).toBeLessThanOrEqual(5);
+    expect(screen.queryByRole("button", { name: /^Set Foundations/ })).not.toBeInTheDocument();
+    await userEvent.click(screen.getByText("Foundations bulk settings"));
+    expect(screen.getByRole("button", { name: "Set Foundations to Need guidance" })).toBeVisible();
   });
 
   it("limits the initial skill group even when research puts all skills in one category", () => {
     const blueprint = { ...flagshipBlueprint, skills: flagshipBlueprint.skills.map((skill) => ({ ...skill, category: "foundations" as const })) };
     render(<SkillAuditStep blueprint={blueprint} value={createSkillAuditDraft(blueprint)} onChange={vi.fn()} />);
-    expect(screen.getAllByRole("group", { name: /自我评估$/ })).toHaveLength(4);
+    expect(screen.getAllByRole("group", { name: /self-assessment$/ })).toHaveLength(4);
   });
 
   it("reuses the same generation mutation after an ambiguous save and refresh", async () => {
@@ -102,12 +102,12 @@ describe("setup continuity", () => {
     const generate = vi.fn().mockResolvedValue(false);
     const properties = { ...adaptive, draftOwner: "user:alice", generate, createMutationId: () => `mutation-resume-${++mutation}` };
     const view = render(<AdaptiveSetupFlow {...properties} />);
-    for (let index = 0; index < 2; index++) await user.click(screen.getByRole("button", { name: "继续" }));
-    await user.click(screen.getByRole("button", { name: "创建路线" }));
+    for (let index = 0; index < 2; index++) await user.click(screen.getByRole("button", { name: "Continue" }));
+    await user.click(screen.getByRole("button", { name: "Create path" }));
     const first = generate.mock.calls[0]![0];
     view.unmount();
     render(<AdaptiveSetupFlow {...properties} />);
-    await user.click(await screen.findByRole("button", { name: "创建路线" }));
+    await user.click(await screen.findByRole("button", { name: "Create path" }));
     expect(generate.mock.calls[1]![0]).toEqual(first);
   });
 });

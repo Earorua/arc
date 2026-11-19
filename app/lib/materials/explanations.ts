@@ -3,34 +3,34 @@ import type { materialContextPreviewSchema, materialExplanationSchema } from "..
 import { COURSE_TASK_EVIDENCE } from "./course-task-evidence";
 type Explanation = z.infer<typeof materialExplanationSchema>;
 type Preview = z.infer<typeof materialContextPreviewSchema>;
-export const MATERIAL_EXPLANATION_VERSION = "2026.11.4" as const;
+export const MATERIAL_EXPLANATION_VERSION = "2026.11.5" as const;
 
 /** Fixed templates contain no imported prose; revocation replaces the entire projection. */
 export function explainMaterialPreview(preview: Preview | null, available: boolean): Explanation[] {
-  if (!available || !preview) return [{ ruleId: "source-unavailable-v1", changeKind: "unavailable", skillId: null, unitIds: [], reasonItemIds: [], message: "依据已删除", sourceAvailability: "unavailable" }];
+  if (!available || !preview) return [{ ruleId: "source-unavailable-v1", changeKind: "unavailable", skillId: null, unitIds: [], reasonItemIds: [], message: "Source evidence deleted", sourceAvailability: "unavailable" }];
   const result: Explanation[] = preview.priorities.flatMap((priority): Explanation[] => {
     if (priority.tier === 3 && priority.learningIntentItemIds?.length) return [
-      ...(priority.practiceItemIds?.length ? [{ ruleId: "confirmed-practice-v1", changeKind: "reordered" as const, skillId: priority.skillId, unitIds: [], reasonItemIds: [...priority.practiceItemIds], sourceAvailability: "available" as const, message: "已确认经历对应的现有练习优先安排。" }] : []),
-      { ruleId: "confirmed-learning-intent-v1", changeKind: "reordered", skillId: priority.skillId, unitIds: [], reasonItemIds: [...priority.learningIntentItemIds], sourceAvailability: "available", message: "你采用的本轮学习重点优先安排现有任务；能力自评和学习工时保持不变。" },
+      ...(priority.practiceItemIds?.length ? [{ ruleId: "confirmed-practice-v1", changeKind: "reordered" as const, skillId: priority.skillId, unitIds: [], reasonItemIds: [...priority.practiceItemIds], sourceAvailability: "available" as const, message: "Existing practice related to your confirmed experience is prioritized." }] : []),
+      { ruleId: "confirmed-learning-intent-v1", changeKind: "reordered", skillId: priority.skillId, unitIds: [], reasonItemIds: [...priority.learningIntentItemIds], sourceAvailability: "available", message: "Your chosen learning focus prioritizes existing tasks. Self-assessment and study time stay unchanged." },
     ];
     return [{
     ruleId: priority.tier === 0 ? "mandatory-gap-first-v1" : priority.tier === 1 ? "mandatory-calibration-learning-v1" : priority.tier === 2 ? "mandatory-calibration-v1" : priority.tier === 3 ? "confirmed-practice-v1" : "preferred-after-mandatory-v1",
     changeKind: "reordered", skillId: priority.skillId, unitIds: [], reasonItemIds: [...priority.itemIds], sourceAvailability: "available",
-    message: priority.tier === 0 ? "主 JD 的必备技能优先安排学习；前置任务和完整工时保留。" : priority.tier === 1 ? "必备技能采用你确认的不确定自评，保留校准与后续学习。" : priority.tier === 2 ? "必备技能采用你单项确认的独立自评，安排校准。" : priority.tier === 3 ? "已确认经历对应的现有练习优先安排。" : "主 JD 的加分要求在必备要求后优先安排。",
+    message: priority.tier === 0 ? "Must-have skills from the primary JD are prioritized, retaining prerequisites and full task durations." : priority.tier === 1 ? "Must-have skills use your confirmed Uncertain self-assessment, retaining calibration and later learning." : priority.tier === 2 ? "Must-have skills use your individually confirmed Independent self-assessment and receive calibration tasks." : priority.tier === 3 ? "Existing practice related to your confirmed experience is prioritized." : "Preferred requirements from the primary JD follow must-have requirements.",
     }];
   });
-  for (const skillId of preview.overlay?.mandatorySkillIds ?? []) result.push({ ruleId: "mandatory-scope-protection-v1", changeKind: "protected", skillId, unitIds: [], reasonItemIds: preview.priorities.find(p => p.skillId === skillId)?.itemIds ?? [], message: "必备技能及其前置任务不会为赶截止日期而裁掉或缩短。", sourceAvailability: "available" });
+  for (const skillId of preview.overlay?.mandatorySkillIds ?? []) result.push({ ruleId: "mandatory-scope-protection-v1", changeKind: "protected", skillId, unitIds: [], reasonItemIds: preview.priorities.find(p => p.skillId === skillId)?.itemIds ?? [], message: "Must-have skills and their prerequisites are not removed or shortened to meet a deadline.", sourceAvailability: "available" });
   for (const status of ["full", "partial", "none"] as const) {
     const details = preview.mappingDetails?.filter(detail => detail.taskCoverage?.status === status) ?? [];
     if (!details.length) continue;
     result.push({ ruleId: `course-task-${status}-v1`, changeKind: "unapplied", skillId: null,
       unitIds: [...new Set(details.flatMap(detail => detail.taskCoverage!.support.map(id => COURSE_TASK_EVIDENCE[id].unitId)))],
       reasonItemIds: [...new Set(details.map(detail => detail.itemId))], sourceAvailability: "available",
-      message: status === "full" ? "课程正文支持已识别的窄任务；该覆盖结论不代表能力或采用优先级，未新增课程或任务。"
-        : status === "partial" ? "课程正文支持部分具体任务；其余要求尚未核验。该覆盖结论不代表能力或采用优先级，未新增课程或任务。"
-        : "尚未证实具体任务得到课程正文支持；课程主题对应或手动选择不代表完整覆盖，也不代表能力或采用优先级。",
+      message: status === "full" ? "Course content supports the recognized narrow task. Coverage does not establish ability or an adopted priority; no courses or tasks were added."
+        : status === "partial" ? "Course content supports part of the concrete task; the remaining requirements are unverified. Coverage does not establish ability or an adopted priority; no courses or tasks were added."
+        : "Course content has not been verified to support the concrete task. A topic match or manual choice does not establish full coverage, ability or an adopted priority.",
     });
   }
-  for (const issue of preview.issues) result.push({ ruleId: `${issue.code}-v1`, changeKind: issue.code === "uncovered" ? "uncovered" : "unapplied", skillId: issue.skillIds.length === 1 ? issue.skillIds[0]! : null, unitIds: [], reasonItemIds: [...issue.itemIds], message: issue.code === "target-infeasible" ? "完整的必备范围无法在目标日期内完成，未缩短任务或超出每日预算。" : issue.code === "uncovered" ? "该内容未被现有学习目录覆盖，未新增课程或任务。" : issue.code === "learning-intent-not-adopted" ? "该建议或主题尚未被你采用为本轮学习重点，不改变任务排序。" : issue.code === "mapping-omitted" ? "你选择不将这些词用于本轮课程映射；原始事实仍保留。" : "该项需要进一步核对，尚未作为确定的规划依据。", sourceAvailability: "available" });
+  for (const issue of preview.issues) result.push({ ruleId: `${issue.code}-v1`, changeKind: issue.code === "uncovered" ? "uncovered" : "unapplied", skillId: issue.skillIds.length === 1 ? issue.skillIds[0]! : null, unitIds: [], reasonItemIds: [...issue.itemIds], message: issue.code === "target-infeasible" ? "The full must-have scope cannot fit the target date. Tasks were not shortened and daily budgets were not exceeded." : issue.code === "uncovered" ? "The current learning catalog does not cover this content. No courses or tasks were added." : issue.code === "learning-intent-not-adopted" ? "You have not selected this suggestion or topic as a focus, so it does not change task priorities." : issue.code === "mapping-omitted" ? "You excluded these terms from this course mapping. The original facts are retained." : "This item needs further review and is not yet a confirmed planning basis.", sourceAvailability: "available" });
   return result;
 }

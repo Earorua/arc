@@ -43,8 +43,8 @@ describe("explicit learning intentions", () => {
     expect(after.preview.overlay?.skillRanks.sql).toBe(3);
     expect(after.preview.overlay?.mandatorySkillIds).toEqual([]);
     expect(after.preview.priorities[0]?.learningIntentItemIds).toEqual([after.preview.confirmedItems[0]!.id]);
-    expect(explainMaterialPreview(after.preview, true)).toContainEqual(expect.objectContaining({ ruleId: "confirmed-learning-intent-v1", message: expect.stringContaining("学习重点") }));
-    expect(explainMaterialPreview(after.preview, true).some(item => item.message.includes("已确认经历"))).toBe(false);
+    expect(explainMaterialPreview(after.preview, true)).toContainEqual(expect.objectContaining({ ruleId: "confirmed-learning-intent-v1", message: expect.stringContaining("learning focus") }));
+    expect(explainMaterialPreview(after.preview, true).some(item => item.message.includes("confirmed experience"))).toBe(false);
     const saved = db.database.prepare("SELECT snapshot_json FROM material_context_versions WHERE id=?").get(after.contextVersionId) as { snapshot_json: string };
     expect(JSON.parse(saved.snapshot_json)).toMatchObject({ audit: request.audit, availability: request.availability, learningIntents: [choice] });
     expect((await materials.read("owner-a", after.contextVersionId)).preview).toEqual(after.preview);

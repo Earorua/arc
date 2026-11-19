@@ -6,7 +6,7 @@ export async function agentJson<T>(url: string, body?: unknown, signal?: AbortSi
     headers: body === undefined ? undefined : { "Content-Type": "application/json" },
     credentials: "same-origin", cache: "no-store", body: body === undefined ? undefined : JSON.stringify(body), signal });
   const value = await response.json() as { error?: unknown };
-  if (!response.ok) throw new Error(typeof value?.error === "string" ? value.error : "学习助手暂时无法连接。");
+  if (!response.ok) throw new Error(typeof value?.error === "string" ? value.error : "The learning assistant is temporarily unavailable.");
   return value as T;
 }
 export const agentClient = {
@@ -26,7 +26,7 @@ async function readAgentStream(url: string, input: AgentRequest, onEvent: (event
     headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) });
   if (!response.ok || !response.body) {
     const error = await response.json().catch(() => null) as { error?: unknown } | null;
-    throw new Error(typeof error?.error === "string" ? error.error : "学习助手暂时无法连接。");
+    throw new Error(typeof error?.error === "string" ? error.error : "The learning assistant is temporarily unavailable.");
   }
   const reader = response.body.getReader(), decoder = new TextDecoder();
   let buffer = "", bytes = 0, result: PublicAgentRun | null = null;
@@ -50,7 +50,7 @@ async function readAgentStream(url: string, input: AgentRequest, onEvent: (event
         break;
       }
       bytes += chunk.value.byteLength;
-      if (bytes > 512000) throw new Error("回复过长，请分段提问。");
+      if (bytes > 512000) throw new Error("This reply is too long. Try asking one part at a time.");
       buffer += decoder.decode(chunk.value, { stream: true });
       let end: number;
       while (!result && (end = buffer.indexOf("\n")) >= 0) {
@@ -58,7 +58,7 @@ async function readAgentStream(url: string, input: AgentRequest, onEvent: (event
         consume(line);
       }
     }
-    if (!result) throw new Error("连接中断，本次生成尚未完成。");
+    if (!result) throw new Error("The connection was interrupted before the response finished.");
     return result as PublicAgentRun;
   } finally {
     signal?.removeEventListener("abort", abort);

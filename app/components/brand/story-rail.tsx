@@ -1,7 +1,7 @@
 const chapters = [
-  ["01", "Understand", "看清岗位真正需要什么"],
-  ["02", "Build", "每天完成一个可验证结果"],
-  ["03", "Prove", "让作品成为能力证据"],
+  ["01", "Understand", "See what the role really needs"],
+  ["02", "Build", "Make something you can check each day"],
+  ["03", "Prove", "Let your work show your skills"],
 ] as const;
 
 export function StoryRail() {
@@ -15,7 +15,7 @@ export function StoryRail() {
           <span>{number}</span>
           <div>
             <strong>{title}</strong>
-            <small lang="zh-CN">{description}</small>
+            <small lang="en">{description}</small>
           </div>
         </li>
       ))}

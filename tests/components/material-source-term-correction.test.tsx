@@ -39,7 +39,7 @@ it("lets the reader restore an omitted source word in the real editor and includ
     }
     const inputs = materialContextRequest();
     async function confirmAndPreview(name: string) {
-      const confirm = screen.getByRole("button", { name: "确认这些事实" });
+      const confirm = screen.getByRole("button", { name: "Confirm these facts" });
       await waitFor(() => expect(confirm).toBeEnabled());
       fireEvent.click(confirm);
       await waitFor(() => expect(currentRef().confirmationId).toBeTruthy());
@@ -50,22 +50,22 @@ it("lets the reader restore an omitted source word in the real editor and includ
       return { ...context, selectionRef };
     }
     const page = render(<Editor />);
-    fireEvent.change(screen.getByRole("textbox", { name: "岗位 JD正文" }), { target: { value: text } });
-    const analyze = screen.getByRole("button", { name: "保存并 AI 分析" });
+    fireEvent.change(screen.getByRole("textbox", { name: "Job description text" }), { target: { value: text } });
+    const analyze = screen.getByRole("button", { name: "Save and analyze with AI" });
     expect(analyze).toBeDisabled();
     expect(f.providerCalls()).toBe(0);
-    fireEvent.click(screen.getByRole("checkbox", { name: /允许将当前文本/ }));
+    fireEvent.click(screen.getByRole("checkbox", { name: /Allow the processors above/ }));
     fireEvent.click(analyze);
-    await screen.findByRole("button", { name: "移除技能词 WAI-ARIA" });
+    await screen.findByRole("button", { name: "Remove skill term WAI-ARIA" });
     const doc = currentRef(), ref = { documentId: doc.documentId, textVersionId: doc.textVersionId };
     expect(f.providerCalls()).toBe(1);
     expect(f.db.database.prepare("SELECT provider_policy_id FROM document_jobs WHERE id=?").get(doc.jobId!)?.provider_policy_id)
       .toBe(KIMI_GROUNDED_TERMS_POLICY_ID);
-    expect(screen.queryByRole("button", { name: "移除技能词 PostgreSQL" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Remove skill term PostgreSQL" })).not.toBeInTheDocument();
     expect((await confirmAndPreview("original")).preview.overlay?.mandatorySkillIds).toEqual(["design-systems"]);
-    fireEvent.click(screen.getByText("从原文补充技能词"));
-    const input = screen.getByRole("textbox", { name: "事实 1 原文词" });
-    const add = screen.getByRole("button", { name: "补充技能词" });
+    fireEvent.click(screen.getByText("Add source skill term"));
+    const input = screen.getByRole("textbox", { name: "Fact 1 source term" });
+    const add = screen.getByRole("button", { name: "Add skill term" });
     fireEvent.change(input, { target: { value: "SQL" } });
     expect(add).toBeDisabled();
     fireEvent.change(input, { target: { value: "PostgreSQL" } });
@@ -74,8 +74,8 @@ it("lets the reader restore an omitted source word in the real editor and includ
     expect(currentRef().confirmationId).toBeUndefined();
     page.unmount();
     render(<Editor />);
-    await screen.findByRole("button", { name: "移除技能词 PostgreSQL" });
-    expect(screen.getByRole("textbox", { name: "事实 1" })).toHaveValue(text);
+    await screen.findByRole("button", { name: "Remove skill term PostgreSQL" });
+    expect(screen.getByRole("textbox", { name: "Fact 1" })).toHaveValue(text);
     const corrected = await confirmAndPreview("corrected");
     expect(corrected.preview.overlay?.mandatorySkillIds.toSorted()).toEqual(["design-systems", "sql"]);
     const { source, audit, availability, target, selectedScope, planningDate } = inputs;
@@ -105,16 +105,16 @@ it("persists an explicitly added negative v3 topic through the real editor, then
     }
     const read = () => f.client.request("readDocumentReviewDraft", { documentId: doc.documentId, textVersionId: doc.textVersionId });
     let page = render(<Editor />);
-    fireEvent.click(await screen.findByText("从原文补充技能词"));
-    fireEvent.change(screen.getByRole("textbox", { name: "事实 1 原文词" }), { target: { value: "SQL" } });
-    expect(screen.getByRole("button", { name: "补充技能词" })).toBeEnabled();
-    fireEvent.click(screen.getByRole("button", { name: "补充技能词" }));
+    fireEvent.click(await screen.findByText("Add source skill term"));
+    fireEvent.change(screen.getByRole("textbox", { name: "Fact 1 source term" }), { target: { value: "SQL" } });
+    expect(screen.getByRole("button", { name: "Add skill term" })).toBeEnabled();
+    fireEvent.click(screen.getByRole("button", { name: "Add skill term" }));
     await waitFor(async () => expect((await read()).draft?.items[0]?.skillLabels).toEqual(["SQL"]));
     expect((await read()).draft).toMatchObject({ reviewProjection: SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION, selfAssessmentHints: [] });
     page.unmount(); f.restart(); page = render(<Editor />);
-    await screen.findByRole("button", { name: "移除技能词 SQL" });
-    expect(screen.getByRole("textbox", { name: "事实 1" })).toHaveValue(text);
-    fireEvent.click(screen.getByRole("button", { name: "确认这些事实" }));
+    await screen.findByRole("button", { name: "Remove skill term SQL" });
+    expect(screen.getByRole("textbox", { name: "Fact 1" })).toHaveValue(text);
+    fireEvent.click(screen.getByRole("button", { name: "Confirm these facts" }));
     await waitFor(() => expect(latest.confirmationId).toBeTruthy());
     const input = materialContextRequest();
     const selectionRef = await f.client.request("createMaterialSelection", { scope: input.scope, entries: [{ slot: "resume",
@@ -122,17 +122,17 @@ it("persists an explicitly added negative v3 topic through the real editor, then
     const { preview } = await f.client.request("createMaterialContext", { ...input, selectionRef });
     expect(preview.mappingDetails?.[0]).toMatchObject({ status: "mapped", skillIds: ["sql"] });
     expect(preview.priorities).toEqual([]);
-    fireEvent.click(screen.getByRole("button", { name: "移除技能词 SQL" }));
+    fireEvent.click(screen.getByRole("button", { name: "Remove skill term SQL" }));
     await waitFor(async () => expect((await read()).draft?.items[0]?.skillLabels).toEqual([]));
     expect(latest.confirmationId).toBeUndefined();
     page.unmount(); f.restart(); page = render(<Editor />);
-    await screen.findByRole("textbox", { name: "事实 1" });
-    expect(screen.queryByRole("button", { name: "移除技能词 SQL" })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "移除事实 1" }));
+    await screen.findByRole("textbox", { name: "Fact 1" });
+    expect(screen.queryByRole("button", { name: "Remove skill term SQL" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Remove fact 1" }));
     await waitFor(async () => expect((await read()).draft?.items).toEqual([]));
     page.unmount(); f.restart(); render(<Editor />);
-    await screen.findByText("核对资料事实");
-    expect(screen.queryByRole("textbox", { name: "事实 1" })).not.toBeInTheDocument();
+    await screen.findByText("Review material facts");
+    expect(screen.queryByRole("textbox", { name: "Fact 1" })).not.toBeInTheDocument();
     expect((await read()).draft?.items).toEqual([]);
     expect(adopted).not.toHaveBeenCalled();
     expect(f.trace.filter(row => row.endpoint === "saveDocumentReviewDraft").every(row => !Object.hasOwn(row.body as object, "reviewProjection"))).toBe(true);
@@ -158,15 +158,15 @@ it.each(["My colleague tested SQL under supervision.", "I will test SQL under su
       const read = () => f.client.request("readDocumentReviewDraft", { documentId: doc.documentId, textVersionId: doc.textVersionId });
       const initial = (await read()).draft!, extraction = f.db.database.prepare("SELECT * FROM document_extractions").get();
       const page = render(<Editor />);
-      await screen.findByRole("button", { name: "采用 SQL 的需指导完成建议" });
-      fireEvent.change(screen.getByRole("textbox", { name: "事实 1" }), { target: { value: text } });
-      expect(screen.queryByRole("button", { name: "采用 SQL 的需指导完成建议" })).not.toBeInTheDocument();
+      await screen.findByRole("button", { name: "Use SQL: Need guidance" });
+      fireEvent.change(screen.getByRole("textbox", { name: "Fact 1" }), { target: { value: text } });
+      expect(screen.queryByRole("button", { name: "Use SQL: Need guidance" })).not.toBeInTheDocument();
       await waitFor(async () => expect((await read()).draft).toMatchObject({ reviewProjection: SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION,
         items: [{ text, skillLabels: ["SQL"], sourceRef: initial.items[0]!.sourceRef }], selfAssessmentHints: [] }));
       page.unmount(); f.restart(); render(<Editor />);
-      await screen.findByRole("button", { name: "移除技能词 SQL" });
-      expect(screen.queryByRole("button", { name: "采用 SQL 的需指导完成建议" })).not.toBeInTheDocument();
-      fireEvent.change(screen.getByRole("textbox", { name: "事实 1" }), { target: { value: source } });
+      await screen.findByRole("button", { name: "Remove skill term SQL" });
+      expect(screen.queryByRole("button", { name: "Use SQL: Need guidance" })).not.toBeInTheDocument();
+      fireEvent.change(screen.getByRole("textbox", { name: "Fact 1" }), { target: { value: source } });
       await waitFor(async () => expect((await read()).draft).toMatchObject({ items: [{ text: source, skillLabels: ["SQL"] }], selfAssessmentHints: [] }));
       expect(f.db.database.prepare("SELECT * FROM document_extractions").get()).toEqual(extraction);
       expect(adopted).not.toHaveBeenCalled();

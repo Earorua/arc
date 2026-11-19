@@ -45,16 +45,16 @@ describe("material context review in the existing setup", () => {
     const choose = screen.getByRole("button", { name: "选择两份补充资料" });
     await waitFor(() => expect(choose).toBeEnabled());
     fireEvent.click(choose);
-    const summary = within(await screen.findByRole("region", { name: "本次资料选择" }));
+    const summary = within(await screen.findByRole("region", { name: "Materials selected for this plan" }));
     const rows = summary.getAllByRole("listitem");
     expect(rows).toHaveLength(2);
-    expect(rows[0]).toHaveTextContent("补充资料 1 · 事实已确认");
-    expect(rows[1]).toHaveTextContent("补充资料 2 · 待核对确认");
-    expect(screen.getByRole("button", { name: "核对资料对路线的影响" })).toBeDisabled();
-    fireEvent.click(within(rows[1]).getByRole("button", { name: "移除补充资料 2 选择" }));
+    expect(rows[0]).toHaveTextContent("Supplementary material 1 · Facts confirmed");
+    expect(rows[1]).toHaveTextContent("Supplementary material 2 · Awaiting review and confirmation");
+    expect(screen.getByRole("button", { name: "Review material impact on the path" })).toBeDisabled();
+    fireEvent.click(within(rows[1]).getByRole("button", { name: "Remove supplementary material 2 selection" }));
     expect(summary.getAllByRole("listitem")).toHaveLength(1);
-    expect(summary.getByRole("listitem")).toHaveTextContent("事实已确认");
-    expect(screen.getByRole("button", { name: "核对资料对路线的影响" })).toBeEnabled();
+    expect(summary.getByRole("listitem")).toHaveTextContent("Facts confirmed");
+    expect(screen.getByRole("button", { name: "Review material impact on the path" })).toBeEnabled();
   });
   it("shows which facts and skill words a grouped coverage warning refers to", async () => {
     const { client, invoke, Controls } = fixture();
@@ -70,17 +70,17 @@ describe("material context review in the existing setup", () => {
     } : original(endpoint, body));
     render(<MaterialSetupProvider ownerId="owner-a" scopeKey="setup" client={client}><Controls /></MaterialSetupProvider>);
     await waitFor(() => expect(screen.getByText("选择已确认 JD")).toBeEnabled());
-    fireEvent.click(screen.getByText("选择已确认 JD")); fireEvent.click(await screen.findByText("核对资料对路线的影响"));
-    expect(await screen.findByText(/有 2 项需注意/)).toBeInTheDocument();
+    fireEvent.click(screen.getByText("选择已确认 JD")); fireEvent.click(await screen.findByText("Review material impact on the path"));
+    expect(await screen.findByText(/There are 2 items to review/)).toBeInTheDocument();
     expect(screen.getByText("First requirement").closest("li")).toHaveTextContent("unlisted-a");
     expect(screen.getByText("Second requirement").closest("li")).toHaveTextContent("unlisted-b");
-    expect(screen.getByText("Weekly study limit").closest("li")).toHaveTextContent("约束主题 TypeScript");
+    expect(screen.getByText("Weekly study limit").closest("li")).toHaveTextContent("Constraint topic TypeScript");
   });
   it("previews confirmed references and persists no facts, names or source text", async () => {
     const { client, invoke, Controls, onPreview } = fixture();
     render(<MaterialSetupProvider ownerId="owner-a" scopeKey="setup" client={client}><Controls /></MaterialSetupProvider>);
     await waitFor(() => expect(screen.getByText("选择已确认 JD")).toBeEnabled());
-    fireEvent.click(screen.getByText("选择已确认 JD")); fireEvent.click(await screen.findByText("核对资料对路线的影响"));
+    fireEvent.click(screen.getByText("选择已确认 JD")); fireEvent.click(await screen.findByText("Review material impact on the path"));
     await screen.findByText("PRIVATE-SETUP-SENTINEL");
     const call = invoke.mock.calls.find(([endpoint]) => endpoint === "createMaterialContext")!;
     expect(documentEndpointContracts.createMaterialContext.request.safeParse(call[1]).success).toBe(true);
@@ -101,8 +101,8 @@ describe("material context review in the existing setup", () => {
     } : original(endpoint, body));
     render(<MaterialSetupProvider ownerId="owner-a" scopeKey="setup" client={client}><Controls /></MaterialSetupProvider>);
     await waitFor(() => expect(screen.getByText("选择已确认 JD")).toBeEnabled());
-    fireEvent.click(screen.getByText("选择已确认 JD")); fireEvent.click(await screen.findByText("核对资料对路线的影响"));
-    expect(await screen.findByText(/有 2 项需注意/)).toBeInTheDocument();
+    fireEvent.click(screen.getByText("选择已确认 JD")); fireEvent.click(await screen.findByText("Review material impact on the path"));
+    expect(await screen.findByText(/There are 2 items to review/)).toBeInTheDocument();
   });
   it("retries a failed context without changing an already committed selection mutation body", async () => {
     const { client, invoke, Controls } = fixture(); let failed = false;
@@ -113,8 +113,8 @@ describe("material context review in the existing setup", () => {
     });
     render(<MaterialSetupProvider ownerId="owner-a" scopeKey="setup" client={client}><Controls /></MaterialSetupProvider>);
     await waitFor(() => expect(screen.getByText("选择已确认 JD")).toBeEnabled());
-    fireEvent.click(screen.getByText("选择已确认 JD")); fireEvent.click(await screen.findByText("核对资料对路线的影响"));
-    await screen.findByRole("alert"); fireEvent.click(screen.getByText("核对资料对路线的影响"));
+    fireEvent.click(screen.getByText("选择已确认 JD")); fireEvent.click(await screen.findByText("Review material impact on the path"));
+    await screen.findByRole("alert"); fireEvent.click(screen.getByText("Review material impact on the path"));
     await screen.findByText("PRIVATE-SETUP-SENTINEL");
     expect(invoke.mock.calls.filter(([method]) => method === "createMaterialSelection")).toHaveLength(1);
     const requests = invoke.mock.calls.filter(([method]) => method === "createMaterialContext").map(([, body]) => body);
@@ -133,13 +133,13 @@ describe("material context review in the existing setup", () => {
     });
     render(<MaterialSetupProvider ownerId="owner-a" scopeKey="setup" client={client}><Controls /></MaterialSetupProvider>);
     await waitFor(() => expect(screen.getByText("选择已确认 JD")).toBeEnabled());
-    fireEvent.click(screen.getByText("选择已确认 JD")); fireEvent.click(await screen.findByText("核对资料对路线的影响"));
-    const mapping = await screen.findByRole("combobox", { name: "事实 1 对应的已有技能" });
-    expect(screen.getAllByRole("option").map(option => option.textContent)).toEqual(["自动对应；未匹配时保留未覆盖", "React 19"]);
+    fireEvent.click(screen.getByText("选择已确认 JD")); fireEvent.click(await screen.findByText("Review material impact on the path"));
+    const mapping = await screen.findByRole("combobox", { name: "Fact 1 matching existing skill" });
+    expect(screen.getAllByRole("option").map(option => option.textContent)).toEqual(["Match automatically; retain unmatched scope", "React 19"]);
     fireEvent.change(mapping, { target: { value: "react" } });
     expect(onPreview.mock.lastCall?.[0]).toBeNull();
     expect(screen.getByText("PRIVATE-SETUP-SENTINEL")).toBeInTheDocument();
-    fireEvent.click(screen.getByText("核对资料对路线的影响"));
+    fireEvent.click(screen.getByText("Review material impact on the path"));
     await waitFor(() => expect(onPreview.mock.lastCall?.[0]?.reference.contextVersionId).toBe("mapped-context"));
     const contexts = invoke.mock.calls.filter(([method]) => method === "createMaterialContext");
     expect(contexts.at(-1)?.[1].skillMappings).toEqual([{ confirmationId: "confirmation-a", itemId: "original-item-a", skillId: "react" }]);
@@ -147,8 +147,8 @@ describe("material context review in the existing setup", () => {
     expect(JSON.stringify(localStorage)).not.toContain("PRIVATE-SETUP-SENTINEL");
     expect(JSON.stringify(localStorage)).not.toContain("original-item-a");
     fireEvent.click(screen.getByText("修改范围"));
-    await waitFor(() => expect(screen.queryByRole("combobox", { name: "事实 1 对应的已有技能" })).not.toBeInTheDocument());
-    fireEvent.click(screen.getByText("核对资料对路线的影响"));
+    await waitFor(() => expect(screen.queryByRole("combobox", { name: "Fact 1 matching existing skill" })).not.toBeInTheDocument());
+    fireEvent.click(screen.getByText("Review material impact on the path"));
     await waitFor(() => expect(invoke.mock.calls.filter(([method]) => method === "createMaterialContext")).toHaveLength(3));
     expect(invoke.mock.calls.filter(([method]) => method === "createMaterialContext").at(-1)?.[1]).not.toHaveProperty("skillMappings");
   });
@@ -168,9 +168,9 @@ describe("material context review in the existing setup", () => {
     }
     render(<MaterialSetupProvider ownerId="owner-a" scopeKey="setup" client={client}><Recovery /></MaterialSetupProvider>);
     await waitFor(() => expect(screen.getByText("恢复预览")).toBeEnabled()); fireEvent.click(screen.getByText("恢复预览"));
-    const control = await screen.findByRole("combobox", { name: "事实 1 对应的已有技能" });
+    const control = await screen.findByRole("combobox", { name: "Fact 1 matching existing skill" });
     expect(control).toHaveValue("react"); expect(control).toBeDisabled();
-    expect(screen.getByText("资料预览已就绪。创建路线时将再次校验所选版本。")).toBeInTheDocument();
+    expect(screen.getByText("The material preview is ready. Selected versions will be checked again when the path is created.")).toBeInTheDocument();
     expect(onPreview.mock.lastCall?.[0]?.reference.contextVersionId).toBe("context-a");
   });
 });

@@ -23,16 +23,16 @@ it("explicitly confirms stopping current goal use, refreshes the adopted list an
   const planning = { source: "cloud", sourceContext: { reference: input.source, blueprint: flagshipBlueprint }, retry,
     workspace: { id: "workspace", goalId: "goal", activePlanVersionId: "plan", pendingPlanVersionId: null, revision: 3, pathVersions: [], audit: input.audit, availability: input.availability, target: input.target } } as unknown as ComponentProps<typeof MaterialWorkspaceEntry>["planning"];
   render(<MaterialWorkspaceEntry planning={planning} />);
-  fireEvent.click(await screen.findByRole("button", { name: "私人资料与规划依据" }));
-  const begin = await screen.findByRole("button", { name: "从当前目标取消使用 公司 A JD" });
+  fireEvent.click(await screen.findByRole("button", { name: "Private materials and planning evidence" }));
+  const begin = await screen.findByRole("button", { name: "Stop using for this goal: 公司 A JD" });
   fireEvent.click(begin);
   expect(calls.mock.calls.filter(([key]) => key === "detachAdoptedMaterial")).toHaveLength(0);
-  fireEvent.click(screen.getByRole("button", { name: "保留采用" }));
+  fireEvent.click(screen.getByRole("button", { name: "Keep using this material" }));
   fireEvent.click(begin);
-  fireEvent.click(screen.getByRole("button", { name: "确认从当前目标取消使用" }));
+  fireEvent.click(screen.getByRole("button", { name: "Confirm removal from this goal" }));
   await waitFor(() => expect(retry).toHaveBeenCalledOnce());
   expect(calls).toHaveBeenCalledWith("detachAdoptedMaterial", { scope: { kind: "goal", goalId: "goal", workspaceId: "workspace", baseVersionId: "plan", revision: 3 },
     entry: { slot: "jd", documentId: "doc-a", documentVersionId: "v1", confirmationId: "c1" }, mutationId: expect.any(String) }, expect.any(AbortSignal));
-  await waitFor(() => expect(screen.queryByRole("button", { name: "从当前目标取消使用 公司 A JD" })).not.toBeInTheDocument());
-  expect(screen.getByRole("button", { name: "查看并核对 公司 A JD" })).toBeEnabled();
+  await waitFor(() => expect(screen.queryByRole("button", { name: "Stop using for this goal: 公司 A JD" })).not.toBeInTheDocument());
+  expect(screen.getByRole("button", { name: "View and review 公司 A JD" })).toBeEnabled();
 });

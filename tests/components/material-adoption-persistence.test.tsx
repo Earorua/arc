@@ -42,7 +42,7 @@ function makeDraft(reviewProjection: ReviewProjection = SOURCE_MENTION_MATERIAL_
 
 function skillGroup(id: string) {
   const skill = flagshipBlueprint.skills.find(skill => skill.id === id)!;
-  return within(screen.getByRole("group", { name: `${skill.name} 自我评估`, hidden: true }));
+  return within(screen.getByRole("group", { name: `${skill.name} self-assessment`, hidden: true }));
 }
 
 function level(id: string, value: SkillSelfLevel) {
@@ -123,16 +123,16 @@ function fixture(projection: ReviewProjection = SOURCE_MENTION_MATERIAL_REVIEW_P
 async function loadResume() {
   await waitFor(() => expect(screen.getByRole("button", { name: "Load synthetic resume" })).toBeEnabled());
   fireEvent.click(screen.getByRole("button", { name: "Load synthetic resume" }));
-  await screen.findByRole("button", { name: "采用 TypeScript 的需指导完成建议" });
+  await screen.findByRole("button", { name: "Use TypeScript: Need guidance" });
 }
 
 async function createRoute() {
-  fireEvent.click(screen.getByRole("button", { name: "继续" }));
-  fireEvent.click(screen.getByRole("button", { name: "继续" }));
-  fireEvent.click(screen.getByRole("button", { name: "核对资料对路线的影响" }));
-  await waitFor(() => expect(screen.getByRole("button", { name: "创建路线" })).toBeEnabled());
-  fireEvent.click(screen.getByRole("button", { name: "创建路线" }));
-  await screen.findByText("计划已就绪。");
+  fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+  fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+  fireEvent.click(screen.getByRole("button", { name: "Review material impact on the path" }));
+  await waitFor(() => expect(screen.getByRole("button", { name: "Create path" })).toBeEnabled());
+  fireEvent.click(screen.getByRole("button", { name: "Create path" }));
+  await screen.findByText("Your plan is ready.");
 }
 
 async function reloadWorkspace(f: ReturnType<typeof fixture>) {
@@ -145,6 +145,18 @@ beforeEach(() => { localStorage.clear(); vi.stubGlobal("crypto", webcrypto); });
 afterEach(() => { cleanup(); dbs.splice(0).forEach(db => db.close()); vi.unstubAllGlobals(); });
 
 describe("material capability adoption and persistence", () => {
+  it("hides bulk independent with selected materials and retains explicit individual choice", async () => {
+    const f = fixture();
+    render(<f.App />);
+    expect(screen.getAllByRole("button", { name: /^Set .* to Independent$/, hidden: true }).length).toBeGreaterThan(0);
+    await loadResume();
+    expect(screen.queryAllByRole("button", { name: /^Set .* to Independent$/, hidden: true })).toHaveLength(0);
+    expect(level("typescript", "unseen")).toBeChecked();
+    fireEvent.click(skillGroup("typescript").getByRole("radio", { name: "Independent" }));
+    expect(level("typescript", "independent")).toBeChecked();
+    for (const skill of flagshipBlueprint.skills.filter(skill => skill.id !== "typescript")) expect(level(skill.id, "unseen")).toBeChecked();
+    expect(f.requests).toHaveLength(0);
+  });
   it.each([GROUNDED_MATERIAL_REVIEW_PROJECTION, SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION])(
     "keeps %s adoption optional and persists the explicit audit after a manual override and remount",
     async projection => {
@@ -152,29 +164,29 @@ describe("material capability adoption and persistence", () => {
       const page = render(<f.App />);
       await loadResume();
       expect(level("typescript", "unseen")).toBeChecked();
-      fireEvent.click(screen.getByRole("button", { name: "确认这些事实" }));
-      await waitFor(() => expect(screen.getByRole("button", { name: "确认这些事实" })).toBeEnabled());
+      fireEvent.click(screen.getByRole("button", { name: "Confirm these facts" }));
+      await waitFor(() => expect(screen.getByRole("button", { name: "Confirm these facts" })).toBeEnabled());
       for (const skill of flagshipBlueprint.skills) expect(level(skill.id, "unseen")).toBeChecked();
 
-      fireEvent.click(skillGroup("web-platform").getByRole("radio", { name: "了解概念" }));
-      fireEvent.click(screen.getByRole("button", { name: "采用 TypeScript 的需指导完成建议" }));
+      fireEvent.click(skillGroup("web-platform").getByRole("radio", { name: "Understand concepts" }));
+      fireEvent.click(screen.getByRole("button", { name: "Use TypeScript: Need guidance" }));
       for (const skill of flagshipBlueprint.skills) {
         expect(level(skill.id, skill.id === "typescript" ? "guided" : skill.id === "web-platform" ? "conceptual" : "unseen")).toBeChecked();
       }
-      fireEvent.click(skillGroup("typescript").getByRole("radio", { name: "可独立完成" }));
-      fireEvent.click(screen.getByRole("button", { name: "未逐项评估的技能设为不确定" }));
+      fireEvent.click(skillGroup("typescript").getByRole("radio", { name: "Independent" }));
+      fireEvent.click(screen.getByRole("button", { name: "Mark unreviewed skills as Uncertain" }));
       expect(level("typescript", "independent")).toBeChecked();
       expect(level("web-platform", "conceptual")).toBeChecked();
       expect(level("sql", "uncertain")).toBeChecked();
 
       page.unmount();
       render(<f.App />);
-      await screen.findByText("已恢复本岗位的设置草稿。");
-      await screen.findByRole("button", { name: "采用 TypeScript 的需指导完成建议" });
+      await screen.findByText("Your setup draft for this role is restored.");
+      await screen.findByRole("button", { name: "Use TypeScript: Need guidance" });
       expect(level("typescript", "independent")).toBeChecked();
       expect(level("web-platform", "conceptual")).toBeChecked();
       expect(level("sql", "uncertain")).toBeChecked();
-      fireEvent.click(screen.getByRole("checkbox", { name: "我已核对当前技能自评" }));
+      fireEvent.click(screen.getByRole("checkbox", { name: "I have reviewed my current skill self-assessment" }));
       await createRoute();
 
       expect(f.requests).toHaveLength(1);
@@ -204,15 +216,15 @@ describe("material capability adoption and persistence", () => {
     const draft = makeDraft(), adopt = vi.fn();
     const props = { draft, text, saving: false, confirmed: false, onItemsChange: vi.fn(), onConfirm: vi.fn(), onAdoptLevels: adopt };
     const page = render(<MaterialConfirmation {...props} skills={[]} />);
-    expect(screen.queryByRole("button", { name: /采用 TypeScript/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Use TypeScript/ })).not.toBeInTheDocument();
     page.rerender(<MaterialConfirmation {...props} skills={[{ id: "a", name: "TypeScript" }, { id: "b", name: "TypeScript" }]} />);
-    expect(screen.queryByRole("button", { name: /采用 TypeScript/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Use TypeScript/ })).not.toBeInTheDocument();
     page.rerender(<MaterialConfirmation {...props} skills={flagshipBlueprint.skills} />);
     expect(adopt).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: /采用 TypeScript/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Use TypeScript/ }));
     expect(adopt).toHaveBeenCalledExactlyOnceWith({ typescript: "guided" });
     page.rerender(<MaterialConfirmation {...props} skills={flagshipBlueprint.skills} draft={{ ...draft, items: [] }} />);
-    expect(screen.queryByRole("button", { name: /采用 TypeScript/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Use TypeScript/ })).not.toBeInTheDocument();
     expect(adopt).toHaveBeenCalledTimes(1);
   });
 
@@ -221,12 +233,12 @@ describe("material capability adoption and persistence", () => {
     render(<f.App />);
     await loadResume();
     const skillRoot = within(level("typescript", "unseen").closest(".audit-skill") as HTMLElement);
-    fireEvent.click(skillRoot.getByText("添加作品证据（可选）"));
-    fireEvent.click(await skillRoot.findByRole("button", { name: "为 TypeScript 添加证据链接" }));
-    fireEvent.change(screen.getByLabelText("TypeScript 证据链接 1"), { target: { value: "https://github.com/example/public-project" } });
-    fireEvent.change(screen.getByLabelText("TypeScript 证据说明 1"), { target: { value: "Public project I selected" } });
-    fireEvent.click(screen.getByRole("button", { name: "采用 TypeScript 的需指导完成建议" }));
-    fireEvent.click(screen.getByRole("button", { name: "未逐项评估的技能设为不确定" }));
+    fireEvent.click(skillRoot.getByText("Add evidence (optional)"));
+    fireEvent.click(await skillRoot.findByRole("button", { name: "Add evidence link for TypeScript" }));
+    fireEvent.change(screen.getByLabelText("TypeScript Evidence link 1"), { target: { value: "https://github.com/example/public-project" } });
+    fireEvent.change(screen.getByLabelText("TypeScript Evidence note 1"), { target: { value: "Public project I selected" } });
+    fireEvent.click(screen.getByRole("button", { name: "Use TypeScript: Need guidance" }));
+    fireEvent.click(screen.getByRole("button", { name: "Mark unreviewed skills as Uncertain" }));
     expect(level("typescript", "guided")).toBeChecked();
     await createRoute();
 
@@ -244,16 +256,16 @@ describe("material capability adoption and persistence", () => {
     const f = fixture();
     render(<f.App />);
     await loadResume();
-    fireEvent.click(screen.getByRole("button", { name: "采用 TypeScript 的需指导完成建议" }));
+    fireEvent.click(screen.getByRole("button", { name: "Use TypeScript: Need guidance" }));
     expect(level("typescript", "guided")).toBeChecked();
-    fireEvent.click(screen.getByRole("checkbox", { name: "我已核对当前技能自评" }));
-    expect(screen.getByRole("button", { name: "继续" })).toBeEnabled();
-    fireEvent.click(screen.getByText("草稿选项"));
-    fireEvent.click(screen.getByRole("button", { name: "重新填写此岗位" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "I have reviewed my current skill self-assessment" }));
+    expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
+    fireEvent.click(screen.getByText("Draft options"));
+    fireEvent.click(screen.getByRole("button", { name: "Restart this role's setup" }));
     expect(level("typescript", "unseen")).toBeChecked();
-    expect.soft(screen.getByRole("checkbox", { name: "我已核对当前技能自评" })).not.toBeChecked();
-    expect.soft(screen.getByRole("button", { name: "继续" })).toBeDisabled();
-    fireEvent.click(screen.getByRole("button", { name: "未逐项评估的技能设为不确定" }));
+    expect.soft(screen.getByRole("checkbox", { name: "I have reviewed my current skill self-assessment" })).not.toBeChecked();
+    expect.soft(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Mark unreviewed skills as Uncertain" }));
     expect.soft(level("typescript", "uncertain")).toBeChecked();
     expect(level("sql", "uncertain")).toBeChecked();
   });

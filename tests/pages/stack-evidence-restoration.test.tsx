@@ -38,9 +38,9 @@ afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
 async function leaveViaEvidence() {
   const first = render(<StackPage />);
-  await screen.findByRole("link", { name: "补充作品证明" });
-  screen.getByRole("list", { name: "技能索引" }).scrollTop = 72;
-  fireEvent.click(screen.getByText("技能要求与学习记录"));
+  await screen.findByRole("link", { name: "Add to your proof" });
+  screen.getByRole("list", { name: "Skill index" }).scrollTop = 72;
+  fireEvent.click(screen.getByText("Skill requirements and progress"));
   const evidence = screen.getByRole("link", { name: "Architecture map" });
   evidence.addEventListener("click", (event) => event.preventDefault(), { once: true });
   fireEvent.click(evidence);
@@ -63,7 +63,7 @@ describe("Stack restoration while the proof ledger loads", () => {
 
     await act(async () => finish(proofResultFixture().workspace));
     expect(screen.getByRole("link", { name: "Architecture map" })).toHaveFocus();
-    expect(screen.getByRole("list", { name: "技能索引" }).scrollTop).toBe(72);
+    expect(screen.getByRole("list", { name: "Skill index" }).scrollTop).toBe(72);
     expect(scroll).toHaveBeenCalledExactlyOnceWith({ top: 320 });
     expect(sessionStorage.getItem(storageKey)).toBeNull();
   });
@@ -81,8 +81,8 @@ describe("Stack restoration while the proof ledger loads", () => {
 
     await act(async () => fail(new Error("Proof service unavailable")));
     expect(screen.getByRole("heading", { name: "Automated Testing" })).toHaveFocus();
-    expect(screen.getByText("云端作品状态暂不可用；这里只展示能够安全读取的技能证据。")).toBeInTheDocument();
-    expect(screen.getByRole("list", { name: "技能索引" }).scrollTop).toBe(72);
+    expect(screen.getByText("Cloud proof status is temporarily unavailable. Only available skill evidence is shown.")).toBeInTheDocument();
+    expect(screen.getByRole("list", { name: "Skill index" }).scrollTop).toBe(72);
     expect(scroll).toHaveBeenCalledExactlyOnceWith({ top: 240 });
     expect(sessionStorage.getItem(storageKey)).toBeNull();
   });

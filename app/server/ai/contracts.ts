@@ -3,7 +3,7 @@ import { z } from "zod";
 export const roleResearchRequestSchema = z.object({
   requestId: z.string().uuid(),
   role: z.string().trim().min(2).max(160),
-  locale: z.enum(["zh-CN", "en-US"]).default("zh-CN"),
+  locale: z.enum(["zh-CN", "en-US"]).default("en-US"),
 }).strict();
 
 export type RoleResearchRequest = z.infer<typeof roleResearchRequestSchema>;

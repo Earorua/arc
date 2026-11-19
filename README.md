@@ -1,142 +1,89 @@
 # Arc.
 
+**English** · [简体中文](./README.zh-CN.md)
+
 ![Arc. — Learn only what moves you forward](./public/og.png)
 
 [![Quality](https://github.com/Earorua/arc/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/Earorua/arc/actions/workflows/ci.yml)
-[![Live experience](https://img.shields.io/badge/live-arcmaps.net-744596)](https://arcmaps.net)
+[![Live experience](https://img.shields.io/badge/live-arcmaps.net-237a74)](https://arcmaps.net)
 
-**A precision learning system that turns a target role into skills, a practical learning plan, and evidence of progress.**
+**From a target role to a practical learning path.**
 
-Arc connects role research, self-assessment, available study time, daily tasks, learning resources, and work samples. A learning companion answers questions in the context of the active plan; a planning assistant proposes changes for the learner to review.
+Arc turns role requirements into skills and learning units, then schedules daily work around your existing knowledge and available time. A learning companion helps with the current task, a planner proposes adjustments, and work evidence records progress.
 
-[Visit Arc](https://arcmaps.net) · [Explore the public example](https://arcmaps.net/showcase) · [Set up a learning plan](https://arcmaps.net/setup) · [Release records](./docs/operations/README.md)
+[Visit Arc](https://arcmaps.net) · [Explore the public example](https://arcmaps.net/showcase) · [Source guide](./SOURCE_INDEX.md)
 
-## Current release — 2026-10-28
+## Features
 
-Arc v8 runs on the owner's Cloudflare Workers, D1, private R2, and Workflows at **[arcmaps.net](https://arcmaps.net)**. Google and GitHub provide independent Arc sign-in. The previous ChatGPT Sites address redirects to this domain; it is no longer the application host.
-
-The latest production release combines custom-role Research, the learning companion and planner, the Discovery-inspired visual theme, and the complete learning-workspace redesign. It was published on **28 October 2026 at 21:25 Asia/Shanghai**, with application commit `bd91714` and Site version `34170daa-a865-410c-91de-125edac48956`. The [release record](./docs/operations/experience-redesign-release-2026-10-28.md) preserves deployment evidence, validation scope, and recovery constraints.
-
-This release includes four-step setup with draft recovery, an explicit **uncertain** skill assessment, context-preserving navigation between tasks, skills and evidence, history progress, responsive learning resources, and consistent first rendering when an existing session is restored.
-
-The repository also includes subsequent fixes for Proof draft restoration, basic-plan sign-in routing, and basic-plan time editing. These source changes have **not been deployed**; see the [GitHub integration record](./docs/operations/github-integration-2026-10-28.md).
-
-## The learning loop
-
-| Area | What it does |
+| Area | What you can do |
 | --- | --- |
-| **Setup** | Choose a role, assess skills, set study time, and confirm the plan. Signed-in users can explicitly start custom-role Research. Safe steps and account-scoped drafts survive refresh and back navigation. |
-| **Path** | Follow dependency-ordered learning units, inspect current and completed tasks, edit availability, and review a full proposed-plan diff before accepting it. |
-| **Today** | Work through one scheduled task with its saved resources, record completion, and continue to the relevant skill or work evidence. Checking a step alone does not save task completion. |
-| **Stack** | Browse skills, prerequisites, mastery criteria, resources, and evidence. Search, filters, expanded skills, and return context are preserved across evidence navigation. |
-| **Proof** | Keep versioned work evidence and private attachments, inspect review outcomes, and selectively publish chosen fields. |
-| **History** | Read preserved plans and their available completion counts. Historical plans are read-only; restoring one as the current plan is not implemented. |
-| **Learning help / Coach** | Ask about the current task or request a plan adjustment. Suggestions fill a draft; sending a model request and accepting a plan change are explicit actions. |
+| **Setup & Research** | Research a target role and its learning resources, assess skills, set study time, and resume a saved setup draft. |
+| **Path** | Follow prerequisite-based learning units, adjust availability, and review plan changes before accepting them. |
+| **Today** | Open the current task and its resources, record completion, and continue to the relevant skill or evidence. |
+| **Stack** | Explore skills, prerequisites, mastery criteria, learning materials, and supporting evidence. |
+| **Proof** | Save work samples and private attachments, retain revisions, and choose which fields to share publicly. |
+| **History** | View previous plans and their recorded progress; historical plans remain read-only. |
+| **Learning companion & Coach** | Ask questions about your current work and review personalized learning strategies or plan adjustments. |
 
-The built-in AI full-stack engineer catalogue contains **16 skills and 48 unit templates** for learning, calibration, and reinforcement. Actual route length depends on self-assessment and scheduling. Accepted Research supplies a validated role blueprint and unit registry to the same deterministic planning system. Source policy prioritizes official courses from leading US universities and US companies, followed by leading Chinese companies, and supports both free and paid resources.
+## Design logic
 
-An **uncertain** self-assessment schedules calibration while retaining the learning content. Completing calibration does not declare mastery or skip the remaining learning. Self-assessment, curated claim confidence, task completion, and Proof review status have separate meanings.
+**Target role → Skills and resources → Self-assessment and time budget → Learning path → Daily tasks → Evidence and progress**
 
-Creating another goal from an existing adaptive plan currently requires signed-in Research; it preserves the old plan in history. When that service is unavailable, Arc explains the limit and keeps the existing plan intact.
+1. **Traceable learning inputs.** Research results must pass structure and source checks before entering a plan. Built-in learning data also supports a deterministic example without model calls.
+2. **AI advice, explicit scheduling rules.** AI supports role research and learning suggestions. Prerequisites, time allocation, and daily schedules are computed by deterministic planning logic.
+3. **Changes stay reviewable.** An uncertain assessment leads to calibration. Plan adjustments show a diff and take effect after confirmation; task completion and evidence review retain distinct meanings.
+4. **Personal state has a clear owner.** Google or GitHub sign-in opens the personal workspace. D1 stores signed-in learning state, local work is imported with consent, and attachments remain private while public views expose only selected fields.
 
-## Public experience and personal workspace
+The interface uses mist surfaces, ink text, and teal accents to keep attention on the next task. Responsive layouts, keyboard focus, and reduced-motion support are built into the experience.
 
-The home page, method, and **[public example](https://arcmaps.net/showcase)** are available without an account. The example uses clearly identified sample content. Setup retains a device-local deterministic path, but the personal Today, Path, Stack, Proof, History, and Coach surfaces require sign-in.
+## Technology stack
 
-After sign-in, D1 is authoritative for learning state. Existing device-local work is offered as an explicit import choice; Arc does not silently replace or delete it. Account changes and expired sessions preserve ownership boundaries rather than displaying another learner's state or substituting sample progress.
+| Layer | Technology | Purpose |
+| --- | --- | --- |
+| Interface | React, Next-compatible App Router | Pages, shared components, and workspace interactions |
+| Styling & motion | Tailwind CSS, custom CSS, Motion | Visual themes, responsive layouts, and interaction feedback |
+| Rendering & runtime | Vinext, Vite, Cloudflare Workers | Server rendering, API routes, builds, and local development |
+| Authentication | Better Auth, Google / GitHub OAuth | Sign-in, sessions, and account boundaries |
+| Structured data | Cloudflare D1, Drizzle ORM | Learning state, history, evidence metadata, and migrations |
+| File storage | Cloudflare R2 | Private attachments and research result receipts |
+| AI & background work | OpenRouter, Cloudflare Workflows | Model access and durable role-research execution |
+| Data contracts | TypeScript, Zod | Shared types and runtime validation of API and model data |
+| Quality | Vitest, Testing Library, ESLint, GitHub Actions | Behavior tests, interface tests, static checks, and CI |
 
-## Research and learning assistants
-
-**Role Research** runs through a private service-bound Cloudflare executor and durable Workflow using OpenRouter/Kimi. It supports status recovery, validated result import, replay protection, and idempotent accounting. A result becomes usable only after structure and source-evidence checks pass. Reading the built-in `GET /api/intelligence/flagship` endpoint is public, read-only, and independent of model access.
-
-**The learning companion and planner** run through the website's separate server-side agent service. They use the active goal, actual progress, current due task, and saved resources; invalid Research context produces a recovery state instead of a silent fallback to the Flagship route. Planning suggestions require review before application. Planner generation is not a durable background job when the page is closed.
-
-Research and assistants have separate credentials and budget controls. The [companion release record](./docs/operations/learning-companion-release-2026-10-28.md) documents the enabled configuration and its verification limits. The latest UI release did not repeat live OAuth, paid Research or assistant calls, production uploads, or administrator-data acceptance.
-
-## Design
-
-The current Discovery-inspired theme uses warm paper surfaces, charcoal text, purple accents, Fraunces and Noto Serif SC display type, and Jost interface text. Shared navigation keeps Today, Path, Stack, and Proof prominent, with history and planning tools available from the relevant task context.
-
-Mobile layouts, visible keyboard focus, readable control sizes, browser zoom, and system or personal reduced-motion preferences are covered by the recorded UI checks. Those checks have explicit coverage limits and are not a claim of full accessibility certification.
-
-## Architecture
-
-```mermaid
-flowchart LR
-    A[Public pages and example] --> B[Built-in learning data]
-    C[Google / GitHub OAuth] --> D[Arc session]
-    D --> E[Owner-scoped D1 workspace]
-    F[Device-local state] -->|explicit import| E
-    E --> G[Deterministic planning and history]
-    E --> H[Proof metadata]
-    H --> I[Private R2 assets]
-    H --> J[Allowlisted public proof fields]
-    D --> K[Research admission and budget gates]
-    K --> L[Private executor and Workflow]
-    L --> M[OpenRouter / Kimi]
-    L -->|validated result import| E
-    D --> N[Learning assistant admission and budget gates]
-    N --> O[Website agent service / OpenRouter]
-    O -->|reviewable plan proposal| G
-```
-
-| Layer | Technology and responsibility |
-| --- | --- |
-| UI | React 19, Next-compatible App Router, shared learning components, Motion, and CSS themes |
-| Runtime | Vinext, Vite 8, and Cloudflare Workers for server rendering and APIs |
-| Identity | Better Auth with Google and GitHub; server-derived Arc sessions |
-| Durable state | Cloudflare D1 and Drizzle migrations for learning, history, evidence, accounting, and operations |
-| Private storage | Cloudflare R2 for owner-scoped assets and private result receipts |
-| Planning | Versioned contracts, validated registries, deterministic scheduling, event replay, and proposed-plan diffs |
-| Research | Private executor, Cloudflare Workflows, authenticated bridge messages, and validated OpenRouter results |
-| Assistants | Server-side planner and tutor with current-workspace context and separate reservations |
-| Quality | Vitest, Testing Library, TypeScript, ESLint, rendered-HTML checks, and isolated browser acceptance |
-| Delivery | GitHub review and CI, followed by a separately controlled Cloudflare deployment |
-
-## Trust and operating boundaries
-
-- Private requests derive the owner from the Arc session. The browser cannot choose a user ID or private storage key.
-- R2 bytes remain private. Public Proof views expose only selected fields; share tokens are hashed at rest and revocable.
-- Setup evidence is self-reported metadata. Proof's `verified` state requires a supported deterministic validator; completing a learning task alone does not grant it.
-- OAuth, session, bridge, and model secrets stay on the server. This repository excludes real credentials, live databases, private backups, and raw operational logs.
-- Research and learning assistants enforce their respective enablement, access, rate, and budget checks before provider access. Application reservations are not provider invoices; a rejected or interrupted request can still incur provider cost.
-- The initial Research release records a USD 5 cumulative provider-key cap and USD 3.50 request reservation. Assistant limits are documented separately. These are release-time settings, not a statement of current remaining credit; available budget can block a request.
-- `/admin` is read-only, exact-email allowlisted, and aggregate-only.
-- GitHub CI does not deploy the application. Production changes require a separate release with current configuration and data checks. Never replay consumed release scripts or restore an old backup over newer public writes.
-- Before rollback, check compatibility with saved `uncertain` assessments and current history data. Closing Research requires stopping intake, draining outstanding work, then stopping maintenance; the closed smoke environment is separate from production.
+Role Research runs through a private executor and durable Workflows. Tutoring and planning suggestions use the website's server-side agent service. Model credentials stay on the server.
 
 ## Local development
 
-Use **Node.js 24.14.1**, matching CI and the verified runtime.
+Install Node.js and npm; the required runtime is specified in [`package.json`](./package.json).
 
 ```bash
 npm ci
+cp .env.example .dev.vars
 npm run dev
 ```
 
-Use [`.env.example`](./.env.example) as the starting point for an ignored local environment file when exercising server features. OAuth, D1/R2 bindings, the Research executor, and assistants need their own server configuration. The deterministic data and unit tests require no paid model calls. Keep production credentials out of local examples and source control.
+Open the address printed by the server, normally `http://localhost:3000`. The default [`cloudflare.local.json`](./cloudflare.local.json) uses local bindings; leave `ARC_CLOUDFLARE_TARGET` unset for local development.
 
-Source is organized under `app/` (pages, components, contracts, domain, and services), `db/` and `drizzle/` (schema and migrations), `worker/` (Research execution), `scripts/` (build and validation tools), and `tests/`. Operational history lives in [`docs/operations/`](./docs/operations/README.md).
+[`.env.example`](./.env.example) lists server configuration. Local `.dev.vars` files are ignored by Git, and AI features start disabled. Personal workspaces require configured authentication and an initialized database. See the [authentication guide](./docs/operations/cloudflare-shadow-auth-setup.md) and [learning-assistant guide](./docs/operations/dual-learning-agents.md) for details.
 
-## Verification
+## Project structure
+
+| Path | Contents |
+| --- | --- |
+| [`app/`](./app/) | Pages, UI components, contracts, planning logic, and server APIs |
+| [`db/`](./db/) · [`drizzle/`](./drizzle/) | Database schema and migrations |
+| [`worker/`](./worker/) | Website entry and Research executor |
+| [`build/`](./build/) · [`scripts/`](./scripts/) | Build configuration and development tools |
+| [`tests/`](./tests/) | Unit, integration, and rendered-page checks |
+| [`docs/`](./docs/) | Design, configuration, and operational documentation |
+
+## Development checks
 
 ```bash
 npm run test:unit
 npm run lint
 npx tsc --noEmit
-npm run build
-node --test tests/rendered-html.test.mjs
+npm test
 ```
 
-CI runs unit tests, lint, the production build, and rendered-HTML checks on pull requests and pushes to `master`. TypeScript is also checked locally. Browser acceptance instructions are in [`tests/ui-preview/README.md`](./tests/ui-preview/README.md); its isolated browser tooling is separate from `npm ci`, and its synthetic scenarios do not establish production account or model behavior.
-
-The [28 October release record](./docs/operations/experience-redesign-release-2026-10-28.md) distinguishes focused regressions, browser checks, live read-only checks, and the intermittent Windows backend-smoke failure observed during that release. Historical test counts are not substituted for the current CI result.
-
-## Release references and next work
-
-- [Latest experience release and recovery constraints](./docs/operations/experience-redesign-release-2026-10-28.md)
-- [Learning companion activation and configuration](./docs/operations/learning-companion-release-2026-10-28.md)
-- [Implemented experience changes and acceptance](./docs/superpowers/plans/2026-10-28-experience-completion-delivery.md)
-- [Current checkpoint and retained history](./docs/operations/v8-resume-checkpoint.md)
-
-The first public-release objective is complete. Durable background planning, restoring historical plans as current, further learner feedback, and future usage-budget decisions remain separate follow-up work.
+`npm test` builds the application and checks rendered HTML. Run `npm run test:unit` separately for the unit and integration suites.

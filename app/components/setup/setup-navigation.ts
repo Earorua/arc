@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { updatePageQuery, usePageQuery } from "../../lib/use-page-query";
 
-export const setupStepNames = ["选择目标", "当前基础", "每周时间", "确认路线"] as const;
+export const setupStepNames = ["Choose a goal", "Experience", "Weekly time", "Confirm path"] as const;
 const setupStepKeys = ["goal", "foundation", "time", "confirm"] as const;
 
 /** The address selects a previously reached step; answers and access stay in the owner-bound draft. */

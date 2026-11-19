@@ -14,7 +14,7 @@ import { materialContextRequest, materialNow, materialSourceResolver, seedMateri
 
 const databases: ReturnType<typeof createMaterialsD1>[] = [];
 afterEach(() => { databases.splice(0).forEach(db => db.close()); vi.restoreAllMocks(); });
-const contextOnlyExplanation = "任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。";
+const contextOnlyExplanation = "Tasks and dates stay the same. Accepting updates the materials and learning focus used by the current path.";
 
 async function setup() {
   const db = createMaterialsD1(); databases.push(db); seedMaterialSelection(db);
@@ -85,9 +85,9 @@ it("renders explicit material adoption from the actual proposal, same-request re
     expect(json).not.toContain("PRIVATE-MATERIAL-SENTINEL");
     const html = renderToStaticMarkup(createElement(PlanDiffReview, { workspace, onAccept, onDiscard }));
     expect.soft(html, surface).toContain(contextOnlyExplanation);
-    expect.soft(html, surface).toContain("接受资料更新");
-    expect.soft(html, surface).toContain("保留当前资料与安排");
-    expect.soft(html, surface).not.toContain("接受新安排");
+    expect.soft(html, surface).toContain("Accept material update");
+    expect.soft(html, surface).toContain("Keep current materials and schedule");
+    expect.soft(html, surface).not.toContain("Accept new schedule");
   }
   expect(onAccept).not.toHaveBeenCalled(); expect(onDiscard).not.toHaveBeenCalled();
   expect(f.storedEvent()).toEqual(stored);
@@ -109,8 +109,8 @@ it("keeps an actual ordinary no-change agent proposal generic across response, r
     expect(workspace.events.at(-1)).not.toHaveProperty("materialContextFingerprint");
     const html = renderToStaticMarkup(createElement(PlanDiffReview, { workspace, onAccept, onDiscard }));
     expect(html).not.toContain(contextOnlyExplanation);
-    expect(html).toContain("接受新安排");
-    expect(html).toContain("保留当前安排");
+    expect(html).toContain("Accept new schedule");
+    expect(html).toContain("Keep current schedule");
   }
   expect(f.storedEvent()).not.toHaveProperty("materialProposal");
   expect(f.storedEvent()).not.toHaveProperty("materialContextFingerprint");

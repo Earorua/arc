@@ -1,0 +1,12 @@
+✔ accepts only the integrated display delta while previous loaders reject the new source (772.9588ms)
+✔ rejects a sixth role edit, teaching content changes and other dependency drift (31.2346ms)
+✔ rejects altered current or prior binding evidence and frozen reference bytes (21.8524ms)
+✔ rejects caller-supplied captures, hashes and substituted historical captures (7.5534ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 947.644
