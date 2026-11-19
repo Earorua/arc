@@ -1,0 +1,113 @@
+{
+  "schemaVersion": "materials-native-course-binding.1",
+  "id": "materials-native-course-binding-20261119",
+  "recordedAt": "2026-11-19",
+  "reviewStatus": "pending-independent-review",
+  "scope": "Byte-exact reuse of independently reviewed course facts under one pinned planning schema transition. No candidate quality or release approval.",
+  "baselineCommit": "3eeb5c3f203dd0ba9cf864fa2b7a48ce6a43bae6",
+  "historicalApplicationSourceCommit": "2fad2850e447dd353c8d7a9587f114f60ce3dd01",
+  "frozenAssetDirectory": "docs/verification/materials-quality-v2",
+  "frozenAssetHashes": {
+    "annotations.draft.json": "e512e3fca67fd9133cae4e9186cb054c3044d79b090d567daaba24cb85bd9ef9",
+    "authoring-notes.md": "1a8705a78c7fa5c328be30e0863efd20ddb7caacc25c136e28c935067aaf605e",
+    "candidate-common.mjs": "e823515667fec92f788c7ee1801633c066f0013b43c9b33262fab6403a0213a9",
+    "candidate-controls.mjs": "1a09ffa14935fb2b0f6808efc7b65b747975ddebacf3e5be893901e8a1c4e8cc",
+    "candidate-course.mjs": "18c0be3efe195d984422effbe5c97d1e8109d66afe784af02fd17509a0bdbb45",
+    "candidate-evaluator.mjs": "3d15c2b60cfd3917bb25dc670c8a40a4c2ea7e37f5d785bb4cbca6e856ad82da",
+    "candidate-evaluator.test.mjs": "a2b51ad9c039beab6f7624f05893f759c4c8b8c1cf2491e306e8121916259088",
+    "candidate-input.mjs": "16ab9f3d0c3c6a13c5de0f9cb2b86125754467127fc489a2febc6a283d43e432",
+    "candidate-packet-review.json": "ee28292e3a11daede42630c5c9db757ea9aeb7b247aabffd875b7e8339f33a9d",
+    "candidate-planning.mjs": "9c91f1ba3b219e04cea03013f4429288b7c77070362c1020d35c9d457bc1d443",
+    "candidate-protocol.md": "af3d01d8c89b3d789405aaf73e6f2a5360a967da9a11fbc4f20c05320389cd37",
+    "candidate-references.mjs": "9786c8d9247680ae9827db73e3530fd62d50abd5b07d9e1bf28f94a4306e6c86",
+    "candidate-review-verification.json": "13c2a2276787653f8a53cb13e08ca09a07d0383c68ab28867dad71c7c5327dd9",
+    "candidate-source.mjs": "9c7955b3497b121f034813c9f8676b733585ded21a83dbe0ee6d8cbe31a0c5db",
+    "capture-course-reference.mjs": "3735c41c91d7d5dbaaf9ebf5b0037dd8a4b3c09f225fdac6d3d734a000db4423",
+    "course-annotations.draft.json": "c602035d36fba77a36287149891b775c2ed9420d64612f0cbd76309fc02d6bcf",
+    "course-annotations.test.mjs": "ede46489ed7f46ee51437692e30a5704fbde361b68da8971a15c4a4231c99789",
+    "course-authoring-notes.md": "fc2c0bca859ed44504879916951190d2e119ac89c7a2228172287e06a30a39bd",
+    "course-reference.snapshot.json": "bf458308b5811f60b61f6e5fa24f6910642a7276615f0b212d930d04868d9676",
+    "course-review-verification.json": "3cde20901af973bb446c931aab64b57f66dae9683c6d78277dec1cec1c4598dc",
+    "evaluate-candidates.mjs": "a3bd31b5e92402e0a16ea5e2441fec074b268c0cdababa9f2b169b446400dca4",
+    "planning-reference-cases.json": "b4980e489b40857514e85afb1fafad15efa8a8976bfd388d0af378430e9a2c51",
+    "source-review-verification.json": "8e2fc2715be731a8dda200b581914920751a50ab16a88f222e3efcd308bebd3b",
+    "validate-annotation-mutations.mjs": "5fe16d4c7448df00bb3c2ba7220ebf8ee0aaed5b65a7184092abd01b8195083d",
+    "validate-annotations.mjs": "6611b36facf987a7f6c1c3c0bad739d04d6c216c621ca34b5bd5e76e6e82a34b",
+    "validate-course-annotations.mjs": "f03741ca32f54e73163d07c0a353c9491513274214f8d058e5304b8469f30886"
+  },
+  "frozenInputs": [
+    {
+      "path": "tests/fixtures/documents/quality-corpus.json",
+      "sha256": "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750"
+    },
+    {
+      "path": "tests/fixtures/documents/supplement-quality-corpus.json",
+      "sha256": "9775b595f4b44563beb9e3b7f9249b171e731658b454e0f26279d2b46db213d7"
+    },
+    {
+      "path": "tests/helpers/document-quality-evaluation.ts",
+      "sha256": "6297b7bdd112833cbd8a58b3bd63f6cbaf46d86b77cbab760744fe66babec351"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-11-arc-private-materials-personalized-planning-design.zh-CN.md",
+      "sha256": "5d978e38d1c3b4a85eb83327e800df2c561aef598a63edc6c61c433acba21822"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-11-07-materials-quality-contract-v2.md",
+      "sha256": "d428b2ffefb184b8578102e639120407dcdc432d6fb78623bc753961d2e127a1"
+    }
+  ],
+  "reviewedCapture": {
+    "path": "docs/verification/materials-quality-v2/course-reference.snapshot.json",
+    "sha256": "bf458308b5811f60b61f6e5fa24f6910642a7276615f0b212d930d04868d9676",
+    "byteLength": 244136,
+    "bundleSha256": "58aaaf87cc5be49341a4d492a6816ecde037f14d05ffcc46b17e46a4ee0ba4e7"
+  },
+  "currentCapture": {
+    "path": "docs/verification/materials-native-acceptance/course-reference.current.snapshot.json",
+    "sha256": "9a02b60878d5d581353efb66545a56d81c9da254fd59efc3db34456015a8bed8",
+    "byteLength": 244136,
+    "bundleSha256": "70bc04500803e3d0ea7275d55bb33c84e7b5ad2e66eccd23e643dca45b87f255"
+  },
+  "priorCapture": {
+    "path": "work/grounded-verification/context-adoption-course-capture-20261108-results.json",
+    "sha256": "9a02b60878d5d581353efb66545a56d81c9da254fd59efc3db34456015a8bed8",
+    "capturedOn": "2026-11-08",
+    "reuse": "The unchanged capture API reproduced these exact bytes on 2026-11-19; the original payload's fixed capturedAt and id fields remain unchanged."
+  },
+  "dependencyCount": 85,
+  "unchangedDependencyCount": 84,
+  "permittedDependencyChange": {
+    "path": "app/contracts/planning.ts",
+    "sourceCommit": "5345317f99d77a62d3bb174dcd6922156a988949",
+    "before": {
+      "path": "app/contracts/planning.ts",
+      "sha256": "053972ea8b36f6baef224efa41fbf593153e2dff1271e404cc403851fc2a8fa5",
+      "byteLength": 32489,
+      "kind": "bundled"
+    },
+    "after": {
+      "path": "app/contracts/planning.ts",
+      "sha256": "861260a27d55287661034d5e0a5ca175d6571400031ac3c9d58cb9608b67db93",
+      "byteLength": 32565,
+      "kind": "bundled"
+    },
+    "sourceReplacement": {
+      "before": "  // Only a verified material proposal records its preview fingerprint. Older events replay without it.\n  agentReplanInput.extend({ ...eventMetadataSchema.shape, materialContextFingerprint: z.string().regex(/^[0-9a-f]{64}$/u).optional() }).strict(),",
+      "after": "  // Verified proposals retain private replay evidence; the public view derives a display-only indicator. Older events omit both.\n  agentReplanInput.extend({ ...eventMetadataSchema.shape,\n    materialContextFingerprint: z.string().regex(/^[0-9a-f]{64}$/u).optional(), materialProposal: z.literal(true).optional() }).strict(),"
+    },
+    "explanation": "planningEventSchema allows optional materialProposal: true beside the existing optional materialContextFingerprint; its comment and line wrapping change. Full role, blueprint, registry, inventory and course source bytes are unchanged."
+  },
+  "equivalenceRequirements": [
+    "full-role",
+    "full-blueprint",
+    "full-registry",
+    "full-inventory",
+    "course-source-bytes",
+    "all-other-dependency-bytes",
+    "capture-metadata-except-pinned-bundle"
+  ],
+  "oldLoaderPolicy": "Unchanged loadReviewedReferences continues rejecting the current planning dependency. This binding does not confer its WeakSet credential or supply an old snapshot as a current capture.",
+  "actualModelOrProductQualityEvaluated": false,
+  "newGateApproved": false
+}

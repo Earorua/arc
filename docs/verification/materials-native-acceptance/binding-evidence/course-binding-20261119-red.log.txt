@@ -1,0 +1,123 @@
+✖ binds the complete current course to reviewed facts without approving quality or the Gate (1.4669ms)
+✖ the frozen loader still rejects the current planning schema dependency (0.7736ms)
+✖ rejects same-version course edits and other dependency drift (0.1898ms)
+✖ rejects corrupted historical references, original inputs and basis bytes (0.2302ms)
+✖ rejects rewritten binding pins or a substituted old capture (0.5053ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 0
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 93.4521
+
+✖ failing tests:
+
+test at docs\verification\materials-native-acceptance\verify-course-binding.test.mjs:49:1
+✖ binds the complete current course to reviewed facts without approving quality or the Gate (1.4669ms)
+  AssertionError [ERR_ASSERTION]: a separately versioned current course binding verifier is required
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at verifier (file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/docs/verification/materials-native-acceptance/verify-course-binding.test.mjs:45:10)
+      at TestContext.<anonymous> (file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/docs/verification/materials-native-acceptance/verify-course-binding.test.mjs:50:24)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-native-acceptance\verify-course-binding.test.mjs:66:1
+✖ the frozen loader still rejects the current planning schema dependency (0.7736ms)
+  AssertionError [ERR_ASSERTION]: a separately versioned current course binding verifier is required
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at verifier (file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/docs/verification/materials-native-acceptance/verify-course-binding.test.mjs:45:10)
+      at TestContext.<anonymous> (file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/docs/verification/materials-native-acceptance/verify-course-binding.test.mjs:67:3)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-native-acceptance\verify-course-binding.test.mjs:83:1
+✖ rejects same-version course edits and other dependency drift (0.1898ms)
+  AssertionError [ERR_ASSERTION]: a separately versioned current course binding verifier is required
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at verifier (file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/docs/verification/materials-native-acceptance/verify-course-binding.test.mjs:45:10)
+      at rejectChangedFile (file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/docs/verification/materials-native-acceptance/verify-course-binding.test.mjs:72:18)
+      at TestContext.<anonymous> (file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/docs/verification/materials-native-acceptance/verify-course-binding.test.mjs:84:9)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-native-acceptance\verify-course-binding.test.mjs:89:1
+✖ rejects corrupted historical references, original inputs and basis bytes (0.2302ms)
+  AssertionError [ERR_ASSERTION]: a separately versioned current course binding verifier is required
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at verifier (file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/docs/verification/materials-native-acceptance/verify-course-binding.test.mjs:45:10)
+      at rejectChangedFile (file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/docs/verification/materials-native-acceptance/verify-course-binding.test.mjs:72:18)
+      at TestContext.<anonymous> (file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/docs/verification/materials-native-acceptance/verify-course-binding.test.mjs:96:11)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-native-acceptance\verify-course-binding.test.mjs:100:1
+✖ rejects rewritten binding pins or a substituted old capture (0.5053ms)
+  AssertionError [ERR_ASSERTION]: a separately versioned current course binding verifier is required
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at verifier (file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/docs/verification/materials-native-acceptance/verify-course-binding.test.mjs:45:10)
+      at rejectChangedFile (file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/docs/verification/materials-native-acceptance/verify-course-binding.test.mjs:72:18)
+      at TestContext.<anonymous> (file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/docs/verification/materials-native-acceptance/verify-course-binding.test.mjs:101:9)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

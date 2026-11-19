@@ -1,0 +1,1 @@
+{"bindingSha256":"2c04bc8a15443703454b704102c6a9c3299d92c1fd198ceeebad6b750853ca67","currentCaptureSha256":"9a02b60878d5d581353efb66545a56d81c9da254fd59efc3db34456015a8bed8","frozenAssets":26,"dependencies":85,"unchangedDependencies":84,"courseObjectsUnchanged":true,"courseSourcesUnchanged":true,"priorCaptureBytesReproduced":true,"reviewStatus":"pending-independent-review"}

@@ -1,0 +1,81 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFile, readdir, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const root = fileURLToPath(new URL("../../", import.meta.url));
+const oldDirectory = "docs/verification/materials-quality-v2";
+const newDirectory = "docs/verification/materials-native-acceptance";
+const hash = (bytes) => createHash("sha256").update(bytes).digest("hex");
+const read = (file) => readFile(path.join(root, file));
+assert.equal(hash(await read(`${oldDirectory}/capture-course-reference.mjs`)), "3735c41c91d7d5dbaaf9ebf5b0037dd8a4b3c09f225fdac6d3d734a000db4423");
+const { captureCourseReference, canonicalJson } = await import("../../docs/verification/materials-quality-v2/capture-course-reference.mjs");
+const oldSnapshotBytes = await read(`${oldDirectory}/course-reference.snapshot.json`);
+assert.equal(hash(oldSnapshotBytes), "bf458308b5811f60b61f6e5fa24f6910642a7276615f0b212d930d04868d9676");
+const oldSnapshot = JSON.parse(oldSnapshotBytes);
+const current = await captureCourseReference({ root });
+const currentBytes = Buffer.from(`${JSON.stringify(current, null, 2)}\n`);
+const priorCapturePath = "work/grounded-verification/context-adoption-course-capture-20261108-results.json";
+assert.equal(hash(await read(priorCapturePath)), "9a02b60878d5d581353efb66545a56d81c9da254fd59efc3db34456015a8bed8");
+assert.deepEqual(currentBytes, await read(priorCapturePath));
+assert.equal(canonicalJson(current.objects), canonicalJson(oldSnapshot.objects));
+assert.equal(canonicalJson(current.inventory), canonicalJson(oldSnapshot.inventory));
+assert.equal(canonicalJson(current.sourceFiles), canonicalJson(oldSnapshot.sourceFiles));
+const changed = current.dependencies.filter((file, index) => canonicalJson(file) !== canonicalJson(oldSnapshot.dependencies[index]));
+assert.equal(changed.length, 1);
+assert.equal(changed[0].path, "app/contracts/planning.ts");
+const oldDependency = oldSnapshot.dependencies.find((file) => file.path === changed[0].path);
+assert.equal(oldDependency.sha256, "053972ea8b36f6baef224efa41fbf593153e2dff1271e404cc403851fc2a8fa5");
+assert.equal(changed[0].sha256, "861260a27d55287661034d5e0a5ca175d6571400031ac3c9d58cb9608b67db93");
+const before = [
+  "  // Only a verified material proposal records its preview fingerprint. Older events replay without it.",
+  "  agentReplanInput.extend({ ...eventMetadataSchema.shape, materialContextFingerprint: z.string().regex(/^[0-9a-f]{64}$/u).optional() }).strict(),",
+].join("\n");
+const after = [
+  "  // Verified proposals retain private replay evidence; the public view derives a display-only indicator. Older events omit both.",
+  "  agentReplanInput.extend({ ...eventMetadataSchema.shape,",
+  "    materialContextFingerprint: z.string().regex(/^[0-9a-f]{64}$/u).optional(), materialProposal: z.literal(true).optional() }).strict(),",
+].join("\n");
+const planning = (await read(changed[0].path)).toString("utf8");
+assert.equal(planning.split(after).length, 2);
+assert.equal(hash(planning.replace(after, before)), oldDependency.sha256);
+const names = (await readdir(path.join(root, oldDirectory))).sort();
+assert.equal(names.length, 26);
+const frozenAssetHashes = Object.fromEntries(await Promise.all(names.map(async (name) => [name, hash(await read(`${oldDirectory}/${name}`))])));
+const source = JSON.parse(await read(`${oldDirectory}/annotations.draft.json`));
+const frozenInputs = [...source.inputHashes, ...source.basis].map(({ path: file, sha256 }) => ({ path: file, sha256 }));
+for (const input of frozenInputs) assert.equal(hash(await read(input.path)), input.sha256);
+const binding = {
+  schemaVersion: "materials-native-course-binding.1",
+  id: "materials-native-course-binding-20261119",
+  recordedAt: "2026-11-19",
+  reviewStatus: "pending-independent-review",
+  scope: "Byte-exact reuse of independently reviewed course facts under one pinned planning schema transition. No candidate quality or release approval.",
+  baselineCommit: "3eeb5c3f203dd0ba9cf864fa2b7a48ce6a43bae6",
+  historicalApplicationSourceCommit: "2fad2850e447dd353c8d7a9587f114f60ce3dd01",
+  frozenAssetDirectory: oldDirectory,
+  frozenAssetHashes,
+  frozenInputs,
+  reviewedCapture: { path: `${oldDirectory}/course-reference.snapshot.json`, sha256: hash(oldSnapshotBytes), byteLength: oldSnapshotBytes.length, bundleSha256: oldSnapshot.capture.bundleSha256 },
+  currentCapture: { path: `${newDirectory}/course-reference.current.snapshot.json`, sha256: hash(currentBytes), byteLength: currentBytes.length, bundleSha256: current.capture.bundleSha256 },
+  priorCapture: { path: priorCapturePath, sha256: hash(currentBytes), capturedOn: "2026-11-08", reuse: "The unchanged capture API reproduced these exact bytes on 2026-11-19; the original payload's fixed capturedAt and id fields remain unchanged." },
+  dependencyCount: current.dependencies.length,
+  unchangedDependencyCount: current.dependencies.length - 1,
+  permittedDependencyChange: {
+    path: changed[0].path,
+    sourceCommit: "5345317f99d77a62d3bb174dcd6922156a988949",
+    before: oldDependency,
+    after: changed[0],
+    sourceReplacement: { before, after },
+    explanation: "planningEventSchema allows optional materialProposal: true beside the existing optional materialContextFingerprint; its comment and line wrapping change. Full role, blueprint, registry, inventory and course source bytes are unchanged.",
+  },
+  equivalenceRequirements: ["full-role", "full-blueprint", "full-registry", "full-inventory", "course-source-bytes", "all-other-dependency-bytes", "capture-metadata-except-pinned-bundle"],
+  oldLoaderPolicy: "Unchanged loadReviewedReferences continues rejecting the current planning dependency. This binding does not confer its WeakSet credential or supply an old snapshot as a current capture.",
+  actualModelOrProductQualityEvaluated: false,
+  newGateApproved: false,
+};
+await writeFile(path.join(root, binding.currentCapture.path), currentBytes, { flag: "wx" });
+const bindingBytes = Buffer.from(`${JSON.stringify(binding, null, 2)}\n`);
+await writeFile(path.join(root, newDirectory, "course-binding.json"), bindingBytes, { flag: "wx" });
+console.log(JSON.stringify({ bindingSha256: hash(bindingBytes), currentCaptureSha256: hash(currentBytes), frozenAssets: names.length, dependencies: current.dependencies.length, unchangedDependencies: current.dependencies.length - 1, courseObjectsUnchanged: true, courseSourcesUnchanged: true, priorCaptureBytesReproduced: true, reviewStatus: binding.reviewStatus }));

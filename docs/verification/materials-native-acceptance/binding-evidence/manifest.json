@@ -1,0 +1,123 @@
+{
+  "schemaVersion": "materials-course-binding-evidence-1",
+  "archivedAt": "2026-11-19",
+  "files": [
+    {
+      "source": "work/grounded-verification/course-binding-20261119-capture-final.json",
+      "archived": "binding-evidence/course-binding-20261119-capture-final.json",
+      "sha256": "1eb05f52c7df4cc8f7147ec47d50ce05f932643eb630a6b44e5ec0ccf2b8605a",
+      "bytes": 276
+    },
+    {
+      "source": "work/grounded-verification/course-binding-20261119-capture-final.log",
+      "archived": "binding-evidence/course-binding-20261119-capture-final.log.txt",
+      "sha256": "a7ce3703fbc5cfa52deeeed39755c3cdd4624745caee3127fb71efcf3b3ea35d",
+      "bytes": 377
+    },
+    {
+      "source": "work/grounded-verification/course-binding-20261119-capture-restored.json",
+      "archived": "binding-evidence/course-binding-20261119-capture-restored.json",
+      "sha256": "25a6fa53a746896beb8369a93dab4095d1ef1df8572530f79bf00afb5e5edb8b",
+      "bytes": 279
+    },
+    {
+      "source": "work/grounded-verification/course-binding-20261119-capture-restored.log",
+      "archived": "binding-evidence/course-binding-20261119-capture-restored.log.txt",
+      "sha256": "7ae2d5a6d2d2952d39fe74cb0d4b9c8f7eabfff6a31c38a88a360717a7712cf1",
+      "bytes": 471
+    },
+    {
+      "source": "work/grounded-verification/course-binding-20261119-capture-run.json",
+      "archived": "binding-evidence/course-binding-20261119-capture-run.json",
+      "sha256": "64bd60ccba10973cb4d25183eb9bdedf6ea65a5d9e51adfc3265bc356494314e",
+      "bytes": 273
+    },
+    {
+      "source": "work/grounded-verification/course-binding-20261119-capture-run.log",
+      "archived": "binding-evidence/course-binding-20261119-capture-run.log.txt",
+      "sha256": "6fe8cf51f3255b7d5bf456b2cc24d18159b270a311f041c86395a83b729041c7",
+      "bytes": 1222
+    },
+    {
+      "source": "work/grounded-verification/course-binding-20261119-capture.mjs",
+      "archived": "binding-evidence/course-binding-20261119-capture.mjs.source.txt",
+      "sha256": "0780765b1e0c2e6ccf50ba22f2772351b9001992ec9fd944879c81ed6045179c",
+      "bytes": 6570
+    },
+    {
+      "source": "work/grounded-verification/course-binding-20261119-green-final.json",
+      "archived": "binding-evidence/course-binding-20261119-green-final.json",
+      "sha256": "2697885642b773f2c641843dd2e08f97805979ebaffaf3cb4450fc3827a2124c",
+      "bytes": 275
+    },
+    {
+      "source": "work/grounded-verification/course-binding-20261119-green-final.log",
+      "archived": "binding-evidence/course-binding-20261119-green-final.log.txt",
+      "sha256": "cf9ec87333ab9029285321b36377f8c9b5303dea98f8a3ca2a8060ceb14217bf",
+      "bytes": 548
+    },
+    {
+      "source": "work/grounded-verification/course-binding-20261119-green.json",
+      "archived": "binding-evidence/course-binding-20261119-green.json",
+      "sha256": "5c411b01f46f89f20c2624bddf0122c7c413a1639f9547bc694f7cdbd06445eb",
+      "bytes": 269
+    },
+    {
+      "source": "work/grounded-verification/course-binding-20261119-green.log",
+      "archived": "binding-evidence/course-binding-20261119-green.log.txt",
+      "sha256": "8e292e97320d05a88d995c96ca4022530c67818204dd63c84baad9fa59de35d4",
+      "bytes": 548
+    },
+    {
+      "source": "work/grounded-verification/course-binding-20261119-lint-final.json",
+      "archived": "binding-evidence/course-binding-20261119-lint-final.json",
+      "sha256": "3825a31a89645347b05b9eab91cb20c95c07570c12cba2c3a7ea6737fbe342df",
+      "bytes": 274
+    },
+    {
+      "source": "work/grounded-verification/course-binding-20261119-lint-final.log",
+      "archived": "binding-evidence/course-binding-20261119-lint-final.log.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source": "work/grounded-verification/course-binding-20261119-lint.json",
+      "archived": "binding-evidence/course-binding-20261119-lint.json",
+      "sha256": "2055a7992536fe22d82f28a0ba02c9d2973479776c35af9ddc38ed5a03d09963",
+      "bytes": 268
+    },
+    {
+      "source": "work/grounded-verification/course-binding-20261119-lint.log",
+      "archived": "binding-evidence/course-binding-20261119-lint.log.txt",
+      "sha256": "98e17d1497a616aae2dc835c1b2d51629d4dac094004c33b8d7ca32c04afa8f4",
+      "bytes": 346
+    },
+    {
+      "source": "work/grounded-verification/course-binding-20261119-red.json",
+      "archived": "binding-evidence/course-binding-20261119-red.json",
+      "sha256": "609e2d79a2bdb98507cdaba786c6dcce7792e8e09477945be293d2a66bb4206a",
+      "bytes": 266
+    },
+    {
+      "source": "work/grounded-verification/course-binding-20261119-red.log",
+      "archived": "binding-evidence/course-binding-20261119-red.log.txt",
+      "sha256": "e447e9d109107457cd6c3d11f71fe124c354cef416c0ee97a86dfbd759084be8",
+      "bytes": 6532
+    },
+    {
+      "source": "work/grounded-verification/course-binding-20261119-verify.json",
+      "archived": "binding-evidence/course-binding-20261119-verify.json",
+      "sha256": "a20ec6a4184b2387cb4732a31197696290b849da1198c81af32cb384a1eb4c06",
+      "bytes": 269
+    },
+    {
+      "source": "work/grounded-verification/course-binding-20261119-verify.log",
+      "archived": "binding-evidence/course-binding-20261119-verify.log.txt",
+      "sha256": "1ea201496cf9baa8bb78e3a4434698f0f2329490fa9bb8b2075aa3b8ee92fc8b",
+      "bytes": 1226
+    }
+  ],
+  "actualModelCalls": 0,
+  "applicationSourceChanged": false,
+  "frozenReferenceChanged": false
+}

@@ -1,0 +1,13 @@
+✔ binds the complete current course to reviewed facts without approving quality or the Gate (750.8099ms)
+✔ the frozen loader still rejects the current planning schema dependency (10.7094ms)
+✔ rejects same-version course edits and other dependency drift (41.8019ms)
+✔ rejects corrupted historical references, original inputs and basis bytes (36.4246ms)
+✔ rejects rewritten binding pins or a substituted old capture (9.9773ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 971.3135

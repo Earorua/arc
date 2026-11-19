@@ -1,0 +1,6 @@
+
+C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-native-acceptance\verify-course-binding.test.mjs
+  15:3  error  Do not assign to the variable `module`. See: https://nextjs.org/docs/messages/no-assign-module-variable  @next/next/no-assign-module-variable
+
+✖ 1 problem (1 error, 0 warnings)
+
