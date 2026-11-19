@@ -1,0 +1,20 @@
+PASS — narrow current-operator packet preflight specification review, 2026-11-19.
+
+The frozen correction satisfies this scope. I reviewed the actual two-file diff against `a0ad930850f78689dd788354d81cc3acc4c8313e`, the installed settings/issuance implementations, the `loadPacket` call path, and saved raw evidence. Current AGENTS/source routing and working-tree state were checked; this remained an offline review on the designated materials branch. No additional finding is raised.
+
+Handoff `current-operator-preflight-20261119-handoff-01.json` independently matches SHA-256 `1b92d33d1c00a76cb9ad0ee354852e0328826eea3809b21d82d54da8f833eba9`. The exact diff matches `96c5844249022bebc4fe05573f2f0801c690da2bdc06e8b952639649255e2046`. Both changed files and all twelve declared unchanged files match their recorded hashes.
+
+| Changed file | SHA-256 |
+| --- | --- |
+| `scripts/materials-current-quality-operator.ts` | `ce994e88a33d42b1dad826215b6d4c6b6c1a7b0ecdb85743bc72e4e83c688a6e` |
+| `tests/server/materials-current-quality-operator.test.ts` | `472fd1075c333b82f5a1e023ff9ff0a56d208e82b689c4e2b3e79dc2ae4108f7` |
+
+`inspectCurrentSupplementIssuance` retains the externally pinned, size-bounded, strict issuance parser and projects only `{ config, qualification }` into the existing strict public settings API. No schema was relaxed. Its ordered deep comparison binds every document/version/text-version triple to the actual six-document corpus; equality to the fixed 75,000 micro-USD request scope prevents the observed lower-cap grant from surviving until the second phase. The valid case retains the actual six identities and 72,960 reservation.
+
+The actual `loadPacket` invokes this helper at line 298, before ledger inspection, runtime docs evaluation, approved-mode key access, startup claims or the first 24 requests. Existing checks still enforce exact frozen settings, qualification/receipt route, configuration digest, candidate/key/run/grant identities, total budgets, metadata limit three, separate unused slots and source/body bindings. Both grants must retain the already-validated approval window, which is checked again by the source guard and collectors. The helper alone does not authorize execution or check freshness: its deliberately expired in-memory test grant exercises structural preflight only. Purpose, corpus, schema and count restrictions remain in the unchanged strict parser; collection/receipt restrictions remain in unchanged collectors. The prior mandatory-three-attachment and installed-runtime-resolution corrections remain intact.
+
+I inspected the reproduction script and raw baseline RED (`96023a36731eb107261ee8251407cce37c34cfb0ac1f01eb9a20c604ae993680`): the actual frozen configuration plus full parsed issuance fails with the strict API's unexpected `authorization` key. The subsequent scope RED (`cefa67dbf1b06a312336b59d9e3c2db78a60aa13dd2432a5b986dae47ef90b15`) exposes three accepted invalid scopes after projection alone: reversed order, stale text version and 74,000 cap. GREEN (`8f21282c90546ec0a79983100d8db22fca7310d1168e6d8372685369154effbe`) passes the one grouped regression, including invalid-purpose/schema controls, with twelve unrelated groups skipped. All five evidence logs and wrapper metadata match their handoff hashes.
+
+Saved type validation reports zero syntax/semantic diagnostics for the two changed files using normal tsconfig options and dependencies; it is explicitly not a fresh full-program check. I inspected that script and its hash. Two-file lint exits zero with an empty log. Shared runners, ledger/parser, runtime helper, launcher, scorers, current reference/capture/adapter modules, draft, corpus and document contract retain their pinned bytes, so previous reviews remain applicable to those unchanged boundaries.
+
+Only this memo was written. No tests, CLI, probes, account/key/network/model access, source edits, staging or commits were performed. This verdict accepts the correction, not a usable packet or spending authorization. Root owns the immutable ID/source rebind and isolated credential-free real `--verify`; those outcomes are not claimed here.

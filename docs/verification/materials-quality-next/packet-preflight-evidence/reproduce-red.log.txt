@@ -1,0 +1,42 @@
+(node:36896) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"configurationSha256":"f8b30f2605f5a23b67fca755c8cf2882d3ba50552e1164c9566d2bf7079de467","documents":6,"reservationMicroUsd":72960,"perRequestMicroUsd":75000,"fixtureOnly":true}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Got unwanted rejection.
+Actual message: "[
+  {
+    "code": "unrecognized_keys",
+    "keys": [
+      "authorization"
+    ],
+    "path": [],
+    "message": "Unrecognized key: \"authorization\""
+  }
+]"
+    at async <anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\work\grounded-verification\current-operator-preflight-20261119-reproduce.ts:22:1) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: ZodError: [
+    {
+      "code": "unrecognized_keys",
+      "keys": [
+        "authorization"
+      ],
+      "path": [],
+      "message": "Unrecognized key: \"authorization\""
+    }
+  ]
+      at inspectSupplementSettings (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\scripts\collect-materials-supplements.ts:39:52)
+      at <anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\work\grounded-verification\current-operator-preflight-20261119-reproduce.ts:22:34)
+      at waitForActual (node:assert:632:21)
+      at strict.doesNotReject (node:assert:789:39)
+      at <anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\work\grounded-verification\current-operator-preflight-20261119-reproduce.ts:22:14),
+  expected: undefined,
+  operator: 'doesNotReject',
+  diff: 'simple'
+}
+
+Node.js v24.14.1

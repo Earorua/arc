@@ -272,6 +272,14 @@ foreach($path in [Console]::In.ReadToEnd().Split([char]10)) {
     env: { NODE_ENV: "production", SystemRoot: process.env.SystemRoot, PATH: process.env.PATH } });
 }
 
+export async function inspectCurrentSupplementIssuance(raw: string, issuanceSha256: string) {
+  const supplement = readPinnedSupplementIssuance(raw, issuanceSha256, "authorized-live").issued;
+  const six = await inspectSupplementSettings({ config: supplement.config, qualification: supplement.qualification });
+  requireMatch(isDeepStrictEqual(supplement.authorization.documents, six.documents)
+    && supplement.authorization.perRequestMicroUsd === six.perRequestMicroUsd, "invalid-packet");
+  return { supplement, six };
+}
+
 async function loadPacket(packetId: string, packetSha256: string) {
   id.parse(packetId); digest.parse(packetSha256); requireMatch(relative(checkout, process.cwd()) === "");
   const directory = join(homedir(), ".arc-materials", "gate-1b", "materials-b2", "quality-approvals", "current", packetId);
@@ -287,8 +295,7 @@ async function loadPacket(packetId: string, packetSha256: string) {
   const settings = (await pinned(directory, approval.qualification.issuance, 32_768)).toString("utf8");
   const supplementRaw = (await pinned(directory, approval.supplement.issuance, 32_768)).toString("utf8");
   const checked = readQualificationConfiguration(qualificationEnvironment(settings, "configuration-check-only"), new Date());
-  const supplement = readPinnedSupplementIssuance(supplementRaw, approval.supplement.issuance.sha256, "authorized-live").issued;
-  const six = await inspectSupplementSettings(supplement);
+  const { supplement, six } = await inspectCurrentSupplementIssuance(supplementRaw, approval.supplement.issuance.sha256);
   currentStage = "ledger-unresolved";
   inspectCurrentSupplementLedger(join(checkout, "work", "materials-supplement-collection"), supplement.authorization.ledgerSha256);
   currentStage = "invalid-packet";

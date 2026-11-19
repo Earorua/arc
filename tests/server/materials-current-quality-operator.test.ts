@@ -9,6 +9,7 @@ import * as operator from "../../scripts/materials-current-quality-operator";
 import draft from "../../docs/verification/materials-quality-next/request-draft/manifest.json";
 import { fixtureGenerationResponse } from "../helpers/document-generation-response";
 import { registerSupplementLedger } from "../../scripts/materials-supplement-ledger";
+import { inspectSupplementSettings } from "../../scripts/collect-materials-supplements";
 import { DatabaseSync } from "node:sqlite";
 
 const sha = (value: string) => createHash("sha256").update(value).digest("hex");
@@ -70,6 +71,33 @@ it("requires every exact current runtime attachment once and rejects all duplica
     expect.soft(() => read(complete.attachments.filter(file => file.path !== missing)), missing).toThrow();
   for (const duplicate of [complete.attachments[0]!, complete.attachments.at(-1)!])
     expect.soft(() => read([...complete.attachments, duplicate]), duplicate.path).toThrow();
+});
+
+it("preflights the frozen six issuance settings and exact request scope before the first phase", async () => {
+  const config = draft.configurations.supplement.config;
+  const qualification = { ...draft.configurations.supplement.qualification, qualified: true };
+  const scope = await inspectSupplementSettings({ config, qualification });
+  // Expired, in-memory fixture with no real ledger, credential or candidate commit.
+  const issued = { config, qualification, authorization: {
+    purpose: scope.purpose, runId: "fixture-preflight-six", id: "fixture-preflight-grant", issuedBy: "fixture-issuer",
+    candidateCommit: "b".repeat(40), credentialSha256: sha("synthetic-current-preflight-key"), ledgerSha256: digest,
+    corpusSha256: scope.corpusSha256, documents: scope.documents, configurationSha256: scope.configurationSha256,
+    outputSchemaVersion: scope.outputSchemaVersion, approvedAt: "2026-11-01T08:00:00Z", expiresAt: "2026-11-01T10:00:00Z",
+    maxRequests: 6, perRequestMicroUsd: 75_000, totalBudgetMicroUsd: 450_000, maxMetadataReadsPerDocument: 3,
+  } };
+  const inspect = (value: unknown) => {
+    const raw = JSON.stringify(value); return operator.inspectCurrentSupplementIssuance(raw, sha(raw));
+  };
+  await expect(inspect(issued)).resolves.toMatchObject({ supplement: issued, six: {
+    reservationMicroUsd: 72_960, perRequestMicroUsd: 75_000,
+    documents: draft.records.filter(row => row.group === "supplement")
+      .map(({ documentId, documentVersionId, textVersionId }) => ({ documentId, documentVersionId, textVersionId })),
+  } });
+  for (const change of [
+    { documents: [...scope.documents].reverse() },
+    { documents: scope.documents.map((doc, index) => index ? doc : { ...doc, textVersionId: "stale-text" }) },
+    { perRequestMicroUsd: 74_000 }, { purpose: "different-purpose" }, { outputSchemaVersion: "2026.11.9" },
+  ]) await expect.soft(inspect({ ...issued, authorization: { ...issued.authorization, ...change } })).rejects.toThrow();
 });
 
 it("checks installed runtime resolution before any current or nested scorer evaluation", () => {

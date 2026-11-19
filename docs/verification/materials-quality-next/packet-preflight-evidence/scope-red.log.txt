@@ -1,0 +1,508 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:32136) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/server/materials-current-quality-operator.test.ts [2m([22m[2m13 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m12 skipped[39m[2m)[22m[32m 21[2mms[22m[39m
+   [2m[90m↓[39m[22m requires externally pinned fresh approval without issuing or extending it
+   [2m[90m↓[39m[22m requires every exact current runtime attachment once and rejects all duplicate paths
+[31m   [31m×[31m preflights the frozen six issuance settings and exact request scope before the first phase[39m[32m 20[2mms[22m[39m
+   [2m[90m↓[39m[22m checks installed runtime resolution before any current or nested scorer evaluation
+   [2m[90m↓[39m[22m keeps reviewed Credits as a fresh conservative lower bound and key budgets exact
+   [2m[90m↓[39m[22m inspects an insufficient current key before approval without claiming funding or exposing its label
+   [2m[90m↓[39m[22m reports only fixed actionable refusal reasons without upstream exception text
+   [2m[90m↓[39m[22m refuses source, destination, body, clock and duplicate sends at the final handoff
+   [2m[90m↓[39m[22m claims a distinct durable once-only startup slot for each existing run
+   [2m[90m↓[39m[22m checks the existing six ledger identity and unresolved runs read-only before starting 24
+   [2m[90m↓[39m[22m continues only after complete capture and settled receipts, retaining quality failures
+   [2m[90m↓[39m[22m wires the actual journal and capture while a later denial stops before the second paid handoff
+   [2m[90m↓[39m[22m provides a default read-only hidden-input launcher without a secret argument or transcript
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/server/materials-current-quality-operator.test.ts[2m > [22mpreflights the frozen six issuance settings and exact request scope before the first phase
+[31m[1mAssertionError[22m: promise resolved "{ supplement: { …(3) }, six: { …(10) } }" instead of rejecting[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- Error {[39m
+[32m-   "message": "rejected promise",[39m
+[31m+ {[39m
+[31m+   "six": {[39m
+[31m+     "configurationSha256": "f8b30f2605f5a23b67fca755c8cf2882d3ba50552e1164c9566d2bf7079de467",[39m
+[31m+     "corpusSha256": "9775b595f4b44563beb9e3b7f9249b171e731658b454e0f26279d2b46db213d7",[39m
+[31m+     "documents": [[39m
+[31m+       {[39m
+[31m+         "documentId": "supplement-01",[39m
+[31m+         "documentVersionId": "supplement-01-v1",[39m
+[31m+         "textVersionId": "supplement-01-text-1",[39m
+[31m+       },[39m
+[31m+       {[39m
+[31m+         "documentId": "supplement-02",[39m
+[31m+         "documentVersionId": "supplement-02-v1",[39m
+[31m+         "textVersionId": "supplement-02-text-1",[39m
+[31m+       },[39m
+[31m+       {[39m
+[31m+         "documentId": "supplement-03",[39m
+[31m+         "documentVersionId": "supplement-03-v1",[39m
+[31m+         "textVersionId": "supplement-03-text-1",[39m
+[31m+       },[39m
+[31m+       {[39m
+[31m+         "documentId": "supplement-04",[39m
+[31m+         "documentVersionId": "supplement-04-v1",[39m
+[31m+         "textVersionId": "supplement-04-text-1",[39m
+[31m+       },[39m
+[31m+       {[39m
+[31m+         "documentId": "supplement-05",[39m
+[31m+         "documentVersionId": "supplement-05-v1",[39m
+[31m+         "textVersionId": "supplement-05-text-1",[39m
+[31m+       },[39m
+[31m+       {[39m
+[31m+         "documentId": "supplement-06",[39m
+[31m+         "documentVersionId": "supplement-06-v1",[39m
+[31m+         "textVersionId": "supplement-06-text-1",[39m
+[31m+       },[39m
+[31m+     ],[39m
+[31m+     "maxRequests": 6,[39m
+[31m+     "maxWindowMs": 7200000,[39m
+[31m+     "outputSchemaVersion": "2026.11.1",[39m
+[31m+     "perRequestMicroUsd": 75000,[39m
+[31m+     "purpose": "collect-six-synthetic-supplements",[39m
+[31m+     "reservationMicroUsd": 72960,[39m
+[31m+     "totalBudgetMicroUsd": 450000,[39m
+[31m+   },[39m
+[31m+   "supplement": {[39m
+[31m+     "authorization": {[39m
+[31m+       "approvedAt": "2026-11-01T08:00:00Z",[39m
+[31m+       "candidateCommit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",[39m
+[31m+       "configurationSha256": "f8b30f2605f5a23b67fca755c8cf2882d3ba50552e1164c9566d2bf7079de467",[39m
+[31m+       "corpusSha256": "9775b595f4b44563beb9e3b7f9249b171e731658b454e0f26279d2b46db213d7",[39m
+[31m+       "credentialSha256": "df43345caaa1ea8564ded7e8632ffde47f2c223e13c179f6bf85a5cb5f144d7d",[39m
+[31m+       "documents": [[39m
+[31m+         {[39m
+[31m+           "documentId": "supplement-06",[39m
+[31m+           "documentVersionId": "supplement-06-v1",[39m
+[31m+           "textVersionId": "supplement-06-text-1",[39m
+[31m+         },[39m
+[31m+         {[39m
+[31m+           "documentId": "supplement-05",[39m
+[31m+           "documentVersionId": "supplement-05-v1",[39m
+[31m+           "textVersionId": "supplement-05-text-1",[39m
+[31m+         },[39m
+[31m+         {[39m
+[31m+           "documentId": "supplement-04",[39m
+[31m+           "documentVersionId": "supplement-04-v1",[39m
+[31m+           "textVersionId": "supplement-04-text-1",[39m
+[31m+         },[39m
+[31m+         {[39m
+[31m+           "documentId": "supplement-03",[39m
+[31m+           "documentVersionId": "supplement-03-v1",[39m
+[31m+           "textVersionId": "supplement-03-text-1",[39m
+[31m+         },[39m
+[31m+         {[39m
+[31m+           "documentId": "supplement-02",[39m
+[31m+           "documentVersionId": "supplement-02-v1",[39m
+[31m+           "textVersionId": "supplement-02-text-1",[39m
+[31m+         },[39m
+[31m+         {[39m
+[31m+           "documentId": "supplement-01",[39m
+[31m+           "documentVersionId": "supplement-01-v1",[39m
+[31m+           "textVersionId": "supplement-01-text-1",[39m
+[31m+         },[39m
+[31m+       ],[39m
+[31m+       "expiresAt": "2026-11-01T10:00:00Z",[39m
+[31m+       "id": "fixture-preflight-grant",[39m
+[31m+       "issuedBy": "fixture-issuer",[39m
+[31m+       "ledgerSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",[39m
+[31m+       "maxMetadataReadsPerDocument": 3,[39m
+[31m+       "maxRequests": 6,[39m
+[31m+       "outputSchemaVersion": "2026.11.1",[39m
+[31m+       "perRequestMicroUsd": 75000,[39m
+[31m+       "purpose": "collect-six-synthetic-supplements",[39m
+[31m+       "runId": "fixture-preflight-six",[39m
+[31m+       "totalBudgetMicroUsd": 450000,[39m
+[31m+     },[39m
+[31m+     "config": {[39m
+[31m+       "endpoint": "https://openrouter.ai/api/v1/chat/completions",[39m
+[31m+       "globalDailyMicroUsd": 450000,[39m
+[31m+       "httpTimeoutMs": 180000,[39m
+[31m+       "maxInputTokens": 16000,[39m
+[31m+       "maxJobMicroUsd": 75000,[39m
+[31m+       "maxOutputTokens": 4096,[39m
+[31m+       "model": "moonshotai/kimi-k3.1-pro",[39m
+[31m+       "priceVersion": "2026.11.3",[39m
+[31m+       "provider": "OpenRouter / Moonshot AI",[39m
+[31m+       "providerPolicyId": "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v3",[39m
+[31m+       "routingPolicy": {[39m
+[31m+         "allowFallback": false,[39m
+[31m+         "dataPolicy": "zdr-only",[39m
+[31m+         "policyVersion": "2026.11.3",[39m
+[31m+         "providerOrder": [[39m
+[31m+           "moonshotai/mxfp4",[39m
+[31m+         ],[39m
+[31m+       },[39m
+[31m+       "userDailyMicroUsd": 450000,[39m
+[31m+     },[39m
+[31m+     "qualification": {[39m
+[31m+       "endpoint": "https://openrouter.ai/api/v1/chat/completions",[39m
+[31m+       "inputMicroUsdPerMillionTokens": 2000000,[39m
+[31m+       "inputTokenBound": "utf8-bytes-plus-4096",[39m
+[31m+       "model": "moonshotai/kimi-k3.1-pro",[39m
+[31m+       "outputMicroUsdPerMillionTokens": 10000000,[39m
+[31m+       "priceVersion": "2026.11.3",[39m
+[31m+       "providerPolicyId": "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v3",[39m
+[31m+       "qualified": true,[39m
+[31m+       "receiptRoute": {[39m
+[31m+         "endpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",[39m
+[31m+         "generationModel": "moonshotai/kimi-k3.1-pro-20261023",[39m
+[31m+         "providerName": "Moonshot AI",[39m
+[31m+       },[39m
+[31m+       "routingPolicy": {[39m
+[31m+         "allowFallback": false,[39m
+[31m+         "dataPolicy": "zdr-only",[39m
+[31m+         "policyVersion": "2026.11.3",[39m
+[31m+         "providerOrder": [[39m
+[31m+           "moonshotai/mxfp4",[39m
+[31m+         ],[39m
+[31m+       },[39m
+[31m+     },[39m
+[31m+   },[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/server/materials-current-quality-operator.test.ts:[2m100:102[22m[39m
+    [90m 98|[39m     { documents: scope.documents.map((doc, index) => index ? doc : { .…
+    [90m 99|[39m     { perRequestMicroUsd: 74_000 }, { purpose: "different-purpose" }, …
+    [90m100|[39m   ]) await expect.soft(inspect({ ...issued, authorization: { ...issued…
+    [90m   |[39m                                                                                                      [31m^[39m
+    [90m101|[39m })[33m;[39m
+    [90m102|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/materials-current-quality-operator.test.ts[2m > [22mpreflights the frozen six issuance settings and exact request scope before the first phase
+[31m[1mAssertionError[22m: promise resolved "{ supplement: { …(3) }, six: { …(10) } }" instead of rejecting[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- Error {[39m
+[32m-   "message": "rejected promise",[39m
+[31m+ {[39m
+[31m+   "six": {[39m
+[31m+     "configurationSha256": "f8b30f2605f5a23b67fca755c8cf2882d3ba50552e1164c9566d2bf7079de467",[39m
+[31m+     "corpusSha256": "9775b595f4b44563beb9e3b7f9249b171e731658b454e0f26279d2b46db213d7",[39m
+[31m+     "documents": [[39m
+[31m+       {[39m
+[31m+         "documentId": "supplement-01",[39m
+[31m+         "documentVersionId": "supplement-01-v1",[39m
+[31m+         "textVersionId": "supplement-01-text-1",[39m
+[31m+       },[39m
+[31m+       {[39m
+[31m+         "documentId": "supplement-02",[39m
+[31m+         "documentVersionId": "supplement-02-v1",[39m
+[31m+         "textVersionId": "supplement-02-text-1",[39m
+[31m+       },[39m
+[31m+       {[39m
+[31m+         "documentId": "supplement-03",[39m
+[31m+         "documentVersionId": "supplement-03-v1",[39m
+[31m+         "textVersionId": "supplement-03-text-1",[39m
+[31m+       },[39m
+[31m+       {[39m
+[31m+         "documentId": "supplement-04",[39m
+[31m+         "documentVersionId": "supplement-04-v1",[39m
+[31m+         "textVersionId": "supplement-04-text-1",[39m
+[31m+       },[39m
+[31m+       {[39m
+[31m+         "documentId": "supplement-05",[39m
+[31m+         "documentVersionId": "supplement-05-v1",[39m
+[31m+         "textVersionId": "supplement-05-text-1",[39m
+[31m+       },[39m
+[31m+       {[39m
+[31m+         "documentId": "supplement-06",[39m
+[31m+         "documentVersionId": "supplement-06-v1",[39m
+[31m+         "textVersionId": "supplement-06-text-1",[39m
+[31m+       },[39m
+[31m+     ],[39m
+[31m+     "maxRequests": 6,[39m
+[31m+     "maxWindowMs": 7200000,[39m
+[31m+     "outputSchemaVersion": "2026.11.1",[39m
+[31m+     "perRequestMicroUsd": 75000,[39m
+[31m+     "purpose": "collect-six-synthetic-supplements",[39m
+[31m+     "reservationMicroUsd": 72960,[39m
+[31m+     "totalBudgetMicroUsd": 450000,[39m
+[31m+   },[39m
+[31m+   "supplement": {[39m
+[31m+     "authorization": {[39m
+[31m+       "approvedAt": "2026-11-01T08:00:00Z",[39m
+[31m+       "candidateCommit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",[39m
+[31m+       "configurationSha256": "f8b30f2605f5a23b67fca755c8cf2882d3ba50552e1164c9566d2bf7079de467",[39m
+[31m+       "corpusSha256": "9775b595f4b44563beb9e3b7f9249b171e731658b454e0f26279d2b46db213d7",[39m
+[31m+       "credentialSha256": "df43345caaa1ea8564ded7e8632ffde47f2c223e13c179f6bf85a5cb5f144d7d",[39m
+[31m+       "documents": [[39m
+[31m+         {[39m
+[31m+           "documentId": "supplement-01",[39m
+[31m+           "documentVersionId": "supplement-01-v1",[39m
+[31m+           "textVersionId": "stale-text",[39m
+[31m+         },[39m
+[31m+         {[39m
+[31m+           "documentId": "supplement-02",[39m
+[31m+           "documentVersionId": "supplement-02-v1",[39m
+[31m+           "textVersionId": "supplement-02-text-1",[39m
+[31m+         },[39m
+[31m+         {[39m
+[31m+           "documentId": "supplement-03",[39m
+[31m+           "documentVersionId": "supplement-03-v1",[39m
+[31m+           "textVersionId": "supplement-03-text-1",[39m
+[31m+         },[39m
+[31m+         {[39m
+[31m+           "documentId": "supplement-04",[39m
+[31m+           "documentVersionId": "supplement-04-v1",[39m
+[31m+           "textVersionId": "supplement-04-text-1",[39m
+[31m+         },[39m
+[31m+         {[39m
+[31m+           "documentId": "supplement-05",[39m
+[31m+           "documentVersionId": "supplement-05-v1",[39m
+[31m+           "textVersionId": "supplement-05-text-1",[39m
+[31m+         },[39m
+[31m+         {[39m
+[31m+           "documentId": "supplement-06",[39m
+[31m+           "documentVersionId": "supplement-06-v1",[39m
+[31m+           "textVersionId": "supplement-06-text-1",[39m
+[31m+         },[39m
+[31m+       ],[39m
+[31m+       "expiresAt": "2026-11-01T10:00:00Z",[39m
+[31m+       "id": "fixture-preflight-grant",[39m
+[31m+       "issuedBy": "fixture-issuer",[39m
+[31m+       "ledgerSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",[39m
+[31m+       "maxMetadataReadsPerDocument": 3,[39m
+[31m+       "maxRequests": 6,[39m
+[31m+       "outputSchemaVersion": "2026.11.1",[39m
+[31m+       "perRequestMicroUsd": 75000,[39m
+[31m+       "purpose": "collect-six-synthetic-supplements",[39m
+[31m+       "runId": "fixture-preflight-six",[39m
+[31m+       "totalBudgetMicroUsd": 450000,[39m
+[31m+     },[39m
+[31m+     "config": {[39m
+[31m+       "endpoint": "https://openrouter.ai/api/v1/chat/completions",[39m
+[31m+       "globalDailyMicroUsd": 450000,[39m
+[31m+       "httpTimeoutMs": 180000,[39m
+[31m+       "maxInputTokens": 16000,[39m
+[31m+       "maxJobMicroUsd": 75000,[39m
+[31m+       "maxOutputTokens": 4096,[39m
+[31m+       "model": "moonshotai/kimi-k3.1-pro",[39m
+[31m+       "priceVersion": "2026.11.3",[39m
+[31m+       "provider": "OpenRouter / Moonshot AI",[39m
+[31m+       "providerPolicyId": "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v3",[39m
+[31m+       "routingPolicy": {[39m
+[31m+         "allowFallback": false,[39m
+[31m+         "dataPolicy": "zdr-only",[39m
+[31m+         "policyVersion": "2026.11.3",[39m
+[31m+         "providerOrder": [[39m
+[31m+           "moonshotai/mxfp4",[39m
+[31m+         ],[39m
+[31m+       },[39m
+[31m+       "userDailyMicroUsd": 450000,[39m
+[31m+     },[39m
+[31m+     "qualification": {[39m
+[31m+       "endpoint": "https://openrouter.ai/api/v1/chat/completions",[39m
+[31m+       "inputMicroUsdPerMillionTokens": 2000000,[39m
+[31m+       "inputTokenBound": "utf8-bytes-plus-4096",[39m
+[31m+       "model": "moonshotai/kimi-k3.1-pro",[39m
+[31m+       "outputMicroUsdPerMillionTokens": 10000000,[39m
+[31m+       "priceVersion": "2026.11.3",[39m
+[31m+       "providerPolicyId": "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v3",[39m
+[31m+       "qualified": true,[39m
+[31m+       "receiptRoute": {[39m
+[31m+         "endpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",[39m
+[31m+         "generationModel": "moonshotai/kimi-k3.1-pro-20261023",[39m
+[31m+         "providerName": "Moonshot AI",[39m
+[31m+       },[39m
+[31m+       "routingPolicy": {[39m
+[31m+         "allowFallback": false,[39m
+[31m+         "dataPolicy": "zdr-only",[39m
+[31m+         "policyVersion": "2026.11.3",[39m
+[31m+         "providerOrder": [[39m
+[31m+           "moonshotai/mxfp4",[39m
+[31m+         ],[39m
+[31m+       },[39m
+[31m+     },[39m
+[31m+   },[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/server/materials-current-quality-operator.test.ts:[2m100:102[22m[39m
+    [90m 98|[39m     { documents: scope.documents.map((doc, index) => index ? doc : { .…
+    [90m 99|[39m     { perRequestMicroUsd: 74_000 }, { purpose: "different-purpose" }, …
+    [90m100|[39m   ]) await expect.soft(inspect({ ...issued, authorization: { ...issued…
+    [90m   |[39m                                                                                                      [31m^[39m
+    [90m101|[39m })[33m;[39m
+    [90m102|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/materials-current-quality-operator.test.ts[2m > [22mpreflights the frozen six issuance settings and exact request scope before the first phase
+[31m[1mAssertionError[22m: promise resolved "{ supplement: { …(3) }, six: { …(10) } }" instead of rejecting[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- Error {[39m
+[32m-   "message": "rejected promise",[39m
+[31m+ {[39m
+[31m+   "six": {[39m
+[31m+     "configurationSha256": "f8b30f2605f5a23b67fca755c8cf2882d3ba50552e1164c9566d2bf7079de467",[39m
+[31m+     "corpusSha256": "9775b595f4b44563beb9e3b7f9249b171e731658b454e0f26279d2b46db213d7",[39m
+[31m+     "documents": [[39m
+[31m+       {[39m
+[31m+         "documentId": "supplement-01",[39m
+[31m+         "documentVersionId": "supplement-01-v1",[39m
+[31m+         "textVersionId": "supplement-01-text-1",[39m
+[31m+       },[39m
+[31m+       {[39m
+[31m+         "documentId": "supplement-02",[39m
+[31m+         "documentVersionId": "supplement-02-v1",[39m
+[31m+         "textVersionId": "supplement-02-text-1",[39m
+[31m+       },[39m
+[31m+       {[39m
+[31m+         "documentId": "supplement-03",[39m
+[31m+         "documentVersionId": "supplement-03-v1",[39m
+[31m+         "textVersionId": "supplement-03-text-1",[39m
+[31m+       },[39m
+[31m+       {[39m
+[31m+         "documentId": "supplement-04",[39m
+[31m+         "documentVersionId": "supplement-04-v1",[39m
+[31m+         "textVersionId": "supplement-04-text-1",[39m
+[31m+       },[39m
+[31m+       {[39m
+[31m+         "documentId": "supplement-05",[39m
+[31m+         "documentVersionId": "supplement-05-v1",[39m
+[31m+         "textVersionId": "supplement-05-text-1",[39m
+[31m+       },[39m
+[31m+       {[39m
+[31m+         "documentId": "supplement-06",[39m
+[31m+         "documentVersionId": "supplement-06-v1",[39m
+[31m+         "textVersionId": "supplement-06-text-1",[39m
+[31m+       },[39m
+[31m+     ],[39m
+[31m+     "maxRequests": 6,[39m
+[31m+     "maxWindowMs": 7200000,[39m
+[31m+     "outputSchemaVersion": "2026.11.1",[39m
+[31m+     "perRequestMicroUsd": 75000,[39m
+[31m+     "purpose": "collect-six-synthetic-supplements",[39m
+[31m+     "reservationMicroUsd": 72960,[39m
+[31m+     "totalBudgetMicroUsd": 450000,[39m
+[31m+   },[39m
+[31m+   "supplement": {[39m
+[31m+     "authorization": {[39m
+[31m+       "approvedAt": "2026-11-01T08:00:00Z",[39m
+[31m+       "candidateCommit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",[39m
+[31m+       "configurationSha256": "f8b30f2605f5a23b67fca755c8cf2882d3ba50552e1164c9566d2bf7079de467",[39m
+[31m+       "corpusSha256": "9775b595f4b44563beb9e3b7f9249b171e731658b454e0f26279d2b46db213d7",[39m
+[31m+       "credentialSha256": "df43345caaa1ea8564ded7e8632ffde47f2c223e13c179f6bf85a5cb5f144d7d",[39m
+[31m+       "documents": [[39m
+[31m+         {[39m
+[31m+           "documentId": "supplement-01",[39m
+[31m+           "documentVersionId": "supplement-01-v1",[39m
+[31m+           "textVersionId": "supplement-01-text-1",[39m
+[31m+         },[39m
+[31m+         {[39m
+[31m+           "documentId": "supplement-02",[39m
+[31m+           "documentVersionId": "supplement-02-v1",[39m
+[31m+           "textVersionId": "supplement-02-text-1",[39m
+[31m+         },[39m
+[31m+         {[39m
+[31m+           "documentId": "supplement-03",[39m
+[31m+           "documentVersionId": "supplement-03-v1",[39m
+[31m+           "textVersionId": "supplement-03-text-1",[39m
+[31m+         },[39m
+[31m+         {[39m
+[31m+           "documentId": "supplement-04",[39m
+[31m+           "documentVersionId": "supplement-04-v1",[39m
+[31m+           "textVersionId": "supplement-04-text-1",[39m
+[31m+         },[39m
+[31m+         {[39m
+[31m+           "documentId": "supplement-05",[39m
+[31m+           "documentVersionId": "supplement-05-v1",[39m
+[31m+           "textVersionId": "supplement-05-text-1",[39m
+[31m+         },[39m
+[31m+         {[39m
+[31m+           "documentId": "supplement-06",[39m
+[31m+           "documentVersionId": "supplement-06-v1",[39m
+[31m+           "textVersionId": "supplement-06-text-1",[39m
+[31m+         },[39m
+[31m+       ],[39m
+[31m+       "expiresAt": "2026-11-01T10:00:00Z",[39m
+[31m+       "id": "fixture-preflight-grant",[39m
+[31m+       "issuedBy": "fixture-issuer",[39m
+[31m+       "ledgerSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",[39m
+[31m+       "maxMetadataReadsPerDocument": 3,[39m
+[31m+       "maxRequests": 6,[39m
+[31m+       "outputSchemaVersion": "2026.11.1",[39m
+[31m+       "perRequestMicroUsd": 74000,[39m
+[31m+       "purpose": "collect-six-synthetic-supplements",[39m
+[31m+       "runId": "fixture-preflight-six",[39m
+[31m+       "totalBudgetMicroUsd": 450000,[39m
+[31m+     },[39m
+[31m+     "config": {[39m
+[31m+       "endpoint": "https://openrouter.ai/api/v1/chat/completions",[39m
+[31m+       "globalDailyMicroUsd": 450000,[39m
+[31m+       "httpTimeoutMs": 180000,[39m
+[31m+       "maxInputTokens": 16000,[39m
+[31m+       "maxJobMicroUsd": 75000,[39m
+[31m+       "maxOutputTokens": 4096,[39m
+[31m+       "model": "moonshotai/kimi-k3.1-pro",[39m
+[31m+       "priceVersion": "2026.11.3",[39m
+[31m+       "provider": "OpenRouter / Moonshot AI",[39m
+[31m+       "providerPolicyId": "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v3",[39m
+[31m+       "routingPolicy": {[39m
+[31m+         "allowFallback": false,[39m
+[31m+         "dataPolicy": "zdr-only",[39m
+[31m+         "policyVersion": "2026.11.3",[39m
+[31m+         "providerOrder": [[39m
+[31m+           "moonshotai/mxfp4",[39m
+[31m+         ],[39m
+[31m+       },[39m
+[31m+       "userDailyMicroUsd": 450000,[39m
+[31m+     },[39m
+[31m+     "qualification": {[39m
+[31m+       "endpoint": "https://openrouter.ai/api/v1/chat/completions",[39m
+[31m+       "inputMicroUsdPerMillionTokens": 2000000,[39m
+[31m+       "inputTokenBound": "utf8-bytes-plus-4096",[39m
+[31m+       "model": "moonshotai/kimi-k3.1-pro",[39m
+[31m+       "outputMicroUsdPerMillionTokens": 10000000,[39m
+[31m+       "priceVersion": "2026.11.3",[39m
+[31m+       "providerPolicyId": "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v3",[39m
+[31m+       "qualified": true,[39m
+[31m+       "receiptRoute": {[39m
+[31m+         "endpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",[39m
+[31m+         "generationModel": "moonshotai/kimi-k3.1-pro-20261023",[39m
+[31m+         "providerName": "Moonshot AI",[39m
+[31m+       },[39m
+[31m+       "routingPolicy": {[39m
+[31m+         "allowFallback": false,[39m
+[31m+         "dataPolicy": "zdr-only",[39m
+[31m+         "policyVersion": "2026.11.3",[39m
+[31m+         "providerOrder": [[39m
+[31m+           "moonshotai/mxfp4",[39m
+[31m+         ],[39m
+[31m+       },[39m
+[31m+     },[39m
+[31m+   },[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/server/materials-current-quality-operator.test.ts:[2m100:102[22m[39m
+    [90m 98|[39m     { documents: scope.documents.map((doc, index) => index ? doc : { .…
+    [90m 99|[39m     { perRequestMicroUsd: 74_000 }, { purpose: "different-purpose" }, …
+    [90m100|[39m   ]) await expect.soft(inspect({ ...issued, authorization: { ...issued…
+    [90m   |[39m                                                                                                      [31m^[39m
+    [90m101|[39m })[33m;[39m
+    [90m102|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[33m12 skipped[39m[90m (13)[39m
+[2m   Start at [22m 18:49:09
+[2m   Duration [22m 923ms[2m (transform 393ms, setup 209ms, import 550ms, tests 21ms, environment 0ms)[22m
+

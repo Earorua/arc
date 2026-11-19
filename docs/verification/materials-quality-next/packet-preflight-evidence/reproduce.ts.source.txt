@@ -1,0 +1,22 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import draft from "../../docs/verification/materials-quality-next/request-draft/manifest.json" with { type: "json" };
+import { inspectSupplementSettings } from "../../scripts/collect-materials-supplements";
+import { readPinnedSupplementIssuance } from "../../scripts/materials-supplement-ledger";
+
+const sha = (text: string) => createHash("sha256").update(text).digest("hex");
+const config = draft.configurations.supplement.config;
+const qualification = { ...draft.configurations.supplement.qualification, qualified: true };
+const scope = await inspectSupplementSettings({ config, qualification });
+// In-memory expired fixture only: no real credential, ledger, source commit or approval.
+const raw = JSON.stringify({ config, qualification, authorization: {
+  purpose: scope.purpose, runId: "fixture-preflight-six", id: "fixture-preflight-grant", issuedBy: "fixture-issuer",
+  candidateCommit: "b".repeat(40), credentialSha256: sha("synthetic-current-preflight-key"), ledgerSha256: "a".repeat(64),
+  corpusSha256: scope.corpusSha256, documents: scope.documents, configurationSha256: scope.configurationSha256,
+  outputSchemaVersion: scope.outputSchemaVersion, approvedAt: "2026-11-01T08:00:00Z", expiresAt: "2026-11-01T10:00:00Z",
+  maxRequests: 6, perRequestMicroUsd: 75_000, totalBudgetMicroUsd: 450_000, maxMetadataReadsPerDocument: 3,
+} });
+const supplement = readPinnedSupplementIssuance(raw, sha(raw), "authorized-live").issued;
+console.log(JSON.stringify({ configurationSha256: scope.configurationSha256, documents: scope.documents.length,
+  reservationMicroUsd: scope.reservationMicroUsd, perRequestMicroUsd: scope.perRequestMicroUsd, fixtureOnly: true }));
+await assert.doesNotReject(() => inspectSupplementSettings(supplement));

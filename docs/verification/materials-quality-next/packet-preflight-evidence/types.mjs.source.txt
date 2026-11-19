@@ -1,0 +1,18 @@
+import ts from "typescript";
+import { resolve } from "node:path";
+const paths = ["scripts/materials-current-quality-operator.ts", "tests/server/materials-current-quality-operator.test.ts"];
+const source = ts.readConfigFile("tsconfig.json", ts.sys.readFile);
+const config = ts.parseJsonConfigFileContent(source.config, ts.sys, process.cwd());
+const program = ts.createProgram(config.fileNames, { ...config.options, noEmit: true, incremental: false });
+const diagnostics = [source.error, ...config.errors, ...program.getOptionsDiagnostics()].filter(Boolean);
+for (const path of paths) {
+  const file = program.getSourceFile(resolve(path));
+  if (!file) throw Error(`Missing checked source: ${path}`);
+  diagnostics.push(...program.getSyntacticDiagnostics(file), ...program.getSemanticDiagnostics(file));
+}
+if (diagnostics.length) {
+  console.error(ts.formatDiagnosticsWithColorAndContext(diagnostics, {
+    getCanonicalFileName: path => path, getCurrentDirectory: () => process.cwd(), getNewLine: () => "\n",
+  }));
+  process.exitCode = 1;
+} else console.log(JSON.stringify({ checkedFiles: paths, config: "tsconfig.json", diagnostics: 0, scope: "changed-files-only" }));

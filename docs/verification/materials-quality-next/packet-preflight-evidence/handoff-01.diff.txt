@@ -1,0 +1,75 @@
+diff --git a/scripts/materials-current-quality-operator.ts b/scripts/materials-current-quality-operator.ts
+index e4c1a62..31872cb 100644
+--- a/scripts/materials-current-quality-operator.ts
++++ b/scripts/materials-current-quality-operator.ts
+@@ -272,6 +272,14 @@ foreach($path in [Console]::In.ReadToEnd().Split([char]10)) {
+     env: { NODE_ENV: "production", SystemRoot: process.env.SystemRoot, PATH: process.env.PATH } });
+ }
+ 
++export async function inspectCurrentSupplementIssuance(raw: string, issuanceSha256: string) {
++  const supplement = readPinnedSupplementIssuance(raw, issuanceSha256, "authorized-live").issued;
++  const six = await inspectSupplementSettings({ config: supplement.config, qualification: supplement.qualification });
++  requireMatch(isDeepStrictEqual(supplement.authorization.documents, six.documents)
++    && supplement.authorization.perRequestMicroUsd === six.perRequestMicroUsd, "invalid-packet");
++  return { supplement, six };
++}
++
+ async function loadPacket(packetId: string, packetSha256: string) {
+   id.parse(packetId); digest.parse(packetSha256); requireMatch(relative(checkout, process.cwd()) === "");
+   const directory = join(homedir(), ".arc-materials", "gate-1b", "materials-b2", "quality-approvals", "current", packetId);
+@@ -287,8 +295,7 @@ async function loadPacket(packetId: string, packetSha256: string) {
+   const settings = (await pinned(directory, approval.qualification.issuance, 32_768)).toString("utf8");
+   const supplementRaw = (await pinned(directory, approval.supplement.issuance, 32_768)).toString("utf8");
+   const checked = readQualificationConfiguration(qualificationEnvironment(settings, "configuration-check-only"), new Date());
+-  const supplement = readPinnedSupplementIssuance(supplementRaw, approval.supplement.issuance.sha256, "authorized-live").issued;
+-  const six = await inspectSupplementSettings(supplement);
++  const { supplement, six } = await inspectCurrentSupplementIssuance(supplementRaw, approval.supplement.issuance.sha256);
+   currentStage = "ledger-unresolved";
+   inspectCurrentSupplementLedger(join(checkout, "work", "materials-supplement-collection"), supplement.authorization.ledgerSha256);
+   currentStage = "invalid-packet";
+diff --git a/tests/server/materials-current-quality-operator.test.ts b/tests/server/materials-current-quality-operator.test.ts
+index 26f526d..d69d131 100644
+--- a/tests/server/materials-current-quality-operator.test.ts
++++ b/tests/server/materials-current-quality-operator.test.ts
+@@ -9,6 +9,7 @@ import * as operator from "../../scripts/materials-current-quality-operator";
+ import draft from "../../docs/verification/materials-quality-next/request-draft/manifest.json";
+ import { fixtureGenerationResponse } from "../helpers/document-generation-response";
+ import { registerSupplementLedger } from "../../scripts/materials-supplement-ledger";
++import { inspectSupplementSettings } from "../../scripts/collect-materials-supplements";
+ import { DatabaseSync } from "node:sqlite";
+ 
+ const sha = (value: string) => createHash("sha256").update(value).digest("hex");
+@@ -72,6 +73,33 @@ it("requires every exact current runtime attachment once and rejects all duplica
+     expect.soft(() => read([...complete.attachments, duplicate]), duplicate.path).toThrow();
+ });
+ 
++it("preflights the frozen six issuance settings and exact request scope before the first phase", async () => {
++  const config = draft.configurations.supplement.config;
++  const qualification = { ...draft.configurations.supplement.qualification, qualified: true };
++  const scope = await inspectSupplementSettings({ config, qualification });
++  // Expired, in-memory fixture with no real ledger, credential or candidate commit.
++  const issued = { config, qualification, authorization: {
++    purpose: scope.purpose, runId: "fixture-preflight-six", id: "fixture-preflight-grant", issuedBy: "fixture-issuer",
++    candidateCommit: "b".repeat(40), credentialSha256: sha("synthetic-current-preflight-key"), ledgerSha256: digest,
++    corpusSha256: scope.corpusSha256, documents: scope.documents, configurationSha256: scope.configurationSha256,
++    outputSchemaVersion: scope.outputSchemaVersion, approvedAt: "2026-11-01T08:00:00Z", expiresAt: "2026-11-01T10:00:00Z",
++    maxRequests: 6, perRequestMicroUsd: 75_000, totalBudgetMicroUsd: 450_000, maxMetadataReadsPerDocument: 3,
++  } };
++  const inspect = (value: unknown) => {
++    const raw = JSON.stringify(value); return operator.inspectCurrentSupplementIssuance(raw, sha(raw));
++  };
++  await expect(inspect(issued)).resolves.toMatchObject({ supplement: issued, six: {
++    reservationMicroUsd: 72_960, perRequestMicroUsd: 75_000,
++    documents: draft.records.filter(row => row.group === "supplement")
++      .map(({ documentId, documentVersionId, textVersionId }) => ({ documentId, documentVersionId, textVersionId })),
++  } });
++  for (const change of [
++    { documents: [...scope.documents].reverse() },
++    { documents: scope.documents.map((doc, index) => index ? doc : { ...doc, textVersionId: "stale-text" }) },
++    { perRequestMicroUsd: 74_000 }, { purpose: "different-purpose" }, { outputSchemaVersion: "2026.11.9" },
++  ]) await expect.soft(inspect({ ...issued, authorization: { ...issued.authorization, ...change } })).rejects.toThrow();
++});
++
+ it("checks installed runtime resolution before any current or nested scorer evaluation", () => {
+   for (const alternate of [null, "materials-quality-next/current-references.mts", "materials-quality-v2/candidate-course.mts"]) {
+     const directory = mkdtempSync(join(tmpdir(), "arc-current-operator-")); directories.push(directory);

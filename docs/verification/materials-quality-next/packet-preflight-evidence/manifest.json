@@ -1,0 +1,130 @@
+{
+  "baseCommit": "a0ad930850f78689dd788354d81cc3acc4c8313e",
+  "source": {
+    "scripts/materials-current-quality-operator.ts": "ce994e88a33d42b1dad826215b6d4c6b6c1a7b0ecdb85743bc72e4e83c688a6e",
+    "tests/server/materials-current-quality-operator.test.ts": "472fd1075c333b82f5a1e023ff9ff0a56d208e82b689c4e2b3e79dc2ae4108f7"
+  },
+  "scope": "Offline operator preflight, two changed files. Existing product and evaluation evidence retained.",
+  "files": [
+    {
+      "original": "current-operator-preflight-20261119-green.json",
+      "path": "docs/verification/materials-quality-next/packet-preflight-evidence/green.json",
+      "bytes": 281,
+      "sha256": "01ba7757cf38db402513b2047c06ba5c02f676b651fca085aeb035bda7d3bf22"
+    },
+    {
+      "original": "current-operator-preflight-20261119-green.log",
+      "path": "docs/verification/materials-quality-next/packet-preflight-evidence/green.log.txt",
+      "bytes": 777,
+      "sha256": "8f21282c90546ec0a79983100d8db22fca7310d1168e6d8372685369154effbe"
+    },
+    {
+      "original": "current-operator-preflight-20261119-handoff-01.diff",
+      "path": "docs/verification/materials-quality-next/packet-preflight-evidence/handoff-01.diff.txt",
+      "bytes": 5625,
+      "sha256": "96c5844249022bebc4fe05573f2f0801c690da2bdc06e8b952639649255e2046"
+    },
+    {
+      "original": "current-operator-preflight-20261119-handoff-01.json",
+      "path": "docs/verification/materials-quality-next/packet-preflight-evidence/handoff-01.json",
+      "bytes": 9652,
+      "sha256": "1b92d33d1c00a76cb9ad0ee354852e0328826eea3809b21d82d54da8f833eba9"
+    },
+    {
+      "original": "current-operator-preflight-20261119-handoff-01.md",
+      "path": "docs/verification/materials-quality-next/packet-preflight-evidence/handoff-01.md",
+      "bytes": 1203,
+      "sha256": "5583bb900d4b2a9b0f1411e6cae2bffd956a07f4d68e298b340caf7217405430"
+    },
+    {
+      "original": "current-operator-preflight-20261119-handoff-record-01.json",
+      "path": "docs/verification/materials-quality-next/packet-preflight-evidence/handoff-record-01.json",
+      "bytes": 292,
+      "sha256": "8a0823606854748795fb2edab813353fae692479544e8020d1cb46f703de0cc1"
+    },
+    {
+      "original": "current-operator-preflight-20261119-handoff-record-01.log",
+      "path": "docs/verification/materials-quality-next/packet-preflight-evidence/handoff-record-01.log.txt",
+      "bytes": 1177,
+      "sha256": "5f802974f35bbf3d4182f9303bcd1dd7a887714cfbc5a5a5279d235bfb190318"
+    },
+    {
+      "original": "current-operator-preflight-20261119-lint.json",
+      "path": "docs/verification/materials-quality-next/packet-preflight-evidence/lint.json",
+      "bytes": 280,
+      "sha256": "82eb123e4194cc65a1f91f3e6819bd188203367bbcfa9604a38cf29155773900"
+    },
+    {
+      "original": "current-operator-preflight-20261119-lint.log",
+      "path": "docs/verification/materials-quality-next/packet-preflight-evidence/lint.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "current-operator-preflight-20261119-quality-review.md",
+      "path": "docs/verification/materials-quality-next/packet-preflight-evidence/quality-review.md",
+      "bytes": 4320,
+      "sha256": "d0ccf01029c95715222234ad3292643e713964e7433148c32f549e5c3c58bb15"
+    },
+    {
+      "original": "current-operator-preflight-20261119-reproduce-red.json",
+      "path": "docs/verification/materials-quality-next/packet-preflight-evidence/reproduce-red.json",
+      "bytes": 289,
+      "sha256": "37245d5001b1397a2bc64e2cf866cec3732335cad71d7bb485f79f2041bb5c0a"
+    },
+    {
+      "original": "current-operator-preflight-20261119-reproduce-red.log",
+      "path": "docs/verification/materials-quality-next/packet-preflight-evidence/reproduce-red.log.txt",
+      "bytes": 1818,
+      "sha256": "96023a36731eb107261ee8251407cce37c34cfb0ac1f01eb9a20c604ae993680"
+    },
+    {
+      "original": "current-operator-preflight-20261119-reproduce.ts",
+      "path": "docs/verification/materials-quality-next/packet-preflight-evidence/reproduce.ts.source.txt",
+      "bytes": 1822,
+      "sha256": "dd1f8b2ec9a42d10aafa8b24cb0769070e7f5ca7a9a90981fa6d0b993fa045ec"
+    },
+    {
+      "original": "current-operator-preflight-20261119-scope-red.json",
+      "path": "docs/verification/materials-quality-next/packet-preflight-evidence/scope-red.json",
+      "bytes": 285,
+      "sha256": "bbd1cd49b3635fceb3323cfc61572c34a32eceaaf923636449cf41f7b04c2264"
+    },
+    {
+      "original": "current-operator-preflight-20261119-scope-red.log",
+      "path": "docs/verification/materials-quality-next/packet-preflight-evidence/scope-red.log.txt",
+      "bytes": 25304,
+      "sha256": "cefa67dbf1b06a312336b59d9e3c2db78a60aa13dd2432a5b986dae47ef90b15"
+    },
+    {
+      "original": "current-operator-preflight-20261119-spec-review.md",
+      "path": "docs/verification/materials-quality-next/packet-preflight-evidence/spec-review.md",
+      "bytes": 4142,
+      "sha256": "106ef6be6fa036ea74cb04582d755de1e85661baa18b88c0f687b197ca183ad5"
+    },
+    {
+      "original": "current-operator-preflight-20261119-types.json",
+      "path": "docs/verification/materials-quality-next/packet-preflight-evidence/types.json",
+      "bytes": 281,
+      "sha256": "912a147c0d8345ebee2dc36d1557c7fe148952a07e9e7f820178453893816531"
+    },
+    {
+      "original": "current-operator-preflight-20261119-types.log",
+      "path": "docs/verification/materials-quality-next/packet-preflight-evidence/types.log.txt",
+      "bytes": 195,
+      "sha256": "8e79d820ec82055e492df1a14e18b2c30b1652379ceae4888e05442437983b78"
+    },
+    {
+      "original": "current-operator-preflight-20261119-types.mjs",
+      "path": "docs/verification/materials-quality-next/packet-preflight-evidence/types.mjs.source.txt",
+      "bytes": 1169,
+      "sha256": "293b88235b7aab441e027ca96172cc64fb53a08c278c88d7f01a5d0ce90352da"
+    },
+    {
+      "original": "current-operator-preflight-20261119-write-handoff.mjs",
+      "path": "docs/verification/materials-quality-next/packet-preflight-evidence/write-handoff.mjs.source.txt",
+      "bytes": 7800,
+      "sha256": "5a1d27d752fd66d31d340b7e14f46187c528d246e63afa2af5d493c17955a6cb"
+    }
+  ]
+}

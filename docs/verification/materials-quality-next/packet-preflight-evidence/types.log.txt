@@ -1,0 +1,1 @@
+{"checkedFiles":["scripts/materials-current-quality-operator.ts","tests/server/materials-current-quality-operator.test.ts"],"config":"tsconfig.json","diagnostics":0,"scope":"changed-files-only"}

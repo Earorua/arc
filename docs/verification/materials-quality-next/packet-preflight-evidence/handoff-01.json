@@ -1,0 +1,168 @@
+{
+  "status": "source-frozen-for-narrow-specification-then-quality-review",
+  "sourceFrozen": true,
+  "baseCommit": "a0ad930850f78689dd788354d81cc3acc4c8313e",
+  "branch": "codex/materials-replan-recovery-20261106",
+  "files": [
+    {
+      "path": "scripts/materials-current-quality-operator.ts",
+      "sha256": "ce994e88a33d42b1dad826215b6d4c6b6c1a7b0ecdb85743bc72e4e83c688a6e",
+      "previousSha256": "dde53f3f5f44f5b24a291a4f4028e0493c1ec909c236d1d9c97e581a0c67913f"
+    },
+    {
+      "path": "tests/server/materials-current-quality-operator.test.ts",
+      "sha256": "472fd1075c333b82f5a1e023ff9ff0a56d208e82b689c4e2b3e79dc2ae4108f7",
+      "previousSha256": "d41156762b59d514b393cfcad4ab791bc969336e3ca5b0668a8de94ddff5982c"
+    }
+  ],
+  "unchanged": [
+    {
+      "path": "scripts/collect-materials-supplements.ts",
+      "sha256": "33a9bcec44772776dddc498255f1cdf0303dab53050a456a2b062552877670d4"
+    },
+    {
+      "path": "scripts/materials-qualification-runner.ts",
+      "sha256": "fe1120a44f8d8dd79f702b45381ca3666b364d609acdd7ac75da157ca8017099"
+    },
+    {
+      "path": "scripts/materials-supplement-ledger.ts",
+      "sha256": "297661629ce0aa55a194fe65cbdaa13085e0ca4de6937cb05c39af33fa594f04"
+    },
+    {
+      "path": "scripts/materials-current-quality-runtime.ts",
+      "sha256": "eaa87e6fcb7d9018987a8f03321e58a010f5ee8a0a1b05be9fbe27ad0ec4fc09"
+    },
+    {
+      "path": "scripts/invoke-materials-current-quality.ps1",
+      "sha256": "d54cd5b60cfa7bf231c6934fbfdb07630f9f27541b9b2ecddebbba683f7bc064"
+    },
+    {
+      "path": "scripts/score-materials-supplements.ts",
+      "sha256": "8447f82dcb3b1c3f33d878df4cae4a602021868dd01d5cd43041da21ec9dabdf"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/current-references.mjs",
+      "sha256": "77d28ca1ab5b6d62dc6ba54b1d3d73a63ba66882719cd7422852777062467cd5"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/current-adapter.ts",
+      "sha256": "e62afaa5a839f7886f3cfe9f7280c23dbe354ab15080162eb92cc91ec77ac05c"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/current-captures.ts",
+      "sha256": "51ca39305da87167f6eb12cc8544e20cbd9b7f2e7d890a7de182c4577a299b78"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/request-draft/manifest.json",
+      "sha256": "06238bde3fbc45aa33efb38da95234cfbb74d34d162bf1941d9ac0c56c964ac7"
+    },
+    {
+      "path": "tests/fixtures/documents/supplement-quality-corpus.json",
+      "sha256": "9775b595f4b44563beb9e3b7f9249b171e731658b454e0f26279d2b46db213d7"
+    },
+    {
+      "path": "app/contracts/documents.ts",
+      "sha256": "a66e8e843dca7817c2e36253702c10434f184aba3ae1b3be7c52d254695b9b9e"
+    }
+  ],
+  "diff": {
+    "path": "work/grounded-verification/current-operator-preflight-20261119-handoff-01.diff",
+    "sha256": "96c5844249022bebc4fe05573f2f0801c690da2bdc06e8b952639649255e2046"
+  },
+  "cause": [
+    "loadPacket passed the full parsed issuance to inspectSupplementSettings, whose strict schema permits only config and qualification. A schema-valid in-memory grant using the actual frozen public configuration failed on the authorization extra key.",
+    "After projecting public settings, loadPacket still lacked exact six-document identity/order and per-request-scope checks. The later collector would reject reversed/stale document identities or a 74000 cap below the frozen config's 75000 maximum only after the 24-request phase."
+  ],
+  "change": "Extract only inspectCurrentSupplementIssuance(raw, issuanceSha256) inside the operator. It reuses the original authenticated strict issuance parser, sends only config/qualification to the production inspector, and checks ordered document identities plus equality to its fixed 75000 per-request scope. loadPacket calls it before ledger inspection, key use, startup claims or the 24 requests.",
+  "delegatedUnchangedChecks": "The strict issuance parser already enforces purpose, corpus digest, output schema and six request count. Existing loadPacket still enforces configuration digest, frozen config/qualification, exact total budget, metadata lookup limit, candidate/key/run/grant/window bindings and all source/send guards. Collectors, launcher, runtime resolver, ID schemas and actual corpus are unchanged.",
+  "validation": {
+    "reproduction": "Actual frozen config and full parsed issuance reproduced Zod unrecognized_keys: authorization before the production fix.",
+    "scopeRed": "After projection alone, the one grouped regression exposed three accepted invalid scopes: reversed six order, stale text version and 74000 per-request cap. Purpose/schema invalid controls already refused.",
+    "green": "One focused regression passed; twelve existing groups skipped. Valid scope uses all six actual frozen document identities and reservation 72960. It rejects the three mismatches plus invalid purpose and schema.",
+    "types": {
+      "status": "PASS",
+      "scope": "Syntax and semantic diagnostics for the two modified files, using the normal tsconfig options and program dependencies; this is not a fresh full-program typecheck.",
+      "command": "& 'C:/Program Files/nodejs/node.exe' work/grounded-verification/run.mjs current-operator-preflight-20261119-types work/grounded-verification/current-operator-preflight-20261119-types.mjs",
+      "scriptSha256": "293b88235b7aab441e027ca96172cc64fb53a08c278c88d7f01a5d0ce90352da",
+      "configSha256": "5b2551b01448b64231114c46bd22e8b9bbf0dca4bfc15043e1a4a7157afcb653",
+      "diagnostics": 0
+    },
+    "lint": "PASS, two modified files, no warnings or output.",
+    "diffCheck": "PASS.",
+    "realCredentialsOrAccounts": 0,
+    "usablePacketsIssued": 0,
+    "ledgerOperations": 0,
+    "networkCalls": 0,
+    "modelCalls": 0,
+    "nativeRuns": 0,
+    "fullRepositoryRuns": 0,
+    "fixtureSafety": "Only in-memory expired November 1 fixture grants, dummy commit/ledger hashes and synthetic credential digest. No usable issuance or private account input is read, created or persisted."
+  },
+  "evidence": [
+    {
+      "label": "reproduce-red",
+      "metadataPath": "work/grounded-verification/current-operator-preflight-20261119-reproduce-red.json",
+      "metadataSha256": "37245d5001b1397a2bc64e2cf866cec3732335cad71d7bb485f79f2041bb5c0a",
+      "logPath": "work/grounded-verification/current-operator-preflight-20261119-reproduce-red.log",
+      "name": "current-operator-preflight-20261119-reproduce-red",
+      "exit": 1,
+      "elapsedMs": 1800,
+      "logSha256": "96023a36731eb107261ee8251407cce37c34cfb0ac1f01eb9a20c604ae993680",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-sQOYEo"
+    },
+    {
+      "label": "scope-red",
+      "metadataPath": "work/grounded-verification/current-operator-preflight-20261119-scope-red.json",
+      "metadataSha256": "bbd1cd49b3635fceb3323cfc61572c34a32eceaaf923636449cf41f7b04c2264",
+      "logPath": "work/grounded-verification/current-operator-preflight-20261119-scope-red.log",
+      "name": "current-operator-preflight-20261119-scope-red",
+      "exit": 1,
+      "elapsedMs": 1280,
+      "logSha256": "cefa67dbf1b06a312336b59d9e3c2db78a60aa13dd2432a5b986dae47ef90b15",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-gUjiVH"
+    },
+    {
+      "label": "green",
+      "metadataPath": "work/grounded-verification/current-operator-preflight-20261119-green.json",
+      "metadataSha256": "01ba7757cf38db402513b2047c06ba5c02f676b651fca085aeb035bda7d3bf22",
+      "logPath": "work/grounded-verification/current-operator-preflight-20261119-green.log",
+      "name": "current-operator-preflight-20261119-green",
+      "exit": 0,
+      "elapsedMs": 1150,
+      "logSha256": "8f21282c90546ec0a79983100d8db22fca7310d1168e6d8372685369154effbe",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-tz3vKU"
+    },
+    {
+      "label": "types",
+      "metadataPath": "work/grounded-verification/current-operator-preflight-20261119-types.json",
+      "metadataSha256": "912a147c0d8345ebee2dc36d1557c7fe148952a07e9e7f820178453893816531",
+      "logPath": "work/grounded-verification/current-operator-preflight-20261119-types.log",
+      "name": "current-operator-preflight-20261119-types",
+      "exit": 0,
+      "elapsedMs": 7374,
+      "logSha256": "8e79d820ec82055e492df1a14e18b2c30b1652379ceae4888e05442437983b78",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-oHpy6H"
+    },
+    {
+      "label": "lint",
+      "metadataPath": "work/grounded-verification/current-operator-preflight-20261119-lint.json",
+      "metadataSha256": "82eb123e4194cc65a1f91f3e6819bd188203367bbcfa9604a38cf29155773900",
+      "logPath": "work/grounded-verification/current-operator-preflight-20261119-lint.log",
+      "name": "current-operator-preflight-20261119-lint",
+      "exit": 0,
+      "elapsedMs": 5176,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-gKRPo1"
+    }
+  ],
+  "reproductionScript": {
+    "path": "work/grounded-verification/current-operator-preflight-20261119-reproduce.ts",
+    "sha256": "dd1f8b2ec9a42d10aafa8b24cb0769070e7f5ca7a9a90981fa6d0b993fa045ec"
+  },
+  "remaining": "Root owns narrow specification/quality review, committed source rebind, lowercase proposal identifiers and actual no-key verify against an isolated synthetic private fixture. No real packet readiness or fee authorization is claimed."
+}

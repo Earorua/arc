@@ -1,0 +1,64 @@
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+const hash = value => createHash("sha256").update(value).digest("hex");
+const fileHash = path => hash(readFileSync(path));
+const git = args => execFileSync("git", ["-c", "core.longpaths=true", ...args]);
+const prefix = "work/grounded-verification/current-operator-preflight-20261119-";
+const output = `${prefix}handoff-01`;
+for (const extension of ["json", "md", "diff"]) if (existsSync(`${output}.${extension}`)) throw Error("Handoff exists");
+const baseCommit = "a0ad930850f78689dd788354d81cc3acc4c8313e";
+if (git(["rev-parse", "HEAD"]).toString().trim() !== baseCommit) throw Error("Baseline changed");
+const changedPaths = ["scripts/materials-current-quality-operator.ts", "tests/server/materials-current-quality-operator.test.ts"];
+const files = changedPaths.map(path => ({ path, sha256: fileHash(path), previousSha256: hash(git(["show", `${baseCommit}:${path}`])) }));
+const unchangedPaths = ["scripts/collect-materials-supplements.ts", "scripts/materials-qualification-runner.ts", "scripts/materials-supplement-ledger.ts",
+  "scripts/materials-current-quality-runtime.ts", "scripts/invoke-materials-current-quality.ps1", "scripts/score-materials-supplements.ts",
+  "docs/verification/materials-quality-next/current-references.mjs", "docs/verification/materials-quality-next/current-adapter.ts",
+  "docs/verification/materials-quality-next/current-captures.ts", "docs/verification/materials-quality-next/request-draft/manifest.json",
+  "tests/fixtures/documents/supplement-quality-corpus.json", "app/contracts/documents.ts"];
+const unchanged = unchangedPaths.map(path => {
+  const sha256 = fileHash(path);
+  if (sha256 !== hash(git(["show", `${baseCommit}:${path}`]))) throw Error(`Unchanged file drift: ${path}`);
+  return { path, sha256 };
+});
+git(["diff", "--check", "--", ...changedPaths]);
+const diff = git(["diff", "--", ...changedPaths]);
+const evidence = ["reproduce-red", "scope-red", "green", "types", "lint"].map(label => {
+  const metadataPath = `${prefix}${label}.json`, logPath = `${prefix}${label}.log`;
+  const metadata = JSON.parse(readFileSync(metadataPath, "utf8"));
+  if (metadata.logSha256 !== fileHash(logPath) || metadata.nonLoopbackDenials !== 0) throw Error(`Evidence drift: ${label}`);
+  const expectedExit = label.endsWith("red") ? 1 : 0;
+  if (metadata.exit !== expectedExit) throw Error(`Unexpected validation status: ${label}`);
+  return { label, metadataPath, metadataSha256: fileHash(metadataPath), logPath, ...metadata };
+});
+const record = {
+  status: "source-frozen-for-narrow-specification-then-quality-review", sourceFrozen: true, baseCommit,
+  branch: git(["branch", "--show-current"]).toString().trim(), files, unchanged,
+  diff: { path: `${output}.diff`, sha256: hash(diff) },
+  cause: [
+    "loadPacket passed the full parsed issuance to inspectSupplementSettings, whose strict schema permits only config and qualification. A schema-valid in-memory grant using the actual frozen public configuration failed on the authorization extra key.",
+    "After projecting public settings, loadPacket still lacked exact six-document identity/order and per-request-scope checks. The later collector would reject reversed/stale document identities or a 74000 cap below the frozen config's 75000 maximum only after the 24-request phase.",
+  ],
+  change: "Extract only inspectCurrentSupplementIssuance(raw, issuanceSha256) inside the operator. It reuses the original authenticated strict issuance parser, sends only config/qualification to the production inspector, and checks ordered document identities plus equality to its fixed 75000 per-request scope. loadPacket calls it before ledger inspection, key use, startup claims or the 24 requests.",
+  delegatedUnchangedChecks: "The strict issuance parser already enforces purpose, corpus digest, output schema and six request count. Existing loadPacket still enforces configuration digest, frozen config/qualification, exact total budget, metadata lookup limit, candidate/key/run/grant/window bindings and all source/send guards. Collectors, launcher, runtime resolver, ID schemas and actual corpus are unchanged.",
+  validation: {
+    reproduction: "Actual frozen config and full parsed issuance reproduced Zod unrecognized_keys: authorization before the production fix.",
+    scopeRed: "After projection alone, the one grouped regression exposed three accepted invalid scopes: reversed six order, stale text version and 74000 per-request cap. Purpose/schema invalid controls already refused.",
+    green: "One focused regression passed; twelve existing groups skipped. Valid scope uses all six actual frozen document identities and reservation 72960. It rejects the three mismatches plus invalid purpose and schema.",
+    types: { status: "PASS", scope: "Syntax and semantic diagnostics for the two modified files, using the normal tsconfig options and program dependencies; this is not a fresh full-program typecheck.",
+      command: "& 'C:/Program Files/nodejs/node.exe' work/grounded-verification/run.mjs current-operator-preflight-20261119-types work/grounded-verification/current-operator-preflight-20261119-types.mjs",
+      scriptSha256: fileHash(`${prefix}types.mjs`), configSha256: fileHash("tsconfig.json"), diagnostics: 0 },
+    lint: "PASS, two modified files, no warnings or output.",
+    diffCheck: "PASS.",
+    realCredentialsOrAccounts: 0, usablePacketsIssued: 0, ledgerOperations: 0, networkCalls: 0, modelCalls: 0, nativeRuns: 0, fullRepositoryRuns: 0,
+    fixtureSafety: "Only in-memory expired November 1 fixture grants, dummy commit/ledger hashes and synthetic credential digest. No usable issuance or private account input is read, created or persisted.",
+  },
+  evidence,
+  reproductionScript: { path: `${prefix}reproduce.ts`, sha256: fileHash(`${prefix}reproduce.ts`) },
+  remaining: "Root owns narrow specification/quality review, committed source rebind, lowercase proposal identifiers and actual no-key verify against an isolated synthetic private fixture. No real packet readiness or fee authorization is claimed.",
+};
+writeFileSync(`${output}.diff`, diff, { flag: "wx" });
+writeFileSync(`${output}.json`, JSON.stringify(record, null, 2) + "\n", { flag: "wx" });
+writeFileSync(`${output}.md`, `# Current operator six-document preflight\n\nThe operator now passes only public config/qualification to the strict supplement inspector and verifies all six ordered document identities plus the fixed USD 0.075 per-request scope before the first 24 requests. The original issuance parser continues to enforce purpose, corpus, schema and count; existing packet/grant/source/send checks remain intact. Only the operator and one test group changed.\n\nThe original full-issuance shape failure was reproduced. A second targeted RED exposed reversed/stale identities and a lower cap after the projection fix. The final grouped regression passes (12 existing groups skipped); changed-file semantic/syntax types and lint pass. All collectors, launcher, runtime helper, current docs and frozen corpus bytes were verified unchanged against a0ad930. No real account, ledger, credential, packet, network, model, native or full-repository operation occurred.\n\nExact hashes, diff and raw evidence are in [the handoff](./current-operator-preflight-20261119-handoff-01.json). Source is frozen for narrow specification then quality review; root owns proposal/source rebind and credential-free private fixture verification.\n`, { flag: "wx" });
+console.log(JSON.stringify({ handoff: `${output}.json`, sha256: fileHash(`${output}.json`), files,
+  evidence: evidence.map(row => ({ label: row.label, exit: row.exit, logSha256: row.logSha256 })) }));

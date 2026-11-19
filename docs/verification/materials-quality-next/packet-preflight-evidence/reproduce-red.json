@@ -1,0 +1,8 @@
+{
+  "name": "current-operator-preflight-20261119-reproduce-red",
+  "exit": 1,
+  "elapsedMs": 1800,
+  "logSha256": "96023a36731eb107261ee8251407cce37c34cfb0ac1f01eb9a20c604ae993680",
+  "nonLoopbackDenials": 0,
+  "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-sQOYEo"
+}
