@@ -1,0 +1,24 @@
+{
+  "stagedFiles": 160,
+  "sourceFiles": 1031,
+  "sourceDigest": "724f4b7bac6410980f9a3cbde490f004927d27219b6fcedaf81d64a9636ea94e",
+  "archives": [
+    {
+      "path": "docs/verification/materials-quality-next/binding-v2-evidence/manifest.json",
+      "sha256": "01f65dc8783285d9335b93c60932c94eab014e1a551825c0b736fc31814b7a48",
+      "files": 11
+    },
+    {
+      "path": "docs/verification/materials-quality-next/operator-evidence/manifest.json",
+      "sha256": "8845314211725e583c1308882e4e8279eb1c382f151637333c34e0e5622585a7",
+      "files": 106
+    },
+    {
+      "path": "docs/verification/materials-quality-next/final-acceptance-evidence/manifest.json",
+      "sha256": "d7379422238db79c429d9efa3ba3321425e4e8b02344dd2152bdac587c984b01",
+      "files": 18
+    }
+  ],
+  "stagedBytesEqualWorkingTree": true,
+  "sourceMatchesAcceptedFreeze": true
+}

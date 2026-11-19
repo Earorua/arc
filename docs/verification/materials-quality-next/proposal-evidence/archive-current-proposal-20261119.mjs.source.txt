@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+const source = 'work/grounded-verification/', target = 'docs/verification/materials-quality-next/proposal-evidence';
+assert.equal(existsSync(target), false); mkdirSync(target, { recursive: true });
+const digest = value => createHash('sha256').update(value).digest('hex');
+const paths = ['freeze-current-quality-proposal-20261119.mjs', 'current-quality-proposal-freeze-20261119-01.json',
+  'current-quality-proposal-freeze-20261119-01.log', 'current-quality-precommit-20261119.mjs',
+  'current-quality-precommit-20261119-before-format-fix.mjs.source.txt', 'current-quality-precommit-20261119-format-correction.md',
+  'current-quality-precommit-20261119.json', 'archive-current-proposal-20261119.mjs'];
+const files = paths.map(name => {
+  const originalPath = source + name, bytes = readFileSync(originalPath);
+  const path = target + '/' + name + (name.endsWith('.mjs') ? '.source.txt' : name.endsWith('.log') ? '.txt' : '');
+  writeFileSync(path, bytes, { flag: 'wx' }); assert.ok(readFileSync(path).equals(bytes));
+  return { originalPath, path, bytes: bytes.length, sha256: digest(bytes) };
+});
+const manifest = { schemaVersion: 'materials-current-proposal-evidence-v1', createdAt: new Date().toISOString(),
+  status: 'NOT_AUTHORIZED', fileCount: files.length, files };
+const path = target + '/manifest.json'; writeFileSync(path, JSON.stringify(manifest, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ files: files.length, sha256: digest(readFileSync(path)), status: manifest.status }));

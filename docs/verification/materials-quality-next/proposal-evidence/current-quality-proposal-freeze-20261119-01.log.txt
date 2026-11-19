@@ -1,0 +1,1 @@
+{"candidateCommit":"d6f24dc67ab2a853c70927e4da3b506d7d15dd1b","sourceFiles":1038,"sourceManifestSha256":"d625bcca2e64db109d115d3cdfd7a5008dabd25766fa4c24964ebc3c03f70321","attachments":15,"proposalSha256":"0b76a3e077eb211605483e9b5457da931a0d5df11dffabe09642650e6e144aa4","status":"NOT_AUTHORIZED","inferenceAllowed":false}

@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "materials-current-proposal-evidence-v1",
+  "createdAt": "2026-11-19T10:41:43.249Z",
+  "status": "NOT_AUTHORIZED",
+  "fileCount": 8,
+  "files": [
+    {
+      "originalPath": "work/grounded-verification/freeze-current-quality-proposal-20261119.mjs",
+      "path": "docs/verification/materials-quality-next/proposal-evidence/freeze-current-quality-proposal-20261119.mjs.source.txt",
+      "bytes": 3587,
+      "sha256": "89c414a837b2a0d7922da8a9f506786c8f7125ddcb9b3da691df1e9b5daba4c7"
+    },
+    {
+      "originalPath": "work/grounded-verification/current-quality-proposal-freeze-20261119-01.json",
+      "path": "docs/verification/materials-quality-next/proposal-evidence/current-quality-proposal-freeze-20261119-01.json",
+      "bytes": 283,
+      "sha256": "af377ac71f1d3b03b07882fdf8c42460b924b1e31f35890de1bc1e8fe168fb21"
+    },
+    {
+      "originalPath": "work/grounded-verification/current-quality-proposal-freeze-20261119-01.log",
+      "path": "docs/verification/materials-quality-next/proposal-evidence/current-quality-proposal-freeze-20261119-01.log.txt",
+      "bytes": 324,
+      "sha256": "4e9b2d67d8cac0c547d097ffc46d6ac7e33b77f11df7c3fa1e42ccc9001abef5"
+    },
+    {
+      "originalPath": "work/grounded-verification/current-quality-precommit-20261119.mjs",
+      "path": "docs/verification/materials-quality-next/proposal-evidence/current-quality-precommit-20261119.mjs.source.txt",
+      "bytes": 2031,
+      "sha256": "fd42fed127e0915cfc422e52a4147042a20329cada28417dd13e8afdea5cd412"
+    },
+    {
+      "originalPath": "work/grounded-verification/current-quality-precommit-20261119-before-format-fix.mjs.source.txt",
+      "path": "docs/verification/materials-quality-next/proposal-evidence/current-quality-precommit-20261119-before-format-fix.mjs.source.txt",
+      "bytes": 1715,
+      "sha256": "9a57f9ff32e9757e0a0d925a09627cb0146f0f31ccf8947cb48929dd991cd3b6"
+    },
+    {
+      "originalPath": "work/grounded-verification/current-quality-precommit-20261119-format-correction.md",
+      "path": "docs/verification/materials-quality-next/proposal-evidence/current-quality-precommit-20261119-format-correction.md",
+      "bytes": 807,
+      "sha256": "3a240e22b0fae363f17ee006459f2ddf51f04e3b7e818d20b6f6b0963c14cff3"
+    },
+    {
+      "originalPath": "work/grounded-verification/current-quality-precommit-20261119.json",
+      "path": "docs/verification/materials-quality-next/proposal-evidence/current-quality-precommit-20261119.json",
+      "bytes": 858,
+      "sha256": "16a8ddd0534c4985800c09e0e62d4b1a01f1bb7e146488febda136171c8fee7d"
+    },
+    {
+      "originalPath": "work/grounded-verification/archive-current-proposal-20261119.mjs",
+      "path": "docs/verification/materials-quality-next/proposal-evidence/archive-current-proposal-20261119.mjs.source.txt",
+      "bytes": 1667,
+      "sha256": "a6c11b2d3d93e30f249f0039eeae8dced0f4178776872ba49b9bc905e62aa6fe"
+    }
+  ]
+}

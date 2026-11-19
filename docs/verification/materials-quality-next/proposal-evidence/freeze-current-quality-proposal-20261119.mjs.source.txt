@@ -1,0 +1,40 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { inspectDiagnosticPilotSourceManifest } from '../../scripts/materials-diagnostic-pilot-host.ts';
+const candidateCommit = 'd6f24dc67ab2a853c70927e4da3b506d7d15dd1b';
+const base = 'docs/verification/materials-quality-next/';
+const sourcePath = base + 'current-source-manifest.json', proposalPath = base + 'candidate-proposal.json';
+assert.equal(existsSync(sourcePath), false); assert.equal(existsSync(proposalPath), false);
+const hash = path => createHash('sha256').update(readFileSync(path)).digest('hex');
+const handoffPath = 'work/grounded-verification/course-relations-20261119-operator-handoff-03.json';
+assert.equal(hash(handoffPath), '77dbef1b4b12b9b96d64789cbabf4620bffa0aad39290a07eddc0ede6893042b');
+const handoff = JSON.parse(readFileSync(handoffPath, 'utf8'));
+for (const file of [...handoff.files, ...handoff.fixedRuntimeDocScope]) assert.equal(hash(file.path), file.sha256, file.path);
+assert.equal(handoff.fixedRuntimeDocScope.length, 9);
+const source = await inspectDiagnosticPilotSourceManifest(resolve('.'), candidateCommit);
+writeFileSync(sourcePath, JSON.stringify(source, null, 2) + '\n', { flag: 'wx' });
+const evidencePaths = [
+  base + 'request-draft/manifest.json', base + 'binding-v2-evidence/manifest.json', base + 'operator-evidence/manifest.json',
+  base + 'final-acceptance-evidence/manifest.json', base + 'final-acceptance-evidence/course-relations-final-20261119-acceptance.json',
+  'docs/verification/materials-course-relations-20261119/native-review-receipt.json',
+];
+const attachments = [...handoff.fixedRuntimeDocScope.map(({ path, sha256 }) => ({ path, sha256 })),
+  ...evidencePaths.map(path => ({ path, sha256: hash(path) }))];
+assert.equal(new Set(attachments.map(file => file.path)).size, attachments.length);
+const proposal = { schemaVersion: 'materials-current-quality-proposal-v1', status: 'NOT_AUTHORIZED', createdAt: new Date().toISOString(),
+  packetId: 'KIMI-QUALITY-20261119-R1', candidateCommit, candidateTree: source.candidateTree,
+  packetCommit: null, approvedAt: null, expiresAt: null, ownerApproval: null, credentialSha256: null, accountReadback: null,
+  sourceManifest: { path: sourcePath, sha256: hash(sourcePath) }, attachments,
+  qualification: { runId: 'materials-b2-kimi-20261119-r1', authorizationId: 'B2-KIMI-20261119-R1', issuance: null, maxRequests: 24, budgetMicroUsd: 2_000_000 },
+  supplement: { runId: 'materials-supplement-kimi-20261119-r1', authorizationId: 'SUPPLEMENT-KIMI-20261119-R1', issuance: null, maxRequests: 6, budgetMicroUsd: 450_000, ledgerSha256: null },
+  requestDraftSha256: '06238bde3fbc45aa33efb38da95234cfbb74d34d162bf1941d9ac0c56c964ac7',
+  totalBudgetMicroUsd: 2_450_000, perRequestCapMicroUsd: 75_000, maxMetadataReadsPerDocument: 3,
+  proposedKeyLifetimeCapMicroUsd: 3_000_000, proposedApprovalWindowHours: 2, inferenceAllowed: false,
+  gate1BAccepted: false, productionReleased: false,
+  remaining: ['precise-dedicated-key-readback', 'fresh-bound-credits-and-privacy-evidence', 'new-owner-fee-cache-and-cap-approval', 'external-private-grant-and-packet-issuance'],
+};
+writeFileSync(proposalPath, JSON.stringify(proposal, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ candidateCommit, sourceFiles: source.files.length, sourceManifestSha256: hash(sourcePath),
+  attachments: attachments.length, proposalSha256: hash(proposalPath), status: proposal.status, inferenceAllowed: false }));

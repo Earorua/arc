@@ -1,0 +1,26 @@
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { readFileSync, writeFileSync } from 'node:fs';
+const git = (...args) => execFileSync('git', ['-c', 'core.longpaths=true', ...args], { maxBuffer: 64 * 1024 * 1024 });
+const hash = bytes => createHash('sha256').update(bytes).digest('hex');
+const paths = git('diff', '--cached', '--name-only', '-z').toString().split('\0').filter(Boolean);
+assert.ok(paths.length > 0); assert.equal(git('ls-files', '-u').length, 0);
+for (const path of paths) assert.ok(git('show', ':' + path).equals(readFileSync(path)), 'Staged-byte drift: ' + path);
+const source = JSON.parse(readFileSync('work/grounded-verification/course-relations-final-20261119-source.json', 'utf8'));
+for (const [path, sha256] of Object.entries(source.files)) assert.equal(hash(readFileSync(path)), sha256, path);
+const archives = ['binding-v2-evidence', 'operator-evidence', 'final-acceptance-evidence'].map(name => {
+  const path = 'docs/verification/materials-quality-next/' + name + '/manifest.json';
+  const manifest = JSON.parse(readFileSync(path, 'utf8'));
+  // The accepted binding archive uses relative entries; the two later archives use full paths.
+  const entries = name === 'binding-v2-evidence'
+    ? manifest.entries.map(file => ({ ...file, path: 'docs/verification/materials-quality-next/' + name + '/' + file.path }))
+    : manifest.files;
+  assert.ok(Array.isArray(entries));
+  for (const file of entries) assert.equal(hash(readFileSync(file.path)), file.sha256, file.path);
+  return { path, sha256: hash(readFileSync(path)), files: entries.length };
+});
+const result = { stagedFiles: paths.length, sourceFiles: source.count, sourceDigest: source.digest,
+  archives, stagedBytesEqualWorkingTree: true, sourceMatchesAcceptedFreeze: true };
+writeFileSync('work/grounded-verification/current-quality-precommit-20261119.json', JSON.stringify(result, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify(result));
