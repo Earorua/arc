@@ -20,6 +20,17 @@ const target = { id: "target-a", schemaVersion: "2026.08.1", targetWeeks: 8, inp
 const snapshot = { schemaVersion: "2026.11.1", ownerId: "owner-a", selectionRef: { selectionId: "selection-a", selectionRevision: 1 }, scope, sourceReference: { source: "flagship", roleId: "ai-native-full-stack-engineer" }, dependencies: [{ slot: "resume", documentId: "doc-a", documentVersionId: "version-a", textVersionId: "text-a", confirmationId: "confirmation-a", generation: 1, confirmationDigest: "a".repeat(64) }], audit, availability, target, planningDate: "2026-11-04", selectedScope: "full-scope", policyVersion: "2026.11.1", mappingVersion: "2026.11.1", explanationVersion: "2026.11.1" };
 
 describe("material planning contract", () => {
+  it("preserves historical mapping rows and validates compact coverage semantics", () => {
+    const detail = { itemId: "fact", termIndexes: [0], status: "mapped", skillIds: ["sql"], basis: "literal" };
+    const preview = { confirmedItems: [], priorities: [], issues: [], uncoveredLabels: [], mappingDetails: [detail] };
+    expect(materials.materialContextPreviewSchema.parse(preview).mappingDetails?.[0]).not.toHaveProperty("taskCoverage");
+    const coverage = { status: "partial", support: ["sql-schema"], remaining: "unassessed-scope" };
+    expect(materials.materialContextPreviewSchema.safeParse({ ...preview, mappingDetails: [{ ...detail, taskCoverage: coverage }] }).success).toBe(true);
+    for (const invalid of [
+      { ...coverage, status: "full" }, { ...coverage, support: [] }, { ...coverage, remaining: null },
+      { status: "none", support: ["sql-schema"], remaining: "unassessed-scope" },
+    ]) expect(materials.materialContextPreviewSchema.safeParse({ ...preview, mappingDetails: [{ ...detail, taskCoverage: invalid }] }).success).toBe(false);
+  });
   it("binds term choices and learning intent adoption to the selected version without order semantics", async () => {
     const term = { confirmationId: "confirmation-a", itemId: "fact-a", skillLabel: "UI tokens", skillIds: ["design-systems", "react"] };
     const intent = { confirmationId: "confirmation-a", itemId: "fact-a" };

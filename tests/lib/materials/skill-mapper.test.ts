@@ -71,7 +71,7 @@ it("maps English distributed tracing like its reviewed Chinese equivalent withou
 });
 
 it("versions contextual mappings independently while accepting every previous literal alias version", () => {
-    expect(MATERIAL_MAPPING_VERSION).toBe("2026.11.5");
+    expect(MATERIAL_MAPPING_VERSION).toBe("2026.11.6");
     const other = { ...flagshipBlueprint, id: "other-catalog" };
     for (const version of ["2026.11.2", "2026.11.3", "2026.11.4", "2026.11.5"] as const) {
       expect(mapMaterialItems([{ ...item, skillLabels: ["reviewed-term"] }], other,

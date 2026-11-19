@@ -1,0 +1,7 @@
+work/materials-browser-handoff/profile/arc-restricted-files-3S4Kw6/source/app/a.fixture.ts(1,1): error TS1434: Unexpected keyword or identifier.
+work/materials-browser-handoff/profile/arc-restricted-files-ds9gm8/source/app/mock.ts(1,1): error TS1434: Unexpected keyword or identifier.
+work/materials-browser-handoff/profile/arc-restricted-files-E15jCs/source/app/smoke-entry.ts(1,1): error TS1434: Unexpected keyword or identifier.
+work/materials-browser-handoff/profile/arc-restricted-files-KAwzQP/source/app/page.tsx(1,1): error TS1434: Unexpected keyword or identifier.
+work/materials-browser-handoff/profile/arc-restricted-files-KAwzQP/source/app/page.tsx(1,9): error TS1434: Unexpected keyword or identifier.
+work/materials-browser-handoff/profile/arc-restricted-files-p9hALX/source/app/tests/a.ts(1,1): error TS1434: Unexpected keyword or identifier.
+work/materials-browser-handoff/profile/arc-restricted-files-YZhAq1/source/app/server/research/fake-provider.ts(1,1): error TS1434: Unexpected keyword or identifier.

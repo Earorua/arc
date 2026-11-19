@@ -1,0 +1,170 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+ [31m❯[39m tests/lib/materials/explanations.test.ts [2m([22m[2m3 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 7[2mms[22m[39m
+     [32m✓[39m uses fixed rule text and only known decision references[32m 2[2mms[22m[39m
+     [32m✓[39m replaces all private references and messages after source deletion[32m 0[2mms[22m[39m
+[31m     [31m×[31m keeps task limitations separate from priority and removes them after source deletion[39m[32m 4[2mms[22m[39m
+ [31m❯[39m tests/contracts/material-planning.test.ts [2m([22m[2m15 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 46[2mms[22m[39m
+   [32m✓[39m continues to reject expanded uncovered lists over the total preview byte bound[32m 6[2mms[22m[39m
+[31m     [31m×[31m preserves historical mapping rows and validates compact coverage semantics[39m[32m 5[2mms[22m[39m
+     [32m✓[39m binds term choices and learning intent adoption to the selected version without order semantics[32m 21[2mms[22m[39m
+     [32m✓[39m strictly binds opaque mapping choices to selected confirmations and semantic fingerprints[32m 3[2mms[22m[39m
+     [32m✓[39m requires a bounded explanation version in the strict context snapshot[32m 2[2mms[22m[39m
+     [32m✓[39m changes the semantic fingerprint when explanation version changes[32m 1[2mms[22m[39m
+     [32m✓[39m accepts scoped creation or current-route input {"kind":"draft","draftId":"draft-a","previousGoalId":null}[32m 0[2mms[22m[39m
+     [32m✓[39m accepts scoped creation or current-route input {"kind":"draft","draftId":"draft-a","previousGoalId":"goal-previous"}[32m 0[2mms[22m[39m
+     [32m✓[39m accepts scoped creation or current-route input {"kind":"goal","goalId":"goal-a","workspaceId":"workspace-a","baseVersionId":"plan-a","revision":2}[32m 0[2mms[22m[39m
+     [32m✓[39m rejects mixed scopes and archived goals as writable scopes[32m 0[2mms[22m[39m
+     [32m✓[39m public references carry only explicit versions and preview digest[32m 0[2mms[22m[39m
+     [32m✓[39m uses SHA-256 over normalized semantic inputs, independently of old p2 hashes[32m 2[2mms[22m[39m
+     [32m✓[39m normalizes display order but includes complete time and version dependencies[32m 2[2mms[22m[39m
+     [32m✓[39m lets public history and learning events replay after deletion but refuses new private uses[32m 0[2mms[22m[39m
+     [32m✓[39m preserves exact old requests and fingerprints without sentinel fields[32m 3[2mms[22m[39m
+(node:15316) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/components/material-context-choices.test.tsx [2m([22m[2m30 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 1686[2mms[22m[39m
+     [32m✓[39m distinguishes course mapping from current priorities for 'mapped topic without practice'[32m 125[2mms[22m[39m
+     [32m✓[39m distinguishes course mapping from current priorities for 'two courses with one practice'[32m 45[2mms[22m[39m
+     [32m✓[39m distinguishes course mapping from current priorities for 'duplicate mapped course'[32m 41[2mms[22m[39m
+     [32m✓[39m distinguishes course mapping from current priorities for 'ambiguous courses'[32m 54[2mms[22m[39m
+     [32m✓[39m distinguishes course mapping from current priorities for 'uncovered omitted and non-learning to…'[32m 47[2mms[22m[39m
+     [32m✓[39m reports only the provable priority count for a historical preview without mapping details[32m 31[2mms[22m[39m
+     [32m✓[39m shows the retained labels, actual courses and contextual basis for every grouped term[32m 52[2mms[22m[39m
+[31m     [31m×[31m shows task coverage and its remaining scope separately from topic correspondence[39m[32m 47[2mms[22m[39m
+     [32m✓[39m changes one term without changing other automatic mappings and supports explicit omit and return to automatic[32m 88[2mms[22m[39m
+     [32m✓[39m preserves a stored multi-course choice on another term when editing one term[32m 76[2mms[22m[39m
+     [32m✓[39m adopts a constraint separately and removes its explicit mappings when adoption is withdrawn[32m 94[2mms[22m[39m
+     [32m✓[39m immediately invalidates the adoption reference and resets choices after 修改自评[32m 78[2mms[22m[39m
+     [32m✓[39m immediately invalidates the adoption reference and resets choices after 修改课程来源[32m 63[2mms[22m[39m
+     [32m✓[39m does not accept a context response after the selected material was removed[32m 98[2mms[22m[39m
+     [32m✓[39m restores saved choices as read-only without persisting their labels or intent[32m 33[2mms[22m[39m
+     [32m✓[39m shows an old labelled fact's saved whole-fact mapping ["sql"] without implying per-term automatic matches[32m 11[2mms[22m[39m
+     [32m✓[39m shows an old labelled fact's saved whole-fact mapping ["sql","retired-course"] without implying per-term automatic matches[32m 30[2mms[22m[39m
+     [32m✓[39m locks both explicit choice controls when disabled[32m 36[2mms[22m[39m
+     [32m✓[39m does not offer a whole-fact override when the user retained an empty term list[32m 40[2mms[22m[39m
+     [32m✓[39m requires another preview even when an intent is toggled back to its original value[32m 62[2mms[22m[39m
+     [32m✓[39m does not revive private choices or an old preview when a prior source is selected again[32m 78[2mms[22m[39m
+     [32m✓[39m hides a recovered snapshot immediately when its saved reference changes[32m 19[2mms[22m[39m
+     [32m✓[39m keeps the parent preview invalid when reading a replacement recovery snapshot fails[32m 42[2mms[22m[39m
+     [32m✓[39m rejects a pending response after changing the source away and back[32m 71[2mms[22m[39m
+     [32m✓[39m does not publish a pending context after its review component was unmounted[32m 89[2mms[22m[39m
+     [32m✓[39m invalidates an in-flight preview synchronously when a term changes before the next render[32m 52[2mms[22m[39m
+     [32m✓[39m shows the saved ambiguous result without treating it as an automatic match[32m 42[2mms[22m[39m
+     [32m✓[39m shows the saved uncovered result without treating it as an automatic match[32m 47[2mms[22m[39m
+     [32m✓[39m shows the saved omitted result without treating it as an automatic match[32m 47[2mms[22m[39m
+     [32m✓[39m shows the saved mapped result without treating it as an automatic match[32m 48[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 3 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/contracts/material-planning.test.ts[2m > [22mmaterial planning contract[2m > [22mpreserves historical mapping rows and validates compact coverage semantics
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/contracts/material-planning.test.ts:[2m28:143[22m[39m
+    [90m 26|[39m     expect(materials.materialContextPreviewSchema.parse(preview).mappi…
+    [90m 27|[39m     const coverage = { status: "partial", support: ["sql-schema"], rem…
+    [90m 28|[39m     expect(materials.materialContextPreviewSchema.safeParse({ ...previ…
+    [90m   |[39m                                                                                                                                               [31m^[39m
+    [90m 29|[39m     [35mfor[39m ([35mconst[39m invalid [35mof[39m [
+    [90m 30|[39m       { ...coverage, status: "full" }, { ...coverage, support: [] }, {…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/components/material-context-choices.test.tsx[2m > [22mmaterial term choices and explicit learning intent[2m > [22mshows task coverage and its remaining scope separately from topic correspondence
+[31m[1mTestingLibraryElementError[22m: Unable to find an element with the text: /任务覆盖：部分/. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<li>[31m
+  [36m<span>[31m
+    [0mFigma[0m
+  [36m</span>[31m
+  [36m<p>[31m
+    [0m已对应：设计系统[0m
+    [0m · 依据：上下文对应[0m
+  [36m</p>[31m
+  [36m<label>[31m
+    [0m对应的已有技能[0m
+    [36m<select[31m
+      [33maria-label[31m=[32m"事实 1 技能词 Figma 对应的已有技能"[31m
+    [36m>[31m
+      [36m<option[31m
+        [33mvalue[31m=[32m""[31m
+      [36m>[31m
+        [0m自动对应；未匹配时保留未覆盖[0m
+      [36m</option>[31m
+      [36m<option[31m
+        [33mvalue[31m=[32m"__omit__"[31m
+      [36m>[31m
+        [0m不用于本轮映射[0m
+      [36m</option>[31m
+      [36m<option[31m
+        [33mvalue[31m=[32m"design-systems"[31m
+      [36m>[31m
+        [0m设计系统[0m
+      [36m</option>[31m
+      [36m<option[31m
+        [33mvalue[31m=[32m"react"[31m
+      [36m>[31m
+        [0mReact 19[0m
+      [36m</option>[31m
+      [36m<option[31m
+        [33mvalue[31m=[32m"sql"[31m
+      [36m>[31m
+        [0mSQL[0m
+      [36m</option>[31m
+    [36m</select>[31m
+  [36m</label>[31m
+[36m</li>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/components/material-context-choices.test.tsx:[2m110:20[22m[39m
+    [90m108|[39m     [35mconst[39m covered [33m=[39m [34mwithin[39m([34mtermControl[39m([32m"Figma"[39m)[33m.[39m[34mclosest[39m([32m"li"[39m)[33m![39m)[33m;[39m
+    [90m109|[39m     [34mexpect[39m(covered[33m.[39m[34mgetByText[39m([36m/已对应：设计系统/[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m110|[39m     expect(covered.getByText(/任务覆盖：部分/)).toHaveTextContent("组件语义、焦点与对比…
+    [90m   |[39m                    [31m^[39m
+    [90m111|[39m     [34mexpect[39m(covered[33m.[39m[34mgetByText[39m([36m/其余要求尚未核验/[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m112|[39m     [35mconst[39m historical [33m=[39m [34mwithin[39m([34mtermControl[39m([32m"UI tokens"[39m)[33m.[39m[34mclosest[39m([32m"li"[39m)[33m![39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/explanations.test.ts[2m > [22mprivate material explanations[2m > [22mkeeps task limitations separate from priority and removes them after source deletion
+[31m[1mAssertionError[22m: expected [] to match object [ { …(3) } ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [[39m
+[32m-   {[39m
+[32m-     "changeKind": "unapplied",[39m
+[32m-     "reasonItemIds": [[39m
+[32m-       "private-fact",[39m
+[32m-     ],[39m
+[32m-     "ruleId": "course-task-partial-v1",[39m
+[32m-   },[39m
+[32m- ][39m
+[31m+ [][39m
+
+[36m [2m❯[22m tests/lib/materials/explanations.test.ts:[2m20:20[22m[39m
+    [90m 18|[39m     }] }[33m;[39m
+    [90m 19|[39m     [35mconst[39m result [33m=[39m [34mexplainMaterialPreview[39m(preview[33m,[39m [35mtrue[39m)[33m;[39m
+    [90m 20|[39m     expect(result).toMatchObject([{ ruleId: "course-task-partial-v1", …
+    [90m   |[39m                    [31m^[39m
+    [90m 21|[39m     [34mexpect[39m(result[[34m0[39m][33m?.[39mmessage)[33m.[39m[34mtoMatch[39m([36m/其余要求尚未核验/[39m)[33m;[39m
+    [90m 22|[39m     [34mexpect[39m(result[[34m0[39m][33m?.[39mmessage)[33m.[39m[34mtoMatch[39m([36m/不代表能力或采用优先级/[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m3 failed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[31m3 failed[39m[22m[2m | [22m[1m[32m45 passed[39m[22m[90m (48)[39m
+[2m   Start at [22m 13:38:23
+[2m   Duration [22m 3.90s[2m (transform 401ms, setup 768ms, import 703ms, tests 1.74s, environment 4.09s)[22m
+

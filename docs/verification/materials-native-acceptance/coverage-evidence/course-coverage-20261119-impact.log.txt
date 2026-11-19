@@ -1,0 +1,57 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:31708) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:37856) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-course-task-coverage.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 385[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/explanations.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/contracts/material-planning.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 53[2mms[22m[39m
+ [31m❯[39m tests/lib/materials/skill-mapper.test.ts [2m([22m[2m14 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 31[2mms[22m[39m
+   [32m✓[39m maps exact existing skill tokens only with a complete matching registry[32m 4[2mms[22m[39m
+   [32m✓[39m keeps existing assessments until an explicit legal adoption[32m 1[2mms[22m[39m
+   [32m✓[39m uses versioned production aliases only for the matching published blueprint[32m 1[2mms[22m[39m
+   [32m✓[39m maps the confirmed bilingual unit-testing concept only in a catalog that teaches it[32m 1[2mms[22m[39m
+   [32m✓[39m maps each retained literal skill word through its own blueprint and leaves unknown words uncovered[32m 4[2mms[22m[39m
+   [32m✓[39m maps English distributed tracing like its reviewed Chinese equivalent without borrowing another catalog[32m 1[2mms[22m[39m
+[31m   [31m×[31m versions contextual mappings independently while accepting every previous literal alias version[39m[32m 4[2mms[22m[39m
+   [32m✓[39m reports each retained raw term with its literal, contextual, ambiguous or uncovered result[32m 11[2mms[22m[39m
+   [32m✓[39m overrides one retained term while preserving all other automatic mappings[32m 1[2mms[22m[39m
+   [32m✓[39m keeps a deliberate per-term omission visible in details and out of grouped mappings[32m 0[2mms[22m[39m
+   [32m✓[39m never recovers a deleted term, rescans an empty label list, or applies a non-exact override[32m 0[2mms[22m[39m
+   [32m✓[39m maps a constraint only after its exact item ID is separately adopted[32m 1[2mms[22m[39m
+   [32m✓[39m preserves legacy whole-item overrides and rejects unknown IDs without inventing skills[32m 0[2mms[22m[39m
+   [32m✓[39m retains invalid legacy catalog labels without exposing invalid mapped skill IDs[32m 0[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/practice-skill-mapping.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 61[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/contextual-skill-mapping.test.ts [2m([22m[2m89 tests[22m[2m)[22m[32m 77[2mms[22m[39m
+(node:41388) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-mappings.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 1086[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects an oversized preview response before committing its context or mutation receipt [33m 621[2mms[22m[39m
+ [32m✓[39m tests/components/material-context-choices.test.tsx [2m([22m[2m30 tests[22m[2m)[22m[33m 1698[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/skill-mapper.test.ts[2m > [22mversions contextual mappings independently while accepting every previous literal alias version
+[31m[1mAssertionError[22m: expected '2026.11.6' to be '2026.11.5' // Object.is equality[39m
+
+Expected: [32m"2026.11.[7m5[27m"[39m
+Received: [31m"2026.11.[7m6[27m"[39m
+
+[36m [2m❯[22m tests/lib/materials/skill-mapper.test.ts:[2m74:38[22m[39m
+    [90m 72|[39m
+    [90m 73|[39m it("versions contextual mappings independently while accepting every p…
+    [90m 74|[39m     [34mexpect[39m([33mMATERIAL_MAPPING_VERSION[39m)[33m.[39m[34mtoBe[39m([32m"2026.11.5"[39m)[33m;[39m
+    [90m   |[39m                                      [31m^[39m
+    [90m 75|[39m     [35mconst[39m other [33m=[39m { [33m...[39mflagshipBlueprint[33m,[39m id[33m:[39m [32m"other-catalog"[39m }[33m;[39m
+    [90m 76|[39m     for (const version of ["2026.11.2", "2026.11.3", "2026.11.4", "202…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m7 passed[39m[22m[90m (8)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m192 passed[39m[22m[90m (193)[39m
+[2m   Start at [22m 13:43:44
+[2m   Duration [22m 3.74s[2m (transform 1.61s, setup 2.42s, import 2.81s, tests 3.39s, environment 6.45s)[22m
+

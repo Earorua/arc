@@ -5,10 +5,12 @@ import { validateUnitRegistry } from "../planning/registry-validation";
 import { createContextualSkillMatcher } from "./contextual-skill-mapping";
 import { supportsMaterialExperience } from "./experience-evidence";
 import { containsMaterialSkillLabel, normalizeMaterialSkillLabel } from "./skill-labels";
-export const MATERIAL_MAPPING_VERSION = "2026.11.5" as const;
+import { findMaterialSkillMention } from "./grounded-skill-terms";
+export const MATERIAL_MAPPING_VERSION = "2026.11.6" as const;
 const literalAliasVersion = "2026.11.2";
 const groundedAliasVersion = "2026.11.3";
 const tracingAliasVersion = "2026.11.4";
+const termAliasVersion = "2026.11.5";
 export type MaterialSkillMapping = {
     itemId: string;
     status: "mapped" | "ambiguous" | "uncovered" | "non-learning";
@@ -27,7 +29,7 @@ export type MappingOptions = {
     termMappings?: Record<string, { skillLabel: string; skillIds: string[] }[]>;
     learningIntentItemIds?: readonly string[];
     aliases?: Readonly<{
-        version: typeof MATERIAL_MAPPING_VERSION | typeof literalAliasVersion | typeof groundedAliasVersion | typeof tracingAliasVersion;
+        version: typeof MATERIAL_MAPPING_VERSION | typeof literalAliasVersion | typeof groundedAliasVersion | typeof tracingAliasVersion | typeof termAliasVersion;
         skills: Record<string, string[]>;
     }>;
 };
@@ -64,7 +66,7 @@ function resolveMaterialTerms(items: readonly ConfirmedMaterialItem[], blueprint
     const matchContextual = createContextualSkillMatcher(blueprint, registry);
     const aliases = options.aliases ?? (blueprint.id === "ai-native-full-stack-engineer" && blueprint.version === "2026.08.1" ? FLAGSHIP_ALIASES : undefined);
     const reviewed = aliases?.version === MATERIAL_MAPPING_VERSION || aliases?.version === literalAliasVersion
-      || aliases?.version === groundedAliasVersion || aliases?.version === tracingAliasVersion ? aliases.skills : {};
+      || aliases?.version === groundedAliasVersion || aliases?.version === tracingAliasVersion || aliases?.version === termAliasVersion ? aliases.skills : {};
     const vocabulary = blueprint.skills.map(skill => ({ id: skill.id, name: skill.name, words: [
         skill.id, skill.name, ...(reviewed[skill.id] ?? [])
     ] }));
@@ -108,13 +110,35 @@ function resolveMaterialTerms(items: readonly ConfirmedMaterialItem[], blueprint
                 return true;
             });
             let basis: MaterialTermMapping["basis"] = selected ? "manual" : valid && matches.length ? "literal" : null;
+            let explicitConjunction = false;
+            if (!selected && !matches.length && valid && item.skillLabels) {
+                const parts = term.split(/\s+(?:and|or)\s+|[和及或]/iu);
+                if (parts.length > 1 && parts.length <= 8) {
+                    const members = parts.map(part => {
+                        // Only a small explicit topic-list grammar may compose courses.
+                        // Preserve the original matched word as this relation's target.
+                        const label = normalizeMaterialSkillLabel(part.trim()).replace(/^(?:(?:i|we|my colleague|another team) )?(?:(?:have never |never )?used|use|wrote|write|built|build) /u, "");
+                        return vocabulary.flatMap(skill => skill.words.filter(word =>
+                            (label === normalizeMaterialSkillLabel(word) || label === `${normalizeMaterialSkillLabel(word)} queries`)
+                            && findMaterialSkillMention(item.text, word) !== null).map(word => ({ skill, word })));
+                    });
+                    if (members.every(member => new Set(member.map(value => value.skill.id)).size === 1)) {
+                        const ids = new Set(members.flat().map(member => member.skill.id));
+                        matches = vocabulary.filter(skill => ids.has(skill.id));
+                        for (const skill of matches) practiceEvidence.set(skill.id, members.flat().filter(member => member.skill.id === skill.id)
+                            .map(member => ({ kind: "terms", terms: [member.word] })));
+                        explicitConjunction = !/\bor\b|或/iu.test(term);
+                        basis = "contextual";
+                    }
+                }
+            }
             if (!selected && !matches.length && valid && item.skillLabels) {
                 const contextualIds = matchContextual(term, item.text);
                 matches = vocabulary.filter(skill => contextualIds.includes(skill.id));
                 for (const skill of matches) practiceEvidence.set(skill.id, [termTarget]);
                 if (matches.length) basis = "contextual";
             }
-            const status = !valid || !matches.length ? "uncovered" : !selected && matches.length > 1 ? "ambiguous" : "mapped";
+            const status = !valid || !matches.length ? "uncovered" : !selected && matches.length > 1 && !explicitConjunction ? "ambiguous" : "mapped";
             return { itemId: item.id, term, status, skillIds: valid ? matches.map(skill => skill.id) : [], basis,
                 labels: matches.length && (valid || !item.skillLabels) ? matches.map(skill => skill.name) : [term.slice(0, 100)], practiceEvidence };
         });

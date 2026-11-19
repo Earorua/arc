@@ -1,0 +1,193 @@
+{
+  "schemaVersion": "materials-course-coverage-evidence-v1",
+  "recordedAt": "2026-11-19T05:56:26.1290428Z",
+  "description": "Original targeted development, failure, final and narrow repair logs. Archiving is not a new test run.",
+  "files": [
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-anchor-red.json",
+      "file": "course-coverage-20261119-anchor-red.json",
+      "bytes": 275,
+      "sha256": "8a958d609c2339508a6fd11465523bc2675514ca8721474ae02e44529084736d"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-anchor-red.log",
+      "file": "course-coverage-20261119-anchor-red.log.txt",
+      "bytes": 3383,
+      "sha256": "283cb682912a13d825b320f22259e2e2d77c8420532adf3b747574ce372ada46"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-final.json",
+      "file": "course-coverage-20261119-final.json",
+      "bytes": 270,
+      "sha256": "6d9f8633122f532141b04aa12c86d34414e1e9d0b0291b0ea175ae437ee566b7"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-final.log",
+      "file": "course-coverage-20261119-final.log.txt",
+      "bytes": 2052,
+      "sha256": "5ca32de097788e964dfc4ea31188f96ab60b6acb239b666ae5e1c105aeafc542"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-green.json",
+      "file": "course-coverage-20261119-green.json",
+      "bytes": 270,
+      "sha256": "7da1d0cb19aa1afc16f766639ffb5b7f2dae0962be27f8cf2ec5f34a605022c4"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-green.log",
+      "file": "course-coverage-20261119-green.log.txt",
+      "bytes": 8079,
+      "sha256": "5443b13c0647bd29ef85e4f1e3dfe71e4a1805c97a4bdcbec491fc7bd291d6f4"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-impact.json",
+      "file": "course-coverage-20261119-impact.json",
+      "bytes": 271,
+      "sha256": "fa9efdacd78e2e6c0e1473deab78b64d2634b79945b70a00f4200d944bfa2725"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-impact.log",
+      "file": "course-coverage-20261119-impact.log.txt",
+      "bytes": 5096,
+      "sha256": "760f0337480bf6882fa9cc4305e923c43d2c005afd11817eaf431abd91117d48"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-lint-final.json",
+      "file": "course-coverage-20261119-lint-final.json",
+      "bytes": 275,
+      "sha256": "5fc084741d03975b3a44f5bd767d6c98ae8b88ac423f9591a5048bcdb266af7d"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-lint-final.log",
+      "file": "course-coverage-20261119-lint-final.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-lint.json",
+      "file": "course-coverage-20261119-lint.json",
+      "bytes": 269,
+      "sha256": "f151f2b774799fd974435b72ccc59ea363be1116a647ff92c7cfac071ff1167a"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-lint.log",
+      "file": "course-coverage-20261119-lint.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-red.json",
+      "file": "course-coverage-20261119-red.json",
+      "bytes": 268,
+      "sha256": "5e983d8f2642035467f222bddc77e5de55aae34a181d225a60711c7d900c1178"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-red.log",
+      "file": "course-coverage-20261119-red.log.txt",
+      "bytes": 14576,
+      "sha256": "6f92912cd10b363156f7aaeac92b8ec857daa4bb10912edab44a1aedb7e8fb6e"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-scope-red.json",
+      "file": "course-coverage-20261119-scope-red.json",
+      "bytes": 274,
+      "sha256": "cd5136375afe3938414701587790e9261375116923f576a92b7daaba13df9652"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-scope-red.log",
+      "file": "course-coverage-20261119-scope-red.log.txt",
+      "bytes": 5040,
+      "sha256": "2e8a42448a9865c2251f300c7b122f4496d9a093bb5ffd622878b8b95fbcde9b"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-tsconfig.json",
+      "file": "course-coverage-20261119-tsconfig.json.source.txt",
+      "bytes": 153,
+      "sha256": "0e346ee85e8661ad2cc6f5987fce8513a0d61ded895cddb4f5e4c6fd821e2582"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-types-final.json",
+      "file": "course-coverage-20261119-types-final.json",
+      "bytes": 277,
+      "sha256": "16571f97058d6ca446e4a488ce5e55f7a144efdc680e28943185b90ba8f8e892"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-types-final.log",
+      "file": "course-coverage-20261119-types-final.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-types-scoped.json",
+      "file": "course-coverage-20261119-types-scoped.json",
+      "bytes": 278,
+      "sha256": "4c21b6adc0b81f6c0a0d0dc40783eccb1b39cd181d6f06ede00134ef61cd4865"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-types-scoped.log",
+      "file": "course-coverage-20261119-types-scoped.log.txt",
+      "bytes": 1528,
+      "sha256": "84eeaf6fc1127107aa7a115f9da8c918fa2b24d9ec8e9620c7522789ef5133a1"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-types.json",
+      "file": "course-coverage-20261119-types.json",
+      "bytes": 271,
+      "sha256": "260573986b17c5093bff58240a269757dfb02f70ecec791e170cd72af3a66413"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-types.log",
+      "file": "course-coverage-20261119-types.log.txt",
+      "bytes": 1029,
+      "sha256": "1f97a737f32b9f2a21ff0058d8951be1cc5d70352f04a80d36a14d441f98e66b"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-ui-contract-red.json",
+      "file": "course-coverage-20261119-ui-contract-red.json",
+      "bytes": 280,
+      "sha256": "b9135b1dbe30e120c1bdc0d4bc5edae64f2a6c21ed16b551037dc6752d733e6a"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-ui-contract-red.log",
+      "file": "course-coverage-20261119-ui-contract-red.log.txt",
+      "bytes": 13006,
+      "sha256": "38cd49ca1b1a07dc6b0816f8c6d7e815e4792503e6500fd7f7ff4c04951e77a5"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-wrap-green.json",
+      "file": "course-coverage-20261119-wrap-green.json",
+      "bytes": 275,
+      "sha256": "dc4619c3bbd205f3420c5ce2796e31af8d131d6a3a1e36f602300dc935914520"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-wrap-green.log",
+      "file": "course-coverage-20261119-wrap-green.log.txt",
+      "bytes": 708,
+      "sha256": "95f54e147fa275f3b192fa34f1f3428d232e026e7b216c2b367235f9ab8c1316"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-wrap-lint.json",
+      "file": "course-coverage-20261119-wrap-lint.json",
+      "bytes": 274,
+      "sha256": "ce99c3eb2638590c74b8e09fb44f88d535f0a81d3359fe686237c7f238912eaf"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-wrap-lint.log",
+      "file": "course-coverage-20261119-wrap-lint.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-wrap-red.json",
+      "file": "course-coverage-20261119-wrap-red.json",
+      "bytes": 273,
+      "sha256": "919b4bfde675f6b7034ba2491c1326d945f3a3d00f6181f5ac8cc727ee398be0"
+    },
+    {
+      "source": "work/grounded-verification/course-coverage-20261119-wrap-red.log",
+      "file": "course-coverage-20261119-wrap-red.log.txt",
+      "bytes": 3576,
+      "sha256": "98c9a3c12a8580d7cc11de65d023105c4791d21818ff25240e79c4677279234f"
+    }
+  ]
+}

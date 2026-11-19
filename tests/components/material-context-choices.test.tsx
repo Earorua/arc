@@ -101,6 +101,18 @@ describe("material term choices and explicit learning intent", () => {
     }
   });
 
+  it("shows task coverage and its remaining scope separately from topic correspondence", async () => {
+    fixture({ ...basePreview, mappingDetails: [{ ...basePreview.mappingDetails![0]!, termIndexes: [0],
+      taskCoverage: { status: "partial", support: ["component-audit"], remaining: "unassessed-scope" },
+    }, { ...basePreview.mappingDetails![0]!, termIndexes: [1] }] }); await openPreview();
+    const covered = within(termControl("Figma").closest("li")!);
+    expect(covered.getByText(/已对应：设计系统/)).toBeInTheDocument();
+    expect(covered.getByText(/任务覆盖：部分/)).toHaveTextContent("组件语义、焦点与对比度审计");
+    expect(covered.getByText(/其余要求尚未核验/)).toBeInTheDocument();
+    const historical = within(termControl("UI tokens").closest("li")!);
+    expect(historical.getByText(/历史预览未核验任务覆盖/)).toBeInTheDocument();
+  });
+
   it("changes one term without changing other automatic mappings and supports explicit omit and return to automatic", async () => {
     const { request, onPreview } = fixture(); await openPreview();
     fireEvent.change(termControl("Figma"), { target: { value: "react" } });

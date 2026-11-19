@@ -9,6 +9,7 @@ import { canonicalJson, deterministicId } from "../../lib/planning/fingerprint";
 import { buildLearningPaths } from "../../lib/planning/path-builder";
 import { createMaterialOverlay, MATERIAL_PLANNING_POLICY_VERSION } from "../../lib/materials/planning-priority";
 import { mapMaterialItems, mapMaterialItemTerms, mapMaterialPracticeSkills, MATERIAL_MAPPING_VERSION, type MappingOptions } from "../../lib/materials/skill-mapper";
+import { createCourseTaskCoverageEvaluator } from "../../lib/materials/course-task-coverage";
 import { validateUnitRegistry } from "../../lib/planning/registry-validation";
 import { PlanningConflictError, PlanningInvalidInputError, PlanningNotFoundError } from "../planning/service";
 import type { PlanningSourceResolver } from "../planning/source-resolver";
@@ -229,6 +230,7 @@ export class MaterialContextService {
   }
 
   private project(snapshot: ContextInputSnapshot, selected: SelectedRow[], source: PlanningSourceContext, fingerprint: string): MaterialPreview {
+    const taskCoverageFor = createCourseTaskCoverageEvaluator(source.blueprint, source.registry, source.reference.source);
     const confirmedItems: ConfirmedMaterialItem[] = [];
     const itemReferences: NonNullable<MaterialPreview["itemReferences"]> = [];
     const requirements: { skillId: string; level: "must" | "preferred" | "unspecified"; itemId: string }[] = [];
@@ -267,8 +269,9 @@ export class MaterialContextService {
       for (const detail of details) {
         const item = items.find(item => item.id === detail.itemId)!;
         const termIndex = item.skillLabels?.indexOf(detail.term) ?? -1;
-        const groupKey = canonicalJson({ itemId: item.id, status: detail.status, skillIds: detail.skillIds, basis: detail.basis });
-        const group = groups.get(groupKey) ?? { itemId: item.id, termIndexes: [], status: detail.status, skillIds: detail.skillIds, basis: detail.basis };
+        const taskCoverage = taskCoverageFor(detail, item);
+        const groupKey = canonicalJson({ itemId: item.id, status: detail.status, skillIds: detail.skillIds, basis: detail.basis, taskCoverage });
+        const group = groups.get(groupKey) ?? { itemId: item.id, termIndexes: [], status: detail.status, skillIds: detail.skillIds, basis: detail.basis, taskCoverage };
         if (!group.termIndexes.includes(termIndex)) group.termIndexes.push(termIndex);
         groups.set(groupKey, group);
         if (detail.status === "omitted") omittedFactIds.push(item.id);

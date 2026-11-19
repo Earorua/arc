@@ -1,4 +1,5 @@
 "use client";
+import { COURSE_TASK_EVIDENCE, COURSE_TASK_REMAINING_LABELS } from "../../lib/materials/course-task-evidence";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { z } from "zod";
 import type { createMaterialContextRequestSchema, materialContextPreviewSchema, MaterialPlanningReference, MaterialSkillMappingChoice, MaterialTermMappingChoice, MaterialLearningIntentChoice } from "../../contracts/material-planning";
@@ -153,7 +154,12 @@ export function MaterialContextReview({ input, availableSkills = [], previousGoa
       : detail.status === "ambiguous" ? `对应待核对：${skillNames(detail.skillIds)}`
       : detail.status === "uncovered" ? "当前蓝图未覆盖"
       : detail.status === "omitted" ? "已明确不用于本轮映射" : "未用于本轮学习排序";
-    return <p>{mappingDirty && "上次预览："}{status}{detail.basis && ` · 依据：${basisLabels[detail.basis]}`}</p>;
+    const coverage = detail.taskCoverage;
+    return <><p>{mappingDirty && "上次预览："}{status}{detail.basis && ` · 依据：${basisLabels[detail.basis]}`}</p>
+      {coverage ? <p>{mappingDirty && "上次预览："}任务覆盖：{{ full: "完整（仅限已识别的窄任务）", partial: "部分", none: "未证实", "not-applicable": "不适用" }[coverage.status]}
+        {coverage.support.length > 0 && ` · 支持：${coverage.support.map(id => COURSE_TASK_EVIDENCE[id].label).join("、")}`}
+        {coverage.remaining && ` · ${COURSE_TASK_REMAINING_LABELS[coverage.remaining]}`}。</p>
+        : <p>历史预览未核验任务覆盖；课程主题对应不代表完整教学覆盖。</p>}</>;
   }
   function mappingSelect(confirmationId: string, itemId: string, label: string, blocked: boolean, skillLabel?: string) {
     const termChoice = skillLabel === undefined ? undefined : displayedChoices.termMappings.find(choice => sameItem(choice, confirmationId, itemId) && choice.skillLabel === skillLabel);
@@ -197,6 +203,7 @@ export function MaterialContextReview({ input, availableSkills = [], previousGoa
       {availableSkills.length > 0 && <p>如有未覆盖或对应不准确的词，可明确选择当前蓝图已有技能；不会新增课程或改变能力自评。</p>}
       <p>{mappedSkillCount !== null && <>已对应课程 {mappedSkillCount} 项技能；</>}参与当前排序 {preview.priorities.length} 项技能。</p>
       <p>否定、他人经历或未来计划中的主题也可对应课程，但不代表已有实践或能力等级；能力仍以你的自我评估为准。</p>
+      <p>任务覆盖只说明现有课程正文支持的范围，不代表能力、实践经历或已采用的学习优先级。</p>
       {issueCount > 0 && <p>有 {issueCount} 项需注意：歧义映射、未覆盖内容或自评冲突会保留为提醒，不会擅自增加技能。</p>}
       {preview.uncoveredLabels.length > 0 && <p>当前蓝图未覆盖：{preview.uncoveredLabels.join("、")}</p>}
       {preview.planning && <p>全量预计完成：{preview.planning.fullScope.estimatedCompletionDate}；目标日期方案：{preview.planning.targetDate?.estimatedCompletionDate ?? "不可行"}。{preview.planning.infeasibleReason}</p>}

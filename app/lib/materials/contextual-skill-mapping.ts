@@ -3,6 +3,7 @@ import type { UnitRegistry } from "../../contracts/planning";
 import { validateUnitRegistry } from "../planning/registry-validation";
 import { findMaterialSkillEvidence } from "./grounded-skill-terms";
 import { normalizeMaterialSkillLabel } from "./skill-labels";
+import { createCourseTaskTopicMatcher } from "./course-task-coverage";
 
 type ContextualSkillMatcher = (term: string, text: string) => string[];
 
@@ -49,12 +50,13 @@ export function createContextualSkillMatcher(blueprint: RoleBlueprint, registry:
     || blueprint.status !== "ready" || registry.id !== "ai-native-full-stack-engineer-units"
     || registry.version !== "2026.08.1" || !validateUnitRegistry(registry, blueprint).valid) return () => [];
 
+  const matchTaskTopic = createCourseTaskTopicMatcher(blueprint, registry);
   return (term, text) => {
     const token = normalizeMaterialSkillLabel(term);
     // Never borrow a qualifier from another clause or add a term found only in the text.
     const contexts = text.split(contextScopeBreak).map(normalizeMaterialSkillLabel)
       .filter(context => !nonAffirmativeContext.test(context) && findMaterialSkillEvidence(context, term) !== null);
-    const matches = new Set<string>();
+    const matches = new Set<string>(matchTaskTopic(term, text));
     for (const context of contexts) {
       if (uiTerm.test(token) && hasGroundedContext(context, uiContext) && hasGroundedContext(context, uiBehavior)
         && !unrelatedTokens.test(context)) matches.add("design-systems");

@@ -4,6 +4,7 @@ import { availabilityVersionSchema, planningGenerateSourceSchema, planningSource
 import { generatePlanningRequestSchema, materialPlanningReferenceSchema, planningMutationResponseSchema } from "./planning-api";
 export { materialPlanningReferenceSchema } from "./planning-api";
 import { canonicalJson } from "../lib/planning/fingerprint";
+import { COURSE_TASK_IDS } from "../lib/materials/course-task-evidence";
 import {
   DOCUMENT_SCHEMA_VERSION, MAX_MATERIAL_CONTEXT_JSON_BYTES, MAX_MATERIAL_SKILL_LABELS_PER_ITEM, boundedMaterialJson, confirmedMaterialItemSchema,
   materialDigestSchema, materialGoalScopeSchema, materialIdSchema, materialOwnerIdSchema, materialRevisionSchema, materialScopeSchema,
@@ -96,6 +97,16 @@ export async function materialSha256(value: unknown): Promise<string> {
 }
 export async function createMaterialContextFingerprint(input: unknown): Promise<string> { return materialSha256(normalizeContextInputSnapshot(input)); }
 
+export const materialTaskCoverageSchema = z.object({
+  status: z.enum(["full", "partial", "none", "not-applicable"]),
+  support: z.array(z.enum(COURSE_TASK_IDS)).max(COURSE_TASK_IDS.length).refine(ids => new Set(ids).size === ids.length, "Duplicate task evidence"),
+  remaining: z.enum(["unspecified-task", "unassessed-scope", "unverified-content", "course-choice"]).nullable(),
+}).strict().refine(value => value.status === "full" ? value.support.length > 0 && value.remaining === null
+  : value.status === "partial" ? value.support.length > 0 && value.remaining !== null
+  : value.status === "none" ? value.support.length === 0 && value.remaining !== null
+  : value.support.length === 0 && value.remaining === null, "Task coverage must retain its supported and remaining scope");
+export type MaterialTaskCoverage = z.infer<typeof materialTaskCoverageSchema>;
+
 export const materialContextPreviewSchema = boundedMaterialJson(z.object({
   overlay: z.object({ skillRanks: z.record(materialIdSchema, z.number().int().min(0).max(5)), mandatorySkillIds: z.array(materialIdSchema).max(64), semanticFingerprint: materialDigestSchema, policyVersion: materialVersionSchema }).strict().optional(),
   planning: z.object({ fullScope: z.object({ estimatedCompletionDate: calendarDateSchema, totalMinutes: z.number().int().nonnegative() }).strict(), targetDate: z.object({ estimatedCompletionDate: calendarDateSchema, totalMinutes: z.number().int().nonnegative() }).strict().nullable(), infeasibleReason: z.string().max(1000).nullable() }).strict().optional(),
@@ -105,6 +116,7 @@ export const materialContextPreviewSchema = boundedMaterialJson(z.object({
   // Equivalent results share one row; terms reference retained label indexes, -1 is legacy confirmed text.
   mappingDetails: z.array(z.object({ itemId: materialIdSchema, termIndexes: z.array(z.number().int().min(-1).max(MAX_MATERIAL_SKILL_LABELS_PER_ITEM - 1)).min(1).max(MAX_MATERIAL_SKILL_LABELS_PER_ITEM),
     status: z.enum(["mapped", "ambiguous", "uncovered", "non-learning", "omitted"]), skillIds: z.array(materialIdSchema).max(64), basis: z.enum(["literal", "contextual", "manual"]).nullable(),
+    taskCoverage: materialTaskCoverageSchema.optional(),
   }).strict()).max(500 * MAX_MATERIAL_SKILL_LABELS_PER_ITEM).optional(),
   priorities: z.array(z.object({ skillId: materialIdSchema, tier: z.number().int().min(0).max(5), itemIds: z.array(materialIdSchema).max(500),
     practiceItemIds: z.array(materialIdSchema).max(500).optional(), learningIntentItemIds: z.array(materialIdSchema).max(500).optional(),

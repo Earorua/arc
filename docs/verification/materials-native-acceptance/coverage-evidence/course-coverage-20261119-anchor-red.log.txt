@@ -1,0 +1,50 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:17364) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/server/material-course-task-coverage.test.ts [2m([22m[2m8 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m7 skipped[39m[2m)[22m[32m 8[2mms[22m[39m
+     [2m[90m↓[39m[22m distinguishes a topic name, a narrow taught task, an unsupported query and a mixed task
+     [2m[90m↓[39m[22m does not merge same-topic terms with different coverage and recomputes a manual course choice
+     [2m[90m↓[39m[22m invalidates a claim when its exact content leaf changes even at the same catalog version
+[31m     [31m×[31m requires the exact narrowing criterion and never inherits evidence in Research or an invalid registry[39m[32m 7[2mms[22m[39m
+     [2m[90m↓[39m[22m keeps unknown modifiers and tool-specific tasks outside full coverage
+     [2m[90m↓[39m[22m recognizes the other narrow taught families without equating links with teaching
+     [2m[90m↓[39m[22m does not use task coverage to adopt ability, practice or an unadopted priority
+     [2m[90m↓[39m[22m distinguishes explicit topic conjunction from alternatives and keeps each actor's practice evidence
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-course-task-coverage.test.ts[2m > [22mcontent-backed course task coverage[2m > [22mrequires the exact narrowing criterion and never inherits evidence in Research or an invalid registry
+[31m[1mAssertionError[22m: expected { status: 'full', …(2) } to deeply equal { status: 'none', support: [], …(1) }[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "remaining": "unverified-content",[39m
+[32m-   "status": "none",[39m
+[32m-   "support": [],[39m
+[31m+   "remaining": null,[39m
+[31m+   "status": "full",[39m
+[31m+   "support": [[39m
+[31m+     "typescript-contract",[39m
+[31m+   ],[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/server/material-course-task-coverage.test.ts:[2m77:95[22m[39m
+    [90m 75|[39m       [flagshipBlueprint, { ...flagshipUnitRegistry, id: "another-cata…
+    [90m 76|[39m       [flagshipBlueprint[33m,[39m { [33m...[39mflagshipUnitRegistry[33m,[39m tracks[33m:[39m [] }][33m,[39m
+    [90m 77|[39m     ] as const) expect(createCourseTaskCoverageEvaluator(blueprint, re…
+    [90m   |[39m                                                                                               [31m^[39m
+    [90m 78|[39m       status[33m:[39m [32m"none"[39m[33m,[39m support[33m:[39m [][33m,[39m remaining[33m:[39m [32m"unverified-content"[39m[33m,[39m
+    [90m 79|[39m     })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[33m7 skipped[39m[90m (8)[39m
+[2m   Start at [22m 13:43:07
+[2m   Duration [22m 750ms[2m (transform 296ms, setup 178ms, import 426ms, tests 8ms, environment 0ms)[22m
+

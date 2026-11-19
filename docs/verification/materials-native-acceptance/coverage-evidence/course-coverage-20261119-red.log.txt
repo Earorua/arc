@@ -1,0 +1,304 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:18692) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/server/material-course-task-coverage.test.ts [2m([22m[2m7 tests[22m[2m | [22m[31m7 failed[39m[2m)[22m[33m 306[2mms[22m[39m
+[31m     [31m×[31m distinguishes a topic name, a narrow taught task, an unsupported query and a mixed task[39m[32m 136[2mms[22m[39m
+[31m     [31m×[31m does not merge same-topic terms with different coverage and recomputes a manual course choice[39m[32m 46[2mms[22m[39m
+[31m     [31m×[31m invalidates a claim when its exact content leaf changes even at the same catalog version[39m[32m 32[2mms[22m[39m
+[31m     [31m×[31m keeps unknown modifiers and tool-specific tasks outside full coverage[39m[32m 30[2mms[22m[39m
+[31m     [31m×[31m recognizes the other narrow taught families without equating links with teaching[39m[32m 30[2mms[22m[39m
+[31m     [31m×[31m does not use task coverage to adopt ability, practice or an unadopted priority[39m[32m 29[2mms[22m[39m
+[31m     [31m×[31m distinguishes explicit topic conjunction from alternatives and keeps each actor's practice evidence[39m[32m 1[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 7 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-course-task-coverage.test.ts[2m > [22mcontent-backed course task coverage[2m > [22mdistinguishes a topic name, a narrow taught task, an unsupported query and a mixed task
+[31m[1mAssertionError[22m: expected [ undefined, undefined, …(2) ] to deeply equal [ { status: 'none', …(2) }, …(3) ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  [[22m
+[32m-   {[39m
+[32m-     "remaining": "unspecified-task",[39m
+[32m-     "status": "none",[39m
+[32m-     "support": [],[39m
+[32m-   },[39m
+[32m-   {[39m
+[32m-     "remaining": null,[39m
+[32m-     "status": "full",[39m
+[32m-     "support": [[39m
+[32m-       "sql-schema",[39m
+[32m-     ],[39m
+[32m-   },[39m
+[32m-   {[39m
+[32m-     "remaining": "unassessed-scope",[39m
+[32m-     "status": "none",[39m
+[32m-     "support": [],[39m
+[32m-   },[39m
+[32m-   {[39m
+[32m-     "remaining": "unassessed-scope",[39m
+[32m-     "status": "partial",[39m
+[32m-     "support": [[39m
+[32m-       "sql-schema",[39m
+[32m-     ],[39m
+[32m-   },[39m
+[31m+   undefined,[39m
+[31m+   undefined,[39m
+[31m+   undefined,[39m
+[31m+   undefined,[39m
+[2m  ][22m
+
+[36m [2m❯[22m tests/server/material-course-task-coverage.test.ts:[2m34:72[22m[39m
+    [90m 32|[39m     [35mconst[39m { materials } [33m=[39m [34msetup[39m(items)[33m;[39m
+    [90m 33|[39m     const { preview } = await materials.create("owner-a", materialCont…
+    [90m 34|[39m     expect(preview.mappingDetails?.map(detail => detail.taskCoverage))…
+    [90m   |[39m                                                                        [31m^[39m
+    [90m 35|[39m       { status[33m:[39m [32m"none"[39m[33m,[39m support[33m:[39m [][33m,[39m remaining[33m:[39m [32m"unspecified-task"[39m }[33m,[39m
+    [90m 36|[39m       { status[33m:[39m [32m"full"[39m[33m,[39m support[33m:[39m [[32m"sql-schema"[39m][33m,[39m remaining[33m:[39m [35mnull[39m }[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-course-task-coverage.test.ts[2m > [22mcontent-backed course task coverage[2m > [22mdoes not merge same-topic terms with different coverage and recomputes a manual course choice
+[31m[1mAssertionError[22m: expected [ { …(5) } ] to match object [ { termIndexes: [ +0 ], …(3) }, …(1) ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  [[22m
+[2m    {[22m
+[32m-     "skillIds": [[39m
+[32m-       "sql",[39m
+[32m-     ],[39m
+[32m-     "status": "mapped",[39m
+[32m-     "taskCoverage": {[39m
+[32m-       "status": "full",[39m
+[32m-       "support": [[39m
+[32m-         "sql-joins",[39m
+[32m-       ],[39m
+[32m-     },[39m
+[31m+     "basis": null,[39m
+[31m+     "itemId": "material-item-0d7be636a9d798b8ed963442e8cd9ac4",[39m
+[31m+     "skillIds": [],[39m
+[31m+     "status": "uncovered",[39m
+[2m      "termIndexes": [[22m
+[2m        0,[22m
+[32m-     ],[39m
+[32m-   },[39m
+[32m-   {[39m
+[32m-     "skillIds": [[39m
+[32m-       "sql",[39m
+[32m-     ],[39m
+[32m-     "status": "mapped",[39m
+[32m-     "taskCoverage": {[39m
+[32m-       "status": "none",[39m
+[32m-       "support": [],[39m
+[32m-     },[39m
+[32m-     "termIndexes": [[39m
+[2m        1,[22m
+[2m      ],[22m
+[2m    },[22m
+[2m  ][22m
+
+[36m [2m❯[22m tests/server/material-course-task-coverage.test.ts:[2m47:42[22m[39m
+    [90m 45|[39m     const { materials } = setup([fact(text, ["ownership-safe SQL joins…
+    [90m 46|[39m     const first = await materials.create("owner-a", materialContextReq…
+    [90m 47|[39m     [34mexpect[39m(first[33m.[39mpreview[33m.[39mmappingDetails)[33m.[39m[34mtoMatchObject[39m([
+    [90m   |[39m                                          [31m^[39m
+    [90m 48|[39m       { termIndexes: [0], status: "mapped", skillIds: ["sql"], taskCov…
+    [90m 49|[39m       { termIndexes: [1], status: "mapped", skillIds: ["sql"], taskCov…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-course-task-coverage.test.ts[2m > [22mcontent-backed course task coverage[2m > [22minvalidates a claim when its exact content leaf changes even at the same catalog version
+[31m[1mAssertionError[22m: expected { …(5) } to match object { status: 'mapped', …(1) }
+(4 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[2m    "status": "mapped",[22m
+[32m-   "taskCoverage": {[39m
+[32m-     "remaining": "unverified-content",[39m
+[32m-     "status": "none",[39m
+[32m-     "support": [],[39m
+[32m-   },[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/server/material-course-task-coverage.test.ts:[2m61:103[22m[39m
+    [90m 59|[39m     registry.tracks.find(track => track.skillId === "sql")!.templates.…
+    [90m 60|[39m     const { materials } = setup([fact("Design SQL entities, keys, owne…
+    [90m 61|[39m     expect((await materials.create("owner-a", materialContextRequest()…
+    [90m   |[39m                                                                                                       [31m^[39m
+    [90m 62|[39m       status: "mapped", taskCoverage: { status: "none", support: [], r…
+    [90m 63|[39m     })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-course-task-coverage.test.ts[2m > [22mcontent-backed course task coverage[2m > [22mkeeps unknown modifiers and tool-specific tasks outside full coverage
+[31m[1mAssertionError[22m: expected [ undefined, undefined, …(2) ] to deeply equal [ { status: 'full', …(2) }, …(3) ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  [[22m
+[32m-   {[39m
+[32m-     "remaining": null,[39m
+[32m-     "status": "full",[39m
+[32m-     "support": [[39m
+[32m-       "typescript-contract",[39m
+[32m-     ],[39m
+[32m-   },[39m
+[32m-   {[39m
+[32m-     "remaining": "unassessed-scope",[39m
+[32m-     "status": "none",[39m
+[32m-     "support": [],[39m
+[32m-   },[39m
+[32m-   {[39m
+[32m-     "remaining": "unassessed-scope",[39m
+[32m-     "status": "partial",[39m
+[32m-     "support": [[39m
+[32m-       "react-form",[39m
+[32m-     ],[39m
+[32m-   },[39m
+[32m-   {[39m
+[32m-     "remaining": "unassessed-scope",[39m
+[32m-     "status": "partial",[39m
+[32m-     "support": [[39m
+[32m-       "behavior-tests",[39m
+[32m-     ],[39m
+[32m-   },[39m
+[31m+   undefined,[39m
+[31m+   undefined,[39m
+[31m+   undefined,[39m
+[31m+   undefined,[39m
+[2m  ][22m
+
+[36m [2m❯[22m tests/server/material-course-task-coverage.test.ts:[2m73:134[22m[39m
+    [90m 71|[39m       fact("Write focused software behavior tests from RED to GREEN fo…
+    [90m 72|[39m     ])[33m;[39m
+    [90m 73|[39m     expect((await materials.create("owner-a", materialContextRequest()…
+    [90m   |[39m                                                                                                                                      [31m^[39m
+    [90m 74|[39m       { status: "full", support: ["typescript-contract"], remaining: n…
+    [90m 75|[39m       { status[33m:[39m [32m"none"[39m[33m,[39m support[33m:[39m [][33m,[39m remaining[33m:[39m [32m"unassessed-scope"[39m }[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-course-task-coverage.test.ts[2m > [22mcontent-backed course task coverage[2m > [22mrecognizes the other narrow taught families without equating links with teaching
+[31m[1mAssertionError[22m: expected [ undefined, undefined, …(3) ] to deeply equal [ { status: 'full', …(2) }, …(4) ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  [[22m
+[32m-   {[39m
+[32m-     "remaining": null,[39m
+[32m-     "status": "full",[39m
+[32m-     "support": [[39m
+[32m-       "semantic-form",[39m
+[32m-     ],[39m
+[32m-   },[39m
+[32m-   {[39m
+[32m-     "remaining": null,[39m
+[32m-     "status": "full",[39m
+[32m-     "support": [[39m
+[32m-       "component-audit",[39m
+[32m-     ],[39m
+[32m-   },[39m
+[32m-   {[39m
+[32m-     "remaining": null,[39m
+[32m-     "status": "full",[39m
+[32m-     "support": [[39m
+[32m-       "software-signals",[39m
+[32m-     ],[39m
+[32m-   },[39m
+[32m-   {[39m
+[32m-     "remaining": null,[39m
+[32m-     "status": "full",[39m
+[32m-     "support": [[39m
+[32m-       "release-checklist",[39m
+[32m-     ],[39m
+[32m-   },[39m
+[32m-   {[39m
+[32m-     "remaining": "unassessed-scope",[39m
+[32m-     "status": "none",[39m
+[32m-     "support": [],[39m
+[32m-   },[39m
+[31m+   undefined,[39m
+[31m+   undefined,[39m
+[31m+   undefined,[39m
+[31m+   undefined,[39m
+[31m+   undefined,[39m
+[2m  ][22m
+
+[36m [2m❯[22m tests/server/material-course-task-coverage.test.ts:[2m89:134[22m[39m
+    [90m 87|[39m       fact("Operate Kubernetes: https://example.com/release-checklist"…
+    [90m 88|[39m     ])[33m;[39m
+    [90m 89|[39m     expect((await materials.create("owner-a", materialContextRequest()…
+    [90m   |[39m                                                                                                                                      [31m^[39m
+    [90m 90|[39m       { status[33m:[39m [32m"full"[39m[33m,[39m support[33m:[39m [[32m"semantic-form"[39m][33m,[39m remaining[33m:[39m [35mnull[39m }[33m,[39m
+    [90m 91|[39m       { status: "full", support: ["component-audit"], remaining: null …
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-course-task-coverage.test.ts[2m > [22mcontent-backed course task coverage[2m > [22mdoes not use task coverage to adopt ability, practice or an unadopted priority
+[31m[1mAssertionError[22m: expected undefined to deeply equal { status: 'not-applicable', …(2) }[39m
+
+[32m- Expected:[39m
+{
+  "remaining": null,
+  "status": "not-applicable",
+  "support": [],
+}
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m tests/server/material-course-task-coverage.test.ts:[2m104:62[22m[39m
+    [90m102|[39m     [35mconst[39m request [33m=[39m [34mmaterialContextRequest[39m()[33m;[39m
+    [90m103|[39m     [35mconst[39m before [33m=[39m [35mawait[39m materials[33m.[39m[34mcreate[39m([32m"owner-a"[39m[33m,[39m request)[33m;[39m
+    [90m104|[39m     expect(before.preview.mappingDetails?.[0]?.taskCoverage).toEqual({…
+    [90m   |[39m                                                              [31m^[39m
+    [90m105|[39m     [34mexpect[39m(before[33m.[39mpreview[33m.[39mpriorities)[33m.[39m[34mtoEqual[39m([])[33m;[39m
+    [90m106|[39m     const adopted = await materials.create("owner-a", { ...request, mu…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-course-task-coverage.test.ts[2m > [22mcontent-backed course task coverage[2m > [22mdistinguishes explicit topic conjunction from alternatives and keeps each actor's practice evidence
+[31m[1mAssertionError[22m: expected [ { itemId: 'fact', …(4) } ] to match object [ { status: 'mapped', …(1) } ]
+(3 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  [[22m
+[2m    {[22m
+[32m-     "skillIds": [[39m
+[32m-       "typescript",[39m
+[32m-       "sql",[39m
+[32m-     ],[39m
+[32m-     "status": "mapped",[39m
+[31m+     "skillIds": [],[39m
+[31m+     "status": "uncovered",[39m
+[2m    },[22m
+[2m  ][22m
+
+[36m [2m❯[22m tests/server/material-course-task-coverage.test.ts:[2m119:87[22m[39m
+    [90m117|[39m     const compound = fact("I wrote SQL queries; my colleague used Type…
+    [90m118|[39m     const alternatives = fact("Use SQL or TypeScript.", ["SQL or TypeS…
+    [90m119|[39m     expect(mapMaterialItemTerms([compound], flagshipBlueprint, flagshi…
+    [90m   |[39m                                                                                       [31m^[39m
+    [90m120|[39m     expect(mapMaterialItemTerms([alternatives], flagshipBlueprint, fla…
+    [90m121|[39m     expect(mapMaterialPracticeSkills([{ ...compound, kind: "experience…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m7 failed[39m[22m[90m (7)[39m
+[2m   Start at [22m 13:37:39
+[2m   Duration [22m 1.29s[2m (transform 312ms, setup 327ms, import 437ms, tests 306ms, environment 0ms)[22m
+

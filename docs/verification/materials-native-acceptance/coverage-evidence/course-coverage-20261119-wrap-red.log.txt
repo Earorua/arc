@@ -1,0 +1,57 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:8988) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/server/material-course-task-coverage.test.ts [2m([22m[2m9 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m8 skipped[39m[2m)[22m[32m 74[2mms[22m[39m
+     [2m[90m↓[39m[22m distinguishes a topic name, a narrow taught task, an unsupported query and a mixed task
+     [2m[90m↓[39m[22m does not merge same-topic terms with different coverage and recomputes a manual course choice
+     [2m[90m↓[39m[22m invalidates a claim when its exact content leaf changes even at the same catalog version
+     [2m[90m↓[39m[22m requires the exact narrowing criterion and never inherits evidence in Research or an invalid registry
+     [2m[90m↓[39m[22m keeps unknown modifiers and tool-specific tasks outside full coverage
+[31m     [31m×[31m retains a soft-wrapped unknown modifier in a multi-label task scope[39m[32m 73[2mms[22m[39m
+     [2m[90m↓[39m[22m recognizes the other narrow taught families without equating links with teaching
+     [2m[90m↓[39m[22m does not use task coverage to adopt ability, practice or an unadopted priority
+     [2m[90m↓[39m[22m distinguishes explicit topic conjunction from alternatives and keeps each actor's practice evidence
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-course-task-coverage.test.ts[2m > [22mcontent-backed course task coverage[2m > [22mretains a soft-wrapped unknown modifier in a multi-label task scope
+[31m[1mAssertionError[22m: expected { …(6) } to match object { status: 'mapped', …(2) }
+(3 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[33m@@ -2,12 +2,12 @@[39m
+[2m    "skillIds": [[22m
+[2m      "web-platform",[22m
+[2m    ],[22m
+[2m    "status": "mapped",[22m
+[2m    "taskCoverage": {[22m
+[32m-     "remaining": "unassessed-scope",[39m
+[32m-     "status": "partial",[39m
+[31m+     "remaining": null,[39m
+[31m+     "status": "full",[39m
+[2m      "support": [[22m
+[2m        "semantic-form",[22m
+[2m      ],[22m
+[2m    },[22m
+[2m  }[22m
+
+[36m [2m❯[22m tests/server/material-course-task-coverage.test.ts:[2m105:84[22m[39m
+    [90m103|[39m     const { materials } = setup([fact("Build a labeled semantic HTML f…
+    [90m104|[39m     const { preview } = await materials.create("owner-a", materialCont…
+    [90m105|[39m     expect(preview.mappingDetails?.find(detail => detail.termIndexes.i…
+    [90m   |[39m                                                                                    [31m^[39m
+    [90m106|[39m       status[33m:[39m [32m"mapped"[39m[33m,[39m skillIds[33m:[39m [[32m"web-platform"[39m][33m,[39m
+    [90m107|[39m       taskCoverage: { status: "partial", support: ["semantic-form"], r…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[33m8 skipped[39m[90m (9)[39m
+[2m   Start at [22m 13:51:40
+[2m   Duration [22m 838ms[2m (transform 301ms, setup 190ms, import 434ms, tests 74ms, environment 0ms)[22m
+

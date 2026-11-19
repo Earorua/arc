@@ -1,0 +1,114 @@
+{
+  "schemaVersion": "materials-course-coverage-review-v1",
+  "status": "accepted-bounded-offline-change",
+  "recordedAt": "2026-11-19T05:59:33.7061585Z",
+  "baseCommit": "850b6be03a1da60eb8ee37d530f05a1b51af10ba",
+  "mappingVersion": "2026.11.6",
+  "explanationVersion": "2026.11.4",
+  "source": [
+    {
+      "path": "app/lib/materials/course-task-evidence.ts",
+      "sha256": "ecf8aa41e10ee63ae55b91356c257a131b90e252ee0a4720c41e550f1c62e469",
+      "bytes": 4018
+    },
+    {
+      "path": "app/lib/materials/course-task-coverage.ts",
+      "sha256": "dcf9d29f7b655217900094d67f5d5ca2b605285427f46d0f60cb704039b58d74",
+      "bytes": 8098
+    },
+    {
+      "path": "app/lib/materials/skill-mapper.ts",
+      "sha256": "b42bd191f73a75577e2802a6eeb917824e50750b11c0e2dc6a74b485c0a617f4",
+      "bytes": 13511
+    },
+    {
+      "path": "app/lib/materials/contextual-skill-mapping.ts",
+      "sha256": "66d2d1ad5c4e0fd603c828709b2ad1cb8768c44491d54e7dbe5c5f5397549503",
+      "bytes": 6099
+    },
+    {
+      "path": "app/lib/materials/explanations.ts",
+      "sha256": "9d953c2d15611c32062e2c98a126ad1ef65ebec8a71e24a863983ae6ea816534",
+      "bytes": 4789
+    },
+    {
+      "path": "app/contracts/material-planning.ts",
+      "sha256": "ceb15fece5f5a336e78c1289f6e9ecccc54e36e62f1ed8c4450fb0a9c7a60347",
+      "bytes": 17069
+    },
+    {
+      "path": "app/server/documents/context-builder.ts",
+      "sha256": "aba0c2549dfb277486935db11e22ed716f3746c16db542dc006e6540a27fc09c",
+      "bytes": 32886
+    },
+    {
+      "path": "app/components/materials/material-context-review.tsx",
+      "sha256": "73355b7bf6ddb4b91edea67f3e70cb467e71d8a0807b0a47f2545b168d30b490",
+      "bytes": 18845
+    },
+    {
+      "path": "tests/server/material-course-task-coverage.test.ts",
+      "sha256": "36cdc86265ad88e6f477116b37f8b86afdb9ce54e2233dc3addb1e9e4dd3c982",
+      "bytes": 12042
+    },
+    {
+      "path": "tests/components/material-context-choices.test.tsx",
+      "sha256": "78885fd72abb88141eff88519a36e1c3417f04835e6533fbe95d69a9699ef18b",
+      "bytes": 27087
+    },
+    {
+      "path": "tests/contracts/material-planning.test.ts",
+      "sha256": "2fc43614e4091dea54f7fdb1bbf6ed8217a572f66cdb64ec2a5ec18cbff589e1",
+      "bytes": 13005
+    },
+    {
+      "path": "tests/lib/materials/explanations.test.ts",
+      "sha256": "c71c7d9df070e6f9cf3b5497150672eeabe2c429160e48cfb78c3a22ff6e66a3",
+      "bytes": 2232
+    },
+    {
+      "path": "tests/lib/materials/skill-mapper.test.ts",
+      "sha256": "0f353a2ed2838d7d0f1cf1c7ef3760d65cb1aba208f7d4ef798f7ea2777646dd",
+      "bytes": 13030
+    }
+  ],
+  "evidence": [
+    {
+      "path": "course-coverage-spec-review.md",
+      "sha256": "af406f51111ff9e43d511c17844871d38fb97051fcc1e8e74c409c15079ee4c9"
+    },
+    {
+      "path": "course-coverage-quality-review.md",
+      "sha256": "db2eacddd07c23c87e5ee86cf58f71238e073a6c2780b07ce6ea235ca7a0c87b"
+    },
+    {
+      "path": "coverage-evidence/manifest.json",
+      "sha256": "c3f5275836bc6c4a99593d6d221a6e914561a660aa292685c8148d052fd9f0aa"
+    },
+    {
+      "path": "course-binding-20261119-after-coverage.json",
+      "sha256": "7dfd71b992202430c2a131f380c985e07b1208427b139c130ab383fb47e4dc59"
+    },
+    {
+      "path": "course-binding-20261119-after-coverage.log.txt",
+      "sha256": "1ea201496cf9baa8bb78e3a4434698f0f2329490fa9bb8b2075aa3b8ee92fc8b"
+    }
+  ],
+  "verification": {
+    "baseAffectedSuites": 8,
+    "baseTestsPassed": 193,
+    "repairSuiteTestsPassed": 9,
+    "repairSuiteIncludesBaseTests": 8,
+    "lint": "passed",
+    "applicationTestTypes": "passed-before-syntax-only-wrap-repair",
+    "specificationReview": "passed",
+    "qualityReview": "passed",
+    "afterPatchCourseBinding": "passed",
+    "fullRepositoryRerun": false,
+    "nativeMatrixPassed": false,
+    "modelQualityApproved": false,
+    "newModelCalls": 0,
+    "deploymentPerformed": false,
+    "remoteMigrationPerformed": false
+  }
+}
