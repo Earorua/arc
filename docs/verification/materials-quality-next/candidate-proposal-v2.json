@@ -1,0 +1,118 @@
+{
+  "schemaVersion": "materials-current-quality-proposal-v2",
+  "status": "NOT_AUTHORIZED",
+  "createdAt": "2026-11-19T11:00:09.010Z",
+  "packetId": "kimi-quality-20261119-r1",
+  "candidateCommit": "ff1d60fe63694851f8b80936f8b6ef47e036dd4e",
+  "candidateTree": "4c197876eeb5fc90551ee05b05057d98d1276969",
+  "packetCommit": null,
+  "approvedAt": null,
+  "expiresAt": null,
+  "ownerApproval": null,
+  "credentialSha256": null,
+  "accountReadback": null,
+  "sourceManifest": {
+    "path": "docs/verification/materials-quality-next/current-source-manifest-v2.json",
+    "sha256": "63be8c87fdcc2034843e1c786b7208c78e692002948f179affe7952e03a8e043"
+  },
+  "attachments": [
+    {
+      "path": "docs/verification/materials-quality-next/current-captures.ts",
+      "sha256": "51ca39305da87167f6eb12cc8544e20cbd9b7f2e7d890a7de182c4577a299b78"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/current-adapter.ts",
+      "sha256": "e62afaa5a839f7886f3cfe9f7280c23dbe354ab15080162eb92cc91ec77ac05c"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/current-references.mjs",
+      "sha256": "77d28ca1ab5b6d62dc6ba54b1d3d73a63ba66882719cd7422852777062467cd5"
+    },
+    {
+      "path": "docs/verification/materials-quality-v2/candidate-common.mjs",
+      "sha256": "e823515667fec92f788c7ee1801633c066f0013b43c9b33262fab6403a0213a9"
+    },
+    {
+      "path": "docs/verification/materials-quality-v2/candidate-input.mjs",
+      "sha256": "16ab9f3d0c3c6a13c5de0f9cb2b86125754467127fc489a2febc6a283d43e432"
+    },
+    {
+      "path": "docs/verification/materials-quality-v2/candidate-source.mjs",
+      "sha256": "9c7955b3497b121f034813c9f8676b733585ded21a83dbe0ee6d8cbe31a0c5db"
+    },
+    {
+      "path": "docs/verification/materials-quality-v2/candidate-course.mjs",
+      "sha256": "18c0be3efe195d984422effbe5c97d1e8109d66afe784af02fd17509a0bdbb45"
+    },
+    {
+      "path": "docs/verification/materials-native-acceptance/verify-integrated-course-binding.mjs",
+      "sha256": "4949812876d6f2b26e13aa7c1e199fe5105f6ea78fb9ec5a57d56a117d6fb19b"
+    },
+    {
+      "path": "docs/verification/materials-quality-v2/capture-course-reference.mjs",
+      "sha256": "3735c41c91d7d5dbaaf9ebf5b0037dd8a4b3c09f225fdac6d3d734a000db4423"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/request-draft/manifest.json",
+      "sha256": "06238bde3fbc45aa33efb38da95234cfbb74d34d162bf1941d9ac0c56c964ac7"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/binding-v2-evidence/manifest.json",
+      "sha256": "01f65dc8783285d9335b93c60932c94eab014e1a551825c0b736fc31814b7a48"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/operator-evidence/manifest.json",
+      "sha256": "8845314211725e583c1308882e4e8279eb1c382f151637333c34e0e5622585a7"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/final-acceptance-evidence/manifest.json",
+      "sha256": "d7379422238db79c429d9efa3ba3321425e4e8b02344dd2152bdac587c984b01"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/final-acceptance-evidence/course-relations-final-20261119-acceptance.json",
+      "sha256": "a96fb634951bafec1d8002dc7a107ca3b657b19873c0380d834790734c4972c8"
+    },
+    {
+      "path": "docs/verification/materials-course-relations-20261119/native-review-receipt.json",
+      "sha256": "60f2b15784b9029efac08b7d96ad0e1a71d53a3b1dc7c123e6ca771072731eea"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/packet-preflight-evidence/manifest.json",
+      "sha256": "8284c1584048fa486aa98c1d8dfa97a401b570cb92107e1f4fa1e92875b195c3"
+    }
+  ],
+  "qualification": {
+    "runId": "materials-b2-kimi-20261119-r1",
+    "authorizationId": "b2-kimi-20261119-r1",
+    "issuance": null,
+    "maxRequests": 24,
+    "budgetMicroUsd": 2000000
+  },
+  "supplement": {
+    "runId": "materials-supplement-kimi-20261119-r1",
+    "authorizationId": "supplement-kimi-20261119-r1",
+    "issuance": null,
+    "maxRequests": 6,
+    "budgetMicroUsd": 450000,
+    "ledgerSha256": null
+  },
+  "requestDraftSha256": "06238bde3fbc45aa33efb38da95234cfbb74d34d162bf1941d9ac0c56c964ac7",
+  "totalBudgetMicroUsd": 2450000,
+  "perRequestCapMicroUsd": 75000,
+  "maxMetadataReadsPerDocument": 3,
+  "proposedKeyLifetimeCapMicroUsd": 3000000,
+  "proposedApprovalWindowHours": 2,
+  "inferenceAllowed": false,
+  "gate1BAccepted": false,
+  "productionReleased": false,
+  "remaining": [
+    "precise-dedicated-key-readback",
+    "fresh-bound-credits-and-privacy-evidence",
+    "new-owner-fee-cache-and-cap-approval",
+    "external-private-grant-and-packet-issuance"
+  ],
+  "priorProposal": {
+    "path": "docs/verification/materials-quality-next/candidate-proposal.json",
+    "sha256": "0b76a3e077eb211605483e9b5457da931a0d5df11dffabe09642650e6e144aa4"
+  }
+}
