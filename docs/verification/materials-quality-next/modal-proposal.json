@@ -1,0 +1,163 @@
+{
+  "schemaVersion": "materials-current-quality-modal-proposal-v1",
+  "status": "NOT_AUTHORIZED",
+  "createdAt": "2026-11-22T07:43:27.315Z",
+  "packetId": "kimi-modal-quality-20261122-r1",
+  "candidateCommit": "0e24a3484172967974d45bc775591e500fb706a7",
+  "candidateTree": "e825e1577c4f0f0c3f5136432e7cf48231aec364",
+  "packetCommit": null,
+  "approvedAt": null,
+  "expiresAt": null,
+  "ownerApproval": null,
+  "credentialSha256": null,
+  "accountReadback": null,
+  "sourceManifest": {
+    "path": "docs/verification/materials-quality-next/modal-source-manifest.json",
+    "sha256": "b337d3703813cbe5f60c1984ebb544936467886eec90199382cd1117423b1475"
+  },
+  "attachments": [
+    {
+      "path": "docs/verification/materials-quality-next/current-captures.ts",
+      "sha256": "51ca39305da87167f6eb12cc8544e20cbd9b7f2e7d890a7de182c4577a299b78"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/current-adapter.ts",
+      "sha256": "e62afaa5a839f7886f3cfe9f7280c23dbe354ab15080162eb92cc91ec77ac05c"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/current-references.mjs",
+      "sha256": "f4e33056a264aaa92e68b76d7c4627b562ea6eef782598bd7754fbf64625c6ee"
+    },
+    {
+      "path": "docs/verification/materials-quality-v2/candidate-common.mjs",
+      "sha256": "e823515667fec92f788c7ee1801633c066f0013b43c9b33262fab6403a0213a9"
+    },
+    {
+      "path": "docs/verification/materials-quality-v2/candidate-input.mjs",
+      "sha256": "16ab9f3d0c3c6a13c5de0f9cb2b86125754467127fc489a2febc6a283d43e432"
+    },
+    {
+      "path": "docs/verification/materials-quality-v2/candidate-source.mjs",
+      "sha256": "9c7955b3497b121f034813c9f8676b733585ded21a83dbe0ee6d8cbe31a0c5db"
+    },
+    {
+      "path": "docs/verification/materials-quality-v2/candidate-course.mjs",
+      "sha256": "18c0be3efe195d984422effbe5c97d1e8109d66afe784af02fd17509a0bdbb45"
+    },
+    {
+      "path": "docs/verification/materials-native-acceptance/verify-integrated-course-binding.mjs",
+      "sha256": "4949812876d6f2b26e13aa7c1e199fe5105f6ea78fb9ec5a57d56a117d6fb19b"
+    },
+    {
+      "path": "docs/verification/materials-quality-v2/capture-course-reference.mjs",
+      "sha256": "3735c41c91d7d5dbaaf9ebf5b0037dd8a4b3c09f225fdac6d3d734a000db4423"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/request-draft/manifest.json",
+      "sha256": "06238bde3fbc45aa33efb38da95234cfbb74d34d162bf1941d9ac0c56c964ac7"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/binding-v2-evidence/manifest.json",
+      "sha256": "01f65dc8783285d9335b93c60932c94eab014e1a551825c0b736fc31814b7a48"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/operator-evidence/manifest.json",
+      "sha256": "8845314211725e583c1308882e4e8279eb1c382f151637333c34e0e5622585a7"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/final-acceptance-evidence/manifest.json",
+      "sha256": "d7379422238db79c429d9efa3ba3321425e4e8b02344dd2152bdac587c984b01"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/final-acceptance-evidence/course-relations-final-20261119-acceptance.json",
+      "sha256": "a96fb634951bafec1d8002dc7a107ca3b657b19873c0380d834790734c4972c8"
+    },
+    {
+      "path": "docs/verification/materials-course-relations-20261119/native-review-receipt.json",
+      "sha256": "60f2b15784b9029efac08b7d96ad0e1a71d53a3b1dc7c123e6ca771072731eea"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/packet-preflight-evidence/manifest.json",
+      "sha256": "8284c1584048fa486aa98c1d8dfa97a401b570cb92107e1f4fa1e92875b195c3"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/modal-request-bindings.json",
+      "sha256": "c16349e254118befba96cb9b729acec998aceaa3d4762ac83a4ebd926a5bf981"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/route-review-20261122-modal.md",
+      "sha256": "9f1cab0ff43fa0d1ed22d76ea4eb11b39ac727fa75489ec7b8adc90468f7443d"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/modal-authorization.md",
+      "sha256": "535dd74c5541557d3a91e467fa018390c1c6900e7735410f814cb3688e43e989"
+    }
+  ],
+  "requestDraftSha256": "c16349e254118befba96cb9b729acec998aceaa3d4762ac83a4ebd926a5bf981",
+  "qualification": {
+    "runId": "materials-b2-modal-20261122-r1",
+    "authorizationId": "b2-modal-20261122-r1",
+    "issuance": null,
+    "maxRequests": 24,
+    "budgetMicroUsd": 2000000,
+    "configurationSha256": "25e68e2077aec3aa781246929bb8e6d768b66911e3793779923fccbce064ca32",
+    "corpusSha256": "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750"
+  },
+  "supplement": {
+    "runId": "materials-supplement-modal-20261122-r1",
+    "authorizationId": "supplement-modal-20261122-r1",
+    "issuance": null,
+    "maxRequests": 6,
+    "budgetMicroUsd": 450000,
+    "ledgerSha256": null,
+    "configurationSha256": "3d4d9bd31cc0f137227ab333899a5cf9a6e5f86924bf9dfcd515ea411c8170ff",
+    "corpusSha256": "9775b595f4b44563beb9e3b7f9249b171e731658b454e0f26279d2b46db213d7"
+  },
+  "firstReceiptDocumentId": "resume-01",
+  "model": "moonshotai/kimi-k3.1-pro",
+  "receiptRoute": {
+    "providerName": "Modal",
+    "endpointId": "42406f15-f64c-4bae-95b7-d03877cfff58",
+    "generationModel": "moonshotai/kimi-k3.1-pro-20261023"
+  },
+  "providerTag": "modal/mxfp4",
+  "totalBudgetMicroUsd": 2450000,
+  "perRequestCapMicroUsd": 75000,
+  "maxMetadataReadsPerDocument": 3,
+  "proposedApprovalWindowHours": 2,
+  "existingKeyLifetimeCapMicroUsd": 3000000,
+  "proposedKeyChangeMicroUsd": 0,
+  "proposedTopUpMicroUsd": 0,
+  "ownerTermsRequired": [
+    "Modal as upstream processor",
+    "30 frozen synthetic documents only",
+    "unpublished upstream KV cache duration",
+    "CSAM screening, reporting and legally required preservation"
+  ],
+  "inferenceAllowed": false,
+  "gate1BAccepted": false,
+  "productionReleased": false,
+  "priorProposal": {
+    "path": "docs/verification/materials-quality-next/candidate-proposal-v2.json",
+    "sha256": "db623e7d9c96435f74349c6cc6f8dc357abbb8b5a0f21802d5831f87667789a5"
+  },
+  "offline": {
+    "currentReferenceFiles": 253,
+    "controlTestsPassed": 202,
+    "qualityReferenceTestsPassed": 8,
+    "changedProductPaths": [
+      ".gitattributes",
+      "app/server/documents/provider-receipt.ts",
+      "scripts/collect-materials-supplements.ts",
+      "scripts/invoke-materials-current-quality.ps1",
+      "scripts/materials-current-quality-operator.ts",
+      "scripts/materials-qualification-runner.ts",
+      "tests/server/materials-current-quality-operator.test.ts",
+      "worker/document-executor/generation-receipt.ts",
+      "worker/document-executor/kimi-modal-route.ts",
+      "worker/document-executor/provider-http.ts"
+    ],
+    "publicCatalogueCheckedAt": "2026-11-22T07:34:07.255Z",
+    "firstRequestIsPartOf24": true
+  }
+}
