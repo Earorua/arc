@@ -1,18 +1,19 @@
 import { z } from "zod";
-import { documentExtractionSchema, GROUNDED_MATERIAL_REVIEW_PROJECTION, SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION, isSourceLinkedMaterialReviewProjection, MAX_DOCUMENT_ITEMS_JSON_BYTES, fitsJsonBytes, utf8Bytes, resolveCandidateSourceRef, type MaterialReferenceContext, type ConfirmedMaterialItem, materialSelfAssessmentHintsSchema } from "../../contracts/documents";
+import { documentExtractionSchema, GROUNDED_MATERIAL_REVIEW_PROJECTION, SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION, VERBATIM_MATERIAL_REVIEW_PROJECTION, isMentionReviewProjection, isSourceLinkedMaterialReviewProjection, sourceLinkedReviewProjections, MAX_DOCUMENT_ITEMS_JSON_BYTES, fitsJsonBytes, utf8Bytes, resolveCandidateSourceRef, type MaterialReferenceContext, type ConfirmedMaterialItem, materialSelfAssessmentHintsSchema } from "../../contracts/documents";
 import { supportsReviewedSkillLabel } from "../../lib/materials/skill-labels";
 import { supportsMaterialSelfLevelHint, supportsSelfLevelHintInScope } from "../../lib/materials/self-assessment-evidence";
 import { maskQuotes } from "../../lib/materials/quotation-evidence";
 import { sourceMentionStatementBoundaries, isDetachedQuotedStatement } from "../../../worker/document-executor/source-review-evidence";
 import { DocumentServiceError } from "./d1-repository";
 import { validateDocumentReviewPoints } from "./review-points";
-import { KIMI_GROUNDED_TERMS_POLICY_ID, KIMI_SOURCE_MENTIONS_POLICY_ID } from "./policy";
+import { KIMI_GROUNDED_TERMS_POLICY_ID, KIMI_SOURCE_MENTIONS_POLICY_ID, KIMI_VERBATIM_TERMS_POLICY_ID } from "./policy";
 
 // The server writes this envelope only after validating the provider's canonical candidate.
 // Unwrapped historical captures originally projected facts without a skill-word list.
-const storedProjection = z.enum(["literal-skill-labels-v1", GROUNDED_MATERIAL_REVIEW_PROJECTION, SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION]);
+const storedProjection = z.enum(["literal-skill-labels-v1", ...sourceLinkedReviewProjections]);
 const storedExtractionSchema = z.object({ reviewProjection: storedProjection, candidate: z.unknown() }).strict();
 function extractionProjection(providerPolicyId?: string) {
+    if (providerPolicyId === KIMI_VERBATIM_TERMS_POLICY_ID) return VERBATIM_MATERIAL_REVIEW_PROJECTION;
     if (providerPolicyId === KIMI_SOURCE_MENTIONS_POLICY_ID) return SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION;
     return providerPolicyId === KIMI_GROUNDED_TERMS_POLICY_ID ? GROUNDED_MATERIAL_REVIEW_PROJECTION : "literal-skill-labels-v1";
 }
@@ -34,7 +35,8 @@ function projectExtraction(candidate: unknown, ownerId: string, reference: Mater
     if (!parsed.success)
         throw new DocumentServiceError("invalid-content");
     const reviewProjection = isSourceLinkedMaterialReviewProjection(projection) ? projection : undefined;
-    const sourceMentions = projection === SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION;
+    const sourceMentions = isMentionReviewProjection(projection);
+    const assessmentMode = projection === VERBATIM_MATERIAL_REVIEW_PROJECTION ? "verbatim" : sourceMentions;
     const bounds = sourceMentions ? sourceMentionStatementBoundaries(reference.text) : undefined;
     const statementStarts = new Map(bounds && [...bounds].map(([start, end]) => [end, start]));
     const masked = sourceMentions ? maskQuotes(reference.text) : "";
@@ -66,8 +68,8 @@ function projectExtraction(candidate: unknown, ownerId: string, reference: Mater
             // document's quotation scope. Topic presence never supplies a level.
             const assessmentStart = statementStarts.get(end) ?? start;
             const text = reference.text.slice(assessmentStart, end), labels = projected.skillLabels;
-            if (!supportsMaterialSelfLevelHint({ kind: item.kind, text, labels, level: item.selfLevelHint, sourceMentions })
-                || !supportsSelfLevelHintInScope(text, masked.slice(assessmentStart, end), item.selfLevelHint, labels, sourceMentions)) return [];
+            if (!supportsMaterialSelfLevelHint({ kind: item.kind, text, labels, level: item.selfLevelHint, sourceMentions: assessmentMode })
+                || !supportsSelfLevelHintInScope(text, masked.slice(assessmentStart, end), item.selfLevelHint, labels, assessmentMode)) return [];
         }
         return item.skillLabels.flatMap((label, index) => {
             if (projection !== "legacy" && !items[itemIndex]!.skillLabels?.includes(label)) return [];

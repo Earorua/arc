@@ -3,6 +3,7 @@ import { maskQuotes } from "./quotation-evidence";
 import { assertedSkillEvidence, assessmentScopes, conceptualAssessment, guidedSkillScope, personalAssessmentHeading } from "./personal-assertion-scopes";
 
 type Hint = DocumentCandidate["selfLevelHint"];
+export type SourceMentionMode = boolean | "verbatim";
 
 export const selfConflict = /\b(?:self[- ](?:assessments?|ratings?)|(?:my|personal) (?:skill |proficiency )?(?:ratings?|assessments?))\s+(?:(?:for|of|on)\s+[^,;]{1,60}\s+)?(?:conflict|contradict|disagree|(?:are|were) inconsistent)\b|(?:自评|自我(?:评价|评估)|能力评估)(?:前后|相互|彼此|有|存在|表述)*(?:矛盾|冲突|不一致)/iu;
 export const deniedConflict = /\b(?:(?:do(?:es)? not|never|no longer) (?:conflict|contradict|disagree)|no (?:remaining )?conflict|conflict (?:is|was|has been) resolved)\b|(?:没有|并无|不存在|已解决|并不)(?:矛盾|冲突)/iu;
@@ -34,14 +35,13 @@ function personalUncertainty(part: string) {
     && (selfUncertain.test(part) || (/(?:\bmy\b|我|^自评)/iu.test(part) && selfConflict.test(part)));
 }
 /** Retain document-wide quotation masking when reviewing a statement slice. */
-export function supportsSelfLevelHintInScope(quote: string, masked: string, proposed: NonNullable<Hint>, labels?: readonly string[], sourceMentions = false) {
+export function supportsSelfLevelHintInScope(quote: string, masked: string, proposed: NonNullable<Hint>, labels?: readonly string[], sourceMentions: SourceMentionMode = false) {
   const scopes = assessmentScopes(quote, masked);
   if (proposed !== "uncertain" && scopes.some(scope => personalUncertainty(scope.text))) return false;
   const supported = scopes.map(scope => {
     const raw = scope.raw.replace(/\s+/gu, " ").trim(), text = maskQuotes(raw);
     if (proposed === "guided") {
-      const evidence = guidedSkillScope(raw, text, sourceMentions);
-      return evidence;
+      return guidedSkillScope(raw, text, Boolean(sourceMentions));
     }
     return (proposed === "uncertain" ? personalUncertainty(text) : conceptualAssessment(text)) ? raw : null;
   });
@@ -50,9 +50,10 @@ export function supportsSelfLevelHintInScope(quote: string, masked: string, prop
   // each against the supported clause(s) when part of the quote lies outside them.
   // A repeated term in a second, unsupported task must not inherit the first
   // task's level. The wire contract still has only one optional hint per fact.
-  return !labels?.length || labels.every(label => supported.some(scope => scope !== null && assertedSkillEvidence(scope, label))
-    && scopes.every((scope, index) => !assertedSkillEvidence(scope.raw, label)
-      || supported[index] !== null && assertedSkillEvidence(supported[index]!, label)));
+  const verbatim = sourceMentions === "verbatim";
+  return !labels?.length || labels.every(label => supported.some(scope => scope !== null && assertedSkillEvidence(scope, label, verbatim))
+    && scopes.every((scope, index) => !assertedSkillEvidence(scope.raw, label, verbatim)
+      || supported[index] !== null && assertedSkillEvidence(supported[index]!, label, verbatim)));
 }
 
 /** Check a proposed per-fact level using the fact's current personal evidence. */
@@ -61,7 +62,7 @@ export function supportsMaterialSelfLevelHint(input: {
   text: string;
   labels?: readonly string[];
   level: DocumentCandidate["selfLevelHint"];
-  sourceMentions?: boolean;
+  sourceMentions?: SourceMentionMode;
 }): boolean {
   if (!input.level || (input.kind !== "experience" && input.kind !== "skill-claim")) return false;
   return supportsSelfLevelHintInScope(input.text, maskQuotes(input.text), input.level, input.labels, input.sourceMentions);

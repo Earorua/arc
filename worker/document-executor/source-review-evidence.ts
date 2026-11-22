@@ -4,7 +4,7 @@ import {
 } from "../../app/contracts/documents";
 import {
   deniedConflict, hasPersonalCapabilityQuestion, hasPersonalPracticeNeed, selfConflict,
-  supportsMaterialSelfLevelHint, supportsSelfLevelHintInScope,
+  supportsMaterialSelfLevelHint, supportsSelfLevelHintInScope, type SourceMentionMode,
 } from "../../app/lib/materials/self-assessment-evidence";
 import { deniedAssertion, hypothetical, maskQuotes, quoted } from "../../app/lib/materials/quotation-evidence";
 import { completeNumberedStatementBoundaries, statementBoundaries } from "./source-statements";
@@ -83,7 +83,7 @@ const missingInformation = /\b(?:availability|available time|study time|work(?:i
 const missingPersonalResponsibility = /^(?:本人|我)(?:是否(?:亲自|独立)?(?:编写|完成|实现|配置|设计|测试|部署)[^，,；;。]{1,60}|负责的(?:范围|部分|工作|职责))\s*(?:仍|尚)?(?:待确认|未确认|未明确)[。.]?$|^Whether I (?:personally )?(?:wrote|completed|implemented|configured|designed|tested|deployed)\b[^.;]{1,100}\s+(?:is|remains)\s+(?:unconfirmed|unknown|not (?:confirmed|specified))[.!]?$/iu;
 
 /** A proposed level is optional, and an individual skill rating requires personal evidence. */
-export function groundSourceSelfLevelHint(item: EvidenceItem, sourceMentions = false): Hint {
+export function groundSourceSelfLevelHint(item: EvidenceItem, sourceMentions: SourceMentionMode = false): Hint {
   return supportsMaterialSelfLevelHint({ kind: item.kind, text: item.source.quote, labels: item.skillLabels, level: item.selfLevelHint, sourceMentions }) ? item.selfLevelHint : null;
 }
 
@@ -166,7 +166,7 @@ function markPairedConflicts(anchors: Anchor[], text: string) {
   }
 }
 
-function supportedCodes(quote: string, masked: string, anchors: Anchor[], sourceMentions: boolean) {
+function supportedCodes(quote: string, masked: string, anchors: Anchor[], sourceMentions: SourceMentionMode) {
   const codes = new Set<Code>();
   if (hasLiteralUrl(quote)) codes.add("untrusted-resource-url");
   const addressed = commandToAssistant.exec(masked);
@@ -201,7 +201,7 @@ function supportedCodes(quote: string, masked: string, anchors: Anchor[], source
   const noItems = !anchors.some(anchor => anchor.item);
   const asked = anchors.some(anchor => anchor.code === "confirm-self-assessment");
   const labels = anchors.flatMap(anchor => anchor.item?.skillLabels ?? []);
-  if (hint || learningLimit || ((personal || noItems) && hasPersonalCapabilityQuestion(quote, masked, personal, sourceMentions))
+  if (hint || learningLimit || ((personal || noItems) && hasPersonalCapabilityQuestion(quote, masked, personal, Boolean(sourceMentions)))
     || (asked && personal && (["conceptual", "guided", "uncertain"] as const).some(level => supportsSelfLevelHintInScope(quote, masked, level, labels, sourceMentions)))) {
     codes.add("confirm-self-assessment");
   }
@@ -212,7 +212,7 @@ function supportedCodes(quote: string, masked: string, anchors: Anchor[], source
 export function groundSourceReviewPoints(
   points: readonly DocumentCandidateReviewPoint[], items: readonly EvidenceItem[], sources: Sources,
   bounds?: ReadonlyMap<number, number>,
-  sourceMentions = false,
+  sourceMentions: SourceMentionMode = false,
 ): DocumentCandidateReviewPoint[] | null {
   if (points.length > 100 || items.length > 100) return null;
   const segments = [...sources.segments].sort((a, b) => a.start - b.start);

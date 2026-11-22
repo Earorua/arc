@@ -8,7 +8,7 @@
 | --- | --- | --- |
 | 网站功能、界面、修复和一般开发 | GitHub [`master`](https://github.com/Earorua/arc/tree/master) | 已合并英文界面、墨青配色、轻量加载、首页改进、Logo，以及主线已有的修复和双语说明 |
 | 查看当前已发布网站的原始源码 | [英文发布源码固定提交](https://github.com/Earorua/arc/tree/43179bcd3d5d62441d3bf1f439541fcb8ab46a5f) | 应用提交 `19a81a500b5f87085f3aaddb27fc0e9b050fc48c`；[发布记录](./docs/verification/2026-11-08-english-only-interface.md) |
-| 继续资料导入、JD / 简历分析和资料驱动规划 | [`codex/materials-replan-recovery-20261106`](https://github.com/Earorua/arc/tree/codex/materials-replan-recovery-20261106) | 11 月 22 日 B2 已取得 30 份真实回执，提取和课程质量未通过，当前从离线回放继续 |
+| 继续资料导入、JD / 简历分析和资料驱动规划 | [`codex/materials-replan-recovery-20261106`](https://github.com/Earorua/arc/tree/codex/materials-replan-recovery-20261106) | 11 月 22 日已在本地暂停。B2 已取得 30 份真实回执，质量未通过。原词保留与课程归属修复已保存，恢复时先修确认回读和双语词组覆盖 |
 | 修改或导出品牌素材 | 本应用源码中的 [`docs/brand/`](./docs/brand/) 和 [`public/brand/`](./public/brand/) | 原始设计与当前主题导出分别标明；不要回拷旧网站组件 |
 
 资料功能以[最新恢复记录](./docs/verification/2026-11-06-materials-grounding-pause.md)为入口。11 月 19 日已完成课程覆盖源码 `47b0e0a`、原生验收证据 `ef1b26b`，以及主线 `60e7cb6` 的本地整合。[本批验收](./docs/verification/2026-11-19-materials-course-native-integration.md)记录 386 文件／10,031 项 Vitest、291 项 Node、5 项页面和类型／Lint／构建通过。11 月 22 日真实模型采集和对账已完成，后续工作依据[实际质量报告](./docs/verification/materials-quality-next/modal-b2-result.md)。GitHub 同步状态以实际远端为准。

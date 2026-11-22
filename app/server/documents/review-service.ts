@@ -1,4 +1,4 @@
-import { DOCUMENT_SCHEMA_VERSION, GROUNDED_MATERIAL_REVIEW_PROJECTION, SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION, isSourceLinkedMaterialReviewProjection, documentReviewDraftSchema, validateMaterialSourceRef, type ConfirmedMaterialItem, type DocumentReviewDraft, type MaterialReferenceContext, type MaterialReviewPoint } from "../../contracts/documents";
+import { DOCUMENT_SCHEMA_VERSION, sourceLinkedReviewProjections, isSourceLinkedMaterialReviewProjection, documentReviewDraftSchema, validateMaterialSourceRef, type ConfirmedMaterialItem, type DocumentReviewDraft, type MaterialReferenceContext, type MaterialReviewPoint } from "../../contracts/documents";
 import { documentEndpointContracts, type DocumentEndpointRequest as Request, type DocumentEndpointResponse as Response, type DocumentMutationIdentity } from "../../contracts/documents-api";
 import { canonicalJson } from "../../lib/planning/fingerprint";
 import { labelForAddedSourceTerm, supportsReviewedSkillLabel, retainedMaterialSelfAssessmentHints } from "../../lib/materials/skill-labels";
@@ -31,7 +31,7 @@ function parseDraft(input: unknown): DocumentReviewDraft {
 // Only the server's extraction envelope chooses an edit rule. The draft and confirmation keep the user's word list.
 const extractionJoin = `LEFT JOIN document_extractions e ON e.owner_id=r.owner_id AND e.id=r.extraction_id AND e.text_version_id=r.text_version_id`;
 const reviewProjectionColumns = `json_extract(e.candidates_json, '$.reviewProjection') AS review_projection,
-    CASE WHEN json_extract(e.candidates_json, '$.reviewProjection') IN ('${GROUNDED_MATERIAL_REVIEW_PROJECTION}','${SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION}') THEN
+    CASE WHEN json_extract(e.candidates_json, '$.reviewProjection') IN (${sourceLinkedReviewProjections.map(name => `'${name}'`).join(",")}) THEN
       (SELECT json_group_object(json_extract(i.value,'$.id'),json_extract(i.value,'$.kind')) FROM json_each(e.candidates_json,'$.candidate.items') i)
     END AS original_kinds`;
 

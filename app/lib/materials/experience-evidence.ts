@@ -160,16 +160,18 @@ function experienceAssertionScopes(text: string) {
 export function supportsMaterialExperience(input: {
   kind: DocumentCandidate["kind"];
   text: string;
-  target: { kind: "terms"; terms: readonly string[] } | { kind: "confirmed-whole-fact" };
+  target: { kind: "terms"; terms: readonly string[]; verbatim?: boolean; matchesScope?: (scope: string) => boolean } | { kind: "confirmed-whole-fact" };
 }): boolean {
   if (input.kind !== "experience" && input.kind !== "skill-claim") return false;
   const scopes = experienceAssertionScopes(input.text);
   const supported = scopes.map(scope => personalExperienceScope(scope.raw));
-  if (input.target.kind === "terms") {
+  const target = input.target;
+  if (target.kind === "terms") {
     // Different occurrences can express different limits. Some real personal
     // practice supports experience without asserting every use or a given level.
-    return input.target.terms.length > 0 && input.target.terms.every(term =>
-      supported.some(scope => scope !== null && assertedSkillEvidence(scope.evidence, term)));
+    return target.terms.length > 0 && target.terms.every(term =>
+      supported.some(scope => scope !== null && assertedSkillEvidence(scope.evidence, term, target.verbatim)
+        && (!target.matchesScope || target.matchesScope(maskQuotes(scope.evidence)))));
   }
   return scopes.length > 0 && !uncoveredText(input.text, scopes).trim()
     && supported.some(scope => scope?.whole)

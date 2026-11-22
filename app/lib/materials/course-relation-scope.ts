@@ -3,13 +3,23 @@ import { normalizeMaterialSkillLabel } from "./skill-labels";
 
 const sentenceBreak = /[。！？!?;；]|\.(?:\s+|$)/u;
 const clauseBreak = /[,，]|(?=\b(?:but|whereas|while|although|however|rather than)\b)|\band\s+(?=(?:i|we|they|my|another|the)\b)|(?=但是|不过|然而|而|但|同时)/iu;
-const deniedContext = /\b(?:not(?!\s+only\b)|no|never|without|rather than)\b|不(?!仅|只)|没有|并非|而非|未(?:曾|使用|涉及)/u;
+export const deniedCourseContext = /\b(?:not(?!\s+only\b)|no|never|neither|without|cannot|[a-z]{1,30}n['’]t|rather than|except|excluding)\b|不(?!仅|只)|没有|并非|而非|未(?:曾|能|做|用|使用|通过|涉及|包含|支持)|无[需须]/u;
+const prohibitedAction = /\b(?:forbid(?:s|den|ding)?|forbade|prohibit(?:s|ed|ing)?|ban(?:s|ned|ning)?|disallow(?:s|ed|ing)?)\s+(?:(?:to|from)\s+)?(?:test(?:ing)?|inspect(?:ing)?)\b/u;
 const sqlContext = /\b(?:sql|sqlite|postgresql|mysql|join|cte)\b|关系数据库/u;
 const softwareContext = /\b(?:software|code|api|http|typescript|javascript|python|dbt|vitest|jest|playwright)\b|软件|代码|接口|数据管道/u;
 const reactContext = /\breact\b/u;
 const explicitTesting = /^(?:vitest|jest|playwright|unit test(?:s|ing)?|automated tests?|automated testing|software tests?|software testing|单元测试|自动化测试|软件测试)$/u;
 const testingTask = /(?:\btests?\b|\btesting\b|测试)/u;
 const attachedWcagLabels = /\bwcag(?:\s*(?:的|关于)\s*表单标签|\s+(?:(?:guidance|guidelines) for )?form[ -]labels?)/u;
+const typeScriptBehavior = String.raw`(?:(?:async(?:hronous)?|synchronous)\s+)?typescript\s+behaviou?rs?`;
+const testingObject = new RegExp(`^(?:测试|${typeScriptBehavior})$`, "u");
+const testedBehavior = new RegExp(String.raw`\btest(?:s|ed|ing)?\s+(?:the\s+)?(${typeScriptBehavior})(?=$|\s*[([]|\s+(?:for|with|using|in|under|on|before|after|when|if|during|across|and|or)\b)`, "gu");
+const apiLogInspection = /^(?:(?:inspect|interpret)(?:s|ed|ing)? (?:the )?)?api (?:error )?logs?$/u;
+
+/** These retained objects acquire a testing relation only from their source actions. */
+export function isContextualTestingObject(term: string) {
+  return testingObject.test(normalizeMaterialSkillLabel(term));
+}
 
 /** Scope here concerns what is discussed, never who practiced it or adopted it. */
 export function courseRelationSentences(text: string, term: string): string[] {
@@ -19,6 +29,20 @@ export function courseRelationSentences(text: string, term: string): string[] {
 function ownContexts(text: string, term: string) {
   return courseRelationSentences(text, term).flatMap(sentence => sentence.split(clauseBreak))
     .filter(part => findMaterialSkillMention(part, term) !== null);
+}
+
+// A coordinated rule-writing step names its source operation again. Require
+// that operation immediately after the tool in the preceding affirmative clause.
+function hasLinkedRuleTest(sentence: string) {
+  const clauses = normalizeMaterialSkillLabel(sentence).split(clauseBreak).map(part => part.trim());
+  return clauses.some((clause, index) => {
+    const rule = /^并(?:且)?(?:把|将)(清洗|校验|解析|转换)规则(?:写入|写进|编入)测试$/u.exec(clause);
+    const previous = clauses[index - 1];
+    if (!rule || !previous || deniedCourseContext.test(previous)) return false;
+    const tool = /(?:使用|用|通过)\s*([a-z][a-z0-9+#-]*|代码)\s*(?:来)?/u.exec(previous);
+    return !!tool && softwareContext.test(tool[1]!) && previous.slice(tool.index + tool[0].length).startsWith(rule[1]!)
+      && findMaterialSkillEvidence(previous, tool[1]!) !== null;
+  });
 }
 
 /** Additional bounded concepts, separate from literal course names and aliases. */
@@ -34,8 +58,8 @@ export function courseRelationTopics(term: string, text: string): string[] {
   }
   if (explicitTesting.test(token)) topics.add("testing");
   for (const rawContext of contexts) {
-    const context = normalizeMaterialSkillLabel(rawContext);
-    if (deniedContext.test(context)) continue;
+    const context = normalizeMaterialSkillLabel(rawContext).trim();
+    if (deniedCourseContext.test(context) || prohibitedAction.test(context)) continue;
     const has = (pattern: RegExp) => [...rawContext.matchAll(new RegExp(pattern.source, "giu"))]
       .some(match => findMaterialSkillEvidence(rawContext, match[0]) !== null);
     if (has(sqlContext) && /^(?:cte|join|queries|query|(?:model )?warehouse tables|reconcile\b.*|汇总查询|联表|查询|窗口计算|空值(?:边界|处理)|替换了?日期参数|重复行问题|完成报表)$/u.test(token)) topics.add("sql");
@@ -52,12 +76,14 @@ export function courseRelationTopics(term: string, text: string): string[] {
     if (/^(?:ui tokens?|design tokens?)$/u.test(token)) topics.add("design-systems");
     if (testingTask.test(token) && (has(softwareContext) || has(reactContext)
       || /^(?:清洗规则写入测试|脚本测试)$/u.test(token))) topics.add("testing");
-    if (/^(?:api (?:error )?logs?|interpret api logs|log parser|traced? (?:one |a )?(?:failed )?request|document incidents)$/u.test(token)
+    if ([...context.matchAll(testedBehavior)].some(match => match[1] === token)) topics.add("testing");
+    if ((apiLogInspection.test(token) || /^(?:log parser|traced? (?:one |a )?(?:failed )?request|document incidents)$/u.test(token))
       && (has(/\b(?:api|opentelemetry|python|software)\b/u) || /^api /u.test(token))) topics.add("observability");
     if (/^(?:trace|log)$/u.test(token) && /difference between (?:a )?trace and (?:a )?log/u.test(context)) topics.add("observability");
     if (/^(?:(?:(?:review|reviewing|write|create|author) (?:a |the )?)?(?:release|migration) checklist|end-to-end deployment exercise|记录回滚步骤|rollback documentation)$/u.test(token)) topics.add("cloud-delivery");
     if (/^(?:(?:define|design) )?product metrics$/u.test(token)) topics.add("product-thinking");
   }
+  if (token === "测试" && courseRelationSentences(text, term).some(hasLinkedRuleTest)) topics.add("testing");
   // A testing clause explicitly attached to a React artifact and assisted by a
   // partner refers to that artifact. This is not another actor's unrelated work.
   if (/^交互测试$/u.test(token) && courseRelationSentences(text, term).some(sentence =>

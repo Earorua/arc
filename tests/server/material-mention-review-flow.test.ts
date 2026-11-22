@@ -2,10 +2,12 @@
 import { expect, it } from "vitest";
 import { documentExtractionSchema, SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION, type DocumentCandidate, type DocumentReviewDraft } from "../../app/contracts/documents";
 import type { DocumentEndpointResponse } from "../../app/contracts/documents-api";
-import { KIMI_SOURCE_MENTIONS_POLICY_ID } from "../../app/server/documents/policy";
+import { KIMI_GROUNDED_TERMS_POLICY_ID, KIMI_SOURCE_MENTIONS_POLICY_ID, KIMI_VERBATIM_TERMS_POLICY_ID } from "../../app/server/documents/policy";
 import { readSourceSpanExtraction, sourceSpanPolicy } from "../../worker/document-executor/source-span-extraction";
 import { createMaterialMentionReviewFixture } from "../helpers/material-mention-review-fixture";
 import { materialContextRequest } from "../helpers/material-planning";
+import { validateDocumentExtraction } from "../../app/server/documents/extraction-validator";
+import { labelForAddedSourceTerm, supportsReviewedSkillLabel } from "../../app/lib/materials/skill-labels";
 
 type Fixture = ReturnType<typeof createMaterialMentionReviewFixture>;
 async function confirmAndSelect(f: Fixture, doc: DocumentEndpointResponse<"createDocument">, draft: DocumentReviewDraft, slot: "resume" | "supplement" | "jd" = "resume") {
@@ -28,6 +30,116 @@ function decodeMentionFact(text: string, quote = text, kind: DocumentCandidate["
   expect(decoded.extractionRead).toBe("parsed");
   return documentExtractionSchema.parse(decoded.candidate);
 }
+
+const verbatimPolicy = KIMI_VERBATIM_TERMS_POLICY_ID;
+
+it.each([
+  ["I wrote unit tests and ran a unit test.", ["unit tests", "unit test"], null, null],
+  ["I used a spreadsheet under supervision, but my colleague used spreadsheets.", ["spreadsheet"], "guided", "guided"],
+  ["I used spreadsheets under supervision, but my colleague used a spreadsheet.", ["spreadsheet"], "guided", null],
+] as const)("keeps separate nominated spellings and attributes hints to their own source: %s", (text, terms, proposed, expected) => {
+  const source = { segmentId: "s", quote: text };
+  const input = { text, segments: [{ id: "s", start: 0, end: text.length }] };
+  const raw = { choices: [{ finish_reason: "stop", message: { content: JSON.stringify({ format: "source-spans-v3", reviewPoints: [],
+    items: [{ kind: "experience", source, skillTerms: terms, requirementLevel: null, selfLevelHint: proposed }] }) } }] };
+  const output = readSourceSpanExtraction(raw, input, undefined, sourceSpanPolicy(verbatimPolicy)!);
+  expect(output.candidate).toMatchObject({ items: [{ skillLabels: terms, selfLevelHint: expected }] });
+  const reference = { ...input, ownerId: "owner", lifecycle: "active" as const, documentId: "d", documentVersionId: "v", textVersionId: "t" };
+  const review = validateDocumentExtraction(output.candidate, "owner", reference, verbatimPolicy);
+  expect(review.items[0]?.skillLabels).toEqual(terms);
+  expect(review.selfAssessmentHints.map(hint => hint.skillLabel)).toEqual(expected ? terms : []);
+  if (proposed && !expected) {
+    const candidate = documentExtractionSchema.parse(output.candidate);
+    candidate.items[0]!.selfLevelHint = proposed;
+    expect(validateDocumentExtraction(candidate, "owner", reference, verbatimPolicy).selfAssessmentHints).toEqual([]);
+  }
+});
+
+it("removes a verbatim term when an edit retains only a different spelling of it", () => {
+  const original = "I maintained a spreadsheet.", edited = "I maintained spreadsheets.";
+  expect(supportsReviewedSkillLabel(edited, "spreadsheet", "verbatim-skill-mentions-v4")).toBe(false);
+  expect(labelForAddedSourceTerm(original, edited, "spreadsheet", "verbatim-skill-mentions-v4")).toBeNull();
+  expect(labelForAddedSourceTerm(original, edited, "spreadsheet", SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION)).toBe("spreadsheets");
+});
+
+it.each([
+  [KIMI_GROUNDED_TERMS_POLICY_ID, "spreadsheet", ["sql"]],
+  [verbatimPolicy, "spreadsheets", []],
+] as const)("keeps the confirmed label's attribution after an edit and restart under %s", async (policyId, nomination, expectedPractice) => {
+  const text = "I used a spreadsheet, but I never used spreadsheets.", f = createMaterialMentionReviewFixture();
+  try {
+    const doc = await f.client.request("createDocument", { kind: "resume", displayName: "Spreadsheet practice", text, mutationId: "create" });
+    const ref = { documentId: doc.documentId, textVersionId: doc.textVersionId }, policy = sourceSpanPolicy(policyId)!;
+    const wire = { format: policy.format, reviewPoints: [], items: [{ kind: "experience", source: { segmentId: "segment-1", quote: text },
+      skillTerms: [nomination], requirementLevel: null, selfLevelHint: null }] };
+    const decoded = readSourceSpanExtraction({ choices: [{ finish_reason: "stop", message: { content: JSON.stringify(wire) } }] },
+      { text, segments: [{ id: "segment-1", start: 0, end: text.length }] }, undefined, policy);
+    await f.deliver(doc, documentExtractionSchema.parse(decoded.candidate).items, policyId);
+    const initial = (await f.client.request("readDocumentReviewDraft", ref)).draft!;
+    expect(initial.items[0]?.skillLabels).toEqual(["spreadsheets"]);
+    expect(initial.items[0]).not.toHaveProperty("skillLabelProjection");
+    const save = { ...ref, extractionId: initial.extractionId, selfAssessmentHints: [], expectedRevision: initial.revision, mutationId: "save" };
+    const forged = [{ ...initial.items[0]!, skillLabelProjection: "verbatim-skill-mentions-v4" }];
+    await expect(f.client.request("saveDocumentReviewDraft", { ...save, items: forged })).rejects.toBeDefined();
+    const { draft } = await f.client.request("saveDocumentReviewDraft", { ...save, items: initial.items });
+    await expect(f.client.request("createDocumentConfirmation", { ...ref, documentVersionId: doc.documentVersionId, items: forged,
+      reviewRevision: draft.revision, expectedRevision: doc.revision, mutationId: "forged-confirmation" })).rejects.toBeDefined();
+    const flow = await confirmAndSelect(f, doc, draft);
+    // The next draft drops the fact. Planning still resolves the selected immutable confirmation.
+    await f.client.request("saveDocumentReviewDraft", { ...save, items: [], expectedRevision: draft.revision, mutationId: "clear-next-draft" });
+    f.restart();
+    const { preview } = await f.client.request("createMaterialContext", { ...flow.request,
+      termMappings: [{ confirmationId: flow.confirmation.confirmationId, itemId: draft.items[0]!.id, skillLabel: "spreadsheets", skillIds: ["sql"] }] });
+    expect(preview.mappingDetails?.[0]).toMatchObject({ termIndexes: [0], status: "mapped", skillIds: ["sql"], basis: "manual" });
+    expect(preview.confirmedItems[0]?.skillLabelProjection).toEqual(policyId === verbatimPolicy ? "verbatim-skill-mentions-v4" : undefined);
+    expect(preview.priorities.map(row => row.skillId)).toEqual(expectedPractice);
+  } finally { f.dispose(); }
+});
+
+it.each([
+  ["我在指导下清洗空值记录。", "清洗空值记录", "data cleaning"],
+  ["我学习增量加载。", "增量加载", "incremental loading"],
+  ["I wrote unit tests.", "unit tests", "unit testing"],
+  ["掌握组件测试。", "组件测试", "component testing"],
+  ["I maintained a spreadsheet.", "spreadsheet", "spreadsheets"],
+] as const)("retains the source spelling in new extractions and the historical key in v3: %s", (text, term, canonical) => {
+  const source = { segmentId: "segment-1", quote: text };
+  const raw = { choices: [{ finish_reason: "stop", message: { content: JSON.stringify({ format: "source-spans-v3",
+    items: [{ kind: "experience", source, requirementLevel: null, skillTerms: [term, "UnmentionedTool"], selfLevelHint: null }], reviewPoints: [] }) } }] };
+  const sources = { text, segments: [{ id: "segment-1", start: 0, end: text.length }] };
+  expect(readSourceSpanExtraction(raw, sources, undefined, "source-spans-v3").candidate)
+    .toMatchObject({ items: [{ skillLabels: [canonical], source }] });
+  const policy = sourceSpanPolicy(verbatimPolicy);
+  expect(policy).toBeDefined();
+  expect(readSourceSpanExtraction(raw, sources, undefined, policy!).candidate)
+    .toMatchObject({ items: [{ skillLabels: [term], source }] });
+});
+
+it("keeps verbatim terms through review corrections, reload, confirmation and the plan preview", async () => {
+  const f = createMaterialMentionReviewFixture();
+  const text = "I wrote unit tests using a spreadsheet.";
+  try {
+    const doc = await f.client.request("createDocument", { kind: "resume", displayName: "Testing practice", text, mutationId: "create-verbatim" });
+    const item: DocumentCandidate = { id: "fact", kind: "experience", text, source: { segmentId: "segment-1", quote: text },
+      requirementLevel: null, skillLabels: ["unit tests", "spreadsheets"], selfLevelHint: null };
+    await f.deliver(doc, [item], verbatimPolicy);
+    const ref = { documentId: doc.documentId, textVersionId: doc.textVersionId };
+    const initial = (await f.client.request("readDocumentReviewDraft", ref)).draft!;
+    expect(initial.reviewProjection).toBe("verbatim-skill-mentions-v4");
+    expect(initial.items[0]!.skillLabels).toEqual(["unit tests"]);
+    const base = { ...ref, extractionId: initial.extractionId, selfAssessmentHints: [], expectedRevision: initial.revision,
+      skillTermAddition: { itemId: "fact", sourceTerm: "spreadsheet" }, mutationId: "add-verbatim" };
+    const withTerms = (skillLabels: string[]) => [{ ...initial.items[0]!, origin: "user" as const, skillLabels }];
+    await expect(f.client.request("saveDocumentReviewDraft", { ...base, items: withTerms(["unit tests", "spreadsheets"]) })).rejects.toBeDefined();
+    const { draft } = await f.client.request("saveDocumentReviewDraft", { ...base, items: withTerms(["unit tests", "spreadsheet"]) });
+    f.restart();
+    expect((await f.client.request("readDocumentReviewDraft", ref)).draft).toEqual(draft);
+    const flow = await confirmAndSelect(f, doc, draft);
+    const { preview } = await f.client.request("createMaterialContext", flow.request);
+    expect(preview.confirmedItems[0]?.skillLabels).toEqual(["unit tests", "spreadsheet"]);
+    expect(preview.mappingDetails?.filter(row => row.status === "mapped").flatMap(row => row.skillIds)).toEqual(["testing"]);
+  } finally { f.dispose(); }
+});
 
 it.each([
   ["ASCII", "resume", "1. I tested SQL under supervision.", "1. I tested SQL under supervision."],

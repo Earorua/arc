@@ -2,12 +2,21 @@ import { describe, expect, it } from "vitest";
 import { supportsMaterialExperience } from "../../../app/lib/materials/experience-evidence";
 import { supportsMaterialSelfLevelHint } from "../../../app/lib/materials/self-assessment-evidence";
 
-const terms = (text: string, sourceTerms: readonly string[] = ["SQL"]) => supportsMaterialExperience({
-  kind: "experience", text, target: { kind: "terms", terms: sourceTerms },
+const terms = (text: string, sourceTerms: readonly string[] = ["SQL"], verbatim = false) => supportsMaterialExperience({
+  kind: "experience", text, target: { kind: "terms", terms: sourceTerms, verbatim },
 });
 const whole = (text: string) => supportsMaterialExperience({ kind: "experience", text, target: { kind: "confirmed-whole-fact" } });
 
 describe("material experience evidence", () => {
+  it("keeps each retained spelling with its own actor and preserves older normalized facts", () => {
+    const shared = "I used spreadsheets, but my colleague used a spreadsheet.";
+    expect.soft(terms(shared, ["spreadsheet"], true)).toBe(false);
+    expect.soft(terms(shared, ["spreadsheets"], true)).toBe(true);
+    expect.soft(terms("I used a spreadsheet, but my colleague used spreadsheets.", ["spreadsheet"], true)).toBe(true);
+    expect.soft(terms("I used spreadsheets and a spreadsheet.", ["spreadsheet", "spreadsheets"], true)).toBe(true);
+    expect.soft(terms("I maintained a spreadsheet.", ["spreadsheets"])).toBe(true);
+    expect(terms("I wrote “my colleague used a spreadsheet”.", ["spreadsheet"], true)).toBe(false);
+  });
   it.each([
     "I used SQL to analyze sales data.",
     "I wrote SQL queries.",

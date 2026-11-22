@@ -1,17 +1,15 @@
-import { materialSelfAssessmentAdoptionSchema, type ConfirmedMaterialItem } from "../../contracts/documents";
+import { materialSelfAssessmentAdoptionSchema, VERBATIM_MATERIAL_REVIEW_PROJECTION, type ConfirmedMaterialItem } from "../../contracts/documents";
 import type { RoleBlueprint } from "../../contracts/intelligence";
 import type { UnitRegistry, SkillSelfLevel } from "../../contracts/planning";
 import { validateUnitRegistry } from "../planning/registry-validation";
 import { createContextualSkillMatcher } from "./contextual-skill-mapping";
+import { isContextualTestingObject } from "./course-relation-scope";
+import { isCurrentFlagshipCourseCatalog } from "./course-task-coverage";
 import { supportsMaterialExperience } from "./experience-evidence";
 import { containsMaterialSkillLabel, normalizeMaterialSkillLabel } from "./skill-labels";
-import { findMaterialSkillMention } from "./grounded-skill-terms";
-export const MATERIAL_MAPPING_VERSION = "2026.11.7" as const;
-const literalAliasVersion = "2026.11.2";
-const groundedAliasVersion = "2026.11.3";
-const tracingAliasVersion = "2026.11.4";
-const termAliasVersion = "2026.11.5";
-const taskAliasVersion = "2026.11.6";
+import { findMaterialSkillMention, findVerbatimMaterialSkillMention, groundMaterialSkillMentions } from "./grounded-skill-terms";
+export const MATERIAL_MAPPING_VERSION = "2026.11.8" as const;
+const aliasVersions = ["2026.11.2", "2026.11.3", "2026.11.4", "2026.11.5", "2026.11.6", "2026.11.7", MATERIAL_MAPPING_VERSION] as const;
 export type MaterialSkillMapping = {
     itemId: string;
     status: "mapped" | "ambiguous" | "uncovered" | "non-learning";
@@ -30,7 +28,7 @@ export type MappingOptions = {
     termMappings?: Record<string, { skillLabel: string; skillIds: string[] }[]>;
     learningIntentItemIds?: readonly string[];
     aliases?: Readonly<{
-        version: typeof MATERIAL_MAPPING_VERSION | typeof literalAliasVersion | typeof groundedAliasVersion | typeof tracingAliasVersion | typeof termAliasVersion | typeof taskAliasVersion;
+        version: typeof aliasVersions[number];
         skills: Record<string, string[]>;
     }>;
 };
@@ -66,9 +64,7 @@ function resolveMaterialTerms(items: readonly ConfirmedMaterialItem[], blueprint
     const valid = blueprint.status === "ready" && validateUnitRegistry(registry, blueprint).valid;
     const matchContextual = createContextualSkillMatcher(blueprint, registry);
     const aliases = options.aliases ?? (blueprint.id === "ai-native-full-stack-engineer" && blueprint.version === "2026.08.1" ? FLAGSHIP_ALIASES : undefined);
-    const reviewed = aliases?.version === MATERIAL_MAPPING_VERSION || aliases?.version === literalAliasVersion
-      || aliases?.version === groundedAliasVersion || aliases?.version === tracingAliasVersion || aliases?.version === termAliasVersion
-      || aliases?.version === taskAliasVersion ? aliases.skills : {};
+    const reviewed = aliases && aliasVersions.includes(aliases.version) ? aliases.skills : {};
     const vocabulary = blueprint.skills.map(skill => ({ id: skill.id, name: skill.name, words: [
         skill.id, skill.name, ...(reviewed[skill.id] ?? [])
     ] }));
@@ -96,7 +92,8 @@ function resolveMaterialTerms(items: readonly ConfirmedMaterialItem[], blueprint
               && findMaterialSkillMention(item.text, term) !== null) return {
                 itemId: item.id, term, status: "non-learning", skillIds: [], basis: null, labels: [], practiceEvidence: new Map(),
             };
-            const termTarget: MaterialExperienceTarget = { kind: "terms", terms: [term] };
+            const verbatim = item.skillLabelProjection === VERBATIM_MATERIAL_REVIEW_PROJECTION && item.skillLabels !== undefined;
+            const termTarget: MaterialExperienceTarget = { kind: "terms", terms: [term], verbatim };
             const practiceEvidence = new Map<string, MaterialExperienceTarget[]>();
             let matches = vocabulary.filter(skill => {
                 if (selected) {
@@ -117,6 +114,17 @@ function resolveMaterialTerms(items: readonly ConfirmedMaterialItem[], blueprint
                 practiceEvidence.set(skill.id, item.skillLabels ? [termTarget] : words.map(word => ({ kind: "terms", terms: [word] })));
                 return true;
             });
+            if (!selected && !matches.length && valid && verbatim) {
+                // Match a reviewed source form only to vocabulary supplied by this catalog.
+                // The retained wording remains the public term, override key and practice target.
+                const source = findVerbatimMaterialSkillMention(item.text, term);
+                const [canonical] = source ? groundMaterialSkillMentions(source, [source]) : [];
+                if (canonical && normalizeMaterialSkillLabel(canonical) !== normalizeMaterialSkillLabel(term)) {
+                    matches = vocabulary.filter(skill => skill.words.some(word =>
+                        normalizeMaterialSkillLabel(word) === normalizeMaterialSkillLabel(canonical)));
+                    for (const skill of matches) practiceEvidence.set(skill.id, [termTarget]);
+                }
+            }
             let basis: MaterialTermMapping["basis"] = selected ? "manual" : valid && matches.length ? "literal" : null;
             let explicitConjunction = false;
             if (!selected && !matches.length && valid && item.skillLabels) {
@@ -151,6 +159,13 @@ function resolveMaterialTerms(items: readonly ConfirmedMaterialItem[], blueprint
                 if (matches.length) basis = "contextual";
             }
             const status = !valid || !matches.length ? "uncovered" : !selected && matches.length > 1 && !explicitConjunction ? "ambiguous" : "mapped";
+            // A learner can implement the object somebody else tested. Both an
+            // inferred and a chosen testing relation need the learner's own action.
+            if (!manual && practiceEvidence.has("testing") && isContextualTestingObject(term)
+              && (basis === "contextual" || termMapping && isCurrentFlagshipCourseCatalog(blueprint, registry))) {
+                practiceEvidence.set("testing", [{ ...termTarget,
+                    matchesScope: scope => matchContextual(term, scope).includes("testing") }]);
+            }
             return { itemId: item.id, term, status, skillIds: valid ? matches.map(skill => skill.id) : [], basis,
                 labels: matches.length && (valid || !item.skillLabels) ? matches.map(skill => skill.name) : [term.slice(0, 100)], practiceEvidence };
         });

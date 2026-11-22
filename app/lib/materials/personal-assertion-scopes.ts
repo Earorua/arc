@@ -1,11 +1,12 @@
-import { findMaterialSkillEvidence } from "./grounded-skill-terms";
+import { findMaterialSkillEvidence, findVerbatimMaterialSkillEvidence } from "./grounded-skill-terms";
 import { deniedAssertion, hypothetical, maskQuotes, quoted } from "./quotation-evidence";
 
 
-export function assertedSkillEvidence(text: string, label: string) {
-  const evidence = findMaterialSkillEvidence(text, label);
+export function assertedSkillEvidence(text: string, label: string, verbatim = false) {
+  const findEvidence = verbatim ? findVerbatimMaterialSkillEvidence : findMaterialSkillEvidence;
+  const evidence = findEvidence(text, label);
   if (!evidence) return false;
-  if (findMaterialSkillEvidence(maskQuotes(text), label) !== null) return true;
+  if (findEvidence(maskQuotes(text), label) !== null) return true;
   // Quoting a tool name is different from quoting a proposition about that tool.
   return Array.from(text.matchAll(quoted)).some(match => match[0].slice(1, -1).trim() === evidence);
 }

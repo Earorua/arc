@@ -125,6 +125,106 @@ describe("bounded current-course relations", () => {
     expect(relation("I wrote unit tests for a TypeScript date formatter.", "TypeScript").coverage.status).toBe("none");
   });
 
+  it.each([
+    ["使用 Python 清洗空值记录，并把清洗规则写入测试。", "测试", ["testing"], "behavior-tests"],
+    ["使用 JavaScript 校验输入，并将校验规则写进测试，额外遵守项目安全要求。", "测试", ["testing"], "behavior-tests"],
+    ["Cloud Fern 实习：followed a runbook to inspect API error logs.", "inspect API error logs", ["observability"], "software-signals"],
+    ["I inspected API logs for a custom payment gateway.", "inspected API logs", ["observability"], "software-signals"],
+    ["Must test asynchronous TypeScript behavior.", "asynchronous TypeScript behavior", ["typescript", "testing"], "behavior-tests"],
+    ["Must test asynchronous TypeScript behavior , then document the result.", "asynchronous TypeScript behavior", ["typescript", "testing"], "behavior-tests"],
+    ["Must test asynchronous TypeScript behavior when requests time out.", "asynchronous TypeScript behavior", ["typescript", "testing"], "behavior-tests"],
+    ["Must test asynchronous TypeScript behavior during shutdown.", "asynchronous TypeScript behavior", ["typescript", "testing"], "behavior-tests"],
+    ["Must test asynchronous TypeScript behavior across runtimes.", "asynchronous TypeScript behavior", ["typescript", "testing"], "behavior-tests"],
+    ["Must test asynchronous TypeScript behavior (including timeouts).", "asynchronous TypeScript behavior", ["typescript", "testing"], "behavior-tests"],
+    ["We tested the async TypeScript behaviours for a custom scheduler.", "async TypeScript behaviours", ["typescript", "testing"], "behavior-tests"],
+  ] as const)("relates the retained wording to the supported task subset in %s", (text, term, skillIds, support) => {
+    const result = relation(text, term);
+    expect.soft(result.detail).toEqual({ itemId: "fact", term, status: "mapped", skillIds, basis: "contextual" });
+    expect(result.coverage).toEqual({ status: "partial", support: [support], remaining: "unassessed-scope" });
+  });
+
+  it.each([
+    ["使用 Python 清洗空值记录，我同事把清洗规则写入测试。", "测试"],
+    ["使用 Python 清洗空值记录。并把清洗规则写入测试。", "测试"],
+    ["使用 Python 发送邮件，并把清洗规则写入测试。", "测试"],
+    ["没有使用 Python 清洗空值记录，并把清洗规则写入测试。", "测试"],
+    ["没用 Python 清洗空值记录，并把清洗规则写入测试。", "测试"],
+    ["未通过 Python 清洗空值记录，并把清洗规则写入测试。", "测试"],
+    ["使用 Python 清洗空值记录，并没有把清洗规则写入测试。", "测试"],
+    ["用清洁剂清洗器材，并把清洗规则写入测试。", "测试"],
+    ["使用 Python 安排培训，并把安排规则写入测试。", "测试"],
+    ["使用 Python 清洗空值记录，并把清洗规则写入测试计划。", "测试"],
+    ["I archive API error logs.", "archive API error logs"],
+    ["I inspect paper logs while my colleague handles API errors.", "inspect paper logs"],
+    ["I didn't inspect API error logs.", "inspect API error logs"],
+  ])("withholds an unattached, denied or differently scoped task in %s", (text, term) => {
+    const result = relation(text!, term!);
+    expect.soft(result.detail).toMatchObject({ status: "uncovered", skillIds: [] });
+    expect(result.coverage).toMatchObject({ status: "none", support: [] });
+  });
+
+  it.each([
+    "Must document asynchronous TypeScript behavior.",
+    "I test UI forms and my colleague documents asynchronous TypeScript behavior.",
+    "I test asynchronous TypeScript behavior documentation.",
+    "I review asynchronous TypeScript behavior while they test the API.",
+    "I never test asynchronous TypeScript behavior.",
+    "It is forbidden to test asynchronous TypeScript behavior.",
+    "The team prohibited testing asynchronous TypeScript behavior.",
+  ])("only grants testing for the directly tested TypeScript object in %s", text => {
+    const result = relation(text, "asynchronous TypeScript behavior");
+    expect(result.detail.skillIds).not.toContain("testing");
+    expect(result.coverage.support).toEqual([]);
+  });
+
+  it("requires the active catalog's task content even for a recognized action and object", () => {
+    const research = { ...flagshipBlueprint, id: "research-methods" };
+    const otherRegistry = { ...flagshipUnitRegistry, blueprintId: research.id };
+    const changed = structuredClone(flagshipUnitRegistry);
+    changed.tracks.find(track => track.skillId === "testing")!.templates
+      .find(unit => unit.id === "testing-learn-01")!.buildTask = "Prepare a checklist.";
+    for (const [text, term] of [
+      ["Must test asynchronous TypeScript behavior.", "asynchronous TypeScript behavior"],
+      ["使用 Python 清洗空值记录，并把清洗规则写入测试。", "测试"],
+    ]) {
+      const { item, detail } = relation(text!, term!);
+      expect.soft(mapMaterialItemTerms([item], research, otherRegistry)[0]).toMatchObject({ status: "uncovered", skillIds: [] });
+      expect.soft(createCourseTaskCoverageEvaluator(flagshipBlueprint, changed)(detail, item))
+        .toEqual({ status: "none", support: [], remaining: "unverified-content" });
+    }
+    const otherActor = relation("My colleague tested asynchronous TypeScript behavior.", "asynchronous TypeScript behavior");
+    expect(otherActor.detail.skillIds).toEqual(["typescript", "testing"]);
+    expect(mapMaterialPracticeSkills([otherActor.item], flagshipBlueprint, flagshipUnitRegistry)).toEqual([]);
+  });
+
+  it("keeps testing practice attached to the tested object and its actor across repeated mentions", () => {
+    const term = "asynchronous TypeScript behavior";
+    const shared = relation("My colleague tested asynchronous TypeScript behavior. I implemented asynchronous TypeScript behavior.", term);
+    expect(shared.detail).toMatchObject({ status: "mapped", skillIds: ["typescript", "testing"] });
+    expect.soft(mapMaterialPracticeSkills([shared.item], flagshipBlueprint, flagshipUnitRegistry))
+      .toEqual([{ itemId: "fact", skillId: "typescript" }]);
+    const contrast = relation("I implemented asynchronous TypeScript behavior, but my colleague tested asynchronous TypeScript behavior.", term);
+    const selected = { termMappings: { fact: [{ skillLabel: term, skillIds: ["typescript", "testing", "react"] }] } };
+    expect.soft(mapMaterialPracticeSkills([contrast.item], flagshipBlueprint, flagshipUnitRegistry).map(entry => entry.skillId))
+      .toEqual(["typescript"]);
+    expect.soft(mapMaterialPracticeSkills([contrast.item], flagshipBlueprint, flagshipUnitRegistry, selected).map(entry => entry.skillId))
+      .toEqual(["typescript", "react"]);
+    expect.soft(mapMaterialPracticeSkills([contrast.item], flagshipBlueprint, flagshipUnitRegistry,
+      { userMappings: { fact: ["testing"] } })).toEqual([]);
+    const personal = relation("I tested asynchronous TypeScript behavior.", term);
+    expect.soft(mapMaterialPracticeSkills([personal.item], flagshipBlueprint, flagshipUnitRegistry).map(entry => entry.skillId))
+      .toEqual(["typescript", "testing"]);
+    const rule = relation("同事使用 Python 清洗空值记录，并把清洗规则写入测试。我使用测试练习听力。", "测试");
+    expect(rule.detail).toMatchObject({ status: "mapped", skillIds: ["testing"] });
+    expect.soft(mapMaterialPracticeSkills([rule.item], flagshipBlueprint, flagshipUnitRegistry)).toEqual([]);
+    const ownRule = relation("使用 Python 清洗空值记录，并把清洗规则写入测试。", "测试");
+    expect.soft(mapMaterialPracticeSkills([ownRule.item], flagshipBlueprint, flagshipUnitRegistry))
+      .toEqual([{ itemId: "fact", skillId: "testing" }]);
+    const independent = relation("同事使用 Python 清洗空值记录，并把清洗规则写入测试。我设置了 dbt 测试。", "测试");
+    expect(mapMaterialPracticeSkills([independent.item], flagshipBlueprint, flagshipUnitRegistry))
+      .toEqual([{ itemId: "fact", skillId: "testing" }]);
+  });
+
   it("keeps candidate choice independent from union coverage and recomputes explicit choices", () => {
     const { item, detail, coverage } = relation("Required: write accessible form labels.", "accessible form labels");
     expect(detail).toMatchObject({ status: "ambiguous", skillIds: ["web-platform", "design-systems"] });

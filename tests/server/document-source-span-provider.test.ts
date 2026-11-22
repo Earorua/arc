@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { validateDocumentExtraction } from "../../app/server/documents/extraction-validator";
 import { KIMI_SOURCE_MENTIONS_POLICY_ID, type DocumentAnalysisConfiguration } from "../../app/server/documents/policy";
 import { documentReceiptAuditSchema } from "../../app/server/documents/provider-receipt";
-import { HttpDocumentAnalysisProvider, isDocumentProviderQualified, type DocumentProviderQualification } from "../../worker/document-executor/provider-http";
+import { buildDocumentAnalysisBody, HttpDocumentAnalysisProvider, isDocumentProviderQualified, type DocumentProviderQualification } from "../../worker/document-executor/provider-http";
 import { fixtureGenerationResponse } from "../helpers/document-generation-response";
 import { readSourceSpanExtraction, sourceSpanPolicy } from "../../worker/document-executor/source-span-extraction";
 
@@ -211,6 +211,30 @@ function projectMentionCandidate(candidate: unknown, text: string) {
     documentVersionId: "version-one", textVersionId: "text-one", text, segments: [{ id: "section-one", start: 0, end: text.length }] }, sourceMentionsPolicy);
 }
 describe("Kimi source mentions v3", () => {
+  it("builds the offline successor with the endpoint's low reasoning setting inside the same token and price caps", () => {
+    const next = { ...config, providerPolicyId: "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-verbatim-v4" };
+    const input = { text: documentText, segments, kind: "jd" as const };
+    const before = JSON.parse(buildDocumentAnalysisBody(input, { ...config, providerPolicyId: sourceMentionsPolicy }, qualification)!);
+    const after = JSON.parse(buildDocumentAnalysisBody(input, next, qualification)!);
+    const { messages, reasoning, ...parameters } = after;
+    expect(reasoning).toEqual({ effort: "low" });
+    expect(before).not.toHaveProperty("reasoning");
+    expect({ ...parameters, messages: before.messages }).toEqual(before);
+    expect(messages[1]).toEqual(before.messages[1]);
+    expect(messages[0].content).toContain("source-spans-v3");
+    expect(messages[0].content).not.toBe(before.messages[0].content);
+    expect(new TextEncoder().encode(JSON.stringify({ ...after, messages: [messages[0]] })).length).toBeLessThan(4096);
+    expect(buildDocumentAnalysisBody({ ...input, segments: [] }, next, qualification)).toBeNull();
+  });
+
+  it("keeps the offline verbatim candidate out of historical route qualifications", () => {
+    const providerPolicyId = "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-verbatim-v4";
+    const candidate = { ...config, providerPolicyId };
+    const inherited = { ...qualification, providerPolicyId };
+    expect(isDocumentProviderQualified(candidate, inherited)).toBe(false);
+    expect(isDocumentProviderQualified(candidate, inherited, "current-quality")).toBe(false);
+  });
+
   it("decodes the complete numbered quotation only with the exact v3 policy", () => {
     const text = "1. I tested SQL under supervision.", body = "I tested SQL under supervision.";
     const sources = { text, segments: [{ id: "section-one", start: 0, end: text.length }] };

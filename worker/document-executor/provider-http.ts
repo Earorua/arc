@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { documentAnalysisConfigurationSchema, documentAnalysisMetadataSchema, documentRoutingPolicySchema,
+import { KIMI_VERBATIM_TERMS_POLICY_ID, documentAnalysisConfigurationSchema, documentAnalysisMetadataSchema, documentRoutingPolicySchema,
   type DocumentAnalysisConfiguration, type DocumentAnalysisMetadata } from "../../app/server/documents/policy";
 import type { DocumentAnalysisProvider, DocumentProviderInput, DocumentProviderOutcome, DocumentReceiptClaim } from "../../app/server/documents/provider";
 import { documentProviderConfigurationDigest } from "../../app/server/documents/provider";
@@ -52,6 +52,8 @@ export function isDocumentProviderQualified(config: DocumentAnalysisMetadata, qu
   const parsed = documentProviderQualificationSchema.safeParse(qualification);
   if (!parsed.success || !validMetadata(config)) return false;
   const q = parsed.data;
+  // The verbatim revision can be replayed locally. The issued route qualifications cover earlier revisions.
+  if (config.providerPolicyId === KIMI_VERBATIM_TERMS_POLICY_ID) return false;
   const spanPolicy = sourceSpanPolicy(config.providerPolicyId);
   if (!spanPolicy && config.providerPolicyId.startsWith(KIMI_SOURCE_SPAN_POLICY_PREFIX)) return false;
   const modal = (config.model === KIMI_SOURCE_SPAN_ROUTE.model || !!spanPolicy)
@@ -70,6 +72,38 @@ export function isDocumentProviderQualified(config: DocumentAnalysisMetadata, qu
   try { calculateDocumentReservation(config, q); return true; } catch { return false; }
 }
 
+/** Construct the exact outbound bytes. Offline request inspection uses the same input and budget checks. */
+export function buildDocumentAnalysisBody(input: Pick<DocumentProviderInput, "text" | "kind" | "segments">,
+  config: DocumentAnalysisMetadata, prices: Pick<DocumentProviderQualification, "inputMicroUsdPerMillionTokens" | "outputMicroUsdPerMillionTokens">): string | null {
+  let offset = 0;
+  const ids = new Set<string>(), segments: { segmentId: string; text: string }[] = [];
+  for (const segment of input.segments) {
+    if (segment.start !== offset || !Number.isSafeInteger(segment.end) || segment.end <= segment.start
+      || segment.end > input.text.length || ids.has(segment.id)) return null;
+    offset = segment.end;
+    ids.add(segment.id);
+    segments.push({ segmentId: segment.id, text: input.text.slice(segment.start, segment.end) });
+  }
+  if (offset !== input.text.length || !segments.length) return null;
+  const data = JSON.stringify({ kind: input.kind, segments });
+  if (new TextEncoder().encode(data).byteLength + 4096 > config.maxInputTokens) return null;
+  const tag = config.routingPolicy.providerOrder[0];
+  const kimi = config.model === KIMI_SOURCE_SPAN_ROUTE.model && (tag === KIMI_SOURCE_SPAN_ROUTE.tag || tag === MODAL_KIMI_ROUTE.tag);
+  const policy = sourceSpanPolicy(config.providerPolicyId);
+  return JSON.stringify({
+    model: config.model, messages: [{ role: "system", content: policy?.prompt ?? systemPrompt }, { role: "user", content: data }],
+    ...(kimi ? { max_tokens: config.maxOutputTokens } : { max_completion_tokens: config.maxOutputTokens, temperature: 0 }),
+    ...(policy?.reasoningEffort ? { reasoning: { effort: policy.reasoningEffort } } : {}),
+    stream: false, response_format: { type: "json_object" },
+    provider: {
+      only: config.routingPolicy.providerOrder, order: config.routingPolicy.providerOrder,
+      allow_fallbacks: false, require_parameters: true, data_collection: "deny", zdr: true,
+      max_price: { prompt: prices.inputMicroUsdPerMillionTokens / 1_000_000,
+        completion: prices.outputMicroUsdPerMillionTokens / 1_000_000, request: 0 },
+    },
+  });
+}
+
 type ProviderOptions = { fetch: DocumentFetch; qualification: DocumentProviderQualification | null; now?: () => Date; singleMetadataRead?: true; purpose?: "current-quality" };
 export class HttpDocumentAnalysisProvider implements DocumentAnalysisProvider {
   constructor(private readonly config: DocumentAnalysisConfiguration, private readonly options: ProviderOptions) {}
@@ -84,34 +118,9 @@ export class HttpDocumentAnalysisProvider implements DocumentAnalysisProvider {
       || input.execution.configurationDigest !== await documentProviderConfigurationDigest(config,
         calculateDocumentReservation(config, qualification), input.execution.acceptance?.runId,
         input.execution.acceptance?.configurationSha256,input.execution.production?.authorizationSha256))) return notSent;
-    let offset = 0;
-    const ids = new Set<string>(), segments: { segmentId: string; text: string }[] = [];
-    for (const segment of input.segments) {
-      if (segment.start !== offset || !Number.isSafeInteger(segment.end) || segment.end <= segment.start
-        || segment.end > input.text.length || ids.has(segment.id)) return notSent;
-      offset = segment.end;
-      ids.add(segment.id);
-      segments.push({ segmentId: segment.id, text: input.text.slice(segment.start, segment.end) });
-    }
-    if (offset !== input.text.length || !segments.length) return notSent;
-    const data = JSON.stringify({ kind: input.kind, segments });
-    if (new TextEncoder().encode(data).byteLength + 4096 > config.maxInputTokens) return notSent;
-    // This Kimi route advertises max_tokens and fixes its own sampling temperature.
-    const tag = config.routingPolicy.providerOrder[0];
-    const generationParameters = config.model === KIMI_SOURCE_SPAN_ROUTE.model && (tag === KIMI_SOURCE_SPAN_ROUTE.tag || tag === MODAL_KIMI_ROUTE.tag)
-      ? { max_tokens: config.maxOutputTokens }
-      : { max_completion_tokens: config.maxOutputTokens, temperature: 0 };
+    const body = buildDocumentAnalysisBody(input, config, qualification);
+    if (body === null) return notSent;
     const spanPolicy = sourceSpanPolicy(config.providerPolicyId);
-    const body = JSON.stringify({
-      model: config.model, messages: [{ role: "system", content: spanPolicy?.prompt ?? systemPrompt }, { role: "user", content: data }],
-      ...generationParameters, stream: false, response_format: { type: "json_object" },
-      provider: {
-        only: config.routingPolicy.providerOrder, order: config.routingPolicy.providerOrder,
-        allow_fallbacks: false, require_parameters: true, data_collection: "deny", zdr: true,
-        max_price: { prompt: qualification.inputMicroUsdPerMillionTokens / 1_000_000,
-          completion: qualification.outputMicroUsdPerMillionTokens / 1_000_000, request: 0 },
-      },
-    });
     if (signal.aborted) return { kind: "not-sent", code: "aborted-before-send" };
     if (beforeSend) {
       try { if (!await beforeSend()) return notSent; } catch { return notSent; }
@@ -141,7 +150,7 @@ export class HttpDocumentAnalysisProvider implements DocumentAnalysisProvider {
     const actualMicroUsd = attributable ? chat.actualMicroUsd ?? audit.metadataMicroUsd : null;
     let candidate: unknown = null;
     if (audit.status === "verified" && spanPolicy) {
-      const extraction = readSourceSpanExtraction(raw, input, audit.extractionRead, spanPolicy.format);
+      const extraction = readSourceSpanExtraction(raw, input, audit.extractionRead, spanPolicy);
       candidate = extraction.candidate;
       audit.extractionRead = extraction.extractionRead;
     } else if (audit.status === "verified") {

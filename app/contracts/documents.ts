@@ -4,8 +4,13 @@ import { skillSelfLevelSchema } from "./planning";
 export const DOCUMENT_SCHEMA_VERSION = "2026.11.1" as const;
 export const GROUNDED_MATERIAL_REVIEW_PROJECTION = "grounded-skill-labels-v2" as const;
 export const SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION = "source-skill-mentions-v3" as const;
-export function isSourceLinkedMaterialReviewProjection(projection: unknown): projection is typeof GROUNDED_MATERIAL_REVIEW_PROJECTION | typeof SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION {
-  return projection === GROUNDED_MATERIAL_REVIEW_PROJECTION || projection === SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION;
+export const VERBATIM_MATERIAL_REVIEW_PROJECTION = "verbatim-skill-mentions-v4" as const;
+export const sourceLinkedReviewProjections = [GROUNDED_MATERIAL_REVIEW_PROJECTION, SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION, VERBATIM_MATERIAL_REVIEW_PROJECTION] as const;
+export function isMentionReviewProjection(projection: unknown): projection is typeof SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION | typeof VERBATIM_MATERIAL_REVIEW_PROJECTION {
+  return projection === SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION || projection === VERBATIM_MATERIAL_REVIEW_PROJECTION;
+}
+export function isSourceLinkedMaterialReviewProjection(projection: unknown): projection is (typeof sourceLinkedReviewProjections)[number] {
+  return projection === GROUNDED_MATERIAL_REVIEW_PROJECTION || isMentionReviewProjection(projection);
 }
 export const MAX_DOCUMENT_TEXT_CODE_POINTS = 50_000;
 export const MAX_DOCUMENT_TEXT_UTF8_BYTES = 256 * 1024;
@@ -69,7 +74,7 @@ export const materialReviewPointsSchema = boundedMaterialJson(z.array(materialRe
 export type MaterialReviewPoint = z.infer<typeof materialReviewPointSchema>;
 export type DocumentCandidateReviewPoint = z.infer<typeof documentCandidateReviewPointSchema>;
 
-export const confirmedMaterialItemSchema = z.object({
+const reviewedMaterialItemSchema = z.object({
   id: materialIdSchema, kind: materialItemKindSchema, text: shortTextSchema,
   origin: z.enum(["extracted", "user"]), sourceRef: materialSourceRefSchema.nullable(),
   requirementLevel: materialRequirementLevelSchema.nullable(),
@@ -78,6 +83,12 @@ export const confirmedMaterialItemSchema = z.object({
   if (item.origin === "extracted" && item.sourceRef === null) ctx.addIssue({ code: "custom", message: "Extracted items require a source" });
   if (item.kind !== "requirement" && item.requirementLevel !== null) ctx.addIssue({ code: "custom", message: "Only requirements have a requirement level" });
 });
+// Only the server stamps the immutable confirmation. Drafts and mutation
+// requests accept the person's reviewed facts without a projection override.
+export const confirmedMaterialItemSchema = reviewedMaterialItemSchema.safeExtend({
+  skillLabelProjection: z.literal(VERBATIM_MATERIAL_REVIEW_PROJECTION).optional(),
+}).refine(item => !item.skillLabelProjection || (item.sourceRef !== null && Boolean(item.skillLabels?.length)),
+  "A verbatim confirmation needs a source and at least one retained term");
 export const documentCandidateSourceSchema = z.object({ segmentId: materialIdSchema, quote: z.string().min(1).max(1000) }).strict();
 export const documentCandidateSchema = z.object({
   id: materialIdSchema, kind: materialItemKindSchema, text: shortTextSchema,
@@ -92,6 +103,7 @@ export const documentCandidatesSchema = boundedMaterialJson(z.array(documentCand
 export const documentExtractionSchema = boundedMaterialJson(z.object({
   schemaVersion: z.literal(DOCUMENT_SCHEMA_VERSION), items: documentCandidatesSchema, reviewPoints: documentCandidateReviewPointsSchema.optional(),
 }).strict());
+export const reviewedMaterialItemsSchema = boundedMaterialJson(z.array(reviewedMaterialItemSchema).max(100).refine(uniqueIds, "Duplicate item IDs"));
 export const confirmedMaterialItemsSchema = boundedMaterialJson(z.array(confirmedMaterialItemSchema).max(100).refine(uniqueIds, "Duplicate item IDs"));
 export const materialSelfAssessmentHintSchema = z.object({
   id: materialIdSchema, candidateId: materialIdSchema, skillLabel: z.string().trim().min(1).max(100), level: materialSelfLevelHintSchema,
@@ -142,8 +154,8 @@ export const documentVersionSchema = z.object({
 export const documentReviewDraftSchema = boundedMaterialJson(z.object({
   id: materialIdSchema, schemaVersion: z.literal(DOCUMENT_SCHEMA_VERSION), documentId: materialIdSchema,
   documentVersionId: materialIdSchema, textVersionId: materialIdSchema, extractionId: materialIdSchema.nullable(),
-  origin: z.enum(["ai", "manual", "mixed"]), items: confirmedMaterialItemsSchema, selfAssessmentHints: materialSelfAssessmentHintsSchema,
-  reviewProjection: z.enum([GROUNDED_MATERIAL_REVIEW_PROJECTION, SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION]).optional(),
+  origin: z.enum(["ai", "manual", "mixed"]), items: reviewedMaterialItemsSchema, selfAssessmentHints: materialSelfAssessmentHintsSchema,
+  reviewProjection: z.enum(sourceLinkedReviewProjections).optional(),
   reclassifiedItemIds: z.array(materialIdSchema).max(100).optional(),
   reviewPoints: materialReviewPointsSchema.optional(),
   revision: materialRevisionSchema, updatedAt: materialTimestampSchema,

@@ -3,6 +3,7 @@ import { MAX_DOCUMENT_ITEMS_JSON_BYTES, MAX_DOCUMENT_TEXT_CODE_POINTS, MAX_DOCUM
 
 export const KIMI_GROUNDED_TERMS_POLICY_ID = "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v2";
 export const KIMI_SOURCE_MENTIONS_POLICY_ID = "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v3";
+export const KIMI_VERBATIM_TERMS_POLICY_ID = "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-verbatim-v4";
 
 export const DOCUMENT_LIMITS = Object.freeze({
   documentsPerOwner: 30, textVersionsPerDocument: 10, retainedCodePointsPerOwner: 1_000_000,

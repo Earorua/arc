@@ -1,10 +1,17 @@
-import { SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION, isSourceLinkedMaterialReviewProjection, type ConfirmedMaterialItem, type DocumentReviewDraft } from "../../contracts/documents";
-import { findMaterialSkillEvidence, findMaterialSkillMention, groundMaterialSkillMentions, groundMaterialSkillTerms } from "./grounded-skill-terms";
+import { VERBATIM_MATERIAL_REVIEW_PROJECTION, isMentionReviewProjection, isSourceLinkedMaterialReviewProjection, type ConfirmedMaterialItem, type DocumentReviewDraft } from "../../contracts/documents";
+import { findMaterialSkillEvidence, findMaterialSkillMention, findVerbatimMaterialSkillMention, groundMaterialSkillMentions, groundMaterialSkillTerms } from "./grounded-skill-terms";
 import { supportsMaterialSelfLevelHint } from "./self-assessment-evidence";
 import { sourceMentionStatementBoundaries } from "../../../worker/document-executor/source-review-evidence";
 
 export function normalizeMaterialSkillLabel(label: string) {
   return label.normalize("NFKC").toLowerCase();
+}
+
+/** Bind reviewed terms to their original matching rules when the person confirms the facts. */
+export function confirmationItemsForReview(review: Pick<DocumentReviewDraft, "items" | "reviewProjection">): ConfirmedMaterialItem[] {
+  if (review.reviewProjection !== VERBATIM_MATERIAL_REVIEW_PROJECTION) return review.items;
+  return review.items.map(item => item.sourceRef && item.skillLabels?.length
+    ? { ...item, skillLabelProjection: VERBATIM_MATERIAL_REVIEW_PROJECTION } : item);
 }
 
 /** Allow an English skill word next to Chinese text, but not inside another English word. */
@@ -21,7 +28,8 @@ export function containsMaterialSkillLabel(text: string, label: string) {
 
 /** Recover a source term using the review's versioned grounding rules. */
 export function findReviewedSourceTerm(text: string, label: string, projection: DocumentReviewDraft["reviewProjection"]): string | null {
-  return projection === SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION
+  if (projection === VERBATIM_MATERIAL_REVIEW_PROJECTION) return findVerbatimMaterialSkillMention(text, label);
+  return isMentionReviewProjection(projection)
     ? findMaterialSkillMention(text, label)
     : findMaterialSkillEvidence(text, label);
 }
@@ -34,8 +42,8 @@ export function supportsReviewedSkillLabel(text: string, label: string, projecti
 }
 
 export function labelForAddedSourceTerm(quote: string, fact: string, sourceTerm: string, projection?: DocumentReviewDraft["reviewProjection"]): string | null {
-  const [label] = projection === SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION
-    ? groundMaterialSkillMentions(quote, [sourceTerm])
+  const [label] = isMentionReviewProjection(projection)
+    ? groundMaterialSkillMentions(quote, [sourceTerm], projection === VERBATIM_MATERIAL_REVIEW_PROJECTION ? "verbatim" : "canonical")
     : groundMaterialSkillTerms(quote, [sourceTerm]);
   return label && findReviewedSourceTerm(fact, label, projection) !== null ? label : null;
 }
@@ -57,8 +65,9 @@ export function retainedMaterialSelfAssessmentHints(items: readonly ConfirmedMat
     const retainedLabel = item.skillLabels ? item.skillLabels.includes(hint.skillLabel) : item.origin === "extracted" || containsMaterialSkillLabel(item.text, hint.skillLabel);
     if (!retainedLabel) return false;
     const needsEvidence = isSourceLinkedMaterialReviewProjection(projection) || item.origin === "user";
-    const text = projection === SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION ? sourceMentionAssessmentText(item.text) : item.text;
+    const sourceMentions = isMentionReviewProjection(projection);
+    const text = sourceMentions ? sourceMentionAssessmentText(item.text) : item.text;
     return !needsEvidence || supportsMaterialSelfLevelHint({ kind: item.kind, text, labels: [hint.skillLabel], level: hint.level,
-      sourceMentions: projection === SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION });
+      sourceMentions: projection === VERBATIM_MATERIAL_REVIEW_PROJECTION ? "verbatim" : sourceMentions });
   });
 }

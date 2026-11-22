@@ -163,13 +163,13 @@ describe("personal practice priorities from confirmed material relations", () =>
     })).rejects.toMatchObject({ code: "INVALID_INPUT" });
   });
 
-  it("binds new contexts to policy 2026.11.3 and mapping 2026.11.7 while preserving saved reads", async () => {
+  it("binds new contexts to policy 2026.11.3 and mapping 2026.11.8 while preserving saved reads", async () => {
     expect(longFact).toHaveLength(164);
     const { db, materials } = setup([fact("I have never used SQL.", ["SQL"])]);
     const request = materialContextRequest();
     const first = await materials.create("owner-a", request);
     const row = db.database.prepare("SELECT snapshot_json, preview_json, fingerprint FROM material_context_versions WHERE id=?").get(first.contextVersionId) as { snapshot_json: string; preview_json: string; fingerprint: string };
-    expect(JSON.parse(row.snapshot_json)).toMatchObject({ policyVersion: "2026.11.3", mappingVersion: "2026.11.7" });
+    expect(JSON.parse(row.snapshot_json)).toMatchObject({ policyVersion: "2026.11.3", mappingVersion: "2026.11.8" });
     expect(first.preview.overlay?.policyVersion).toBe("2026.11.3");
     expect(JSON.parse(row.preview_json)).toEqual(first.preview);
     expect(await materials.create("owner-a", request)).toEqual(first);

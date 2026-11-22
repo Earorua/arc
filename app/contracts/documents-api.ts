@@ -1,6 +1,6 @@
 import { z } from "zod";
 import {
-  DOCUMENT_SCHEMA_VERSION, MAX_DOCUMENT_ITEMS_JSON_BYTES, adoptedMaterialEntriesSchema, adoptedMaterialScopeSchema, boundedMaterialJson, confirmedMaterialItemsSchema,
+  DOCUMENT_SCHEMA_VERSION, MAX_DOCUMENT_ITEMS_JSON_BYTES, adoptedMaterialEntriesSchema, adoptedMaterialScopeSchema, boundedMaterialJson, reviewedMaterialItemsSchema,
   documentKindSchema, documentReviewDraftSchema, documentSchema, documentTextSchema, documentVersionSchema,
   materialDigestSchema, materialGoalScopeSchema, materialIdSchema, materialOwnerIdSchema, materialRevisionSchema, materialScopeSchema, materialSelectionEntriesSchema, materialSelectionEntrySchema,
   materialSelectionRefSchema, materialSelectionSchema, materialSelfAssessmentHintsSchema, materialTimestampSchema, materialVersionSchema, materialReviewPointsSchema,
@@ -39,7 +39,7 @@ export const documentReviewDraftResponseSchema = boundedMaterialJson(z.object({
 }).strict().refine(result => !result.confirmation || result.draft !== null, "A reusable confirmation requires its current review draft"), MAX_DOCUMENT_ITEMS_JSON_BYTES + 1024);
 export const saveDocumentReviewDraftRequestSchema = boundedMaterialJson(z.object({
   documentId: materialIdSchema, textVersionId: materialIdSchema, extractionId: materialIdSchema.nullable(),
-  items: confirmedMaterialItemsSchema, selfAssessmentHints: materialSelfAssessmentHintsSchema, ...revisionMutationFields,
+  items: reviewedMaterialItemsSchema, selfAssessmentHints: materialSelfAssessmentHintsSchema, ...revisionMutationFields,
   reviewPoints: materialReviewPointsSchema.optional(),
   skillTermAddition: z.object({ itemId: materialIdSchema, sourceTerm: z.string().trim().min(1).max(100) }).strict().optional(),
 }).strict().refine(request => !request.skillTermAddition || request.items.some(item => item.id === request.skillTermAddition!.itemId),
@@ -47,7 +47,7 @@ export const saveDocumentReviewDraftRequestSchema = boundedMaterialJson(z.object
 export const saveDocumentReviewDraftResponseSchema = boundedMaterialJson(z.object({ draft: documentReviewDraftSchema }).strict(), MAX_DOCUMENT_ITEMS_JSON_BYTES + 1024);
 export const createDocumentConfirmationRequestSchema = boundedMaterialJson(z.object({
   documentId: materialIdSchema, documentVersionId: materialIdSchema, textVersionId: materialIdSchema, reviewRevision: materialRevisionSchema,
-  items: confirmedMaterialItemsSchema, ...revisionMutationFields,
+  items: reviewedMaterialItemsSchema, ...revisionMutationFields,
 }).strict().superRefine((request, ctx) => {
   for (const item of request.items) if (item.sourceRef && (item.sourceRef.documentId !== request.documentId || item.sourceRef.documentVersionId !== request.documentVersionId || item.sourceRef.textVersionId !== request.textVersionId)) ctx.addIssue({ code: "custom", message: "Confirmation contains a cross-version source" });
 }), MAX_DOCUMENT_ITEMS_JSON_BYTES);

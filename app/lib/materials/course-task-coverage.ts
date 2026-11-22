@@ -53,7 +53,11 @@ const taskTerms: Record<CourseTaskId, RegExp> = {
 
 function recognizedTask(id: CourseTaskId, term: string, body: string): { full: boolean } | null {
   const token = normalizeMaterialSkillLabel(term);
-  if (!taskTerms[id].test(token)) return null;
+  if (!taskTerms[id].test(token)) {
+    // A retained direct object can omit its testing verb. It owns only the
+    // behavior-test subset explicitly attached to that object.
+    return id === "behavior-tests" && courseRelationTopics(term, body).includes("testing") ? { full: false } : null;
+  }
   // A parser implementation is a different task from choosing diagnostic signals.
   if (id === "software-signals" && /\bparser\b/u.test(body)) return null;
   for (const pattern of [tasks[id], additionalTasks[id]]) {
@@ -103,10 +107,14 @@ const taskTopics: readonly [CourseTaskId, RegExp][] = [
 // unassessed; this does not make the statement personal experience or ability.
 const taskBody = courseTaskBody;
 
+export function isCurrentFlagshipCourseCatalog(blueprint: RoleBlueprint, registry: UnitRegistry) {
+  return blueprint.id === "ai-native-full-stack-engineer" && blueprint.version === "2026.08.1" && blueprint.status === "ready"
+    && registry.id === "ai-native-full-stack-engineer-units" && registry.version === "2026.08.1"
+    && validateUnitRegistry(registry, blueprint).valid;
+}
+
 function verifiedAnchors(blueprint: RoleBlueprint, registry: UnitRegistry): Set<CourseTaskId> {
-  if (blueprint.id !== "ai-native-full-stack-engineer" || blueprint.version !== "2026.08.1" || blueprint.status !== "ready"
-    || registry.id !== "ai-native-full-stack-engineer-units" || registry.version !== "2026.08.1"
-    || !validateUnitRegistry(registry, blueprint).valid) return new Set();
+  if (!isCurrentFlagshipCourseCatalog(blueprint, registry)) return new Set();
   return new Set(COURSE_TASK_IDS.filter(id => {
     const anchor = COURSE_TASK_EVIDENCE[id];
     const unit = registry.tracks.find(track => track.skillId === anchor.skillId)?.templates.find(unit => unit.id === anchor.unitId);

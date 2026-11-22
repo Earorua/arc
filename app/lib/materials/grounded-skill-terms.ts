@@ -180,12 +180,42 @@ function findSkillMatch(text: string, label: string, mode: MatchMode): string | 
   return uniqueEvidence(indexQuote(text), forms ?? [token], mode);
 }
 
-function groundSkillMatches(quote: string, terms: readonly string[], mode: MatchMode): string[] {
+type LabelForm = "canonical" | "verbatim";
+// Prefer the nominated original spelling. A case- or width-normalized model
+// nomination can recover a single original spelling, never another inflection.
+function nominatedEvidence(source: ReturnType<typeof indexQuote>, token: string, nomination: string, mode: MatchMode, allowFolded: boolean) {
+  const alternatives = new Set<string>();
+  for (const match of literalEvidence(source, token, mode)) {
+    if (match === nomination) return match;
+    if (allowFolded) alternatives.add(match);
+  }
+  return alternatives.size === 1 ? [...alternatives][0]! : null;
+}
+
+function exactSkillMatch(text: string, label: string, mode: MatchMode) {
+  const token = skillToken(label);
+  return token ? nominatedEvidence(indexQuote(text), token, label, mode, false) : null;
+}
+
+export function findVerbatimMaterialSkillMention(text: string, label: string) {
+  return exactSkillMatch(text, label, "mention");
+}
+
+export function findVerbatimMaterialSkillEvidence(text: string, label: string) {
+  return exactSkillMatch(text, label, "affirmative");
+}
+
+function groundSkillMatches(quote: string, terms: readonly string[], mode: MatchMode, form: LabelForm): string[] {
   if (!terms.length) return [];
   const source = indexQuote(quote), labels = new Set<string>();
   for (const term of terms.slice(0, MAX_MATERIAL_SKILL_LABELS_PER_ITEM)) {
     const token = skillToken(term);
     if (!token) continue;
+    if (form === "verbatim") {
+      const original = nominatedEvidence(source, token, term.trim(), mode, true);
+      if (original) labels.add(original);
+      continue;
+    }
     const evidence = uniqueEvidence(source, [token], mode);
     if (!evidence) continue;
     const forms = reviewedGroup(token);
@@ -202,7 +232,7 @@ export function findMaterialSkillEvidence(text: string, label: string): string |
 
 /** Bind nominated source phrases with affirmative support before normalizing labels. */
 export function groundMaterialSkillTerms(quote: string, terms: readonly string[]): string[] {
-  return groundSkillMatches(quote, terms, "affirmative");
+  return groundSkillMatches(quote, terms, "affirmative", "canonical");
 }
 
 /** Recover a verbatim topic mention, including one inside an attached denial. */
@@ -210,7 +240,7 @@ export function findMaterialSkillMention(text: string, label: string): string | 
   return findSkillMatch(text, label, "mention");
 }
 
-/** Bind only nominated source mentions before normalizing; a mention is not proficiency. */
-export function groundMaterialSkillMentions(quote: string, terms: readonly string[]): string[] {
-  return groundSkillMatches(quote, terms, "mention");
+/** Both representations must first match the nominated source wording unambiguously. */
+export function groundMaterialSkillMentions(quote: string, terms: readonly string[], form: LabelForm = "canonical"): string[] {
+  return groundSkillMatches(quote, terms, "mention", form);
 }

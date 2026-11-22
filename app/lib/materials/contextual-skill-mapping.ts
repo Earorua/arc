@@ -1,9 +1,9 @@
 import type { RoleBlueprint } from "../../contracts/intelligence";
 import type { UnitRegistry } from "../../contracts/planning";
-import { validateUnitRegistry } from "../planning/registry-validation";
 import { findMaterialSkillEvidence } from "./grounded-skill-terms";
 import { normalizeMaterialSkillLabel } from "./skill-labels";
-import { createCourseTaskTopicMatcher } from "./course-task-coverage";
+import { createCourseTaskTopicMatcher, isCurrentFlagshipCourseCatalog } from "./course-task-coverage";
+import { deniedCourseContext } from "./course-relation-scope";
 
 type ContextualSkillMatcher = (term: string, text: string) => string[];
 
@@ -32,9 +32,6 @@ const softwareContext = /\b(?:software|code|api|http|vitest|jest|playwright|type
 // or "而非" would turn a denied second occurrence into affirmative evidence.
 // Comma boundaries intentionally withhold relationships that require joining clauses.
 const contextScopeBreak = /[。！？!?;；,，\n]|\.(?:\s+|$)|(?=\b(?:but|whereas|while|although|though|however|yet|rather than|except for|excluding)\b)|\band\s+(?=(?:i|we|our|they|my|she|he|the|another|other|not|never)\b)|(?=但是|不过|然而|而|但|却|同时)/giu;
-// Extraction already checks the nominated term. Inferring a related course also
-// requires an unambiguous affirmative clause, so mixed-polarity clauses stay uncovered.
-const nonAffirmativeContext = /\b(?:not(?!\s+only\b)|no|never|neither|without|cannot|[a-z]{1,30}n['’]t|rather than|except|excluding)\b|不(?!仅|只)|没有|并非|而非|未(?:曾|能|做|使用|涉及|包含|支持)|无[需须]/u;
 
 function hasGroundedContext(context: string, pattern: RegExp) {
   for (const match of context.matchAll(new RegExp(pattern.source, "gu"))) {
@@ -46,16 +43,14 @@ function hasGroundedContext(context: string, pattern: RegExp) {
 
 /** Keep these rules closed for Research and for unvalidated or different catalog versions. */
 export function createContextualSkillMatcher(blueprint: RoleBlueprint, registry: UnitRegistry): ContextualSkillMatcher {
-  if (blueprint.id !== "ai-native-full-stack-engineer" || blueprint.version !== "2026.08.1"
-    || blueprint.status !== "ready" || registry.id !== "ai-native-full-stack-engineer-units"
-    || registry.version !== "2026.08.1" || !validateUnitRegistry(registry, blueprint).valid) return () => [];
+  if (!isCurrentFlagshipCourseCatalog(blueprint, registry)) return () => [];
 
   const matchTaskTopic = createCourseTaskTopicMatcher(blueprint, registry);
   return (term, text) => {
     const token = normalizeMaterialSkillLabel(term);
     // Never borrow a qualifier from another clause or add a term found only in the text.
     const contexts = text.split(contextScopeBreak).map(normalizeMaterialSkillLabel)
-      .filter(context => !nonAffirmativeContext.test(context) && findMaterialSkillEvidence(context, term) !== null);
+      .filter(context => !deniedCourseContext.test(context) && findMaterialSkillEvidence(context, term) !== null);
     const matches = new Set<string>(matchTaskTopic(term, text));
     for (const context of contexts) {
       if (uiTerm.test(token) && hasGroundedContext(context, uiContext) && hasGroundedContext(context, uiBehavior)
