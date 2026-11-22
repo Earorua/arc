@@ -17,6 +17,7 @@ import { documentAnalysisConfigurationSchema } from "../app/server/documents/pol
 import { documentAcceptanceConfigurationDigest } from "../worker/document-executor/acceptance-policy";
 import { readDocumentHttpJson } from "../worker/document-executor/generation-receipt";
 import { calculateDocumentReservation, HttpDocumentAnalysisProvider, isDocumentProviderQualified, type DocumentFetch } from "../worker/document-executor/provider-http";
+import { MODAL_KIMI_ROUTE } from "../worker/document-executor/kimi-modal-route";
 import { KIMI_SOURCE_SPAN_ROUTE, sourceSpanPolicy } from "../worker/document-executor/source-span-extraction";
 import { openSupplementLedger, readPinnedSupplementIssuance, readSupplementCaptureArchive, registerSupplementLedger, supplementLimits as limits, supplementPurpose as purpose,
   supplementSettingsSchema as settingsSchema, supplementFixtureToken as fixtureToken, type SupplementIssuanceBinding } from "./materials-supplement-ledger";
@@ -38,13 +39,14 @@ function requireSupplementGate(env: Environment) {
 export async function inspectSupplementSettings(input: unknown) {
   const { config, qualification } = settingsSchema.parse(input);
   // These are reviewed public constraints. No route or rate, including this one, grants permission to send.
-  if (!isDocumentProviderQualified(config, qualification) || config.maxJobMicroUsd > limits.perRequestMicroUsd
-    || config.endpoint !== KIMI_SOURCE_SPAN_ROUTE.endpoint || config.provider !== "OpenRouter / Moonshot AI"
-    || config.model !== KIMI_SOURCE_SPAN_ROUTE.model || config.routingPolicy.providerOrder[0] !== KIMI_SOURCE_SPAN_ROUTE.tag
-    || (config.providerPolicyId !== "materials-openrouter-kimi-k31-pro-mxfp4-zdr" && !sourceSpanPolicy(config.providerPolicyId)) || config.priceVersion !== "2026.11.3"
-    || config.routingPolicy.policyVersion !== "2026.11.3" || qualification.receiptRoute.providerName !== KIMI_SOURCE_SPAN_ROUTE.providerName
-    || qualification.receiptRoute.endpointId !== KIMI_SOURCE_SPAN_ROUTE.endpointId || qualification.receiptRoute.generationModel !== KIMI_SOURCE_SPAN_ROUTE.generationModel
-    || qualification.inputMicroUsdPerMillionTokens !== 2_000_000 || qualification.outputMicroUsdPerMillionTokens !== 10_000_000)
+  const historicalRoute = config.endpoint === KIMI_SOURCE_SPAN_ROUTE.endpoint && config.provider === "OpenRouter / Moonshot AI"
+    && config.model === KIMI_SOURCE_SPAN_ROUTE.model && config.routingPolicy.providerOrder[0] === KIMI_SOURCE_SPAN_ROUTE.tag
+    && (config.providerPolicyId === "materials-openrouter-kimi-k31-pro-mxfp4-zdr" || sourceSpanPolicy(config.providerPolicyId)) && config.priceVersion === "2026.11.3"
+    && config.routingPolicy.policyVersion === "2026.11.3" && qualification.receiptRoute.providerName === KIMI_SOURCE_SPAN_ROUTE.providerName
+    && qualification.receiptRoute.endpointId === KIMI_SOURCE_SPAN_ROUTE.endpointId && qualification.receiptRoute.generationModel === KIMI_SOURCE_SPAN_ROUTE.generationModel
+    && qualification.inputMicroUsdPerMillionTokens === 2_000_000 && qualification.outputMicroUsdPerMillionTokens === 10_000_000;
+  if (!isDocumentProviderQualified(config, qualification, "current-quality") || config.maxJobMicroUsd > limits.perRequestMicroUsd
+    || (!historicalRoute && config.routingPolicy.providerOrder[0] !== MODAL_KIMI_ROUTE.tag))
     throw new Error("invalid-supplement-configuration");
   const documents = readFrozenSupplementDocuments().map(doc => ({
     documentId: doc.id, documentVersionId: doc.documentVersionId, textVersionId: doc.textVersionId,
@@ -73,6 +75,7 @@ async function verifyIssuance(raw: string, env: Environment, options: Collection
     const digest = env.ARC_SUPPLEMENT_ISSUANCE_SHA256;
     const { issued, binding } = readPinnedSupplementIssuance(raw, digest, mode);
     const { config, qualification, authorization } = issued;
+    if (config.routingPolicy.providerOrder[0] === MODAL_KIMI_ROUTE.tag && !options.beforeSend) throw new Error();
     const scope = await inspectSupplementSettings({ config, qualification });
     const start = Date.parse(authorization.approvedAt), end = Date.parse(authorization.expiresAt);
     if (end - start > limits.maxWindowMs || !Number.isFinite(now.getTime()) || now.getTime() < start || now.getTime() >= end
@@ -148,7 +151,7 @@ async function collect(raw: string, env: Environment, options: CollectionOptions
         handoffFailure = admissionFailure();
         if (handoffFailure) throw new Error(handoffFailure);
       };
-      const provider = new HttpDocumentAnalysisProvider(config, { qualification, now,
+      const provider = new HttpDocumentAnalysisProvider(config, { qualification, now, purpose: options.beforeSend ? "current-quality" : undefined,
         ...(maxMetadataReads === 1 ? { singleMetadataRead: true as const } : {}), fetch: async (url, init) => {
         assertWindow();
         if (init?.method === "POST" && !sent) {

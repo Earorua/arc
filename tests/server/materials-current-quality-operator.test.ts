@@ -7,9 +7,14 @@ import { basename, dirname, join } from "node:path";
 import { afterEach, expect, it, vi } from "vitest";
 import * as operator from "../../scripts/materials-current-quality-operator";
 import draft from "../../docs/verification/materials-quality-next/request-draft/manifest.json";
+import modalDraft from "../../docs/verification/materials-quality-next/modal-request-bindings.json";
+import { documentAnalysisConfigurationSchema } from "../../app/server/documents/policy";
+import { documentProviderQualificationSchema, isDocumentProviderQualified } from "../../worker/document-executor/provider-http";
+import { readQualificationConfiguration } from "../../scripts/materials-qualification-runner";
 import { fixtureGenerationResponse } from "../helpers/document-generation-response";
-import { registerSupplementLedger } from "../../scripts/materials-supplement-ledger";
-import { inspectSupplementSettings } from "../../scripts/collect-materials-supplements";
+import { registerSupplementLedger, supplementFixtureToken } from "../../scripts/materials-supplement-ledger";
+import { collectSupplementRun, inspectSupplementSettings } from "../../scripts/collect-materials-supplements";
+import { readQualificationCaptures, readSupplementCaptures } from "../../docs/verification/materials-quality-next/current-captures";
 import { DatabaseSync } from "node:sqlite";
 
 const sha = (value: string) => createHash("sha256").update(value).digest("hex");
@@ -36,6 +41,11 @@ const credits = () => ({ version: "materials-current-account-readback-v1", revie
   strictZdrAssigned: true, safetyRetentionAllowed: false, inputOutputLogging: false, trainingEnabled: false,
   publicPrompts: false, traceDestinations: 0, responseCacheOptIn: false, moonshotByok: false,
   implicitCacheScope: "thirty-synthetic-documents" });
+const modalApproval = () => ({
+  ...approval(), version: "materials-current-quality-modal-v1" as const,
+  requestDraftSha256: "c16349e254118befba96cb9b729acec998aceaa3d4762ac83a4ebd926a5bf981" as const,
+  firstReceiptDocumentId: "resume-01" as const, implicitCacheAccepted: true as const, screeningAndLegalPreservationAccepted: true as const,
+});
 const budget = () => ({ scope: "key_limit", guardrail_id: null, budget_id: null, limit_usd: 3,
   spend_usd: 0.547151, remaining_usd: 2.452849, reset_interval: null, resets_at: null, include_byok: false });
 const keyReply = () => ({ data: { creator_user_id: account.creatorUserId, organization_id: null, workspace_id: account.workspaceId,
@@ -58,6 +68,153 @@ it("requires externally pinned fresh approval without issuing or extending it", 
   expect(() => operator.readCurrentApproval(raw, sha(raw), new Date("2026-11-19T12:00:00Z"))).toThrow();
   const changed = JSON.stringify({ ...approval(), expiresAt: "2026-11-19T12:01:00Z" });
   expect(() => operator.readCurrentApproval(changed, sha(changed), now())).toThrow();
+});
+
+it("binds the staged Modal consent, request manifest and provider-specific account evidence", () => {
+  const parse = (value: unknown) => {
+    const raw = JSON.stringify(value);
+    return operator.readCurrentApproval(raw, sha(raw), now());
+  };
+  const grant = parse(modalApproval());
+  const { moonshotByok: unusedByok, ...shared } = credits();
+  expect(unusedByok).toBe(false);
+  const accountEvidence = { ...shared, version: "materials-modal-account-readback-v1", modalByok: false, byokOnlyRouting: false };
+  expect(operator.readCurrentCredits(JSON.stringify(accountEvidence), grant, now()).minimumMicroUsd).toBe(4_000_000);
+  expect(() => operator.readCurrentCredits(JSON.stringify(credits()), grant, now())).toThrow();
+  expect(() => operator.readCurrentCredits(JSON.stringify(accountEvidence), approval(), now())).toThrow();
+  expect(() => operator.readCurrentCredits(JSON.stringify({ ...accountEvidence, modalByok: true }), grant, now())).toThrow();
+  for (const change of [{ firstReceiptDocumentId: "resume-02" }, { implicitCacheAccepted: false },
+    { screeningAndLegalPreservationAccepted: false }, { requestDraftSha256: approval().requestDraftSha256 }]) {
+    expect(() => parse({ ...modalApproval(), ...change })).toThrow();
+  }
+});
+
+it("builds all six reviewed Modal requests through the supplement transport with the approved extraction policy", async () => {
+  const selected = modalDraft.configurations.supplement;
+  const config = documentAnalysisConfigurationSchema.parse({ ...selected.config, apiKey: "test-fixture-for-modal" });
+  const qualification = documentProviderQualificationSchema.parse({ ...selected.qualification, qualified: true });
+  const scope = await inspectSupplementSettings({ config: selected.config, qualification });
+  const { documents, reservationMicroUsd } = scope;
+  expect(documents).toHaveLength(6);
+  expect(reservationMicroUsd).toBe(72_960);
+  const hashes: string[] = [];
+  expect(isDocumentProviderQualified(config, qualification)).toBe(false);
+  expect(isDocumentProviderQualified(config, qualification, "current-quality")).toBe(true);
+  const directory = mkdtempSync(join(tmpdir(), "arc-current-operator-")); directories.push(directory);
+  const approved = modalApproval(), ledgerSha256 = registerSupplementLedger(directory);
+  const raw = JSON.stringify({ config: selected.config, qualification, authorization: {
+    id: approved.supplement.authorizationId, runId: approved.supplement.runId, issuedBy: "fixture-issuer",
+    candidateCommit: approved.candidateCommit, ledgerSha256, credentialSha256: sha(supplementFixtureToken),
+    purpose: scope.purpose, documents, corpusSha256: scope.corpusSha256, configurationSha256: scope.configurationSha256,
+    outputSchemaVersion: scope.outputSchemaVersion, approvedAt: approved.approvedAt, expiresAt: approved.expiresAt,
+    maxRequests: 6, totalBudgetMicroUsd: 450_000, perRequestMicroUsd: 75_000, maxMetadataReadsPerDocument: 3 } });
+  const env = { ARC_SUPPLEMENT_COLLECTION_ENABLED: "true", ARC_SUPPLEMENT_ISSUANCE_SHA256: sha(raw), ARC_SUPPLEMENT_PROVIDER_API_KEY: supplementFixtureToken };
+  const fetch: typeof globalThis.fetch = async (url, init) => {
+    if (init?.method === "GET") return fixtureGenerationResponse(new URL(String(url)).searchParams.get("id")!, config.model, qualification.receiptRoute);
+    expect(String(url)).toBe(config.endpoint); expect(init?.method).toBe("POST");
+    hashes.push(sha(String(init?.body)));
+    return Response.json({ id: "fixture-modal-six-" + hashes.length, model: config.model, provider: "Modal", usage: { prompt_tokens: 100, completion_tokens: 20, cost: 0.000007 },
+      choices: [{ finish_reason: "stop", message: { content: '{"format":"source-spans-v3","items":[],"reviewPoints":[]}' } }] });
+  };
+  const options = { directory, fetch, now, matchesCandidate: (commit: string) => commit === approved.candidateCommit };
+  await expect(collectSupplementRun(raw, env, options)).rejects.toThrow("supplement-authorization-invalid");
+  expect(hashes).toEqual([]);
+  const checkRoute = vi.fn(async () => {});
+  const result = await collectSupplementRun(raw, env, { ...options, beforeSend: operator.createCurrentSendGuard(approved, "supplement", async () => {}, now, checkRoute) });
+  expect(result).toMatchObject({ requestsSent: 6, heldMicroUsd: 0, settledMicroUsd: 42 });
+  expect(checkRoute).toHaveBeenCalledTimes(6);
+  const archived = await readSupplementCaptures({ issuance: raw, issuanceSha256: sha(raw), directory, mode: "offline-test" });
+  expect(archived.complete).toBe(true);
+  expect(hashes).toEqual(modalDraft.records.filter(r => r.group === "supplement").map(r => r.requestBodySha256));
+  expect(isDocumentProviderQualified({ ...config, provider: "OpenRouter / Moonshot AI" }, qualification, "current-quality")).toBe(false);
+  for (const route of [{ ...qualification.receiptRoute, endpointId: draft.configurations.supplement.qualification.receiptRoute.endpointId },
+    { ...qualification.receiptRoute, providerName: "Moonshot AI" }]) {
+    expect(isDocumentProviderQualified(config, { ...qualification, receiptRoute: route }, "current-quality")).toBe(false);
+  }
+  expect(isDocumentProviderQualified(config, { ...qualification, outputMicroUsdPerMillionTokens: 12_000_000 }, "current-quality")).toBe(false);
+});
+
+it("checks both public Modal catalogues without a credential or inference and refuses listing or price drift", async () => {
+  const route = modalDraft.configurations.supplement;
+  const row = { name: "Modal | " + route.qualification.receiptRoute.generationModel, model_id: route.config.model,
+    provider_name: "Modal", tag: "modal/mxfp4", quantization: "mxfp4", service_tier: null, status: 0,
+    pricing: { prompt: "0.000002", completion: "0.00001", input_cache_read: "0.0000002", discount: 0 },
+    max_completion_tokens: 4096, max_prompt_tokens: null, context_length: 20096, supported_parameters: ["max_tokens", "response_format"] };
+  const strict = { ...row, safety_retention: false };
+  const calls: string[] = [];
+  const inspect = (zdrRows: unknown[], standard: unknown[] = [row]) => operator.checkCurrentModalCatalogue(async (url, init) => {
+    expect(init?.method).toBe("GET");
+    expect(init?.redirect).toBe("manual");
+    expect(new Headers(init?.headers).has("authorization")).toBe(false);
+    expect(init?.body).toBeUndefined();
+    calls.push(String(url));
+    return Response.json(String(url).endsWith("/zdr") ? { data: zdrRows } : { data: { id: row.model_id, endpoints: standard } });
+  });
+  await expect(inspect([strict])).resolves.toMatchObject({ tag: row.tag });
+  expect(calls.sort()).toEqual(["https://openrouter.ai/api/v1/endpoints/zdr", "https://openrouter.ai/api/v1/models/moonshotai/kimi-k3.1-pro/endpoints"]);
+  for (const rows of [[], [row], [strict, strict], [{ ...strict, safety_retention: true }], [{ ...strict, tag: "moonshotai/mxfp4" }]]) {
+    await expect(inspect(rows)).rejects.toThrow();
+  }
+  for (const changed of [{ pricing: { ...row.pricing, request: "0.01" } }, { pricing: { ...row.pricing, completion: "0.00002" } },
+    { supported_parameters: ["max_tokens"] }, { max_completion_tokens: 1024 }, { name: "Modal | different-version" }]) {
+    await expect(inspect([strict], [{ ...row, ...changed }])).rejects.toThrow();
+  }
+});
+
+it.each(["matches", "wrong-endpoint", "missing-chat-provider", "listing-withdrawn-after-first"] as const)("runs the staged Modal qualification once per document, first receipt %s", async scenario => {
+  const directory = mkdtempSync(join(tmpdir(), "arc-current-operator-")); directories.push(directory);
+  const raw = JSON.stringify(modalApproval());
+  const grant = operator.readCurrentApproval(raw, sha(raw), now());
+  const { config, qualification: proposed } = modalDraft.configurations["resume-jd"];
+  const qualification = { ...proposed, qualified: true };
+  const settings = { runId: grant.qualification.runId, config, qualification, authorization: {
+    id: grant.qualification.authorizationId, runId: grant.qualification.runId, endpoint: config.endpoint, model: config.model,
+    provider: config.provider, providerPolicyId: config.providerPolicyId, priceVersion: config.priceVersion,
+    routingPolicy: config.routingPolicy, receiptRoute: qualification.receiptRoute,
+    inputMicroUsdPerMillionTokens: 2_000_000, outputMicroUsdPerMillionTokens: 10_000_000, maxRequests: 24, totalBudgetMicroUsd: 2_000_000,
+    corpusSha256: "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750",
+    privacyEvidence: "https://openrouter.ai/docs/guides/features/zdr", pricingEvidence: "https://modal.com/products/model-apis",
+    approvedAt: grant.approvedAt, expiresAt: grant.expiresAt } };
+  const serialized = JSON.stringify(settings);
+  expect(() => readQualificationConfiguration({ ARC_DOCUMENT_QUALIFICATION_ENABLED: "true", ARC_DOCUMENT_QUALIFICATION_SETTINGS: serialized,
+    ARC_DOCUMENT_PROVIDER_API_KEY: "synthetic-current-operator-key" }, now())).toThrow();
+  const hashes: string[] = [];
+  const fetch: typeof globalThis.fetch = async (url, init) => {
+    if (init?.method === "POST") {
+      hashes.push(sha(String(init.body)));
+      return Response.json({ id: `fixture-modal-${hashes.length}`, model: config.model, provider: scenario === "missing-chat-provider" ? undefined : "Modal",
+        usage: { prompt_tokens: 100, completion_tokens: 20, cost: 0.000007 },
+        choices: [{ finish_reason: "stop", message: { content: '{"format":"source-spans-v3","items":[],"reviewPoints":[]}' } }] });
+    }
+    expect(init?.method).toBe("GET");
+    const id = new URL(String(url)).searchParams.get("id")!;
+    const route = scenario === "wrong-endpoint" ? { ...qualification.receiptRoute,
+      endpointId: draft.configurations["resume-jd"].qualification.receiptRoute.endpointId } : qualification.receiptRoute;
+    return fixtureGenerationResponse(id, config.model, route);
+  };
+  let listings = 0;
+  const run = await operator.runCurrentQualificationFixture({ approval: grant, directory, settings: serialized, fetch, now,
+    verifySource: async () => {}, checkRoute: async () => {
+      listings++;
+      if (scenario === "listing-withdrawn-after-first" && listings === 2) throw new Error("strict route removed");
+    } });
+  const expected = modalDraft.records.filter(r => r.group === "resume-jd").slice(0, scenario === "matches" ? 24 : 1);
+  expect(hashes).toEqual(expected.map(r => r.requestBodySha256));
+  const reason = { matches: null, "wrong-endpoint": "route-mismatch", "missing-chat-provider": "route-unverified",
+    "listing-withdrawn-after-first": "operator-before-send-refused" }[scenario];
+  expect(run.result).toMatchObject({ requestsSent: expected.length, stoppedReason: reason,
+    heldMicroUsd: 0, settledMicroUsd: 7 * expected.length });
+  expect(run.result.documents[0]?.audit?.status).toBe(scenario === "listing-withdrawn-after-first" ? "verified" : reason ?? "verified");
+  expect(listings).toBe(expected.length + Number(scenario === "listing-withdrawn-after-first"));
+  if (scenario === "matches") {
+    const capture = await readQualificationCaptures(run.captureDirectory, { bindingSha256: run.bindingSha256, configurationSha256: run.configurationSha256,
+      mode: "offline-test", runId: grant.qualification.runId, authorizationId: grant.qualification.authorizationId, candidateCommit: grant.candidateCommit,
+      providerPolicyId: config.providerPolicyId as "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v3", endpoint: config.endpoint, model: config.model,
+      receiptRoute: qualification.receiptRoute, requestBodies: expected.map(({ documentId, requestBodySha256 }) => ({ documentId, requestBodySha256 })) });
+    expect(capture.complete).toBe(true);
+    expect(capture.outputs[0]?.accounting.audit).toMatchObject({ actualEndpointId: qualification.receiptRoute.endpointId,
+      pairedReceipt: { chatModel: config.model, chatProvider: "Modal", chatCostUsd: "0.000007", generationCostUsd: "0.000007" } });
+  }
 });
 
 it("requires every exact current runtime attachment once and rejects all duplicate paths", () => {
@@ -261,6 +418,7 @@ it("provides a default read-only hidden-input launcher without a secret argument
   expect(source).toContain("$psi.Environment.Clear()");
   expect(source).toContain("$psi.CreateNoWindow=$true");
   expect(source).toContain("--inspect-account");
+  expect(source).toContain("'route-unavailable'");
   expect(source).not.toMatch(/ArgumentList\.Add\(\$(?:rawKey|secureKey)|Start-Transcript|Write-(?:Host|Output).*\$(?:rawKey|secureKey)/u);
   const script = realpathSync(path).replaceAll("'", "''");
   const command = `$tokens=$null;$errors=$null;[Management.Automation.Language.Parser]::ParseFile('${script}',[ref]$tokens,[ref]$errors)|Out-Null;if($errors.Count){exit 3};& '${script}' -CheckOnly -PacketId 'invalid!' -PacketSha256 'not-a-digest';Write-Output 'original-terminal-retained';exit $LASTEXITCODE`;

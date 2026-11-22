@@ -1,0 +1,251 @@
+{
+  "review": "modal-request-review-20261122",
+  "basisSha256": "23e06d4f6d5724d43ee39974e8f9cf3ecf202227a9c172fc8538d132409479e7",
+  "sourceDraftSha256": "06238bde3fbc45aa33efb38da95234cfbb74d34d162bf1941d9ac0c56c964ac7",
+  "configurations": {
+    "resume-jd": {
+      "config": {
+        "provider": "OpenRouter / Modal",
+        "model": "moonshotai/kimi-k3.1-pro",
+        "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+        "providerPolicyId": "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v3",
+        "routingPolicy": {
+          "policyVersion": "2026.11.22",
+          "providerOrder": [
+            "modal/mxfp4"
+          ],
+          "allowFallback": false,
+          "dataPolicy": "zdr-only"
+        },
+        "priceVersion": "2026.11.22",
+        "userDailyMicroUsd": 2000000,
+        "globalDailyMicroUsd": 2000000,
+        "maxJobMicroUsd": 75000,
+        "maxInputTokens": 16000,
+        "maxOutputTokens": 4096,
+        "httpTimeoutMs": 180000
+      },
+      "qualification": {
+        "qualified": false,
+        "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+        "model": "moonshotai/kimi-k3.1-pro",
+        "providerPolicyId": "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v3",
+        "priceVersion": "2026.11.22",
+        "routingPolicy": {
+          "policyVersion": "2026.11.22",
+          "providerOrder": [
+            "modal/mxfp4"
+          ],
+          "allowFallback": false,
+          "dataPolicy": "zdr-only"
+        },
+        "receiptRoute": {
+          "providerName": "Modal",
+          "endpointId": "42406f15-f64c-4bae-95b7-d03877cfff58",
+          "generationModel": "moonshotai/kimi-k3.1-pro-20261023"
+        },
+        "inputMicroUsdPerMillionTokens": 2000000,
+        "outputMicroUsdPerMillionTokens": 10000000,
+        "inputTokenBound": "utf8-bytes-plus-4096"
+      }
+    },
+    "supplement": {
+      "config": {
+        "provider": "OpenRouter / Modal",
+        "model": "moonshotai/kimi-k3.1-pro",
+        "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+        "providerPolicyId": "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v3",
+        "routingPolicy": {
+          "policyVersion": "2026.11.22",
+          "providerOrder": [
+            "modal/mxfp4"
+          ],
+          "allowFallback": false,
+          "dataPolicy": "zdr-only"
+        },
+        "priceVersion": "2026.11.22",
+        "userDailyMicroUsd": 450000,
+        "globalDailyMicroUsd": 450000,
+        "maxJobMicroUsd": 75000,
+        "maxInputTokens": 16000,
+        "maxOutputTokens": 4096,
+        "httpTimeoutMs": 180000
+      },
+      "qualification": {
+        "qualified": false,
+        "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+        "model": "moonshotai/kimi-k3.1-pro",
+        "providerPolicyId": "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v3",
+        "priceVersion": "2026.11.22",
+        "routingPolicy": {
+          "policyVersion": "2026.11.22",
+          "providerOrder": [
+            "modal/mxfp4"
+          ],
+          "allowFallback": false,
+          "dataPolicy": "zdr-only"
+        },
+        "receiptRoute": {
+          "providerName": "Modal",
+          "endpointId": "42406f15-f64c-4bae-95b7-d03877cfff58",
+          "generationModel": "moonshotai/kimi-k3.1-pro-20261023"
+        },
+        "inputMicroUsdPerMillionTokens": 2000000,
+        "outputMicroUsdPerMillionTokens": 10000000,
+        "inputTokenBound": "utf8-bytes-plus-4096"
+      }
+    }
+  },
+  "records": [
+    {
+      "group": "resume-jd",
+      "documentId": "resume-01",
+      "requestBodySha256": "1a5eecf93680d0df1ba660a59899aaf93bc62404b66561e6a41c7b65f80d49fd"
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "resume-02",
+      "requestBodySha256": "fff54f578f97b07afa06fc2019b5befd1eee91ef3a1308c1b7bf5f06166683ae"
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "resume-03",
+      "requestBodySha256": "49d4f803ff175f4c4274586e4f32b19d544aefcecfecc37882f60e4149de3336"
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "resume-04",
+      "requestBodySha256": "83d3ce995934d2defcd22b2ab0d877efcb43563ad25074751ebb752bd9a7a817"
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "resume-05",
+      "requestBodySha256": "190d2c0aa678d6b72a21e6231a51b4163f13f387df59c41555f481482da1636d"
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "resume-06",
+      "requestBodySha256": "86f0fd059aed613c9406b7750e65dfb43858d9218ef697557ae616a3185d04cf"
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "resume-07",
+      "requestBodySha256": "f2adea35c35c95824e7dbdb6361b84a72ae84621bae41279dabfb12028a8c41b"
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "resume-08",
+      "requestBodySha256": "d8d2d794e0cdb976769ddd9bd805fe7cf71590f2d9bd84db4fc480e72fc5041b"
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "resume-09",
+      "requestBodySha256": "59658247e554ac4cb047393630e06945eab4dd6e98c34a8bd69321965d1e1b3b"
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "jd-01",
+      "requestBodySha256": "9a2143fe411eafbee03b440021b041aff3a2b39dc7ddce0142e0e9b43bc1e0c3"
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "jd-02",
+      "requestBodySha256": "00041f6e2af7209821ac72f954c53ebb287537c12e36a7f55e67f875856674ef"
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "jd-03",
+      "requestBodySha256": "5f45c8151a63d98b1df1ab0b8029b0d76973856a2c681239d5fb0b5351c8f7ce"
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "jd-04",
+      "requestBodySha256": "2cb2e1ac82a0a48aa1be5e6d682ac310dd8a6666c21792303b1d94fbea95f2f1"
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "jd-05",
+      "requestBodySha256": "e6c5ad7d250d2558d0907c0a49e75ea0c77b371f668bc7590b54faa9d8cf711c"
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "jd-06",
+      "requestBodySha256": "0c17d98eb0ad658e808ac0b29a987f1dea15d6fc4a972a9fc24a81f14e5fed9e"
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "jd-07",
+      "requestBodySha256": "9398745fdeb88ff9fa26eced18c9bb03d30e480ba08e17f3760b368e4c861e7c"
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "jd-08",
+      "requestBodySha256": "9b5fcce4cf5e35249b02e87593277c67cb9df7f4e004052e017ebea5567f351f"
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "jd-09",
+      "requestBodySha256": "6af52602d7856bc17df78799a500d14750ea0aedba1fa3e29545ca8b4140be95"
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "resume-10",
+      "requestBodySha256": "6b18d82cbca78cc4148de74f737a25da92a4c3e30f2fde25144d2ba130960162"
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "resume-11",
+      "requestBodySha256": "3e9ad4b22589c3eda232340da509e309fbd1eeb8bb061c17c15059f50ab9b9be"
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "resume-12",
+      "requestBodySha256": "6bb60f868a68ff178c41a231c3e87ba060f367d95ce8a9d7f5013b69830a6ca1"
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "jd-10",
+      "requestBodySha256": "1da9425626bad0edb9fc9dcb1cc6539183516aa3f6311dd01576c9a5ff93a016"
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "jd-11",
+      "requestBodySha256": "2793541f274a8c722da55750918bba83c6ed63d7b98ab5c2bea5641acd848c28"
+    },
+    {
+      "group": "resume-jd",
+      "documentId": "jd-12",
+      "requestBodySha256": "0250b6496136f2b08716fb3c0fbd9070a7688c3040c23ed0d0f210e884d0d564"
+    },
+    {
+      "group": "supplement",
+      "documentId": "supplement-01",
+      "requestBodySha256": "9807d89bb2ee08c98bbabe07d8339a10a235a61ffeb352ed679e0667e1cac328"
+    },
+    {
+      "group": "supplement",
+      "documentId": "supplement-02",
+      "requestBodySha256": "34d8d59b6081d83921cac0bf411420a88a3e3ba935104110d1050be959ae912f"
+    },
+    {
+      "group": "supplement",
+      "documentId": "supplement-03",
+      "requestBodySha256": "6c2ea8cd9dd3d5163b23acf3053e7518e9a1f00784fc7712699f9696562e37ae"
+    },
+    {
+      "group": "supplement",
+      "documentId": "supplement-04",
+      "requestBodySha256": "2a0941412254e4843913f215c1a166bb2e18ee103c5b4385193efa83e426d4ad"
+    },
+    {
+      "group": "supplement",
+      "documentId": "supplement-05",
+      "requestBodySha256": "abf87699a0cd09a6a8da6becd286e609135fb073c1d2d189297b3023fe0b2cee"
+    },
+    {
+      "group": "supplement",
+      "documentId": "supplement-06",
+      "requestBodySha256": "10cd1415c1c8c3a0a2ecd9043bbb3eb086cb36588b8e195466fc6a04a54fe13b"
+    }
+  ]
+}

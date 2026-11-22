@@ -1,0 +1,2 @@
+# The operator checks the exact reviewed JSON bytes on Windows.
+docs/verification/materials-quality-next/modal-*.json text eol=lf

@@ -15,6 +15,7 @@ $messages=@{
     'invalid-packet'='Check the separately issued packet, digest and private file permissions.'
     'approval-window'='Obtain a fresh approval window; this command cannot renew it.'
     'source-drift'='Source, body or evidence pins changed; review and freeze the packet again.'
+    'route-unavailable'='Check the public endpoint and strict ZDR catalogues for the reviewed Modal route and prices.'
     'account-evidence'='Refresh the independently reviewed Credits and guardrail evidence.'
     'key-readback'='Inspect the dedicated key metadata and its active restrictions.'
     'key-mismatch'='Use the dedicated key bound to the approved packet.'

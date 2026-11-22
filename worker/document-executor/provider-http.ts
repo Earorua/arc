@@ -7,7 +7,8 @@ import { materialIdSchema, materialVersionSchema } from "../../app/contracts/doc
 import { documentReceiptRouteSchema } from "../../app/server/documents/provider-receipt";
 import { auditDocumentGeneration, documentTokenPriceCeiling, DocumentHttpTimeout, isFailedChatResponse, readChatReceipt, readDocumentHttpJson,
   withDocumentDeadline } from "./generation-receipt";
-import { KIMI_SOURCE_SPAN_POLICY_PREFIX, KIMI_SOURCE_SPAN_ROUTE, readSourceSpanExtraction, sourceSpanPolicy } from "./source-span-extraction";
+import { KIMI_SOURCE_MENTIONS_POLICY_ID, KIMI_SOURCE_SPAN_POLICY_PREFIX, KIMI_SOURCE_SPAN_ROUTE, readSourceSpanExtraction, sourceSpanPolicy } from "./source-span-extraction";
+import { MODAL_KIMI_ROUTE } from "./kimi-modal-route";
 
 const rate = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);
 const chatEndpoint = z.string().url().max(2048).refine(value => {
@@ -39,13 +40,25 @@ export function calculateDocumentReservation(config: DocumentAnalysisMetadata, q
   if (!Number.isSafeInteger(amount) || amount > config.maxJobMicroUsd) throw new Error("Document provider unavailable");
   return amount;
 }
-export function isDocumentProviderQualified(config: DocumentAnalysisMetadata, qualification: unknown): qualification is DocumentProviderQualification {
+function matchesModalKimi(config: DocumentAnalysisMetadata, q: DocumentProviderQualification) {
+  return config.provider === MODAL_KIMI_ROUTE.provider && config.providerPolicyId === KIMI_SOURCE_MENTIONS_POLICY_ID
+    && config.model === KIMI_SOURCE_SPAN_ROUTE.model && config.endpoint === KIMI_SOURCE_SPAN_ROUTE.endpoint
+    && config.priceVersion === MODAL_KIMI_ROUTE.version && config.routingPolicy.policyVersion === MODAL_KIMI_ROUTE.version
+    && config.routingPolicy.providerOrder[0] === MODAL_KIMI_ROUTE.tag && q.receiptRoute.providerName === MODAL_KIMI_ROUTE.providerName
+    && q.receiptRoute.endpointId === MODAL_KIMI_ROUTE.endpointId && q.receiptRoute.generationModel === KIMI_SOURCE_SPAN_ROUTE.generationModel
+    && q.inputMicroUsdPerMillionTokens === MODAL_KIMI_ROUTE.inputRate && q.outputMicroUsdPerMillionTokens === MODAL_KIMI_ROUTE.outputRate;
+}
+export function isDocumentProviderQualified(config: DocumentAnalysisMetadata, qualification: unknown, purpose?: "current-quality"): qualification is DocumentProviderQualification {
   const parsed = documentProviderQualificationSchema.safeParse(qualification);
   if (!parsed.success || !validMetadata(config)) return false;
   const q = parsed.data;
   const spanPolicy = sourceSpanPolicy(config.providerPolicyId);
   if (!spanPolicy && config.providerPolicyId.startsWith(KIMI_SOURCE_SPAN_POLICY_PREFIX)) return false;
-  if (spanPolicy && (config.model !== KIMI_SOURCE_SPAN_ROUTE.model
+  const modal = (config.model === KIMI_SOURCE_SPAN_ROUTE.model || !!spanPolicy)
+    && (config.routingPolicy.providerOrder[0] === MODAL_KIMI_ROUTE.tag || config.provider === MODAL_KIMI_ROUTE.provider
+      || (!!spanPolicy && (config.routingPolicy.policyVersion === MODAL_KIMI_ROUTE.version || config.priceVersion === MODAL_KIMI_ROUTE.version)));
+  if (modal && (purpose !== "current-quality" || !matchesModalKimi(config, q))) return false;
+  if (!modal && spanPolicy && (config.model !== KIMI_SOURCE_SPAN_ROUTE.model
     || config.endpoint !== KIMI_SOURCE_SPAN_ROUTE.endpoint || config.routingPolicy.providerOrder[0] !== KIMI_SOURCE_SPAN_ROUTE.tag
     || q.receiptRoute.providerName !== KIMI_SOURCE_SPAN_ROUTE.providerName || q.receiptRoute.endpointId !== KIMI_SOURCE_SPAN_ROUTE.endpointId
     || q.receiptRoute.generationModel !== KIMI_SOURCE_SPAN_ROUTE.generationModel)) return false;
@@ -57,7 +70,7 @@ export function isDocumentProviderQualified(config: DocumentAnalysisMetadata, qu
   try { calculateDocumentReservation(config, q); return true; } catch { return false; }
 }
 
-type ProviderOptions = { fetch: DocumentFetch; qualification: DocumentProviderQualification | null; now?: () => Date; singleMetadataRead?: true };
+type ProviderOptions = { fetch: DocumentFetch; qualification: DocumentProviderQualification | null; now?: () => Date; singleMetadataRead?: true; purpose?: "current-quality" };
 export class HttpDocumentAnalysisProvider implements DocumentAnalysisProvider {
   constructor(private readonly config: DocumentAnalysisConfiguration, private readonly options: ProviderOptions) {}
 
@@ -65,7 +78,7 @@ export class HttpDocumentAnalysisProvider implements DocumentAnalysisProvider {
     claimReceipt?: DocumentReceiptClaim): Promise<DocumentProviderOutcome> {
     const notSent = { kind: "not-sent", code: "configuration" } as const;
     const config = this.config, qualification = this.options.qualification;
-    if (!isDocumentProviderQualified(config, qualification) || !documentAnalysisConfigurationSchema.safeParse(config).success
+    if (!isDocumentProviderQualified(config, qualification, this.options.purpose) || !documentAnalysisConfigurationSchema.safeParse(config).success
       || input.providerPolicyId !== config.providerPolicyId || input.outputSchemaVersion !== "2026.11.1") return notSent;
     if (input.execution && (input.execution.modelVersion !== config.model || input.execution.priceVersion !== config.priceVersion
       || input.execution.configurationDigest !== await documentProviderConfigurationDigest(config,
@@ -84,7 +97,8 @@ export class HttpDocumentAnalysisProvider implements DocumentAnalysisProvider {
     const data = JSON.stringify({ kind: input.kind, segments });
     if (new TextEncoder().encode(data).byteLength + 4096 > config.maxInputTokens) return notSent;
     // This Kimi route advertises max_tokens and fixes its own sampling temperature.
-    const generationParameters = config.model === "moonshotai/kimi-k3.1-pro" && config.routingPolicy.providerOrder[0] === "moonshotai/mxfp4"
+    const tag = config.routingPolicy.providerOrder[0];
+    const generationParameters = config.model === KIMI_SOURCE_SPAN_ROUTE.model && (tag === KIMI_SOURCE_SPAN_ROUTE.tag || tag === MODAL_KIMI_ROUTE.tag)
       ? { max_tokens: config.maxOutputTokens }
       : { max_completion_tokens: config.maxOutputTokens, temperature: 0 };
     const spanPolicy = sourceSpanPolicy(config.providerPolicyId);

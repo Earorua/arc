@@ -4,6 +4,7 @@ import { DOCUMENT_METADATA_TIMEOUT_MS, MAX_DOCUMENT_METADATA_ATTEMPTS, type Docu
   type DocumentReceiptAudit } from "../../app/server/documents/provider-receipt";
 import type { DocumentFetch, DocumentProviderQualification } from "./provider-http";
 import { boundedMetadataRetryAfter } from "./metadata-retry";
+import { MODAL_KIMI_ROUTE } from "./kimi-modal-route";
 import { sourceSpanPolicy, incompleteSourceSpanOutput } from "./source-span-extraction";
 
 export { DOCUMENT_METADATA_TIMEOUT_MS };
@@ -189,6 +190,8 @@ async function checkGeneration(envelope: Record<string, unknown>, chat: ChatRece
   }
   if (data.model !== generationModel || chat.model !== config.model) return "model-mismatch";
   if (!audit.actualProvider || !audit.actualEndpointId || !successful) return "route-unverified";
+  const modalEvaluation = config.routingPolicy.providerOrder[0] === MODAL_KIMI_ROUTE.tag && config.provider === MODAL_KIMI_ROUTE.provider;
+  if (modalEvaluation && !chat.provider) return "route-unverified";
   if (data.provider_name !== approved.providerName || successful.endpoint_id !== approved.endpointId
     || (chat.provider !== undefined && chat.provider !== approved.providerName)
     || (successful.provider_name !== undefined && successful.provider_name !== approved.providerName)) return "route-mismatch";
@@ -196,6 +199,11 @@ async function checkGeneration(envelope: Record<string, unknown>, chat: ChatRece
     || audit.metadataInputTokens !== chat.inputTokens || audit.metadataOutputTokens !== chat.outputTokens || audit.metadataMicroUsd !== chat.actualMicroUsd
     || chat.inputTokens > config.maxInputTokens || chat.outputTokens > config.maxOutputTokens) return "usage-mismatch";
   if (chat.actualMicroUsd > documentTokenPriceCeiling(chat.inputTokens, chat.outputTokens, qualification)) return "price-bound-exceeded";
+  if (modalEvaluation) {
+    if (!chat.price || !price) return "usage-mismatch";
+    // Both observed labels and cost decimals have matched above. Never persist an untrusted chat label.
+    audit.pairedReceipt = { chatModel: config.model, chatProvider: approved.providerName, chatCostUsd: chat.price.source, generationCostUsd: price.source };
+  }
   if (sourceSpanPolicy(config.providerPolicyId)) {
     const incomplete = incompleteSourceSpanOutput(envelope, data, successful);
     if (incomplete) audit.extractionRead = incomplete;

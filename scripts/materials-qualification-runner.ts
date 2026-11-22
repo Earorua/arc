@@ -35,7 +35,7 @@ const settingsSchema = z.object({
 }).strict();
 
 /** No defaults, shared Research credentials, or caller output can grant this authorization. */
-export function readQualificationConfiguration(env: Readonly<Record<string, string | undefined>>, now: Date) {
+export function readQualificationConfiguration(env: Readonly<Record<string, string | undefined>>, now: Date, purpose?: "current-quality") {
   if (env.ARC_DOCUMENT_QUALIFICATION_ENABLED !== "true" || env.ARC_DOCUMENT_PILOT_ENABLED === "true") throw new QualificationRunError("qualification-disabled");
   let settings: z.infer<typeof settingsSchema>;
   let config: z.infer<typeof documentAnalysisConfigurationSchema>;
@@ -51,7 +51,7 @@ export function readQualificationConfiguration(env: Readonly<Record<string, stri
   } catch { throw new QualificationRunError("qualification-settings-invalid"); }
   const { authorization, qualification } = settings;
   const equal = (left: unknown, right: unknown) => JSON.stringify(left) === JSON.stringify(right);
-  if (!isDocumentProviderQualified(config, qualification)
+  if (!isDocumentProviderQualified(config, qualification, purpose)
     || authorization.runId !== settings.runId || authorization.endpoint !== config.endpoint
     || authorization.model !== config.model || authorization.provider !== config.provider
     || authorization.providerPolicyId !== config.providerPolicyId || authorization.priceVersion !== config.priceVersion
@@ -132,7 +132,7 @@ type RunDependencies = {
 export type MaterialCollectionBeforeSend = (request: Readonly<{
   documentId: string; url: string; bodySha256: string | null; redirect: RequestRedirect | undefined;
 }>) => Promise<void>;
-type CaptureDependency = { capture?: (value: QualificationOutputCapture) => Promise<void>; beforeSend?: MaterialCollectionBeforeSend };
+type CaptureDependency = { capture?: (value: QualificationOutputCapture) => Promise<void>; beforeSend?: MaterialCollectionBeforeSend; purpose?: "current-quality" };
 type ExecutionDependencies = Omit<RunDependencies, "checkpoint"> & { checkpoint?: RunDependencies["checkpoint"] } & CaptureDependency;
 export function runDocumentQualification(env: Environment, dependencies: RunDependencies & CaptureDependency) {
   return runAuthorizedDocuments(env, dependencies, "full");
@@ -152,8 +152,9 @@ async function runAuthorizedDocuments(env: Environment, dependencies: ExecutionD
     latestTime = Math.max(latestTime, time);
     return current;
   };
+  const purpose = profile === "full" && dependencies.capture && dependencies.beforeSend ? dependencies.purpose : undefined;
   const settings = profile === "pilot" ? await readDiagnosticPilotConfiguration(env, now(), dependencies.mode)
-    : { ...readQualificationConfiguration(env, now()), pilotScope: null, documents: corpus.documents, openLiveJournal: null };
+    : { ...readQualificationConfiguration(env, now(), purpose), pilotScope: null, documents: corpus.documents, openLiveJournal: null };
   const { config, authorization, qualification, runId, reservationMicroUsd, pilotScope, documents: selected } = settings;
   // The pilot's public dependency surface and live host do not acquire a capture capability.
   const capture = profile === "full" ? dependencies.capture : undefined;
@@ -208,7 +209,7 @@ async function runAuthorizedDocuments(env: Environment, dependencies: ExecutionD
     let admissionReason: string | null = null;
     let capturedChat = emptyQualificationChat(), requestBodySha256: string | null = null;
     let generationReads = 0, claimedGenerationUrl: string | null = null;
-    const provider = new HttpDocumentAnalysisProvider(config, { qualification, now, fetch: async (url, init) => {
+    const provider = new HttpDocumentAnalysisProvider(config, { qualification, now, purpose, fetch: async (url, init) => {
       if (init?.method !== "POST") {
         if (pilotScope) {
           if (init?.method !== "GET" || entry.sentAt === null || String(url) !== claimedGenerationUrl || init.body != null || init.redirect !== "manual"

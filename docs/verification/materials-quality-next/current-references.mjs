@@ -20,8 +20,8 @@ const pins = Object.freeze({
   [`${native}/native-evidence/manifest.json`]: "c65d84b1048dbad28f0eea7e21e81c77c4c577b43c0bb67ab77fb978fd1b6d4d",
   [`${native}/native-evidence/check.json`]: "d9026957497342116e47e7c77071839fe669119b33958adf89c304fc216461de",
   "scripts/materials-qualification-capture.ts": "f55c6df1f9580b170f29e0cb0b254d81fc4f3bc5b905c7f7d9a6f67bbde91c32",
-  "scripts/materials-qualification-runner.ts": "fe1120a44f8d8dd79f702b45381ca3666b364d609acdd7ac75da157ca8017099",
-  "scripts/collect-materials-supplements.ts": "33a9bcec44772776dddc498255f1cdf0303dab53050a456a2b062552877670d4",
+  "scripts/materials-qualification-runner.ts": "4f3212389c15bcfed2e3f8ef155b91782f09480b8d385b34e00095e16d0711fd",
+  "scripts/collect-materials-supplements.ts": "b4b77306bc94755250dfc3c6fc082c6faa8b609249a23cf1dfbf728214fa52a5",
   "scripts/materials-supplement-ledger.ts": "297661629ce0aa55a194fe65cbdaa13085e0ca4de6937cb05c39af33fa594f04",
 });
 const fail = message => { throw new Error(`current-reference-integrity: ${message}`); };
