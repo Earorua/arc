@@ -8,14 +8,14 @@
 | --- | --- | --- |
 | 网站功能、界面、修复和一般开发 | GitHub [`master`](https://github.com/Earorua/arc/tree/master) | 已合并英文界面、墨青配色、轻量加载、首页改进、Logo，以及主线已有的修复和双语说明 |
 | 查看当前已发布网站的原始源码 | [英文发布源码固定提交](https://github.com/Earorua/arc/tree/43179bcd3d5d62441d3bf1f439541fcb8ab46a5f) | 应用提交 `19a81a500b5f87085f3aaddb27fc0e9b050fc48c`；[发布记录](./docs/verification/2026-11-08-english-only-interface.md) |
-| 继续资料导入、JD / 简历分析和资料驱动规划 | [`codex/materials-replan-recovery-20261106`](https://github.com/Earorua/arc/tree/codex/materials-replan-recovery-20261106) | 2026-11-19：课程覆盖、完整 14 行为及主线整合已离线验收；准备新的真实质量验收，尚未发布 |
+| 继续资料导入、JD / 简历分析和资料驱动规划 | [`codex/materials-replan-recovery-20261106`](https://github.com/Earorua/arc/tree/codex/materials-replan-recovery-20261106) | 11 月 22 日 B2 已取得 30 份真实回执，提取和课程质量未通过，当前从离线回放继续 |
 | 修改或导出品牌素材 | 本应用源码中的 [`docs/brand/`](./docs/brand/) 和 [`public/brand/`](./public/brand/) | 原始设计与当前主题导出分别标明；不要回拷旧网站组件 |
 
-资料功能以[最新恢复记录](./docs/verification/2026-11-06-materials-grounding-pause.md)为入口。11 月 19 日已完成课程覆盖源码 `47b0e0a`、原生验收证据 `ef1b26b`，以及主线 `60e7cb6` 的本地整合。[本批验收](./docs/verification/2026-11-19-materials-course-native-integration.md)记录 386 文件／10,031 项 Vitest、291 项 Node、5 项页面和类型／Lint／构建通过。下一步是新的真实质量验收准备；不能据此直接发布。GitHub 是否同步须核对实际远端，不能把本地提交视为已推送。
+资料功能以[最新恢复记录](./docs/verification/2026-11-06-materials-grounding-pause.md)为入口。11 月 19 日已完成课程覆盖源码 `47b0e0a`、原生验收证据 `ef1b26b`，以及主线 `60e7cb6` 的本地整合。[本批验收](./docs/verification/2026-11-19-materials-course-native-integration.md)记录 386 文件／10,031 项 Vitest、291 项 Node、5 项页面和类型／Lint／构建通过。11 月 22 日真实模型采集和对账已完成，后续工作依据[实际质量报告](./docs/verification/materials-quality-next/modal-b2-result.md)。GitHub 同步状态以实际远端为准。
 
 此前 `714ea9e` 的[暂停说明](https://github.com/Earorua/arc/blob/714ea9e54d87b91a1fee4883176d4f1dd06ecf63/docs/verification/2026-11-08-materials-practice-priorities-pause.md)是历史失败记录，保留用于追溯，不再是最新未完成修复。复用已通过证据，仅为实际变更或缺口补必要检查；旧参考摘要不重写，主线英文界面及已发布改进必须保留。真实模型、远程迁移和部署仍按 Gate 独立授权。
 
-11 月 19 日后续已验收[采集衔接工具](./docs/verification/materials-quality-next/capture-result.md)和[当前评分适配](./docs/verification/materials-quality-next/adapter-result.md)。原有构造输入对照暴露的 69 项课程关系差异已完成[有限修复及独立复审](./docs/verification/materials-course-relations-20261119/README.md)，软件组件诊断为 146/146；并非真实 Kimi 质量成绩。[两条新增本地原生链路及旧 14 场景复用范围](./docs/verification/materials-course-relations-20261119/native-result.md)也已通过独立规格／质量审阅。当前正将评分器接到新回执，并准备普通 PowerShell 操作包；最终应用验收尚待本批源码冻结。原始失败、独立参考和已验收原生记录保留，勿复用历史授权启动模型或发布；以[最新恢复记录](./docs/verification/2026-11-06-materials-grounding-pause.md)核对未提交进度。
+11 月 19 日后续已验收[采集衔接工具](./docs/verification/materials-quality-next/capture-result.md)和[当前评分适配](./docs/verification/materials-quality-next/adapter-result.md)。原有构造输入对照暴露的 69 项课程关系差异已完成[有限修复及独立复审](./docs/verification/materials-course-relations-20261119/README.md)，软件组件诊断为 146/146。[两条新增本地原生链路及旧 14 场景复用范围](./docs/verification/materials-course-relations-20261119/native-result.md)也已通过独立规格／质量审阅。本轮 B2 已使用全部 30 个付费名额，原始失败、独立参考和已验收原生记录保留。
 
 ## 开始任务前
 
