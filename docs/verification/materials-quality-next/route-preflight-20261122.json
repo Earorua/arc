@@ -1,0 +1,91 @@
+{
+  "checkedOn": "2026-11-22",
+  "timeZone": "Asia/Shanghai",
+  "status": "held-pinned-route-absent-from-zdr-directory",
+  "model": "moonshotai/kimi-k3.1-pro",
+  "canonicalModel": "moonshotai/kimi-k3.1-pro-20261023",
+  "provider": "Moonshot AI",
+  "requiredTag": "moonshotai/mxfp4",
+  "modelCatalog": {
+    "url": "https://openrouter.ai/api/v1/models",
+    "checkedAt": "2026-11-22T06:58:52.7550913Z",
+    "decodedResponseSha256": "7b7f878e0eae99076cb161e01f99d1529fd88260ac9ecf31630027ca944d4800",
+    "latestNonBatchMoonshotModel": "moonshotai/kimi-k3.1-pro"
+  },
+  "standardCatalog": {
+    "url": "https://openrouter.ai/api/v1/models/moonshotai/kimi-k3.1-pro/endpoints",
+    "checkedAt": "2026-11-22T06:59:27.0903171Z",
+    "responseSha256": "e50635e68e948fc5a1e6145c9a2ba01628bd5b666722a452ef7b658a46f03ddd",
+    "modelEndpointCount": 28,
+    "exactMatches": 1,
+    "inputUsdPerMillion": 2,
+    "outputUsdPerMillion": 10,
+    "cachedInputUsdPerMillion": 0.2,
+    "implicitCaching": true
+  },
+  "zdrDirectory": {
+    "url": "https://openrouter.ai/api/v1/endpoints/zdr",
+    "firstReadAt": "2026-11-22T06:58:53.3565392Z",
+    "firstReadDecodedResponseSha256": "dd443656e52c962dce8722d40eda2070c9e968a78e7fc351e34b4b7d2ee94ed3",
+    "secondReadAt": "2026-11-22T06:59:28.6861392Z",
+    "secondReadResponseSha256": "b9c2c2510f8d5e66013b488c865d6e3f50fa2b6cd77419b14e083d99bf0e2323",
+    "topLevelFields": [
+      "data"
+    ],
+    "totalEndpoints": 936,
+    "sameModelEndpoints": 24,
+    "firstReadExactMatches": 0,
+    "secondReadExactMatches": 0,
+    "sameModelTagsWithSafetyRetentionFalse": [
+      "akashml/fp4",
+      "amazon-bedrock/us-east-1",
+      "amazon-bedrock/us-east-2",
+      "decart/mxfp4",
+      "deepinfra/bf16",
+      "digitalocean",
+      "fireworks",
+      "inference-net/fast",
+      "inference-net/mxfp4",
+      "inference-net/mxfp4/us",
+      "inference-net/us/fast",
+      "makora",
+      "modal/mxfp4",
+      "morph/fp8",
+      "nebius/fp4",
+      "parasail/fp4",
+      "primalabs/mxfp4",
+      "relace/fp4",
+      "river",
+      "sail-research/fp4",
+      "sail-research/fp4/us",
+      "together",
+      "wafer/mxfp4",
+      "wafer/us"
+    ],
+    "previousEvidence": "public-preflight/kimi-20261119-public-zdr.json",
+    "previousExactMatches": 1,
+    "previousSafetyRetention": false
+  },
+  "providerDirectory": {
+    "url": "https://openrouter.ai/providers",
+    "level": "provider",
+    "retentionLabel": "Retains prompts",
+    "trains": false
+  },
+  "frozenInputs": {
+    "candidateCommit": "ff1d60fe63694851f8b80936f8b6ef47e036dd4e",
+    "requestManifestSha256": "06238bde3fbc45aa33efb38da95234cfbb74d34d162bf1941d9ac0c56c964ac7",
+    "applicationFiles": 1038,
+    "attachments": 16,
+    "requestBodies": {
+      "resume-jd": 24,
+      "supplement": 6
+    },
+    "allowFallbacks": false,
+    "strictZdrRequired": true
+  },
+  "nextDecision": "Recheck the exact public tag for this model and safety_retention=false before requesting paid authorization. A different upstream requires a new route review.",
+  "modelRequests": 0,
+  "newCostUsd": "0",
+  "newAuthorizationsIssued": 0
+}
