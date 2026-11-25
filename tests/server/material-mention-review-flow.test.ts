@@ -85,9 +85,13 @@ it.each([
     await expect(f.client.request("createDocumentConfirmation", { ...ref, documentVersionId: doc.documentVersionId, items: forged,
       reviewRevision: draft.revision, expectedRevision: doc.revision, mutationId: "forged-confirmation" })).rejects.toBeDefined();
     const flow = await confirmAndSelect(f, doc, draft);
+    const reopen = { ...ref, includeConfirmation: "current" as const };
+    f.restart();
+    expect(await f.client.request("readDocumentReviewDraft", reopen)).toEqual({ draft, confirmation: flow.confirmation });
     // The next draft drops the fact. Planning still resolves the selected immutable confirmation.
     await f.client.request("saveDocumentReviewDraft", { ...save, items: [], expectedRevision: draft.revision, mutationId: "clear-next-draft" });
     f.restart();
+    expect((await f.client.request("readDocumentReviewDraft", reopen)).confirmation).toBeUndefined();
     const { preview } = await f.client.request("createMaterialContext", { ...flow.request,
       termMappings: [{ confirmationId: flow.confirmation.confirmationId, itemId: draft.items[0]!.id, skillLabel: "spreadsheets", skillIds: ["sql"] }] });
     expect(preview.mappingDetails?.[0]).toMatchObject({ termIndexes: [0], status: "mapped", skillIds: ["sql"], basis: "manual" });
@@ -138,6 +142,28 @@ it("keeps verbatim terms through review corrections, reload, confirmation and th
     const { preview } = await f.client.request("createMaterialContext", flow.request);
     expect(preview.confirmedItems[0]?.skillLabels).toEqual(["unit tests", "spreadsheet"]);
     expect(preview.mappingDetails?.filter(row => row.status === "mapped").flatMap(row => row.skillIds)).toEqual(["testing"]);
+    // Equal draft facts without the original V4 provenance belong to a different snapshot.
+    f.db.database.prepare("UPDATE document_confirmations SET items_json=? WHERE id=?")
+      .run(JSON.stringify(draft.items), flow.confirmation.confirmationId);
+    expect(await f.client.request("readDocumentReviewDraft", { ...ref, includeConfirmation: "current" })).toEqual({ draft });
+  } finally { f.dispose(); }
+});
+
+it("carries both confirmed bilingual terms into the same flagship course in the plan preview", async () => {
+  const f = createMaterialMentionReviewFixture(), text = "I wrote unit tests and 单元测试.";
+  try {
+    const doc = await f.client.request("createDocument", { kind: "resume", displayName: "Testing practice", text, mutationId: "bilingual-resume" });
+    const labels = ["unit tests", "单元测试"];
+    await f.deliver(doc, [{ id: "practice", kind: "experience", text, source: { segmentId: "segment-1", quote: text },
+      requirementLevel: null, skillLabels: labels, selfLevelHint: null }], verbatimPolicy);
+    const ref = { documentId: doc.documentId, textVersionId: doc.textVersionId };
+    const { draft } = await f.client.request("readDocumentReviewDraft", ref);
+    const flow = await confirmAndSelect(f, doc, draft!);
+    const { preview } = await f.client.request("createMaterialContext", flow.request);
+    expect(preview.confirmedItems[0]?.skillLabels).toEqual(labels);
+    expect(preview.mappingDetails).toMatchObject([{ termIndexes: [0, 1], status: "mapped", skillIds: ["testing"],
+      taskCoverage: { status: "partial", support: ["behavior-tests"] } }]);
+    expect(preview.priorities.map(row => row.skillId)).toEqual(["testing"]);
   } finally { f.dispose(); }
 });
 

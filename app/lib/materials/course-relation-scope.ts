@@ -3,7 +3,17 @@ import { normalizeMaterialSkillLabel } from "./skill-labels";
 
 const sentenceBreak = /[。！？!?;；]|\.(?:\s+|$)/u;
 const clauseBreak = /[,，]|(?=\b(?:but|whereas|while|although|however|rather than)\b)|\band\s+(?=(?:i|we|they|my|another|the)\b)|(?=但是|不过|然而|而|但|同时)/iu;
+// A new subject owns a separate task. Ordinary lists and comma qualifiers
+// remain together so the whole task body still determines full coverage.
+const namedActor = String.raw`(?:my|our|the|another|other)\s+(?:[\w-]+\s+){0,3}(?:team|group|colleagues?|manager|mentor|supervisor)`;
+const englishActor = String.raw`(?:i|we|she|he|they)\b|${namedActor}(?=\s+(?:is|are|was|were|has|have|had|will|can|must|[a-z][a-z-]*(?:ed|s))\b)`;
+const englishActorBreak = String.raw`(?:(?:[,，]\s*)?\b(?:and|but|whereas|while|although|though|however|yet)\s+|[,，]\s*)(?=${englishActor})`;
+const chineseActorBreak = /(?:[,，]\s*(?:但是|不过|然而|而|但|同时)?|但是|不过|然而|而|但|同时)(?=我|本人|同事|导师|团队|小组|他们|她们)/u;
+const actorBreak = new RegExp(`${englishActorBreak}|${chineseActorBreak.source}`, "giu");
 export const deniedCourseContext = /\b(?:not(?!\s+only\b)|no|never|neither|without|cannot|[a-z]{1,30}n['’]t|rather than|except|excluding)\b|不(?!仅|只)|没有|并非|而非|未(?:曾|能|做|用|使用|通过|涉及|包含|支持)|无[需须]/u;
+const contrastBreak = new RegExp(
+  String.raw`(?=\b(?:but|whereas|while|although|though|however|yet|rather than|except|excluding|without)\b)|(?=但是|不过|然而|而非|而|但|却|不含|除外)|`
+  + String.raw`(?:[,，]\s*|\band\s+)(?=(?:my|our|the|another|other)\b|${deniedCourseContext.source})`, "giu");
 const prohibitedAction = /\b(?:forbid(?:s|den|ding)?|forbade|prohibit(?:s|ed|ing)?|ban(?:s|ned|ning)?|disallow(?:s|ed|ing)?)\s+(?:(?:to|from)\s+)?(?:test(?:ing)?|inspect(?:ing)?)\b/u;
 const sqlContext = /\b(?:sql|sqlite|postgresql|mysql|join|cte)\b|关系数据库/u;
 const softwareContext = /\b(?:software|code|api|http|typescript|javascript|python|dbt|vitest|jest|playwright)\b|软件|代码|接口|数据管道/u;
@@ -22,13 +32,35 @@ export function isContextualTestingObject(term: string) {
 }
 
 /** Scope here concerns what is discussed, never who practiced it or adopted it. */
-export function courseRelationSentences(text: string, term: string): string[] {
-  return text.split(sentenceBreak).filter(part => findMaterialSkillMention(part, term) !== null);
+export function courseRelationSentences(text: string, term: string, verbatim = false): string[] {
+  return text.split(sentenceBreak).filter(part => findMaterialSkillMention(part, term, verbatim) !== null);
 }
 
-function ownContexts(text: string, term: string) {
-  return courseRelationSentences(text, term).flatMap(sentence => sentence.split(clauseBreak))
-    .filter(part => findMaterialSkillMention(part, term) !== null);
+// Split only between independently located spellings of a reviewed concept.
+// Keep intervening modifiers attached to their source task.
+function distinctFormScopes(text: string, term: string, boundary: RegExp): string[] {
+  const breaks = [...text.matchAll(boundary)];
+  if (!breaks.length || findMaterialSkillMention(text, term) !== null) return [text];
+  const owned: string[] = [];
+  let start = 0, previousOwn: boolean | undefined;
+  for (let index = 0; index <= breaks.length; index++) {
+    const separator = breaks[index - 1];
+    const partStart = separator ? separator.index + separator[0].length : 0;
+    const part = text.slice(partStart, breaks[index]?.index);
+    const own = findMaterialSkillMention(part, term, true) !== null;
+    if (!own && findMaterialSkillMention(part, term) === null) continue;
+    if (previousOwn !== undefined && own !== previousOwn) {
+      if (previousOwn) owned.push(text.slice(start, separator!.index));
+      start = partStart;
+    }
+    previousOwn = own;
+  }
+  if (previousOwn) owned.push(text.slice(start));
+  return owned.length ? owned : [text];
+}
+
+function actorScopes(sentences: string[], term: string, verbatim: boolean) {
+  return verbatim ? sentences.flatMap(sentence => distinctFormScopes(sentence, term, actorBreak)) : sentences;
 }
 
 // A coordinated rule-writing step names its source operation again. Require
@@ -46,10 +78,14 @@ function hasLinkedRuleTest(sentence: string) {
 }
 
 /** Additional bounded concepts, separate from literal course names and aliases. */
-export function courseRelationTopics(term: string, text: string): string[] {
+export function courseRelationTopics(term: string, text: string, verbatim = false): string[] {
   const token = normalizeMaterialSkillLabel(term), topics = new Set<string>();
-  const contexts = ownContexts(text, term);
-  if (!contexts.length && !courseRelationSentences(text, term).length) return [];
+  const sentences = courseRelationSentences(text, term, verbatim);
+  if (!sentences.length) return [];
+  const statements = actorScopes(sentences, term, verbatim);
+  const retainedScopes = verbatim ? statements.flatMap(scope => distinctFormScopes(scope, term, contrastBreak)) : statements;
+  const contexts = retainedScopes.flatMap(scope => scope.split(clauseBreak))
+    .filter(part => findMaterialSkillMention(part, term, verbatim) !== null);
   // These technical names supply their own domain, including in a denied
   // experience statement. Generic words below still require affirmative context.
   if (/\bsql\b/u.test(token) || token === "cte" || term === "JOIN"
@@ -83,17 +119,17 @@ export function courseRelationTopics(term: string, text: string): string[] {
     if (/^(?:(?:(?:review|reviewing|write|create|author) (?:a |the )?)?(?:release|migration) checklist|end-to-end deployment exercise|记录回滚步骤|rollback documentation)$/u.test(token)) topics.add("cloud-delivery");
     if (/^(?:(?:define|design) )?product metrics$/u.test(token)) topics.add("product-thinking");
   }
-  if (token === "测试" && courseRelationSentences(text, term).some(hasLinkedRuleTest)) topics.add("testing");
+  if (token === "测试" && sentences.some(hasLinkedRuleTest)) topics.add("testing");
   // A testing clause explicitly attached to a React artifact and assisted by a
   // partner refers to that artifact. This is not another actor's unrelated work.
-  if (/^交互测试$/u.test(token) && courseRelationSentences(text, term).some(sentence =>
+  if (/^交互测试$/u.test(token) && sentences.some(sentence =>
     /\breact\b[^,，]*(?:prototype|原型)[,，]\s*交互测试由[^。;；]*(?:协助|帮助)/iu.test(sentence))) {
     topics.add("react"); topics.add("testing");
   }
   // A supplied SQL artifact can be the direct antecedent of replacing its date
   // parameter. This closed attachment does not join arbitrary comma clauses,
   // another actor's task, or a denied artifact. It grants no query-writing task.
-  if (/^替换了?日期参数$/u.test(token) && courseRelationSentences(text, term).some(sentence =>
+  if (/^替换了?日期参数$/u.test(token) && sentences.some(sentence =>
     /^(?:(?:项目说明|项目描述|说明)\s*[:：]\s*)?(?:所有\s*)?sql\s*由(?:导师|同事|团队)提供\s*[,，]\s*(?:我|本人)(?:只|仅)?替换了?日期参数\s*$/u
       .test(normalizeMaterialSkillLabel(sentence).trim()))) topics.add("sql");
   return [...topics];
@@ -113,24 +149,30 @@ export function courseTaskBody(value: string): string {
     .replace(/[,，]?\s*(?:following review notes|按(?:导师示例|示例|评审反馈))$/u, "").trim();
 }
 
-/** The scope owned by one retained term; soft line wraps are not boundaries. */
-export function courseTaskScopes(text: string, term: string, wholeFact: boolean): string[] {
-  if (wholeFact) return [courseTaskBody(text)];
+/** Keep the source spelling in each owned task scope until course rules consume it. */
+export function courseTaskScopes(text: string, term: string, wholeFact: boolean, verbatim = false) {
+  if (wholeFact) return [{ text, qualified: false }];
   // The literal course ID "testing" also names a source's test/tests activity;
   // this small inflection does not locate arbitrary manually chosen terms.
-  const sourceTerm = term === "testing" && findMaterialSkillMention(text, term) === null
+  const sourceTerm = !verbatim && term === "testing" && findMaterialSkillMention(text, term) === null
     ? text.match(/\btests?\b/iu)?.[0] ?? term : term;
   const broadName = /^(?:sql|typescript|react)$/u.test(normalizeMaterialSkillLabel(term));
-  return courseRelationSentences(text, sourceTerm).flatMap(sentence => {
+  const sentences = courseRelationSentences(text, sourceTerm, verbatim);
+  const scopes = actorScopes(sentences, sourceTerm, verbatim).flatMap(statement => {
+    // Isolating an occurrence across a qualifier cannot make its task fully covered.
+    const parts = verbatim ? distinctFormScopes(statement, sourceTerm, contrastBreak) : [statement];
+    return parts.map(text => ({ text, qualified: text !== statement }));
+  });
+  return scopes.flatMap(({ text: sentence, qualified }) => {
     // Guidance, negation and contrast alone are not separate tasks. Keep their
     // unknown qualifiers attached; split only explicit actors/actions or a
     // recognized guide followed by an existing task action.
     const clauses = sentence.split(/[,，]\s*(?=(?:按(?:导师示例|示例|评审反馈)(?=修复|检查|设计|实现|编写|构建|维护|测试|拆分|定义|交付|建立|审查)|交付|我|i\b|we\b|my\b))|(?=\b(?:but|whereas|while)\s+(?:i|we|my|another|design|write|build|implement|investigate|take)\b)|\band\s+(?=(?:i|we|my|another)\b)/iu);
-    return clauses.filter(clause => findMaterialSkillMention(clause, sourceTerm) !== null).flatMap(clause => {
+    return clauses.filter(clause => findMaterialSkillMention(clause, sourceTerm, verbatim) !== null).flatMap(clause => {
       // A specific retained task can distinguish a coordinated second action;
       // a broad course name still owns both tasks and keeps the unknown remainder.
       const pieces = broadName ? [clause] : clause.split(/\s+and\s+(?=(?:design|write|build|implement|investigate|take)\b)|并(?=检查|设计|实现|编写)/iu);
-      return pieces.filter(piece => findMaterialSkillMention(piece, sourceTerm) !== null).map(courseTaskBody);
+      return pieces.filter(piece => findMaterialSkillMention(piece, sourceTerm, verbatim) !== null).map(text => ({ text, qualified }));
     });
   });
 }

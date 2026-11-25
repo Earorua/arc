@@ -5,7 +5,7 @@ import { normalizeMaterialSkillLabel } from "./skill-labels";
 import { createCourseTaskTopicMatcher, isCurrentFlagshipCourseCatalog } from "./course-task-coverage";
 import { deniedCourseContext } from "./course-relation-scope";
 
-type ContextualSkillMatcher = (term: string, text: string) => string[];
+type ContextualSkillMatcher = (term: string, text: string, verbatim?: boolean) => string[];
 
 // These are course relationships for this published catalog, not extraction aliases.
 // Every rule needs a retained term and evidence in its own sentence or clause.
@@ -46,13 +46,13 @@ export function createContextualSkillMatcher(blueprint: RoleBlueprint, registry:
   if (!isCurrentFlagshipCourseCatalog(blueprint, registry)) return () => [];
 
   const matchTaskTopic = createCourseTaskTopicMatcher(blueprint, registry);
-  return (term, text) => {
+  return (term, text, verbatim = false) => {
     const token = normalizeMaterialSkillLabel(term);
     // Never borrow a qualifier from another clause or add a term found only in the text.
-    const contexts = text.split(contextScopeBreak).map(normalizeMaterialSkillLabel)
-      .filter(context => !deniedCourseContext.test(context) && findMaterialSkillEvidence(context, term) !== null);
-    const matches = new Set<string>(matchTaskTopic(term, text));
-    for (const context of contexts) {
+    const matches = new Set<string>(matchTaskTopic(term, text, verbatim));
+    for (const rawContext of text.split(contextScopeBreak)) {
+      const context = normalizeMaterialSkillLabel(rawContext);
+      if (deniedCourseContext.test(context) || findMaterialSkillEvidence(verbatim ? rawContext : context, term, verbatim) === null) continue;
       if (uiTerm.test(token) && hasGroundedContext(context, uiContext) && hasGroundedContext(context, uiBehavior)
         && !unrelatedTokens.test(context)) matches.add("design-systems");
       if (modelingTerm.test(token) && !unrelatedModeling.test(context)

@@ -1,7 +1,7 @@
-import { DOCUMENT_SCHEMA_VERSION, sourceLinkedReviewProjections, isSourceLinkedMaterialReviewProjection, documentReviewDraftSchema, validateMaterialSourceRef, type ConfirmedMaterialItem, type DocumentReviewDraft, type MaterialReferenceContext, type MaterialReviewPoint } from "../../contracts/documents";
+import { DOCUMENT_SCHEMA_VERSION, VERBATIM_MATERIAL_REVIEW_PROJECTION, sourceLinkedReviewProjections, isSourceLinkedMaterialReviewProjection, documentReviewDraftSchema, validateMaterialSourceRef, type ConfirmedMaterialItem, type DocumentReviewDraft, type MaterialReferenceContext, type MaterialReviewPoint } from "../../contracts/documents";
 import { documentEndpointContracts, type DocumentEndpointRequest as Request, type DocumentEndpointResponse as Response, type DocumentMutationIdentity } from "../../contracts/documents-api";
 import { canonicalJson } from "../../lib/planning/fingerprint";
-import { labelForAddedSourceTerm, supportsReviewedSkillLabel, retainedMaterialSelfAssessmentHints } from "../../lib/materials/skill-labels";
+import { confirmationItemsForReview, labelForAddedSourceTerm, supportsReviewedSkillLabel, retainedMaterialSelfAssessmentHints } from "../../lib/materials/skill-labels";
 import { D1DocumentRepository, DocumentServiceError, type MaterialRow } from "./d1-repository";
 import { DocumentStorage } from "./storage";
 import { serializeDocumentExtraction, validateDocumentExtraction, validateStoredDocumentExtraction } from "./extraction-validator";
@@ -186,7 +186,7 @@ export class ReviewService {
         // Only the current document and exact saved review can offer its existing confirmation.
         // Retained historical drafts remain readable when the document has a newer version.
         const row = await this.repo.one(`
-            SELECT r.*, ${reviewProjectionColumns}, c.id AS confirmation_id, d.revision AS document_revision
+            SELECT r.*, ${reviewProjectionColumns}, c.id AS confirmation_id, c.items_json AS confirmed_items_json, d.revision AS document_revision
             FROM document_review_drafts r
             ${extractionJoin}
             JOIN documents d ON d.owner_id=r.owner_id AND d.id=r.document_id AND d.lifecycle='active'
@@ -197,14 +197,21 @@ export class ReviewService {
                 AND d.current_document_version_id=c.document_version_id AND c.state='active'
                 AND c.revision=(SELECT max(last.revision) FROM document_confirmations last
                     WHERE last.owner_id=r.owner_id AND last.document_id=r.document_id AND last.document_version_id=r.document_version_id)
-                AND c.review_revision=r.revision AND c.origin=r.origin AND c.items_json=r.items_json
+                AND c.review_revision=r.revision AND c.origin=r.origin
                 AND c.review_points_json=r.review_points_json
             WHERE r.owner_id=? AND r.document_id=? AND r.text_version_id=? AND r.state='active'`,
             owner.ownerId, documentId, textVersionId);
         if (!row) return { draft: null };
-        return { draft: this.project(row), ...(row.confirmation_id ? { confirmation: {
+        const draft = this.project(row);
+        if (!row.confirmation_id) return { draft };
+        // V4 stamps source-linked terms when confirming. Historical confirmations
+        // store the saved draft bytes, including their original serialization.
+        const expectedItemsJson = draft.reviewProjection === VERBATIM_MATERIAL_REVIEW_PROJECTION
+            ? JSON.stringify(confirmationItemsForReview(draft)) : row.items_json;
+        if (row.confirmed_items_json !== expectedItemsJson) return { draft };
+        return { draft, confirmation: {
             confirmationId: String(row.confirmation_id), revision: Number(row.document_revision)
-        } } : {}) };
+        } };
     }
     async saveDocumentReviewDraft(owner: DocumentOwner, input: Request<"saveDocumentReviewDraft">, adoptionIdentity?: DocumentMutationIdentity): Promise<Response<"saveDocumentReviewDraft">> {
         const request = documentEndpointContracts.saveDocumentReviewDraft.request.parse(input), identity = adoptionIdentity ?? await this.repo.identity(owner.ownerId, "saveDocumentReviewDraft", request);

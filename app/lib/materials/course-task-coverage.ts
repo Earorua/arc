@@ -1,4 +1,4 @@
-import type { ConfirmedMaterialItem } from "../../contracts/documents";
+import { VERBATIM_MATERIAL_REVIEW_PROJECTION, type ConfirmedMaterialItem } from "../../contracts/documents";
 import type { RoleBlueprint } from "../../contracts/intelligence";
 import type { MaterialTaskCoverage } from "../../contracts/material-planning";
 import type { UnitRegistry } from "../../contracts/planning";
@@ -51,12 +51,14 @@ const taskTerms: Record<CourseTaskId, RegExp> = {
   "product-outcomes": /\bproduct metrics\b/u,
 };
 
-function recognizedTask(id: CourseTaskId, term: string, body: string): { full: boolean } | null {
+function recognizedTask(id: CourseTaskId, term: string, scope: string, verbatim: boolean): { full: boolean } | null {
+  const body = courseTaskBody(scope);
+  const topicText = verbatim ? scope : body;
   const token = normalizeMaterialSkillLabel(term);
   if (!taskTerms[id].test(token)) {
     // A retained direct object can omit its testing verb. It owns only the
     // behavior-test subset explicitly attached to that object.
-    return id === "behavior-tests" && courseRelationTopics(term, body).includes("testing") ? { full: false } : null;
+    return id === "behavior-tests" && courseRelationTopics(term, topicText, verbatim).includes("testing") ? { full: false } : null;
   }
   // A parser implementation is a different task from choosing diagnostic signals.
   if (id === "software-signals" && /\bparser\b/u.test(body)) return null;
@@ -64,7 +66,7 @@ function recognizedTask(id: CourseTaskId, term: string, body: string): { full: b
     const match = pattern?.exec(body);
     if (match) return { full: id !== "product-outcomes" && match.index === 0 && match[0].length === body.length };
   }
-  const topics = courseRelationTopics(term, body);
+  const topics = courseRelationTopics(term, topicText, verbatim);
   const partial: Partial<Record<CourseTaskId, boolean>> = {
     "sql-schema": /\bsql\b/u.test(body) && /\bmodel warehouse tables\b/u.test(body),
     "sql-joins": /\bjoin\b/u.test(body) && /重复行|duplicate rows/u.test(body)
@@ -127,15 +129,15 @@ function verifiedAnchors(blueprint: RoleBlueprint, registry: UnitRegistry): Set<
 
 export function createCourseTaskTopicMatcher(blueprint: RoleBlueprint, registry: UnitRegistry) {
   const verified = verifiedAnchors(blueprint, registry);
-  return (term: string, text: string): string[] => {
+  return (term: string, text: string, verbatim = false): string[] => {
     // Task discovery cannot recover a discarded word or borrow another clause.
-    const scope = text.split(/[。!?;；\n]|\.(?:\s+|$)/u).find(part => findMaterialSkillMention(part, term) !== null);
+    const scope = text.split(/[。!?;；\n]|\.(?:\s+|$)/u).find(part => findMaterialSkillMention(part, term, verbatim) !== null);
     if (!scope) return [];
     const token = taskBody(term).replace(/^(?:write|design|model|build|create|implement|audit|choose|select) (?:a |an )?/u, "");
     const contentSkills = new Set([...verified].map(id => COURSE_TASK_EVIDENCE[id].skillId));
     return [...new Set([...taskTopics.filter(([id, pattern]) => verified.has(id) && pattern.test(token))
       .map(([id]) => COURSE_TASK_EVIDENCE[id].skillId),
-    ...courseRelationTopics(term, text).filter(id => contentSkills.has(id as typeof COURSE_TASK_EVIDENCE[CourseTaskId]["skillId"]))])];
+    ...courseRelationTopics(term, text, verbatim).filter(id => contentSkills.has(id as typeof COURSE_TASK_EVIDENCE[CourseTaskId]["skillId"]))])];
   };
 }
 
@@ -144,15 +146,17 @@ export function createCourseTaskCoverageEvaluator(blueprint: RoleBlueprint, regi
   const verified = source === "flagship" ? verifiedAnchors(blueprint, registry) : new Set<CourseTaskId>();
   return (detail: MaterialTermMapping, item: ConfirmedMaterialItem): MaterialTaskCoverage => {
     if (detail.status === "omitted" || detail.status === "non-learning") return { status: "not-applicable", support: [], remaining: null };
-    const bodies = courseTaskScopes(item.text, detail.term, item.skillLabels === undefined);
+    const verbatim = item.skillLabelProjection === VERBATIM_MATERIAL_REVIEW_PROJECTION;
+    const scopes = courseTaskScopes(item.text, detail.term, item.skillLabels === undefined, verbatim);
     const candidates = COURSE_TASK_IDS.filter(id => detail.skillIds.includes(COURSE_TASK_EVIDENCE[id].skillId));
-    const support = candidates.filter(id => verified.has(id) && bodies.some(body => recognizedTask(id, detail.term, body)));
-    const changedEvidence = candidates.some(id => !verified.has(id) && bodies.some(body => recognizedTask(id, detail.term, body)));
+    const support = candidates.filter(id => verified.has(id) && scopes.some(scope => recognizedTask(id, detail.term, scope.text, verbatim)));
+    const changedEvidence = candidates.some(id => !verified.has(id) && scopes.some(scope => recognizedTask(id, detail.term, scope.text, verbatim)));
     if (!support.length) return { status: "none", support: [], remaining: changedEvidence ? "unverified-content"
-      : bodies.length === 1 && taskBody(detail.term) === bodies[0] && detail.status === "mapped" ? "unspecified-task" : "unassessed-scope" };
+      : scopes.length === 1 && !scopes[0]!.qualified && taskBody(detail.term) === taskBody(scopes[0]!.text) && detail.status === "mapped" ? "unspecified-task" : "unassessed-scope" };
     const additionalSentence = item.skillLabels?.length === 1 && item.text.split(/[。!?;；]|\.(?:\s+|$)/u)
-      .some(part => part.trim() && findMaterialSkillMention(part, detail.term) === null);
-    const full = !additionalSentence && bodies.length === 1 && support.some(id => recognizedTask(id, detail.term, bodies[0]!)?.full);
+      .some(part => part.trim() && findMaterialSkillMention(part, detail.term, verbatim) === null);
+    const full = !additionalSentence && scopes.length === 1 && !scopes[0]!.qualified
+      && support.some(id => recognizedTask(id, detail.term, scopes[0]!.text, verbatim)?.full);
     return { status: full ? "full" : "partial", support, remaining: full ? null : "unassessed-scope" };
   };
 }

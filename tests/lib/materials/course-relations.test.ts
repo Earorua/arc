@@ -1,11 +1,19 @@
 import { describe, expect, it } from "vitest";
-import type { ConfirmedMaterialItem } from "../../../app/contracts/documents";
+import { VERBATIM_MATERIAL_REVIEW_PROJECTION, type ConfirmedMaterialItem } from "../../../app/contracts/documents";
 import { flagshipBlueprint } from "../../../app/data/flagship-blueprint";
 import { flagshipUnitRegistry } from "../../../app/data/flagship-unit-registry";
 import { createCourseTaskCoverageEvaluator } from "../../../app/lib/materials/course-task-coverage";
+import { confirmationItemsForReview } from "../../../app/lib/materials/skill-labels";
 import { mapMaterialItemTerms, mapMaterialPracticeSkills } from "../../../app/lib/materials/skill-mapper";
 
 const evaluate = createCourseTaskCoverageEvaluator(flagshipBlueprint, flagshipUnitRegistry);
+function confirmedExperience(text: string, skillLabels: string[]) {
+  return confirmationItemsForReview({ reviewProjection: VERBATIM_MATERIAL_REVIEW_PROJECTION, items: [{
+    id: "fact", kind: "experience", origin: "extracted", text, skillLabels, requirementLevel: null,
+    sourceRef: { documentId: "doc", documentVersionId: "version", textVersionId: "text", start: 0, end: text.length },
+  }] })[0]!;
+}
+
 function relation(text: string, term: string, otherTerms: string[] = []) {
   const item: ConfirmedMaterialItem = { id: "fact", kind: "experience", origin: "user", sourceRef: null,
     requirementLevel: null, text, skillLabels: [term, ...otherTerms] };
@@ -14,6 +22,79 @@ function relation(text: string, term: string, otherTerms: string[] = []) {
 }
 
 describe("bounded current-course relations", () => {
+  it.each(["unit tests", "UNIT TESTS"])("maps each verbatim testing label and its task in the same sentence (%s)", english => {
+    const labels = [english, "单元测试"];
+    const item = confirmedExperience(`I wrote ${english} and 单元测试.`, labels);
+    const details = mapMaterialItemTerms([item], flagshipBlueprint, flagshipUnitRegistry);
+    expect.soft(details).toEqual(labels.map(term => ({ itemId: "fact", term, status: "mapped", skillIds: ["testing"], basis: "contextual" })));
+    expect.soft(details.map(detail => evaluate(detail, item))).toEqual(labels.map(() =>
+      ({ status: "partial", support: ["behavior-tests"], remaining: "unassessed-scope" })));
+    expect(mapMaterialPracticeSkills([item], flagshipBlueprint, flagshipUnitRegistry)).toEqual([{ itemId: "fact", skillId: "testing" }]);
+  });
+
+  it.each(["My colleague wrote", "I never wrote"])("keeps practice attached to the retained occurrence in '%s unit tests'", prefix => {
+    const item = confirmedExperience(`${prefix} unit tests, but I wrote 单元测试.`, ["unit tests", "单元测试"]);
+    for (const omit of item.skillLabels!) {
+      const options = { termMappings: { fact: [{ skillLabel: omit, skillIds: [] }] } };
+      const details = mapMaterialItemTerms([item], flagshipBlueprint, flagshipUnitRegistry, options);
+      for (const detail of details) {
+        const omitted = detail.term === omit;
+        expect.soft(detail, detail.term).toMatchObject({ status: omitted ? "omitted" : "mapped", skillIds: omitted ? [] : ["testing"] });
+        expect.soft(evaluate(detail, item), detail.term).toMatchObject({ status: omitted ? "not-applicable" : "partial",
+          support: omitted ? [] : ["behavior-tests"] });
+      }
+      expect.soft(mapMaterialPracticeSkills([item], flagshipBlueprint, flagshipUnitRegistry, options), omit)
+        .toEqual(omit === "单元测试" ? [] : [{ itemId: "fact", skillId: "testing" }]);
+    }
+  });
+
+  it.each([
+    ["I build React component tests while my colleague archives 组件测试.", "component tests", "组件测试", "full"],
+    ["I build React component tests and they archive 组件测试.", "component tests", "组件测试", "full"],
+    ["I build React component tests and the team archives 组件测试.", "component tests", "组件测试", "full"],
+    ["I build React component tests and the maintainer archives 组件测试.", "component tests", "组件测试", "partial"],
+    ["I build React component tests, subject to additional requirements, whereas they archive 组件测试.", "component tests", "组件测试", "partial"],
+    ["我维护 React 组件测试，但同事归档 component tests。", "组件测试", "component tests", "full"],
+  ] as const)("keeps a chosen task within its verbatim label's clause in %s", (text, ownTerm, otherTerm, coverage) => {
+    const item = confirmedExperience(text, [ownTerm, otherTerm]);
+    const [own, other] = mapMaterialItemTerms([item], flagshipBlueprint, flagshipUnitRegistry);
+    expect.soft(own).toMatchObject({ term: ownTerm, status: "mapped", skillIds: ["react", "testing"] });
+    expect.soft(evaluate(own!, item)).toMatchObject({ status: coverage, support: ["react-form", "behavior-tests"] });
+    expect.soft(other).toMatchObject({ term: otherTerm, status: "uncovered", skillIds: [] });
+    const chosen = mapMaterialItemTerms([item], flagshipBlueprint, flagshipUnitRegistry,
+      { termMappings: { fact: [{ skillLabel: otherTerm, skillIds: ["testing"] }] } })[1]!;
+    expect.soft(chosen).toMatchObject({ term: otherTerm, status: "mapped", skillIds: ["testing"], basis: "manual" });
+    expect(evaluate(chosen, item)).toMatchObject({ status: "none", support: [] });
+  });
+
+  it.each([" but never archive", " but not", ", not", " rather than", " excluding"])("keeps testing evidence out of a '%s' clause", contrast => {
+    const item = confirmedExperience(`I build React component tests${contrast} 组件测试.`, ["组件测试"]);
+    const [chosen] = mapMaterialItemTerms([item], flagshipBlueprint, flagshipUnitRegistry,
+      { termMappings: { fact: [{ skillLabel: "组件测试", skillIds: ["testing"] }] } });
+    expect(evaluate(chosen!, item)).toMatchObject({ status: "none", support: [] });
+    const affirmative = { ...item, skillLabels: ["component tests"] };
+    const [mapped] = mapMaterialItemTerms([affirmative], flagshipBlueprint, flagshipUnitRegistry);
+    expect(evaluate(mapped!, affirmative)).toMatchObject({ status: "partial", support: ["react-form", "behavior-tests"] });
+  });
+
+  it.each([
+    ["the team's dashboard", ["component tests"]], ["the team dashboard", ["component tests"]],
+    ["the team's 组件测试 dashboard", ["component tests", "组件测试"]], ["the team 组件测试 dashboard", ["component tests", "组件测试"]],
+  ] as const)("retains the extra object '%s' when assessing a verbatim task", (object, labels) => {
+    const item = confirmedExperience(`I build React component tests and ${object}.`, [...labels]);
+    const [detail] = mapMaterialItemTerms([item], flagshipBlueprint, flagshipUnitRegistry);
+    expect(evaluate(detail!, item)).toMatchObject({ status: "partial", support: ["react-form", "behavior-tests"] });
+  });
+
+  it("keeps canonical confirmations bound to one unambiguous source form", () => {
+    const legacy = relation("I wrote 单元测试.", "unit testing");
+    expect.soft(legacy.detail).toMatchObject({ status: "mapped", skillIds: ["testing"] });
+    expect.soft(legacy.coverage).toMatchObject({ status: "partial", support: ["behavior-tests"] });
+    const mixed = relation("I wrote unit tests and 单元测试.", "unit testing");
+    expect.soft(mixed.detail).toMatchObject({ status: "uncovered", skillIds: [] });
+    expect(mixed.coverage).toMatchObject({ status: "none", support: [] });
+  });
+
   it("separates technical topics from unprovided query tasks", () => {
     for (const [text, term] of [
       ["按示例编写 SQL 汇总查询。", "汇总查询"], ["Use SQL CTE for a report.", "CTE"],

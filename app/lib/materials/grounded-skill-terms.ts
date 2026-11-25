@@ -225,9 +225,9 @@ function groundSkillMatches(quote: string, terms: readonly string[], mode: Match
   return [...labels];
 }
 
-/** Recover affirmative verbatim support for a retained literal or reviewed equivalent. */
-export function findMaterialSkillEvidence(text: string, label: string): string | null {
-  return findSkillMatch(text, label, "affirmative");
+/** Recover affirmative support using the confirmed label's matching rules. */
+export function findMaterialSkillEvidence(text: string, label: string, verbatim = false): string | null {
+  return verbatim ? findVerbatimMaterialSkillEvidence(text, label) : findSkillMatch(text, label, "affirmative");
 }
 
 /** Bind nominated source phrases with affirmative support before normalizing labels. */
@@ -236,8 +236,8 @@ export function groundMaterialSkillTerms(quote: string, terms: readonly string[]
 }
 
 /** Recover a verbatim topic mention, including one inside an attached denial. */
-export function findMaterialSkillMention(text: string, label: string): string | null {
-  return findSkillMatch(text, label, "mention");
+export function findMaterialSkillMention(text: string, label: string, verbatim = false): string | null {
+  return verbatim ? findVerbatimMaterialSkillMention(text, label) : findSkillMatch(text, label, "mention");
 }
 
 /** Both representations must first match the nominated source wording unambiguously. */

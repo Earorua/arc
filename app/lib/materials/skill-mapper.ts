@@ -8,8 +8,8 @@ import { isCurrentFlagshipCourseCatalog } from "./course-task-coverage";
 import { supportsMaterialExperience } from "./experience-evidence";
 import { containsMaterialSkillLabel, normalizeMaterialSkillLabel } from "./skill-labels";
 import { findMaterialSkillMention, findVerbatimMaterialSkillMention, groundMaterialSkillMentions } from "./grounded-skill-terms";
-export const MATERIAL_MAPPING_VERSION = "2026.11.8" as const;
-const aliasVersions = ["2026.11.2", "2026.11.3", "2026.11.4", "2026.11.5", "2026.11.6", "2026.11.7", MATERIAL_MAPPING_VERSION] as const;
+export const MATERIAL_MAPPING_VERSION = "2026.11.9" as const;
+const aliasVersions = ["2026.11.2", "2026.11.3", "2026.11.4", "2026.11.5", "2026.11.6", "2026.11.7", "2026.11.8", MATERIAL_MAPPING_VERSION] as const;
 export type MaterialSkillMapping = {
     itemId: string;
     status: "mapped" | "ambiguous" | "uncovered" | "non-learning";
@@ -149,7 +149,7 @@ function resolveMaterialTerms(items: readonly ConfirmedMaterialItem[], blueprint
                 }
             }
             if (!selected && !matches.length && valid && item.skillLabels) {
-                const contextualIds = matchContextual(term, item.text);
+                const contextualIds = matchContextual(term, item.text, verbatim);
                 matches = vocabulary.filter(skill => contextualIds.includes(skill.id));
                 for (const skill of matches) practiceEvidence.set(skill.id, [termTarget]);
                 // A language/framework plus its testing task is an explicit
@@ -164,7 +164,7 @@ function resolveMaterialTerms(items: readonly ConfirmedMaterialItem[], blueprint
             if (!manual && practiceEvidence.has("testing") && isContextualTestingObject(term)
               && (basis === "contextual" || termMapping && isCurrentFlagshipCourseCatalog(blueprint, registry))) {
                 practiceEvidence.set("testing", [{ ...termTarget,
-                    matchesScope: scope => matchContextual(term, scope).includes("testing") }]);
+                    matchesScope: scope => matchContextual(term, scope, verbatim).includes("testing") }]);
             }
             return { itemId: item.id, term, status, skillIds: valid ? matches.map(skill => skill.id) : [], basis,
                 labels: matches.length && (valid || !item.skillLabels) ? matches.map(skill => skill.name) : [term.slice(0, 100)], practiceEvidence };
